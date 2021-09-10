@@ -4,6 +4,8 @@ package synchronisationTesting
   * synchronisations with a stateless synchronisation object. */
 class BinaryStatelessTester[Op](
   // syncObj: C, specObj: S, 
+  worker: (Int, HistoryLog[Op]) => Unit,
+  p: Int,
   matching: PartialFunction[(Op,Op), (Any,Any)]){
 
   import HistoryLog.{Event,CallEvent,ReturnEvent}
@@ -46,6 +48,17 @@ class BinaryStatelessTester[Op](
     // for(i <- 0 until numInvs) println(s"$i:\t"+candidates(i).mkString("\t"))
     // for(i <- 0 until numInvs) println(s"$i:\t"+syncs(i))
     (isOp1, syncs)
+  }
+
+  def apply() = {
+    val log = new HistoryLog[Op](p)
+    ThreadUtil.runIndexedSystem(p, i => worker(i, log))
+    val events = log.get
+    // println(events.mkString("\n"))
+    val (isOp1, syncs) = findMatches(events)
+    val ff = new FordFulkerson(isOp1, syncs)
+    if(ff()) println("Succeeded") else println("Failed")
+    ()
   }
 
 }

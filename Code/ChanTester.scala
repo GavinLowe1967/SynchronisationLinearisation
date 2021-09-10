@@ -36,16 +36,13 @@ object ChanTester{
   }
 
   /** A worker. */
-  def worker(me: Int, c: C, log: HistoryLog[Op]) = {
+  def worker(c: C)(me: Int, log: HistoryLog[Op]) = {
     for(i <- 0 until iters)
-      if(me%2 == 0){
-        val x = Random.nextInt(MaxVal)
-        log(me, c!x, Send(x))
-      }
+      if(me%2 == 0){ val x = Random.nextInt(MaxVal); log(me, c!x, Send(x)) }
       else log(me, c?(), Receive(()))
   }
 
-  import HistoryLog.{Event,CallEvent,ReturnEvent}
+  // import HistoryLog.{Event,CallEvent,ReturnEvent}
 
   // /** Can the invocations corresponding to ce1 and ce2 synchronise? */
   // private def canSync(ce1: CallEvent[Op,_], ce2: CallEvent[Op,_]): Boolean = {
@@ -93,16 +90,18 @@ object ChanTester{
 
   /** Do a single test. */
   def doTest = {
-    val bst = new synchronisationTesting.BinaryStatelessTester[Op](matching)
-    val log = new HistoryLog[Op](p)
     val c = ManyMany[Int]
-    ThreadUtil.runIndexedSystem(p, i => worker(i, c, log))
-    val events = log.get
-    // println(events.mkString("\n"))
-    val (isOp1, syncs) = bst.findMatches(events)
-    val ff = new synchronisationTesting.FordFulkerson(isOp1, syncs)
-    if(ff()) println("Succeeded") else println("Failed")
-    ()
+    val bst = new synchronisationTesting.BinaryStatelessTester[Op](
+      worker(c), p, matching)
+    bst()
+    // val log = new HistoryLog[Op](p)
+    // ThreadUtil.runIndexedSystem(p, i => worker(c)(i, log))
+    // val events = log.get
+    // // println(events.mkString("\n"))
+    // val (isOp1, syncs) = bst.findMatches(events)
+    // val ff = new synchronisationTesting.FordFulkerson(isOp1, syncs)
+    // if(ff()) println("Succeeded") else println("Failed")
+    // ()
     // TODO: analyse the log
   }
 
