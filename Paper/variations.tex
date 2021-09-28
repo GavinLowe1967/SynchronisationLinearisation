@@ -1,0 +1,104 @@
+\section{Variations}
+\label{sec:variations}
+
+We've implicitly assumed that the operations |op|\s1 and |op|\s2 are
+distinct.  I don't think there's any need for this.  Example: exchanger.  
+
+Most definitions and results go through to the case of $k > 2$ invocations
+synchronising.  Examples: ABC problem; barrier synchronisation.  To capture
+the relationship with linearisation, we require $k-1$ operations to be
+linearised by two operations of the specification object.  Maybe give
+automaton for $k = 4$.  
+
+It turns out that for $k > 2$, the problem of deciding whether a history is
+synchronisation linearisable is NP-complete in general, even in the stateless
+case.  We prove this fact by reduction from the following problem, which is
+known to be NP-complete~\ref{???}.
+%
+\begin{definition}
+The problem of finding a complete matching in a 3-partite hypergraph is as
+follows: given finite sets $X$, $Y$ and~$Z$ of the same cardinality, and a set
+$T \subseteq X \times Y \times Z$, find $U \subseteq T$ such that each member
+of~$X$, $Y$ and~$Z$ is included in precisely one element of~$T$.
+\end{definition}
+
+Suppose we are given an instance $(X, Y, Z, T)$ of the above problem.  We
+construct a synchronisation specification and a corresponding history~$h$ such
+that $h$ is synchronisation linearisable if and only if a complete matching
+exists.  The synchronisations are between operations as follows:
+\begin{scala}
+  def op£\s1£(x: X): Unit
+  def op£\s2£(y: Y): Unit
+  def op£\s3£(z: Z): Unit
+\end{scala}
+%
+The synchronisations are specified by:
+%
+\begin{scala}
+  def sync(x: X, y: Y, z: Z): (Unit, Unit, Unit) = {
+    require(£$(\sm x, \sm y, \sm z) \in T$£); ((), (), ())
+  }
+\end{scala}
+%
+The history~$h$ starts with calls of |op|$_1(x)$ for each $x \in X$,
+|op|$_2(y)$ for each $y \in Y$, and |op|$_3(z)$ for each $z \in Z$ (in any
+order); and then continues with returns of the same invocations (in any
+order).  It is clear that any synchronisation linearisation corresponds to a
+complete matching, i.e.~the invocations that synchronise correspond to the
+complete matching~$U$.
+
+%% I suspect the complexity in the stateless case is NP-complete for $k > 2$.
+%% Finding a maximum matching in a 3-partite hypergraph is NP-complete; see
+%% \verb|https://en.wikipedia.org/wiki/3-dimensional_matching|.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Different modes of synchronisation}
+
+Some synchronisation objects allow different modes of synchronisation.  For
+example, consider a synchronous channel with timeouts: each invocation might
+synchronise with another invocation, or might timeout without
+synchronisation.  Such a channel might have a signature as follows.
+%
+\begin{scala}
+class TimeoutChannel{
+  def send(x: A): Boolean
+  def receive(u: Unit): Option[A]
+}
+\end{scala}
+%
+The |send| operation returns a boolean to indicate whether the send was
+successful, i.e.~whether it synchronised.  The |receive| operation can return
+a value |Some(x)| to indicate that it synchronised and received~|x|, or can
+return the value |None| to indicate that it failed to synchronise (the type
+|Some[A]| contains the union of such values).  The possible synchronisations
+can be captured by the following specification object.
+\begin{scala}
+object TimeoutSpec{
+  def sync£$_{s,r}$£(x: A, u: Unit): (Boolean, Option[A]) = (true, Some(x))
+  def sync£$_s$£(x: A): Boolean = false
+  def sync£$_r$£(u: Unit): Option[A] = None
+}
+\end{scala}
+%
+The operation $\sm{sync}_{s,r}$ corresponds to where a |send| and |receive|
+synchronise, as previously.  The operations $\sm{sync}_s$ and $\sm{sync}_r$
+correspond, respectively, to where a |send| or |receive| fails to
+synchronise.  
+
+More generally, the specification object can have any number of operations of
+the form
+%
+\begin{scala}
+  def sync£$_{j_1, \ldots, j_m}$£(x£\s1£: A£\s1£, £\ldots£, x£\s m£: A£\s m£): (B£\s1£, £\ldots£, B£\s m£)
+\end{scala}
+%
+This corresponds to the case of a synchronisation between the $m$~invocations
+$\sm{op}_{j_1}(\sm x_1), \ldots, \sm{op}_{j_m}(\sm x_m)$.  The formal
+definition is an obvious adaptation of the previous version: in the
+interleaved history, between the call and return of each $\sm{op}_j(\sm x):
+\sm y$, there must be a corresponding $\sm{sync}_{j_1, \ldots, j_m}(\sm x_1,
+\ldots \sm x_m): (\sm y_1, \ldots, \sm y_m)$ event, i.e.~for some~$i$,\, $j =
+j_i$,\, $\sm x = \sm x_i$, and $\sm y = \sm y_i$.
+
+*** Can we capture the bounded buffer example in this framework? 

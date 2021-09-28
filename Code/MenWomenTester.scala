@@ -1,10 +1,10 @@
-import io.threadcso._
+// import io.threadcso._
 import scala.util.Random
 
-import synchronisationTesting.{HistoryLog,ThreadUtil}
+import synchronisationTesting.{HistoryLog,BinaryStatelessTester}
 
 /** A testing file. */
-object ChanTester{
+object MenWomenTester{
   /** Number of worker threads to run. */
   var p = 4
 
@@ -19,25 +19,27 @@ object ChanTester{
 
   // Representation of operations within the log
   trait Op
-  case class Send(x: Int) extends Op
-  case object Receive extends Op
+  case class ManSync(id: Int) extends Op
+  case class WomanSync(id: Int) extends Op
 
   /** The specification class. */
   object Spec{
-    def sync(x: Int, u: Unit) = ((), x)
+    def sync(x: Int, y: Int) = (y, x)
   }
 
   /** Mapping showing how synchronisations of concrete operations correspond to
     * operations of the specification object. */
   def matching: PartialFunction[(Op,Op), (Any,Any)] = {
-    case (Send(x), Receive) => Spec.sync(x, ()) 
+    case (ManSync(x), WomanSync(y)) => Spec.sync(x, y) 
   }
 
   /** A worker. */
-  def worker(c: Chan[Int])(me: Int, log: HistoryLog[Op]) = {
-    for(i <- 0 until iters)
-      if(me%2 == 0){ val x = Random.nextInt(MaxVal); log(me, c!x, Send(x)) }
-      else log(me, c?(), Receive)
+  def worker(mw: MenWomenT)(me: Int, log: HistoryLog[Op]) = {
+    for(i <- 0 until iters){
+      val id = Random.nextInt(MaxVal)
+      if(me%2 == 0) log(me, mw.manSync(id), ManSync(id)) 
+      else log(me, mw.womanSync(id), WomanSync(id))
+    }
   }
 
   /** Should we use the faulty channel implementation? */
@@ -46,11 +48,8 @@ object ChanTester{
 
   /** Do a single test. */
   def doTest = {
-    val c: Chan[Int] = 
-      if(faulty) new FaultyChan[Int] 
-      else /* if(faulty2) new FaultyChan2[Int] else */ ManyMany[Int]
-    val bst = new synchronisationTesting.BinaryStatelessTester[Op](
-      worker(c), p, matching)
+    val mw: MenWomenT = if(faulty) new FaultyMenWomen else new MenWomen 
+    val bst = new BinaryStatelessTester[Op](worker(mw), p, matching)
     if(!bst()) sys.exit
   }
 

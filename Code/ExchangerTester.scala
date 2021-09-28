@@ -1,15 +1,10 @@
-import io.threadcso._
 import scala.util.Random
 
-import synchronisationTesting.{HistoryLog,ThreadUtil}
+import synchronisationTesting.{HistoryLog,HomogeneousBinaryStatelessTester}
 
-/** A testing file. */
-object ChanTester{
+object ExchangerTester{
   /** Number of worker threads to run. */
-  var p = 4
-
-  /** Number of iterations per worker thread. */
-  var iters = 20
+  var p = 16
 
   /** The maximum value sent.  A larger value will make it easier to test
     * whether a matching exists.  And the implementation is data independent,
@@ -17,41 +12,37 @@ object ChanTester{
     * value stresses the tester more. */
   var MaxVal = 100
 
-  // Representation of operations within the log
-  trait Op
-  case class Send(x: Int) extends Op
-  case object Receive extends Op
+  // Representation of operations within the log.
+  case class Exchange(x: Int)
 
-  /** The specification class. */
+  /** Specification object. */
   object Spec{
-    def sync(x: Int, u: Unit) = ((), x)
+    def sync(x: Int, y: Int) = (y, x)
   }
 
   /** Mapping showing how synchronisations of concrete operations correspond to
     * operations of the specification object. */
-  def matching: PartialFunction[(Op,Op), (Any,Any)] = {
-    case (Send(x), Receive) => Spec.sync(x, ()) 
+  def matching: PartialFunction[(Exchange,Exchange), (Any,Any)] = {
+    case (Exchange(x), Exchange(y)) => Spec.sync(x, y) 
   }
 
-  /** A worker. */
-  def worker(c: Chan[Int])(me: Int, log: HistoryLog[Op]) = {
-    for(i <- 0 until iters)
-      if(me%2 == 0){ val x = Random.nextInt(MaxVal); log(me, c!x, Send(x)) }
-      else log(me, c?(), Receive)
+  /** A worker.  Each worker performs a single invocation, to avoid
+    * deadlocks.  */
+  def worker(exchanger: ExchangerT[Int])(me: Int, log: HistoryLog[Exchange]) = {
+    val x = Random.nextInt(MaxVal)
+    log(me, exchanger.exchange(x), Exchange(x))
   }
 
   /** Should we use the faulty channel implementation? */
   private var faulty = false
-  // private var faulty2 = false
 
   /** Do a single test. */
   def doTest = {
-    val c: Chan[Int] = 
-      if(faulty) new FaultyChan[Int] 
-      else /* if(faulty2) new FaultyChan2[Int] else */ ManyMany[Int]
-    val bst = new synchronisationTesting.BinaryStatelessTester[Op](
-      worker(c), p, matching)
-    if(!bst()) sys.exit
+    val exchanger: ExchangerT[Int] = 
+      if(faulty) new FaultyExchanger[Int] else new Exchanger[Int]
+    val tester = new HomogeneousBinaryStatelessTester[Exchange](
+      worker(exchanger), p, matching)
+    if(!tester()) sys.exit
   }
 
   def main(args: Array[String]) = {
@@ -59,7 +50,7 @@ object ChanTester{
     var reps = 5000; var i = 0
     while(i < args.length) args(i) match{
       case "-p" => p = args(i+1).toInt; i += 2
-      case "--iters" => iters = args(i+1).toInt; i += 2
+      // case "--iters" => iters = args(i+1).toInt; i += 2
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--MaxVal" => MaxVal = args(i+1).toInt; i += 2
       case "--faulty" => faulty = true; i += 1
@@ -74,3 +65,6 @@ object ChanTester{
     println; println(s"$duration ms")
   }
 }
+
+
+// For the faulty version, use scala ExchangerTester --faulty -p 12 --MaxVal 2

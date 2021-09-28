@@ -62,13 +62,13 @@ class FordFulkerson(inX: Array[Boolean], edges: Array[List[Int]] ){
 
   /** Run the Ford-Fulkerson algorithm.
     * @return true if a complete matching is found. */
-  def apply(): Boolean = {
+  def apply(): (Boolean, Array[Int]) = {
     val between = Array.ofDim[Boolean](N,N); val toEnds = Array.ofDim[Boolean](N)
     var done = false; var flow = 0
     while(!done){
       var path = augment(between, toEnds)
       if(path != null){
-        println(s"Augmenting with $path")
+        // println(s"Augmenting with $path")
         // Augment the flow based on path
         val start = path.head; assert(inX(start) && !toEnds(start))
         toEnds(start) = true
@@ -83,12 +83,15 @@ class FordFulkerson(inX: Array[Boolean], edges: Array[List[Int]] ){
       }
       else done = true // failed to augment
     }
-    println(s"flow = $flow")
+    // println(s"flow = $flow")
+    // The node with which each node is matched. */
+    val matching = Array.fill(N)(-1)
     for(i <- X; j <- Y) if(between(i)(j)){ 
-      assert(toEnds(i) && toEnds(j)); print(s"${(i,j)} ")
+      assert(toEnds(i) && toEnds(j)) // ; print(s"${(i,j)} ")
+      matching(i) = j; matching(j) = i
     }
-    println
-    2*flow == N
+    // println
+    (2*flow == N, matching) // Has this covered all the X nodes? 
   }
 
 }
@@ -103,7 +106,8 @@ object FordFulkerson{
     val N = 10; assert(N%2 == 0)
     val inX = Array.tabulate(N)(i => 2*i < N)
     val edges = Array.tabulate(N)(i => List((i+N/2)%N))
-    new FordFulkerson(inX, edges)()
+    val (ok,matching) = new FordFulkerson(inX, edges)()
+    assert(ok)
 
     // Test graph: X = [0..N/2), Y = [N/2..N), edges (i,i+N/2), (i,i+1+N/2)
     // for i in [0..N/2-1) and (N/2-1,N/2).  For N = 10: (0,5), (0,6), (1,6),
@@ -115,9 +119,8 @@ object FordFulkerson{
       else if(i < N-1) List(i-N/2, i-N/2-1)
       else List(i-N/2-1)
     ))
-    if(new FordFulkerson(inX, edges2)()) println("Succeeded") 
-    else println("Failed")
-
+    val (ok2,matching2) = new FordFulkerson(inX, edges2)()
+    assert(ok2)
   }
 
 }

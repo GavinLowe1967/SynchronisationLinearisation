@@ -1,0 +1,109 @@
+\section{Testing algorithms}
+
+Overview of linearisability testing framework. 
+
+Note, assumes deterministic specification object. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Hacking the linearisablity framework}
+
+Can we encode synchronisation linearisability within the linearisability
+tester, using the correspondence of the previous section?  Jonathan to think
+about this.  Will need to perform two log additions for some concrete
+operations.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\subsection{Case with state}
+
+Suppose the specification object has non-trivial state. 
+
+I think it will be more efficient to give a more direct implementation.
+Define a configuration to be: (1)~a point in the log reached so far; (2)~the
+set of pending operation invocations that have not synchronised; (3)~the set
+of pending operation invocations that have synchronised (but not returned);
+and (4)~the state of the sequential synchronisation object.  In any
+configuration, can: synchronise a pair of pending operations (and update the
+synchronisation object); advance in the log if the next event is a return that
+is not pending; or advance in the log if the next event is a call.  Then
+perform DFS.
+
+Partial order reduction: a synchronisation point must follow either the
+call of one of the concurrent operations, or another synchronisation
+point.  Any synchronisation history can be transformed into this form, by
+moving synchronisation points earlier, but not before any of the corresponding
+call events, and preserving the order of synchronisations.  This means that
+after advancing past the call of an invocation, we may synchronise that
+invocation, and then an arbitrary sequence of other invocations. 
+
+Alternatively, a synchronisation point must precede either the return of one
+of the concurrent operations, or another synchronisation point.  This is more
+like the JIT technique in the linearisability testing paper.  This means that
+before advancing in the log to the return of an invocation that has not
+synchronised, we synchronise some invocations, ending with the one in
+question.  And we only synchronise in these circumstances. 
+
+My intuition is that the former is more efficient: in the latter, we might
+investigate synchronising other invocations even though the returning
+operation can't be synchronised with any invocation.  
+
+%%%%%
+
+\subsubsection*{Complexity}
+
+Consider the problem of testing whether a given concurrent history has
+synchronisations consistent with a given sequential specification object. 
+
+We make use of a result from~\cite{???} concerning the complexity of the
+corresponding problem for linearizability.  Let |Variable| be a
+linearizability specification object corresponding to a variable with |get|
+and |set| operations.  Then the problem of deciding whether a given concurrent
+history is linearisable with respect to |Varaiable| is NP-complete.
+
+Let |ConcVariable| be a concurrent object that represents a variable.  
+
+We consider concurrent synchronisation histories on an object with the
+following signature.   
+\begin{scala}
+object VariableSync{
+  def op£\s1£(op: String, x: Int): Int
+  def op£\s2£(u: Unit): Unit
+} 
+\end{scala}
+%
+The intention is that |op|\s1|("get", x)| acts like |get(x)|, and
+|op|\s1|("set", x)| acts like |set(x)| (but returns -1).  The |op|\s2
+invocations do nothing except synchronise.  This can be captured formally by
+the following synchronisation specification object.
+
+\begin{scala}
+object VariableSyncSpec{
+  private var state = 0
+  def sync((op, x): (String, Int), u: Unit): (Int, Unit) = 
+    if(op == "get") (state, ()) else{ state = x; (-1, ()) }
+}
+\end{scala}
+
+
+Let |ConcVariable| be a concurrent object that represents a variable.  Given a
+concurrent history~$h$ of |ConcVariable|, we build a concurrent history~$h'$
+of |VaraibleSync| as follows.  We replace every call or return of |get(x)| by
+(respectively) a call or return of |op|\s1|("get", x)|; and we do similarly
+with |set|s.  If there are $k$ calls of |get| or |set| in total, we prepend
+$k$ calls of |op|\s2, and append $k$ corresponding returns (in any order).
+Then it is clear that $h$ is linearisable with respect to |Variable| if and
+only if $h'$ is linearisable with respect to |VariableSyncSpec|.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Stateless case}
+
+In the stateless case, a completely different algorithm is possible.  Define
+two invocations to be compatible if they could be synchronised, i.e.~they
+overlap and the return values agree with those for the specification object.
+For $n$ invocations of each operation (so a history of length~$4n$), this can
+be calculated in $O(n^2)$.  Then find if there is a total matching in the
+corresponding bipartite graph, using the Ford-Fulkerson method, which is
+$O(n^2)$.

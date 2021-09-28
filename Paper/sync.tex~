@@ -1,0 +1,38 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usepackage{latexsym}
+\usepackage{tech,mathsx}
+\usepackage{scalalistings}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}[lemma]
+\newtheorem{prop}{Proposition}[lemma]
+
+\def\s#1{$_{#1}$}
+\def\call{\mathsf{call}}
+\def\return{\mathsf{return}}
+\def\::{\mathord{\hspace{0.1mm}:\hspace{0.1mm}}}
+
+\sloppy\raggedbottom
+
+\title{Understanding Synchronisation}
+\author{Jonathan Lawrence and Gavin Lowe}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\ldots
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{introduction}
+\input{specification} % formal definition of synchronisation linearisation
+\input{relating} % relating synchronisation linearisation and linearisation
+\input{testing} % testing algorithms
+\input{variations} % variations on binary synchronisations.
+
+
+\end{document}

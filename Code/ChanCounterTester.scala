@@ -3,8 +3,8 @@ import scala.util.Random
 
 import synchronisationTesting.{HistoryLog,ThreadUtil}
 
-/** A testing file. */
-object ChanTester{
+/** A testing file for a synchronous channel with a sequence counter. */
+object ChanCounterTester{
   /** Number of worker threads to run. */
   var p = 4
 
@@ -23,21 +23,27 @@ object ChanTester{
   case object Receive extends Op
 
   /** The specification class. */
-  object Spec{
-    def sync(x: Int, u: Unit) = ((), x)
+  class Spec(counter: Int = 0){
+    def sync(x: Int, u: Unit): (Spec, (Int, Int)) = { 
+      (new Spec(counter+1), (counter+1, x)) 
+    }
+
+    override def toString = s"Spec($counter)"
   }
 
   /** Mapping showing how synchronisations of concrete operations correspond to
     * operations of the specification object. */
-  def matching: PartialFunction[(Op,Op), (Any,Any)] = {
-    case (Send(x), Receive) => Spec.sync(x, ()) 
+  def matching(spec: Spec): PartialFunction[(Op,Op), (Spec,(Any,Any))] = {
+    case (Send(x), Receive) => spec.sync(x, ()) 
   }
 
   /** A worker. */
-  def worker(c: Chan[Int])(me: Int, log: HistoryLog[Op]) = {
+  def worker(c: ChanCounterT[Int])(me: Int, log: HistoryLog[Op]) = {
     for(i <- 0 until iters)
-      if(me%2 == 0){ val x = Random.nextInt(MaxVal); log(me, c!x, Send(x)) }
-      else log(me, c?(), Receive)
+      if(me%2 == 0){ 
+        val x = Random.nextInt(MaxVal); log(me, c.send(x), Send(x)) 
+      }
+      else log(me, c.receive(), Receive)
   }
 
   /** Should we use the faulty channel implementation? */
@@ -46,12 +52,13 @@ object ChanTester{
 
   /** Do a single test. */
   def doTest = {
-    val c: Chan[Int] = 
-      if(faulty) new FaultyChan[Int] 
-      else /* if(faulty2) new FaultyChan2[Int] else */ ManyMany[Int]
-    val bst = new synchronisationTesting.BinaryStatelessTester[Op](
-      worker(c), p, matching)
-    if(!bst()) sys.exit
+    val c: ChanCounterT[Int] = 
+      if(faulty) new FaultyChanCounter[Int] else  new ChanCounter[Int]
+    val spec = new Spec()
+    val bst = new synchronisationTesting.BinaryStatefulTester[Op,Spec](
+      worker(c), p, matching, spec)
+    // assert(bst())
+    if(!bst()) sys.exit 
   }
 
   def main(args: Array[String]) = {

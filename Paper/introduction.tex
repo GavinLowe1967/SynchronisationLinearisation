@@ -1,0 +1,70 @@
+
+\section{Introduction}
+
+A common step of many concurrent programs involves two or more threads
+\emph{synchronising}: each thread waits until other relevant threads have
+reached the synchronisation point before continuing; in addition, the threads
+can exchange data.  We study synchronisations in this paper.
+
+We start by giving some examples of synchronisations in order to illustrate
+the idea.  (We use Scala notation; we explain non-standard aspects of the
+language in footnotes.)  In each case, the synchronisation is mediated by a
+\emph{synchronisation object}.
+
+Perhaps the most common form of synchronisation object is a synchronous
+channel.  Such a channel might have signature\footnote{The type {\scalashape
+    Unit} is the type that contains a single value, the \emph{unit value},
+  denoted~{\scalashape ()}.}
+%
+\begin{scala}
+class SyncChan{
+  def send(x: A): Unit
+  def receive(): A
+}
+\end{scala}
+%
+Each invocation of one of the operations must synchronise with an invocation
+of the other operation: the two invocations must overlap in time.  If an
+invocation |send(x)| synchronises with an invocation of |receive|, then the
+|receive| returns~|x|.
+
+For some synchronisation objects, synchronisations might involve more than two
+threads.  For example, an object of the following class
+%
+\begin{scala}
+class Barrier(n: Int){
+  def sync(): Unit
+}
+\end{scala}
+%
+can be used to synchronise~|n| threads, known as a \emph{barrier
+  synchronisation}: each thread calls |sync|, and no invocation returns until
+all~|n| have called it.
+
+In addition, we allow the synchronisations to be mediated by an object that
+maintains some state between synchronisations.  As an example, consider a
+synchronous channel that, in addition, maintains a sequence counter, and such
+that both invocations receive the value of this counter.
+\begin{scala}
+class SyncChanCounter{
+  private var counter: Int
+  def send(x: A): Int
+  def receive(): (A, Int)
+}
+\end{scala}
+
+%% In general, a synchronisation will involve some number~$k$ of threads, calling
+%% operations of the form
+%% %
+%% \begin{scala}
+%%   def op£\s1£(x£\s1£: A£\s1£): B£\s1£
+%%   ...
+%%   def op£\s k£(x£\s k£: A£\s k£): B£\s k£
+%% \end{scala}
+%% %
+%% Each thread passes in some data, and receives back a result. 
+
+We consider what it means for one of these synchronisation objects to be
+correct.   In Section~\ref{sec:spec} \ldots
+
+\framebox{More here.}
