@@ -1,5 +1,5 @@
 \section{Testing algorithms}
-
+\label{sec:testing}
 
 \subsection{Linearisability testing}
 
@@ -17,11 +17,11 @@ synchonisation object, obtaining result~$y$, say; (3)~writes $\return.\sm{op}^i
 \:: y$ into the log.  
 
 Once all threads have finished, we can use an algorithm to test whether the
-history is linearisable with respect to the specification object (which is
-assumed to be deterministic).  Informally, the algorithm searches for an order
-to linearise the invocations, consistent with what is recorded in the log, and
-such that the order represents a legal history of the specification object.
-See~\cite{gavin:lin-testing} for details of the algorithms.
+history is linearisable with respect to the specification object.  Informally,
+the algorithm searches for an order to linearise the invocations, consistent
+with what is recorded in the log, and such that the order represents a legal
+history of the specification object.  See~\cite{gavin:lin-testing} for details
+of the algorithms.
 
 This process can be repeated many times, so as to generate and analyse many
 histories.  Our experience is that the technique works well.  It seems
@@ -56,19 +56,12 @@ might require performing the test more times).  This means that a failure to
 find any bugs, after a large number of tests, can give us good confidence in
 the correctness of the concurrent datatype.
 
-
-%% Overview of linearisability testing framework. 
-
 %% Note, assumes deterministic specification object. 
-
-%% Desirable outcome: no false errors; real errors detected with high probability
-%% (given enough tests).  Distinguish between the real history, in terms of calls
-%% and returns from operations, and the corresponding log, which might contain
-%% delays.  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Hacking the linearisablity framework}
+\label{ssec:testing-hacking}
 
 %% Can we encode synchronisation linearisability within the linearisability
 %% tester, using the correspondence of the previous section?  Jonathan to think
@@ -121,7 +114,9 @@ linearised first; but this would require $\overline{\sm{send}}^1$ to be
 linearised before $\sm{send}^3(6)$, which is inconsistent with the history.
 Hence the approach would generate a false error.
 
-Instead we use a technique that is robust against delays in logging.  We
+Instead we use a technique that is robust against delays in logging.  We start
+by considering the binary heterogeneous case, i.e.~each synchronisation is
+between precisely two threads, which have called different operations.  We
 assume that each thread has an identity in some range $\range 0
 {\sm{NumThreads}}$.  We arrange for this identity to be included in the
 $\call$ events written to the log for operations~|op|\s1 and
@@ -160,8 +155,6 @@ case class One(t: ThreadID, x£\s1£: A£\s1£) extends State
 \draw[->] (zero) .. controls ++(0.3,-2) .. 
   node[right] {$\sm{op}_1(\sm t, \sm{x}_1)$} (one); 
 %
-%% \draw (2, -2) node[draw] (two) {$\sm{Two}(\sm{y}_1)$};
-%% \draw[->] (one)  -- node[right] {$\sm{op}_2(\sm{x}_2)$} (two); 
 \draw[->] (one) .. controls ++(-0.3,2) .. 
   node[left] {$\sm{op}_2(\sm x_2)$} (zero);
 \end{tikzpicture}%
@@ -209,6 +202,7 @@ of events $\sm{sync}^{i_1,i_2}(x_1,x_2) \:: (y_1,y_2)$ is a legal history of
 |SyncSpec|.
 \end{lemma}
 
+%%%%%
 
 In order to argue for correctness, we need to distinguish between:
 %
@@ -247,6 +241,7 @@ to~|SyncSpec|.  Then each complete log history~$h_l$ of |SyncObj| is
 linearisable with respect to |TwoStepDelayedLinSpec|.
 \end{prop}
 
+%%%%%
 
 \begin{proof}
 Consider a complete log history~$h_l$ of~|SyncObj|, and a corresponding
@@ -267,23 +262,12 @@ and~$h_s$, as follows.
   the two (consecutive) events $\sm{op}_1^{i_1}(t,x_1) \:: ()$ and
   $\sm{op}_2^{i_2}(x_2) \:: y_2$, where $t$ is the identity of the thread that
   makes the corresponding call of |op|\s1 in~$h_l$.  
-  %% These are between the corresponding $\call$ and $\return$ events
-  %% from~$h_l$ for each of $\sm{op}_1^{i_1}$ and $\sm{op}_2^{i_2}$, by
-  %% construction.  Further, the relative order of all such events is the same
-  %% as the order of the corresponding |sync| events, as required by
-  %% |TwoStepDelayedLinSpec|; and the value of each~$y_2$ also agrees with
-  %% |TwoStepDelayedLinSpec|.  Finally, the appropriate value~$y_1$ is written
-  %% into $\sm{returns}(t)$.
 
 \item We insert an event $\overline{\sm{op}}_1^{i_1}(t) \:: y_1$ between every
   $\call^{log}.\overline{\sm{op}}_1^{i_1}(t)$ and
-  $\return^{log}.\overline{\sm{op}}_1^{i_1} \:: y_1$ (from~$h_l$), but not
-  between any pair of $\sm{op}_1$ and $\sm{op}_2$ events from the previous
-  stage.  \framebox{???}
-  %% Because of the way logging is done, the value of~$y_1$ must match the value
-  %% returned by the previous invocation of~|op|\s1 on the synchronisation object
-  %% by thread~$t$; and this value much match the last value written into
-  %% $\sm{returns}(t)$.  This again agrees with |TwoStepDelayedLinSpec|.
+  $\return^{log}.\overline{\sm{op}}_1^{i_1} \:: y_1$ (from~$h_l$).
+  %% , but not between any pair of $\sm{op}_1$ and $\sm{op}_2$ events from the
+  %% previous stage.  \framebox{???}
 \end{enumerate}
 %
 Note that each inserted event is between the corresponding $\call^{log}$ and
@@ -309,13 +293,9 @@ we show that $h_s'$ is a legal history of |Two|\-|Step|\-|Delayed|\-|LinSpec|.
   matches the last value written into $\sm{returns}(t)$ (by the previous
   item), as required by |Two|\-|Step|\-|Delayed|\-|LinSpec|.
 \end{itemize}
-
 %
-%% Thus the events inserted form a legal history $h_s'$ of
-%% |Two|\-|Step|\-|Delayed|\-|Lin|\-|Spec|, with each event between the
-%% corresponding $\call$ and $\return$ events from~$h_l$.  
-This demonstrates that
-$h_l$ is linearisable with respect to |Two|\-|Step|\-|Delayed|\-|LinSpec|.
+This demonstrates that $h_l$ is linearisable with respect to
+|Two|\-|Step|\-|Delayed|\-|LinSpec|.
 \end{proof}
 
 %%%%%%%%%%
@@ -324,12 +304,12 @@ In theory, the delays in logging can mean that an invocation history that is
 not synchronisation linearisable is transformed into a log history that is
 linearisable with respect to |Two|\-|Step|\-|Delayed|\-|LinSpec| (although
 this seems unlikely).  
-
+%
 We show that if the invocation history is not synchronisation linearisable
 with respect to |SyncSpec|,
 then there is a corresponding log history that is not linearisable with
 respect to |Two|\-|Step|\-|Delayed|\-|LinSpec|.
-
+%
 \begin{prop}
 \label{prop:TwoStepDelayedLinSpec-complete}
 Let $h$ be a history of~|SyncObj| that is not synchronisation linearisable
@@ -338,65 +318,6 @@ that is not linearisable with respect to |Two|\-|Step|\-|Delayed|\-|LinSpec|.
 \end{prop}
 
 %%%%%
-
-\begin{figure}
-\def\sep{1.5}
-\begin{center}
-\begin{tikzpicture}
-\draw(0,0) node (h) {$h$:}; 
-\draw(0,-\sep) node (h_l) {$h_l$:};
-\draw(0,-\sep-\sep) node (h-s) {$h_s$:};
-%% call.op_1
-\draw (h)++(2,-0.2) node (call-inv-1) {\footnotesize $\call^i.\op_1$};
-\draw[fill] (call-inv-1)++(0,0.4) circle (2pt); 
-\draw (h_l)++(1.7,-0.2)node (call-log-1) {\footnotesize $\call^l.\op_1$};
-\draw[fill] (call-log-1)++(0,0.4) circle (2pt); 
-%% call.op_2 
-\draw (call-inv-1)++(2,0) node (call-inv-2) {\footnotesize $\call^i.\op_2$};
-\draw[fill] (call-inv-2)++(0,0.4) circle (2pt); 
-\draw (call-log-1)++(2,0) node (call-log-2) {\footnotesize $\call^l.\op_2$};
-\draw[fill] (call-log-2)++(0,0.4) circle (2pt);
-%% return.op_1
-\draw (call-inv-2)++(3,0) node (ret-inv-1) {\footnotesize $\return^i.\op_1$};
-\draw[fill] (ret-inv-1)++(0,0.4) circle (2pt); 
-%
-\draw (call-log-2)++(3.6,0) node (ret-log-1) {\footnotesize $\return^l.\op_1$};
-\draw[fill] (ret-log-1)++(0,0.4) circle (2pt); 
-%
-\draw (ret-log-1)++(1,0.8) node (call-log-1-bar) 
-  {\footnotesize $\call^l.\overline\op_1$};
-\draw[fill] (call-log-1-bar)++(0,-0.4) circle (2pt); 
-%
-\draw (ret-log-1)++(2,0) node (ret-log-1-bar) 
-  {\footnotesize $\return^l.\overline\op_1$};
-\draw[fill] (ret-log-1-bar)++(0,0.4) circle (2pt); 
-%% return.op_2
-\draw (ret-inv-1)++(4,0) node (ret-inv-2) {\footnotesize $\return^i.\op_2$};
-\draw[fill] (ret-inv-2)++(0,0.4) circle (2pt); 
-%
-\draw (ret-inv-2)++(0.3,-\sep) node (ret-log-2)
-   {\footnotesize $\return^l.\op_2$};
-\draw[fill] (ret-log-2)++(0,0.4) circle (2pt); 
-%% op_1
-\draw (call-inv-1)++(1,-\sep-\sep) node (op-1) {\footnotesize $\op_1$};
-\draw[fill] (op-1)++(0,0.4) circle (2pt); 
-%% op_2
-\draw (call-inv-2)++(1,-\sep-\sep) node (op-2) {\footnotesize $\op_2$};
-\draw[fill] (op-2)++(0,0.4) circle (2pt); 
-%% \overline{op}_1
-\draw (call-log-1-bar)++(0.5,-\sep-0.8)  node (op-1-bar)
-  {\footnotesize $\overline\op_1$};
-\draw[fill] (op-1-bar)++(0,0.4) circle (2pt); 
-\end{tikzpicture}
-\end{center}
-\caption{Representation of the construction in the proof of
-  Proposition~\ref{prop:TwoStepDelayedLinSpec-complete}.  The interleaving of
-  the histories is to be read from left to right.  The $\call$s of $\op_1$
-  and~$\op_2$ might be in either order, as might their $\return$s.  The proof
-  shows that both $\call$s precede both $\return$s.  We abbreviate ``$log$''
-  and ``$inv$'' to~``$l$'' and~``$i$'', respectively.}
-\label{fig:TwoStepDelayedLinSpec-complete}
-\end{figure}
 
 \begin{proof}
 Let $h$ be as in the statement of the proposition.  We build a corresponding
@@ -419,11 +340,107 @@ illustrated in Figure~\ref{fig:TwoStepDelayedLinSpec-complete}.
 
 \item We add an event $\return^{log}.\op_2^{i_2} \:: y_2$ immediately after
   each  $\return^{inv}.\op_2^{i_2} \:: y_2$.
-
-%% \item We add events $\call^{log}.\overline{\op}_1^{i_1}(t)$, and
-%%   $\return^{log}.\overline{\op}_1^{i_1} \:: y_1$ immediately after the later
-%%   of 
 \end{itemize}
+%
+%%%%%
+%
+\begin{figure}
+\def\sep{1.5}
+\begin{center}
+%% \begin{tikzpicture}
+%% \draw(0,0) node (h) {$h$:}; 
+%% \draw(0,-\sep) node (h_l) {$h_l$:};
+%% \draw(0,-\sep-\sep) node (h-s) {$h_s$:};
+%% %% call.op_1
+%% \draw (h)++(2,-0.2) node (call-inv-1) {\footnotesize $\call^i.\op_1$};
+%% \draw[fill] (call-inv-1)++(0,0.4) circle (2pt); 
+%% \draw (h_l)++(1.7,-0.2)node (call-log-1) {\footnotesize $\call^l.\op_1$};
+%% \draw[fill] (call-log-1)++(0,0.4) circle (2pt); 
+%% %% call.op_2 
+%% \draw (call-inv-1)++(2,0) node (call-inv-2) {\footnotesize $\call^i.\op_2$};
+%% \draw[fill] (call-inv-2)++(0,0.4) circle (2pt); 
+%% \draw (call-log-1)++(2,0) node (call-log-2) {\footnotesize $\call^l.\op_2$};
+%% \draw[fill] (call-log-2)++(0,0.4) circle (2pt);
+%% %% return.op_1
+%% \draw (call-inv-2)++(3,0) node (ret-inv-1) {\footnotesize $\return^i.\op_1$};
+%% \draw[fill] (ret-inv-1)++(0,0.4) circle (2pt); 
+%% %
+%% \draw (call-log-2)++(3.6,0) node (ret-log-1) {\footnotesize $\return^l.\op_1$};
+%% \draw[fill] (ret-log-1)++(0,0.4) circle (2pt); 
+%% %
+%% \draw (ret-log-1)++(0.7,0.8) node (call-log-1-bar) 
+%%                                  {\footnotesize $\call^l.\overline\op_1$};
+%% \draw[fill] (call-log-1-bar)++(0,-0.4) circle (2pt); 
+%% %
+%% \draw (ret-log-1)++(1.8,0) node (ret-log-1-bar) 
+%%                                {\footnotesize $\return^l.\overline\op_1$};
+%% \draw[fill] (ret-log-1-bar)++(0,0.4) circle (2pt); 
+%% %% return.op_2
+%% \draw (ret-inv-1)++(4,0) node (ret-inv-2) {\footnotesize $\return^i.\op_2$};
+%% \draw[fill] (ret-inv-2)++(0,0.4) circle (2pt); 
+%% %
+%% \draw (ret-inv-2)++(0.3,-\sep) node (ret-log-2)
+%%    {\footnotesize $\return^l.\op_2$};
+%% \draw[fill] (ret-log-2)++(0,0.4) circle (2pt); 
+%% %% op_1
+%% \draw (call-inv-1)++(1,-\sep-\sep) node (op-1) {\footnotesize $\op_1$};
+%% \draw[fill] (op-1)++(0,0.4) circle (2pt); 
+%% %% op_2
+%% \draw (call-inv-2)++(1,-\sep-\sep) node (op-2) {\footnotesize $\op_2$};
+%% \draw[fill] (op-2)++(0,0.4) circle (2pt); 
+%% %% \overline{op}_1
+%% \draw (call-log-1-bar)++(0.5,-\sep-0.8)  node (op-1-bar)
+%%   {\footnotesize $\overline\op_1$};
+%% \draw[fill] (op-1-bar)++(0,0.4) circle (2pt); 
+%% \end{tikzpicture}
+%%%%%%
+\unScalaMid
+\begin{tikzpicture}
+\draw(0,0) node (h) {$h$:}; 
+\draw(0,-\sep) node (h_l) {$h_l$:};
+\draw(0,-\sep-\sep) node (h-s) {$h_s$:};
+% h
+\draw (h)++(2,0) node (call-inv-1){}; 
+\draw (call-inv-1)++(2,-0.2) node (call-inv-2){};
+\draw (call-inv-2)++(3,0.2) node (ret-inv-1){};
+\draw (ret-inv-1)++(2.5,-0.2) node (ret-inv-2){};
+\draw[|-|] (call-inv-1) -- node[above]{ $\op_1^{inv}$ } (ret-inv-1);
+\draw[|-|] (call-inv-2) -- node[below]{ $\op_2^{inv}$ } (ret-inv-2);
+% h_l
+\draw (h_l)++(1.7,-0) node (call-log-1) {};
+\draw (call-log-1)++(2,-0.2) node (call-log-2) {};
+\draw (call-log-2)++(3.6,0.2) node (ret-log-1) {};
+\draw (ret-log-1)++(0.2,0) node (call-log-1-bar) {};
+\draw (call-log-1-bar)++(1.0,0) node (ret-log-1-bar) {};
+\draw (call-log-2)++(6,0) node (ret-log-2) {};
+\draw[|-|] (call-log-1) -- node[above]{ $\op_1^{log}$ } (ret-log-1);
+\draw[|-|] (call-log-1-bar) -- node[above]{ $\overline\op_1^{log}$ } (ret-log-1-bar);
+\draw[|-|] (call-log-2) -- node[below]{ $\op_2^{log}$ } (ret-log-2);
+%% op_1
+\draw (call-inv-1)++(1,-\sep-\sep) node (op-1) {\footnotesize $\op_1$};
+\draw[fill] (op-1)++(0,0.4) circle (2pt); 
+%% op_2
+\draw (call-inv-2)++(1,-\sep-\sep+0.2) node (op-2) {\footnotesize $\op_2$};
+\draw[fill] (op-2)++(0,0.4) circle (2pt); 
+%% \overline{op}_1
+\draw (call-log-1-bar)++(0.5,-\sep)  node (op-1-bar)
+  {\footnotesize $\overline\op_1$};
+\draw[fill] (op-1-bar)++(0,0.4) circle (2pt); 
+\end{tikzpicture}
+\scalaMid
+\end{center}
+%%%%%
+\caption{Representation of the construction in the proof of
+  Proposition~\ref{prop:TwoStepDelayedLinSpec-complete}.  
+  %% The interleaving of the histories is to be read from left to right.  The
+  $\call$s of $\op_1$ and~$\op_2$ might be in either order, as might their
+  $\return$s.  The proof shows that both $\call$s precede both $\return$s.}
+  %%  We abbreviate ``$log$'' and ``$inv$'' to~``$l$'' and~``$i$'',
+  %% respectively.}
+\label{fig:TwoStepDelayedLinSpec-complete}
+\end{figure}
+%
+%%%%%
 %
 Let $h_l$ be these inserted events.  We need to show that $h_l$ is not
 linearisable with respect to |Two|\-|Step|\-|Delayed|\-|LinSpec|.  We argue by
@@ -437,215 +454,115 @@ Let $\op_1^{i_1}(t,x_1)\::y_1$ and $\op_2^{i_2}(x_2)\::y_2$ be two consecutive
 events in~$h_s$.  Then:
 %
 \begin{enumerate}
-\item In $h_l$, the event $\call^{log}.\op_1^{i_1}(t,x_1)$ is earlier than
+\item In $h_l$, the event $\call^{log}.\op_1^{i_1}(t,x_1)$ is before
   $\return^{log}.\op_2^{i_2} \:: y_2$ (to satisfy linearisation).  So in~$h$,
-  the event $\call^{inv}.\op_1^{i_1}(t,x_1)$ is earlier than
-  $\return^{inv}.\op_2^{i_2} \:: y_2$, by the way we have constructed~$h_l$.  
+  the event $\call^{inv}.\op_1^{i_1}(t,x_1)$ is before
+  $\return^{inv}.\op_2^{i_2} \:: y_2$, by the way we have constructed~$h_l$.
 
-\item In $h_s$, the event $\op_2^{i_2}(x_2)\::y_2$ must be earlier than
+\item In $h_s$, the event $\op_2^{i_2}(x_2)\::y_2$ must be before
   $\overline\op_1^{i_1}(t)\::y_1$ (by Lemma~\ref{lem:TwoStepDelayedLinSpec}).
-  So in~$h_l$, the event $\call^{log}.\op_2^{i_2}(x_2)$ must be earlier than
+  So in~$h_l$, the event $\call^{log}.\op_2^{i_2}(x_2)$ must be before
   $\return^{log}.\overline{\op}_1^{i_1} \:: y_1$ (to satisfy linearisation).
   Hence, by the way we have constructed~$h_l$, the event
-  %% $\call^{log}.\op_2^{i_2}(x_2)$ is also earlier than
-  %% $\return^{log}.\op_1^{i_1} \:: ()$.  And hence, in~$h$, the event
-  $\call^{inv}.\op_2^{i_2}(x_2)$ is earlier than $\return^{inv}.\op_1^{i_1}
-  \:: y_1$.
-  %, again by the way we have constructed~$h_l$.
-
-%% \item In $h_s$, the event $\overline\op_1^{i_1}(t)\::y_1$ must be later than
-%%   $\op_1^{i_1}(t,x_1)\::y_1$ and $\op_2^{i_2}(x_2)\::y_2$ (by
-%%   Lemma~\ref{lem:TwoStepDelayedLinSpec}).  So in~$h_l$, the event
-%%   $\return^{log}.\overline{\op}_1^{i_1} \:: y_1$ must be later than
-%%   $\call^{log}.\op_2^{i_2}(x_2)$ (to satisfy linearisation).  Hence, by the
-%%   way we have constructed~$h_l$, the event $\return^{log}.\op_1^{i_1} \:: ()$
-%%   is also later than $\call^{log}.\op_2^{i_2}(x_2)$. And hence, in~$h$, the
-%%   event $\return^{inv}.\op_1^{i_1} \:: y_1$ is later than
-%%   $\call^{inv}.\op_2^{i_2}(x_2)$, again by the way we have constructed~$h_l$.
+  $\call^{inv}.\op_2^{i_2}(x_2)$ is before $\return^{inv}.\op_1^{i_1} \::
+  y_1$.
 \end{enumerate}
+%
+To summarise the above two points: the invocations of $\op_1^{i_1}$ and
+$op_2^{i_2}$ overlap in~$h$. 
 
-%% It is clear that within~$h_s$, events $op_1$ and~$op_2$ alternate.  If
-%% $op_1^{i_1}(x_1) \:: ()$ and $op_2^{i_2}(x_2) \:: y_2$ are consecutive such
-%% events, then this represents a synchronisation of those invocations. 
-%% The invocation of 
-%% |Two|\-|Step|\-|Delayed|\-|LinSpec.op|\s2 calls $\sm{SyncSpec.sync}(x_1,x_2)$
-
-%% Let $h_s'$ be the history of
-%% corresponding calls to |SyncSpec.sync| from within
-%% |Two|\-|Step|\-|Delayed|\-|LinSpec.op|\s2.  More precisely, each event
-%% $\sm{sync}^{i_1,i_2}(x_1,x_2)\:: (y_1,y_2)$ corresponds to the call to
-%% |SyncSpec.sync| within
-%% |Two|\-|Step|\-|Delayed|\-|LinSpec.op|$_2^{i_2}(x_2)\::y_2$, where $x_1$ is
-%% taken from |state|, so corresponds to the previous invocation of~$\op_1$, namely
-%% $\op_1^{i_1}(x_1)$.  By the assumption, this must be a legal history
-%% of~|SyncSpec|.
+Further, consider two such pairs of invocations, $(\op_1^{i_1}, op_2^{i_2})$
+and $(\op_1^{i_1'}, op_2^{i_2'})$.  If the overlap in~$h$ of the first pair is
+before the overlap of the second pair, then the same is true in~$h_l$ (again
+by the way we have constructed~$h_l$), so the corresponding events in~$h_s$
+must be ordered in the same way.  Informally, the order of the overlaps is
+consistent with~$h_s$. 
 
 Let $h_s'$ be the legal history of |SyncSpec| corresponding to~$h_s$, implied
-by Lemma~\ref{lem:TwoStepDelayedLinSpec}.  Given the interleaving of~$h_l$
-and~$h_s$, and the interleaving of~$h_l$ and~$h_s$, we build an interleaving
+by Lemma~\ref{lem:TwoStepDelayedLinSpec}.  Given the interleaving of~$h$
+and~$h_l$, and the interleaving of~$h_l$ and~$h_s$, we build an interleaving
 of $h$ and~$h_s'$.  We insert each event $\sm{sync}^{i_1,i_2}(x_1,x_2)\::
-(y_1,y_2)$ from~$h_s'$ after both $\call^{inv}.\op_1^{i_1}(t,x_1)$ and
-$\call^{inv}.\op_2^{i_2}(x_2)$, but before both $\return^{inv}.\op_1^{i_1} \::
-y_1$ and $\return^{inv}.\op_2^{i_2} \:: y_2$.  Note that this is possible,
-because we have shown that $\call^{inv}.\op_1^{i_1}(t,x_1)$ is before
-$\return^{inv}.\op_2^{i_2} \:: y_2$ (item~1 above), and
-$\call^{inv}.\op_2^{i_2}(x_2)$ is before $\return^{inv}.\op_1^{i_1} \:: y_1$
-(item~2 above).  Clearly this interleaving preserves the order of~$h_s'$.
+(y_1,y_2)$ from~$h_s'$ during the overlap between the corresponding
+invocations in~$h$, and respecting the order of~$h_s$ and~$h_s'$.  This is
+possible by the above results.  
+
+%% We insert each event $\sm{sync}^{i_1,i_2}(x_1,x_2)\::
+%% (y_1,y_2)$ from~$h_s'$ after both $\call^{inv}.\op_1^{i_1}(t,x_1)$ and
+%% $\call^{inv}.\op_2^{i_2}(x_2)$, but before both $\return^{inv}.\op_1^{i_1} \::
+%% y_1$ and $\return^{inv}.\op_2^{i_2} \:: y_2$.  Note that this is possible,
+%% because we have shown that $\call^{inv}.\op_1^{i_1}(t,x_1)$ is before
+%% $\return^{inv}.\op_2^{i_2} \:: y_2$ (item~1 above), and
+%% $\call^{inv}.\op_2^{i_2}(x_2)$ is before $\return^{inv}.\op_1^{i_1} \:: y_1$
+%% (item~2 above).  Clearly this interleaving preserves the order of~$h_s'$.
 
 Hence we have shown that $h$ is synchronisation compatible with~$h_s'$, and so
 is linearisable with respect to |SyncSpec|, as required.
-
-%% Within the interleaving of~$h_l$ and~$h_s$, each |sync| event is between the
-%% corresponding $\call^{log}.\op_2$ and $\return^{log}.\op_2^{i_2}$ events.
-%% Given this interleaving and the interleaving of~$h_l$ and~$h$, we can
-%% construct a corresponding interleaving of all three histories, by ensuring
-%% that each |sync| event is also between the corresponding $\call^{inv}.\op_2$
-%% and $\return^{inv}.\op_2^{i_2}$ events.  
-
-
 \end{proof}
 
+%%%%%
 
+The above proposition included the possibility of an invocation history~$h$ of
+|SyncObj| not being synchronisation linearisable, but a corresponding log
+history~$h_l$ being linearisable with respect to |TwoStepDelayedLinSpec|,
+i.e.~the incorrect history not being detected.  Let us examine this
+possibility in more detail.  So suppose $h$ is not synchronistion
+linearisable, but $h_l$ is linearisable.  Let $h_s$ be the corresponding legal
+history of |TwoStepDelayedLinSpec|, and let $h_s'$ be the corresponding legal
+history of |SyncSpec| implied by Lemma~\ref{lem:TwoStepDelayedLinSpec}.  The
+fact that $h$ is not synchronisation linearisable means that $h$ and~$h_s'$
+are not synchronisation compatible. ............ Actually, there are lots of
+different ways that might happen, so it's not clear this discussion is going
+to be useful. 
+
+
+\framebox{Generalisations}: non-binary and/or non-homogeneous. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\framebox{Previous version, not quite right}
+%% \framebox{Previous version, not quite right}
 
-However, if the delays are sufficiently small, then the
-log history agrees with the invocation history on the |op|\s1 and~|op|\s2
-events.  We show that in this case that log history is not linearisable.
-%
-\begin{lemma}
-Consider an invocation history~$h$ that is not synchronisation linearisable
-with respect to $SyncSpec$.  Let $h_l$ be a corresponding log~history that
-agrees with~$h$ on |op|\s1 and~|op|\s2 events.  Then $h_l$ is not linearisable
-with respect to |Two|\-|Step|\-|Delayed|\-|LinSpec|.
-\end{lemma}
+%% However, if the delays are sufficiently small, then the
+%% log history agrees with the invocation history on the |op|\s1 and~|op|\s2
+%% events.  We show that in this case that log history is not linearisable.
+%% %
+%% \begin{lemma}
+%% Consider an invocation history~$h$ that is not synchronisation linearisable
+%% with respect to $SyncSpec$.  Let $h_l$ be a corresponding log~history that
+%% agrees with~$h$ on |op|\s1 and~|op|\s2 events.  Then $h_l$ is not linearisable
+%% with respect to |Two|\-|Step|\-|Delayed|\-|LinSpec|.
+%% \end{lemma}
 
-%%%%%
+%% %%%%%
 
-\begin{proof}
-We prove the contrapositive: we suppose that $h_l$ is linearisable with
-respect to |Two|\-|Step|\-|Delayed|\-|LinSpec|, and show that $h$ is
-synchronisation linearisable with respect to |SyncSpec|. 
+%% \begin{proof}
+%% We prove the contrapositive: we suppose that $h_l$ is linearisable with
+%% respect to |Two|\-|Step|\-|Delayed|\-|LinSpec|, and show that $h$ is
+%% synchronisation linearisable with respect to |SyncSpec|. 
 
-From the assumption that $h_l$ is linearisable, there is a legal history~$h_s$
-of |Two|\-|Step|\-|Delayed|\-|LinSpec| such that $h_l$ and~$h_s$ are
-compatible.  Consider the interleaving of $h_l$ and~$h_s$.  Since $h_l$
-and~$h$ agree on the |op|\s1 and~|op|\s2 events, we can build a corresponding
-interleaving of $h$ and~$h_s$: so each $\sm{op}_1^{i_1}(t,x_1)\::()$ event is
-between events $\call^{inv}.\sm{op}_1^{i_1}(x_1)$ and
-$\return^{inv}.\sm{op}_1^{i_1} \:: y_1$, where $t$ is the identity of the
-thread making the call; and each $\sm{op}_2^{i_2}(x_2)\::y_2$ event is
-between events $\call^{inv}.\sm{op}_2^{i_2}(x_2)$ and
-$\return^{inv}.\sm{op}_2^{i_2} \:: y_2$.   
+%% From the assumption that $h_l$ is linearisable, there is a legal history~$h_s$
+%% of |Two|\-|Step|\-|Delayed|\-|LinSpec| such that $h_l$ and~$h_s$ are
+%% compatible.  Consider the interleaving of $h_l$ and~$h_s$.  Since $h_l$
+%% and~$h$ agree on the |op|\s1 and~|op|\s2 events, we can build a corresponding
+%% interleaving of $h$ and~$h_s$: so each $\sm{op}_1^{i_1}(t,x_1)\::()$ event is
+%% between events $\call^{inv}.\sm{op}_1^{i_1}(x_1)$ and
+%% $\return^{inv}.\sm{op}_1^{i_1} \:: y_1$, where $t$ is the identity of the
+%% thread making the call; and each $\sm{op}_2^{i_2}(x_2)\::y_2$ event is
+%% between events $\call^{inv}.\sm{op}_2^{i_2}(x_2)$ and
+%% $\return^{inv}.\sm{op}_2^{i_2} \:: y_2$.   
 
-In |Two|\-|Step|\-|Delayed|\-|LinSpec|, each invocation of $\op_2(x_2)$ calls
-$\sm{SyncSpec.sync}(x_1, x_2)$, obtaining result $(y_1, y_2)$, and
-returns~$y_2$.  Here~$x_1$ is taken from |state|, and matches the parameter
-of the previous  $\sm{op}_1^{i_1}(t,x_1)\::()$ event in~$h_s$.
+%% In |Two|\-|Step|\-|Delayed|\-|LinSpec|, each invocation of $\op_2(x_2)$ calls
+%% $\sm{SyncSpec.sync}(x_1, x_2)$, obtaining result $(y_1, y_2)$, and
+%% returns~$y_2$.  Here~$x_1$ is taken from |state|, and matches the parameter
+%% of the previous  $\sm{op}_1^{i_1}(t,x_1)\::()$ event in~$h_s$.
 
-%
-We build a history $h_s'$ of~|SyncSpec| by replacing each event
-$\sm{op}_2^{i_2}(x_2)\::y_2$ from~$h_s$ by $\sm{sync}^{i_1,i_2}(x_1, x_2) \::
-(y_1,y_2)$ for the corresponding~$x_1$ and~$i_1$.  This is a legal history
-of~|SyncSpec| by construction.  Likewise, each such event is between the
-corresponding events $\call^{inv}.\sm{op}_2^{i_2}(x_2)$ and
-$\return^{inv}.\sm{op}_2^{i_2} \:: y_2$, by construction.  
-
-\end{proof}
+%% %
+%% We build a history $h_s'$ of~|SyncSpec| by replacing each event
+%% $\sm{op}_2^{i_2}(x_2)\::y_2$ from~$h_s$ by $\sm{sync}^{i_1,i_2}(x_1, x_2) \::
+%% (y_1,y_2)$ for the corresponding~$x_1$ and~$i_1$.  This is a legal history
+%% of~|SyncSpec| by construction.  Likewise, each such event is between the
+%% corresponding events $\call^{inv}.\sm{op}_2^{i_2}(x_2)$ and
+%% $\return^{inv}.\sm{op}_2^{i_2} \:: y_2$, by construction.  
+%% \end{proof}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-
-\subsection{Case with state}
-
-Suppose the specification object has non-trivial state. 
-
-I think it will be more efficient to give a more direct implementation.
-Define a configuration to be: (1)~a point in the log reached so far; (2)~the
-set of pending operation invocations that have not synchronised; (3)~the set
-of pending operation invocations that have synchronised (but not returned);
-and (4)~the state of the sequential synchronisation object.  In any
-configuration, can: synchronise a pair of pending operations (and update the
-synchronisation object); advance in the log if the next event is a return that
-is not pending; or advance in the log if the next event is a call.  Then
-perform DFS.
-
-Partial order reduction: a synchronisation point must follow either the
-call of one of the concurrent operations, or another synchronisation
-point.  Any synchronisation history can be transformed into this form, by
-moving synchronisation points earlier, but not before any of the corresponding
-call events, and preserving the order of synchronisations.  This means that
-after advancing past the call of an invocation, we may synchronise that
-invocation, and then an arbitrary sequence of other invocations. 
-
-Alternatively, a synchronisation point must precede either the return of one
-of the concurrent operations, or another synchronisation point.  This is more
-like the JIT technique in the linearisability testing paper.  This means that
-before advancing in the log to the return of an invocation that has not
-synchronised, we synchronise some invocations, ending with the one in
-question.  And we only synchronise in these circumstances. 
-
-My intuition is that the former is more efficient: in the latter, we might
-investigate synchronising other invocations even though the returning
-operation can't be synchronised with any invocation.  
-
-%%%%%
-
-\subsubsection*{Complexity}
-
-Consider the problem of testing whether a given concurrent history has
-synchronisations consistent with a given sequential specification object. 
-
-We make use of a result from~\cite{???} concerning the complexity of the
-corresponding problem for linearizability.  Let |Variable| be a
-linearizability specification object corresponding to a variable with |get|
-and |set| operations.  Then the problem of deciding whether a given concurrent
-history is linearisable with respect to |Varaiable| is NP-complete.
-
-Let |ConcVariable| be a concurrent object that represents a variable.  
-
-We consider concurrent synchronisation histories on an object with the
-following signature.   
-\begin{scala}
-object VariableSync{
-  def op£\s1£(op: String, x: Int): Int
-  def op£\s2£(u: Unit): Unit
-} 
-\end{scala}
-%
-The intention is that |op|\s1|("get", x)| acts like |get(x)|, and
-|op|\s1|("set", x)| acts like |set(x)| (but returns -1).  The |op|\s2
-invocations do nothing except synchronise.  This can be captured formally by
-the following synchronisation specification object.
-
-\begin{scala}
-object VariableSyncSpec{
-  private var state = 0
-  def sync((op, x): (String, Int), u: Unit): (Int, Unit) = 
-    if(op == "get") (state, ()) else{ state = x; (-1, ()) }
-}
-\end{scala}
-
-
-Let |ConcVariable| be a concurrent object that represents a variable.  Given a
-concurrent history~$h$ of |ConcVariable|, we build a concurrent history~$h'$
-of |VaraibleSync| as follows.  We replace every call or return of |get(x)| by
-(respectively) a call or return of |op|\s1|("get", x)|; and we do similarly
-with |set|s.  If there are $k$ calls of |get| or |set| in total, we prepend
-$k$ calls of |op|\s2, and append $k$ corresponding returns (in any order).
-Then it is clear that $h$ is linearisable with respect to |Variable| if and
-only if $h'$ is linearisable with respect to |VariableSyncSpec|.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\subsection{Stateless case}
-
-In the stateless case, a completely different algorithm is possible.  Define
-two invocations to be compatible if they could be synchronised, i.e.~they
-overlap and the return values agree with those for the specification object.
-For $n$ invocations of each operation (so a history of length~$4n$), this can
-be calculated in $O(n^2)$.  Then find if there is a total matching in the
-corresponding bipartite graph, using the Ford-Fulkerson method, which is
-$O(n^2)$.

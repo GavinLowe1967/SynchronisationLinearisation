@@ -18,10 +18,11 @@ class BinaryStatelessTester[Op](
   /** Find which invocations within events could synchronise.  
     * @return a pair (isOp1, syncs) such that: isOp1 is a bitmap indicating
     * which invocations corresponded to the first operation of the
-    * synchronisation object; and syncs is a bitmap indicating which
-    * invocations could synchronise (overlapped in time and returned results
-    * consistent with matching.  If some operation can synchronise with no
-    * other, then gives an error message and returns null. */
+    * synchronisation object; and syncs(i) is a list of indices of invocations
+    * with which the ith invocation can synchronise (overlapped in time and
+    * returned results consistent with matching.  If some operation can
+    * synchronise with no other, then gives an error message and returns
+    * null. */
   private def findMatches(events: Array[Event])
       : (Array[Boolean], Array[List[Int]]) = {
     require(events.length%4 == 0); val numInvs = events.length/2

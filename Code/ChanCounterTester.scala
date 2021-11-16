@@ -1,7 +1,8 @@
-import io.threadcso._
+package synchronisationTester
+
 import scala.util.Random
 
-import synchronisationTesting.{HistoryLog,ThreadUtil}
+import synchronisationTesting.{HistoryLog}
 
 /** A testing file for a synchronous channel with a sequence counter. */
 object ChanCounterTester{

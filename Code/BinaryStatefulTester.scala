@@ -74,42 +74,36 @@ class BinaryStatefulTester[Op,S](
         else ":  unmatched"
     }))
 
-  /** Insert x into xs so as to keep the list sorted by index fields.  Pre: xs
-    * is so sorted. */
-  private def insert[E <: Event](x: E, xs: List[E]): List[E] = 
-    if(xs.isEmpty) List(x)
-    else{
-      val y = xs.head; assert(x.index != y.index)
-      if(x.index < y.index) x :: xs else y :: insert(x, xs.tail)
-    }
-
   /** A configuration in the search. 
     * @param the index in the history reached so far. 
     * @param spec the state of the specification object. 
     * @param canReturn invocations that have been linearised so can return, 
     * sorted by index.
-    * @param pending invocations that have been called but not yet, sorted by 
-    * index.
+    * @param pending invocations that have been called but not yet linearised,
+    * sorted by index.
     * @param matching array showing which invocations have been matched so far.
-    * linearised.  
-    * @param matchingSize the length of the longest prefix of the history that 
-    * has been matched. 
+    * matching(ix1) = ix2 indicates that the invocations with indices ix1 and
+    * ix2 synchronised.
+    * @param matchingSize the length of the longest prefix of the calls of the 
+    * history that has been matched.
     * @param linIndices the linearisation indices, giving the order in which
-    * invocations synchronised.
+    * invocations synchronised.  If linIndices(ix) >= 0, it gives the
+    * linearisation index for the invocation with index ix.
     * @param nextLinIndex the number of synchronisations so far. */
   private class Config(
-    val index: Int, val spec: S, 
-    val canReturn: List[ReturnEvent[Op,Any]], 
-    val pending: List[CallEvent[Op,Any]],
+    index: Int, spec: S, 
+    canReturn: List[ReturnEvent[Op,Any]], pending: List[CallEvent[Op,Any]],
     val matching: Array[Int], val matchingSize: Int,
     val linIndices: Array[Int], val nextLinIndex: Int
-  ){
+  ) extends Tester.Config(index, spec, length, canReturn, pending){
+    /** Next configurations in the search graph. */
     def nexts: List[Config] = {
       var result = List[Config]()
       if(index < length) events(index) match{
         case ce: CallEvent[Op,Any] @unchecked =>
           // add to pending
-          result ::= new Config(index+1, spec, canReturn, insert(ce,pending), 
+          val newPending =  Tester.insert(ce,pending)
+          result ::= new Config(index+1, spec, canReturn, newPending, 
             matching, matchingSize, linIndices, nextLinIndex)
         case re: ReturnEvent[Op,Any] @unchecked =>
           // maybe allow this event to return
@@ -123,17 +117,20 @@ class BinaryStatefulTester[Op,S](
       for(e1 <- pending; e2 <- pending; if e1 != e2) trySync(spec, e1, e2) match{
         case Some(spec1) =>
           val newPending = pending.filter(e => e != e1 && e != e2)
-          val newCanReturn = insert(e1.ret, insert(e2.ret, canReturn))
+          val newCanReturn = 
+            Tester.insert(e1.ret, Tester.insert(e2.ret, canReturn))
           val index1 = e1.opIndex; val index2 = e2.opIndex
           val newMatching = matching.clone; newMatching(index1) = index2
           newMatching(index2) = index1
           val newLinIndices = linIndices.clone
           newLinIndices(index1) = nextLinIndex
           newLinIndices(index2) = nextLinIndex
-          // Is this a new maximum matching?
+          // Set newMatchingSize to be the size of the longestprefix that is
+          // matched
           var newMatchingSize = matchingSize
           while(newMatchingSize < invocs && newMatching(newMatchingSize) >= 0)
             newMatchingSize += 1
+          // Is this a new maximum matching?
           if(newMatchingSize > maxMatchingSize){
             maxMatching = newMatching; maxMatchingSize = newMatchingSize
             maxLinIndices = newLinIndices
@@ -146,43 +143,19 @@ class BinaryStatefulTester[Op,S](
     result
     }
 
-    def done = index == length && canReturn.isEmpty && pending.isEmpty
-
-    /** Equality test.  Note: this ignores matching and matchingSize:  */
-    override def equals(that: Any) = that match{
-      case conf: Config => 
-        conf.index == index && conf.spec == spec &&
-        conf.canReturn == canReturn && conf.pending == pending
-    }
-
-    /** Hash code.  Based on the same principle as equals. */
-    override def hashCode = 
-      ((index*41+spec.hashCode)*41 + canReturn.hashCode)*41 + pending.hashCode 
   } // end of Config
   // IMPROVE: use a partial order reduction
-
 
   /** Perform a DFS. */
   private def search(): Boolean = {
     maxMatching = Array.fill(invocs)(-1); maxLinIndices = Array.fill(invocs)(-1)
     val config0 = new Config(0, spec0, List(), List(), 
       Array.fill(invocs)(-1), 0, Array.fill(invocs)(-1), 0)
-    val stack = new scala.collection.mutable.Stack[Config]; stack.push(config0)
-    val seen = new scala.collection.mutable.HashSet[Config]; seen += config0
-
-    while(stack.nonEmpty){
-      val config = stack.pop
-      for(next <- config.nexts; if seen.add(next)){
-        if(next.done){ 
-          if(false) showMatching(next.matching, next.linIndices)
-          assert(next.matchingSize == invocs && next.nextLinIndex == invocs/2)
-          return true 
-        }
-        else stack.push(next)
-      }
+    def atEnd(c: Config) = {
+      if(false) showMatching(c.matching, c.linIndices)
+      assert(c.matchingSize == invocs && c.nextLinIndex == invocs/2)
     }
-
-    false
+    Tester.search[Op,S,Config](config0, atEnd)
   }
 
   /** Main function. */

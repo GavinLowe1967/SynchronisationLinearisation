@@ -1,33 +1,46 @@
 \relax 
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {2}Specifying synchronisations}{2}\protected@file@percent }
-\newlabel{sec:spec}{{2}{2}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Specifying synchronisations}{4}\protected@file@percent }
+\newlabel{sec:spec}{{2}{4}}
 \citation{herlihy-wing}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Linearisability}{4}\protected@file@percent }
-\newlabel{sec:specification-linearisability}{{2.1}{4}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Timeline representing the linearisation example.}}{5}\protected@file@percent }
-\newlabel{fig:lin-timeline}{{1}{5}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Synchronisation linearisability}{6}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Timeline representing the synchronisation example.}}{7}\protected@file@percent }
-\newlabel{fig:sync-timeline}{{2}{7}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Relating synchronisation and linearisation}{8}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Two-step linearisability}{9}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Proving the relationship}{10}\protected@file@percent }
-\newlabel{sec:twoStepLinSpec}{{3.2}{10}}
-\newlabel{lem:TwoStepLinSpec-histories}{{1}{11}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Linearisability}{6}\protected@file@percent }
+\newlabel{sec:specification-linearisability}{{2.1}{6}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Timeline representing the linearisation example.}}{7}\protected@file@percent }
+\newlabel{fig:lin-timeline}{{1}{7}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Timeline representing the synchronisation example.}}{8}\protected@file@percent }
+\newlabel{fig:sync-timeline}{{2}{8}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Synchronisation linearisability}{8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Variations}{9}\protected@file@percent }
+\newlabel{ssec:spec-variations}{{2.3}{9}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Relating synchronisation and linearisation}{11}\protected@file@percent }
+\newlabel{sec:relating}{{3}{11}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Two-step linearisability}{12}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Proving the relationship}{13}\protected@file@percent }
+\newlabel{sec:twoStepLinSpec}{{3.2}{13}}
+\newlabel{lem:TwoStepLinSpec-histories}{{1}{14}}
+\citation{awr:ucs}
+\citation{fdr3}
+\citation{fdr-manual}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Variations}{15}\protected@file@percent }
+\newlabel{ssec:relating-variations}{{3.3}{15}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Model checking for synchronisation linearisation}{15}\protected@file@percent }
+\newlabel{sec:modelChecking}{{4}{15}}
+\citation{gavin:syncChan}
 \citation{gavin:lin-testing}
 \citation{gavin:lin-testing}
 \citation{faulty-pri-queue}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Testing algorithms}{12}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Linearisability testing}{12}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Hacking the linearisablity framework}{13}\protected@file@percent }
-\newlabel{lem:TwoStepDelayedLinSpec}{{2}{15}}
-\newlabel{prop:TwoStepDelayedLinSpec-complete}{{2.2}{17}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Representation of the construction in the proof of Proposition\nobreakspace  {}2.2\hbox {}. The interleaving of the histories is to be read from left to right. The $\mathsf  {call}$s of ${\mbox  {\small  \sffamily  \color  {ScalaColour}op}}_1$ and\nobreakspace  {}${\mbox  {\small  \sffamily  \color  {ScalaColour}op}}_2$ might be in either order, as might their $\mathsf  {return}$s. The proof shows that both $\mathsf  {call}$s precede both $\mathsf  {return}$s. We abbreviate ``$log$'' and ``$inv$'' to\nobreakspace  {}``$l$'' and\nobreakspace  {}``$i$'', respectively.}}{18}\protected@file@percent }
-\newlabel{fig:TwoStepDelayedLinSpec-complete}{{3}{18}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Case with state}{19}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Testing algorithms}{18}\protected@file@percent }
+\newlabel{sec:testing}{{5}{18}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Linearisability testing}{18}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Hacking the linearisablity framework}{19}\protected@file@percent }
+\newlabel{ssec:testing-hacking}{{5.2}{19}}
+\newlabel{lem:TwoStepDelayedLinSpec}{{2}{21}}
+\newlabel{prop:TwoStepDelayedLinSpec-complete}{{2.2}{22}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Representation of the construction in the proof of Proposition\penalty \@M \ 2.2\hbox {}. $\mathsf  {call}$s of ${\mbox  {\small  \sffamily  \color  {ScalaColour}op}}_1$ and\penalty \@M \ ${\mbox  {\small  \sffamily  \color  {ScalaColour}op}}_2$ might be in either order, as might their $\mathsf  {return}$s. The proof shows that both $\mathsf  {call}$s precede both $\mathsf  {return}$s.}}{23}\protected@file@percent }
+\newlabel{fig:TwoStepDelayedLinSpec-complete}{{3}{23}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Case with state}{24}\protected@file@percent }
 \citation{???}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Stateless case}{21}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {5}Variations}{21}\protected@file@percent }
-\newlabel{sec:variations}{{5}{21}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Different modes of synchronisation}{22}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Stateless case}{26}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Variations}{26}\protected@file@percent }
+\newlabel{sec:variations}{{6}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Different modes of synchronisation}{27}\protected@file@percent }

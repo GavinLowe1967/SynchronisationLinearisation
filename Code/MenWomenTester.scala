@@ -1,6 +1,6 @@
-// import io.threadcso._
-import scala.util.Random
+package synchronisationTester
 
+import scala.util.Random
 import synchronisationTesting.{HistoryLog,BinaryStatelessTester}
 
 /** A testing file. */

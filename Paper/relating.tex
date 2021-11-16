@@ -1,16 +1,24 @@
 \section{Relating synchronisation and linearisation}
+\label{sec:relating}
 
 In this section we describe the relationship between synchronisation
-linearisation and standard linearisation.  
+linearisation and standard linearisation.  Below, we show that the two notions
+are different: synchronisation linearisation cannot, in general, be captured
+directly as standard linearisation.  However, we show that synchronisation
+linearisation corresponds to a small adaptation of linearisation, where one of
+the operations of the synchronisation object corresponds to \emph{two}
+operations of the linearisation specification object.
 
-\framebox{\ldots}
+It is clear that standard linearisation is equivalent to synchronisation
+linearisation in the (rather trivial) case that no operations synchronise, so
+each operation of the synchronisation specification object corresponds to a
+single operation of the concurrent object. 
 
-It is clear that synchronisation linearisation cannot, in general, be captured
-directly as standard linearisation.  More precisely, given a synchronisation
-linearisability specification object $SyncSpec$, it is not, in general,
-possible to find a linearisability syncronisation specification $Spec$ such
-that for every history~$h$,\, $h$ is synchronisation linearisable with respect
-to $SyncSpec$ if and only if $h$ is linearisable with respect to $Spec$.
+We show that, given a synchronisation linearisability specification object
+$SyncSpec$, it is not, in general, possible to find a linearisability
+syncronisation specification $Spec$ such that for every history~$h$,\, $h$ is
+synchronisation linearisable with respect to $SyncSpec$ if and only if $h$ is
+linearisable with respect to $Spec$.
 
 For example, consider the example of a synchronous channel from
 Section~\ref{sec:spec}, where synchronisation linearisation is captured by
@@ -50,20 +58,21 @@ specification~$Spec$ exists.
 
 \subsection{Two-step linearisability}
 
-In the previous section, we showed that synchronisation linearisation does not
-correspond directly to linearisation.  Nevertheless, we will show that
-synchronisation linearisability corresponds to a small adaptation of
-linearisability, but where one of the operations on the concurrent object
-corresponds to \emph{two} operations of the linearisability specification
-object.  We define what we mean by this, and then prove the correspondence in
-the next subsection.  In the definitions below, we describe just the
-differences from standard linearisation, to avoid repetition.
+\framebox{Note: I don't think we want both this and the construction in
+  Section~\ref{ssec:testing-hacking}.}
 
-Given a synchronisation object with operations |op|\s1 and |op|\s2, as before,
+We now show that synchronisation linearisability corresponds to a small
+adaptation of linearisability, but where one of the operations on the
+concurrent object corresponds to \emph{two} operations of the linearisability
+specification object.  We define what we mean by this, and then prove the
+correspondence in the next subsection.  In the definitions below, we describe
+just the differences from standard linearisation, to avoid repetition.
+
+Given a synchronisation object with operations |op|\s1 and |op|\s2,
 we will consider a linearisability specification object with signature
 %
 \begin{scala}
-object TwoStepLinSpec{
+class TwoStepLinSpec{
   def op£\s1£(x£\s1£: A£\s1£): Unit
   def £$\overline{\sm{op}}_1$£(): B£\s1£
   def op£\s2£(x£\s2£: A£\s2£): B£\s2£
@@ -78,9 +87,9 @@ before.  We call such an object a \emph{two-step linearisability specification
   object}. 
 
 We define a history~$h_s$ of such a two-step specification object much as in
-Section~\ref{sec:specification-linearisability}, except that for each event
-$\overline{\sm{op}}_1^i()\::y$ in~$h_s$, we require that there is an
-earlier event |op|$_1^i(x)\::()$ in~$h_s$ with the same invocation
+Section~\ref{sec:specification-linearisability}, with the addition that for
+each event $\overline{\sm{op}}_1^i()\::y$ in~$h_s$, we require that there is
+an earlier event |op|$_1^i(x)\::()$ in~$h_s$ with the same invocation
 identity; other than in this regard, invocation identities are not repeated
 in~$h_s$.
 
@@ -182,7 +191,7 @@ case class Two(y£\s1£: B£\s1£) extends State
 %% case class Two(y£\s1£: B£\s1£) extends LinState
 %
 \begin{scala}
-object TwoStepLinSpec{
+class TwoStepLinSpec{
   private var state: State = Zero
   def op£\s1£(x£\s1£: A£\s1£): Unit = {
     require(state.isInstanceOf[Zero]); state = One(x£\s1£)
@@ -213,7 +222,7 @@ of~|Two|\-|Step|\-|LinSpec|.
 \label{lem:TwoStepLinSpec-histories}
 Each history of~|TwoStepLinSpec| is the concatenation of triples of events of
 the form $\sm{op}_1^{i_1}(x_1) \:: ()$,\, $\sm{op}_2^{i_2}(x_2) \:: y_2$,\,
-$\overline{\sm{op}}_1^{i_1}() \:: y_1$ such that |SyncSpec| has a
+$\overline{\sm{op}}_1^{i_1}() \:: y_1$  such that |SyncSpec| has a
 corresponding legal history of events $\sm{sync}^{i_1,i_2}(x_1,x_2) \::
 (y_1,y_2)$, and vice versa.
 \end{lemma}
@@ -299,3 +308,50 @@ object SyncChanTwoStepLinSpec{
   def £$\overline{\sm{send}}$£(): Unit = { require(state == 2); state = 0 }
 }
 \end{scala}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Variations}
+\label{ssec:relating-variations}
+
+The results of this section carry across to non-binary synchronisations, in a
+straightforward way.  For a synchronisation object with $k$ operations,
+|op|\s1, \ldots, |op|$_k$, the operations |op|\s1, \ldots, |op|$_{k-1}$ are
+each linearised in two steps.  The two-step linearisation specification object
+has $2k-1$ operations, |op|\s1, \ldots, |op|$_k$, $\overline{\sm{op}}_1$,
+\ldots, $\overline{\sm{op}}_{k-1}$.  The specification object encodes an
+automaton with $2k-1$ states.  The figure below gives the automaton in the
+case $k = 4$.
+%
+\begin{center}
+\begin{tikzpicture}[xscale = 1]
+\draw (0,0) node[draw] (zero) {$\sm{Zero}$};
+\draw[->] (zero) ++ (-1.5, 0) -- (zero);
+%
+\draw (zero)++(3,1) node[draw] (one) {$\sm{One}(\sm{x}_1)$};
+\draw[->] (zero)  -- node[above] {$\sm{op}_1(\sm{x}_1)$} (one); 
+%
+\draw (one)++(3.5, 0) node[draw] (two) {$\sm{Two}(\sm{x}_1, \sm{x}_2)$};
+\draw[->] (one)  -- node[above] {$\sm{op}_2(\sm{x}_2)$} (two); 
+%
+\draw (two)++(4, 0) node[draw] (three) 
+  {$\sm{Three}(\sm{x}_1, \sm{x}_2, \sm{x}_3)$};
+\draw[->] (two)  -- node[above] {$\sm{op}_3(\sm{x}_3)$} (three); 
+%
+\draw (three)++(0,-2) node[draw] (threeX) 
+  {$\sm{ThreeX}(\sm{y}_1, \sm{y}_2, \sm{y}_3)$};
+\draw[->] (three)  -- node[right] {$\sm{op}_4(\sm{x}_4)$} (threeX); 
+%
+\draw (threeX)++(-4,0) node[draw] (twoX) {$\sm{TwoX}(\sm{y}_1, \sm{y}_2)$};
+\draw[->] (threeX)  -- node[above] {$\overline{\sm{op}}_3()$} (twoX); 
+%
+\draw (twoX)++(-3.5,0) node[draw] (oneX) {$\sm{OneX}(\sm{y}_1)$};
+\draw[->] (twoX)  -- node[above] {$\overline{\sm{op}}_2()$} (oneX);
+\draw [->] (oneX)  -- node[below] {$\overline{\sm{op}}_1()$} (zero);
+\end{tikzpicture}
+\end{center}
+%
+The middle operation, |op|\s4 in the above figure, applies the |sync| method
+of the synchronisation specification object to the parameters $\sm x_1,
+\ldots, \sm x_k$ to obtain the results $\sm y_1, \ldots, \sm y_k$; it
+stores the first $k-1$ in the state, and returns $\sm y_k$. 

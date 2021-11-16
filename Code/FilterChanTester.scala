@@ -1,3 +1,5 @@
+package synchronisationTester
+
 import io.threadcso._
 import scala.util.Random
 

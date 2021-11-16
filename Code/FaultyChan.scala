@@ -1,3 +1,5 @@
+package synchronisationTester
+
 import io.threadcso._
 
 /** An extension of a CSO Chan[A], giving stub definitions for everything

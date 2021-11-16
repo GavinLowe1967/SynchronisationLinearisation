@@ -1,3 +1,5 @@
+package synchronisationTester
+
 import scala.util.Random
 
 import synchronisationTesting.{HistoryLog,HomogeneousBinaryStatelessTester}

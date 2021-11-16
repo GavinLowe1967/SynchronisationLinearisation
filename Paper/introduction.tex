@@ -28,6 +28,20 @@ of the other operation: the two invocations must overlap in time.  If an
 invocation |send(x)| synchronises with an invocation of |receive|, then the
 |receive| returns~|x|.
 
+Sometimes an invocation may synchronise with an invocation of the same
+operation.  For example, an \emph{exchanger} has the following signature.
+%
+\begin{scala}
+class Exchanger{
+  def exchange(x: A): A
+}
+\end{scala}
+%
+When two threads call |exchange|, they each receive the value passed in by the
+other.  When invocations of two different operations synchronise, we use the
+term \emph{heterogeneous}; where two invocations of the same operation
+synchronise, we use the term \emph{homogeneous}.  
+
 For some synchronisation objects, synchronisations might involve more than two
 threads.  For example, an object of the following class
 %
@@ -41,6 +55,22 @@ can be used to synchronise~|n| threads, known as a \emph{barrier
   synchronisation}: each thread calls |sync|, and no invocation returns until
 all~|n| have called it.
 
+A \emph{combining barrier} also allows each thread to submit a parameter, and
+for all to receive back some function of those parameters.\footnote{The Scala
+  type {\scalastyle (A,A) =}$>$ {\scalastyle A} represents functions from
+  pairs of {\scalastyle A} to~{\scalastyle A}.}
+%
+\begin{scala}
+class CombiningBarrier(n: Int, f: (A,A) => A){
+  def sync(x: A): A
+}
+\end{scala}
+%
+If |n| threads call |sync| with parameters $x_1, \ldots, x_{\ss n}$, in some
+order, then each receives back $\sm f(x_1, \sm f(x_2, \ldots \sm f(x_{{\ss
+    n}-1}, x_{\ss n}) \ldots ))$ (in the common case that |f| is associative
+and commutative, this result is independent of the order of the parameters).
+
 In addition, we allow the synchronisations to be mediated by an object that
 maintains some state between synchronisations.  As an example, consider a
 synchronous channel that, in addition, maintains a sequence counter, and such
@@ -53,6 +83,50 @@ class SyncChanCounter{
 }
 \end{scala}
 
+% Variations: homogenous case; different modes
+
+
+Some synchronisation objects allow different modes of synchronisation.  For
+example, consider a synchronous channel with timeouts: each invocation might
+synchronise with another invocation, or might timeout without
+synchronisation.  Such a channel might have a signature as follows.
+%
+\begin{scala}
+class TimeoutChannel{
+  def send(x: A): Boolean
+  def receive(u: Unit): Option[A]
+}
+\end{scala}
+%
+The |send| operation returns a boolean to indicate whether the send was
+successful, i.e.~whether it synchronised.  The |receive| operation can return
+a value |Some(x)| to indicate that it synchronised and received~|x|, or can
+return the value |None| to indicate that it failed to synchronise\footnote{The
+  type \scalashape{Option[A]} contains the union of such values.}.  Thus an
+invocation of each operation may or may not synchronise with an invocation of
+the other operation. 
+
+A \emph{termination-detecting queue} can also be thought of as a stateful
+synchronisation object with multiple modes.  Such an object acts like a
+standard concurrent queue, except if all the threads are attempting to
+dequeue, but the queue is empty, then they all return a special value to
+indicate this fact.  In many concurrent algorithms, such as a concurrent graph
+search, this latter outcome indicates that the algorithm should terminate.
+Such a termination-detecting queue might have the following signature, where a
+dequeue returns the value |None| to indicate the termination case.
+%
+\begin{scala}
+class TerminationDetectingQueue(n: Int){ // £n£ is the number of threads   
+  def enqueue(x: A): Unit
+  def dequeue: Option[A]
+}
+\end{scala} 
+%
+The termination outcome can be seen as a synchronisation between all |n|
+threads.  This termination-detecting queue combines the functionality of a
+concurrent datatype and a synchronisation object.
+
+
 %% In general, a synchronisation will involve some number~$k$ of threads, calling
 %% operations of the form
 %% %
@@ -64,7 +138,25 @@ class SyncChanCounter{
 %% %
 %% Each thread passes in some data, and receives back a result. 
 
-We consider what it means for one of these synchronisation objects to be
-correct.   In Section~\ref{sec:spec} \ldots
+In this paper, we consider what it means for one of these synchronisation
+objects to be correct, and techniques for testing correctness.  
 
+In Section~\ref{sec:spec} we describe how to specify a synchronisation
+object.  The definition has similarities with the standard definition of
+\emph{linearisation} for concurrent datatypes except is talks about
+synchronisations between invocations, rather than single invocations: we call
+the property \emph{synchronisation linearisation}. 
+
+In Section~\ref{sec:relating} we consider the relationship between
+synchronisation linearisation and (standard) linearisation.  We show that the
+two notions are different; but we show that synchronisation linearisation
+corresponds to a small adaptation of linearisation, where one of the
+operations of the synchronisation object corresponds to \emph{two} operations
+of the object used to specify linearisation.  
+
+In Section~\ref{sec:modelChecking} we consider how the property of
+synchronisation linearisation can be analysed via model checking.  
+
+In Section~\ref{sec:testing} we consider how to build testing frameworks for
+synchronisation objects. 
 \framebox{More here.}

@@ -41,6 +41,8 @@ object HistoryLog{
     /** String representing opIndex with padding.  This is intended for values of
       * opIndex less than 1000. */
     protected def opIndexString = s"$opIndex:"+" "*(3-opIndex.toString.length)
+
+    override def hashCode = index
   }
 
   /** An event representing the call of an operation.
@@ -53,6 +55,7 @@ object HistoryLog{
     var ret: ReturnEvent[Op,A] = null
 
     override def toString = s"$opIndexString Call of $op" // Thread $t calls $op"
+
   }
 
   /** An event representing an operation returning.

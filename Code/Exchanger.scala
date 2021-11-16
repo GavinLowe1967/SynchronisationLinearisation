@@ -1,3 +1,5 @@
+package synchronisationTester
+
 /** The trait for exchangers. */
 trait ExchangerT[A]{
   /** Exchange x with another thread. */
