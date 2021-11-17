@@ -3,6 +3,7 @@ package synchronisationTester
 import scala.util.Random
 
 import synchronisationTesting.{HistoryLog}
+import synchronisationObject.{ChanCounterT,ChanCounter,FaultyChanCounter}
 
 /** A testing file for a synchronous channel with a sequence counter. */
 object ChanCounterTester{

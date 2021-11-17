@@ -4,6 +4,7 @@ import io.threadcso._
 import scala.util.Random
 
 import synchronisationTesting.{HistoryLog,ThreadUtil}
+import synchronisationObject.{FilterChanT,FilterChan,FaultyFilterChan}
 
 /** A testing file. */
 object FilterChanTester{

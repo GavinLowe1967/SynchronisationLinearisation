@@ -3,6 +3,7 @@ package synchronisationTester
 import scala.util.Random
 
 import synchronisationTesting.{HistoryLog}
+import synchronisationObject.{TwoFamiliesT,TwoFamilies,FaultyTwoFamilies}
 
 /** A testing file for TwoFamiliesT objects. */
 object TwoFamiliesTester{

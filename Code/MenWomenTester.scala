@@ -2,6 +2,7 @@ package synchronisationTester
 
 import scala.util.Random
 import synchronisationTesting.{HistoryLog,BinaryStatelessTester}
+import synchronisationObject.{MenWomenT,MenWomen,FaultyMenWomen}
 
 /** A testing file. */
 object MenWomenTester{

@@ -1,4 +1,4 @@
-package synchronisationTester
+package synchronisationObject
 
 import io.threadcso._
 

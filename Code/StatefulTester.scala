@@ -49,36 +49,42 @@ class StatefulTester[Op,S](
   type SyncEs = List[CallEvent1]
 
   /** Get all lists of potential synchronisations.  All lists of length up to
-    * maxArity of CallEvents by different threads, together with the maximum
-    * start index and minimum end index. */
+    * maxArity of CallEvents by different threads, each paired with their
+    * operations. */
   private def allArgsLists(calls: List[CallEvent1], maxArity: Int)
-      : Array[List[SyncEs]] = {
-    val result = new Array[List[SyncEs]](maxArity+1)
-    result(0) = List(List())
+      : Array[List[(SyncEs, List[Op])]] = {
+    // The array holding the result
+    val result = new Array[List[(SyncEs, List[Op])]](maxArity+1); 
+    result(0) = List( (List(), List()) )
     for(arity <- 1 to maxArity){
-      result(arity) = List(); var ess = result(arity-1)
-      while(ess.nonEmpty){
-        val es = ess.head; ess = ess.tail; var cs = calls; val ops = es.map(_.op)
+      result(arity) = List(); var eoss = result(arity-1)
+      while(eoss.nonEmpty){
+        val (es,ops) = eoss.head; eoss = eoss.tail; var cs = calls
         // Consider extending es with a member of calls
         while(cs.nonEmpty){
           val e = cs.head; cs = cs.tail
-          if(!es.contains(e) && suffixMatching(e.op::ops) ) 
-            result(arity) ::= (e::es)
+          if(!contains(es,e) && suffixMatching(e.op::ops) ) 
+            result(arity) ::= ((e::es, e.op::ops))
         }
       }
     }
     result
   }
 
+  @inline private def contains(es: List[CallEvent1], e: CallEvent1): Boolean = 
+    es.nonEmpty && ((es.head eq e) || contains(es.tail, e))
+
   /** Test if the invocations represented by es can synchronise given state
     * `spec` of the specification.  Optionally return the resulting state of
     * the specification. */
-  private def canSync(spec: S, es: List[CallEvent1]): Option[S] = {
-    val ops = es.map(_.op)
+  private def canSync(spec: S, es: List[CallEvent1], ops: List[Op])
+      : Option[S] = {
+    //val ops = es.map(_.op)
     if(specMatching(spec).isDefinedAt(ops)){
       try{
         val (spec1, rets0) = specMatching(spec)(ops)
         // Compare rets and es.map(_.ret.result)
+        assert(rets0.length == es.length)
         var rets = rets0; var es1 = es
         while(rets.nonEmpty && rets.head == es1.head.ret.result){
           rets = rets.tail; es1 = es1.tail
@@ -103,46 +109,47 @@ class StatefulTester[Op,S](
   private def allSyncs(spec: S, calls: List[CallEvent1]): List[SyncInfo] = {
     var result = List[SyncInfo]()
     val candidates = allArgsLists(calls, maxSyncArity)
-    for(arity <- arities; es <- candidates(arity)) canSync(spec, es) match{
-      case Some(spec1) => result ::= (spec1, es)
-      case None => {}
-    }
+    for(arity <- arities; (es,ops) <- candidates(arity))
+      canSync(spec, es, ops) match{
+        case Some(spec1) => result ::= (spec1, es)
+        case None => {}
+      }
     result
   }
 
   /** All lists of potential synchronisations including e and other invocations
-    * from calls. */
+    * from calls, each paired with their operations. */
   private def allArgsListsWith(calls: List[CallEvent1], e: CallEvent1)
-      : Array[List[SyncEs]] = {
+      : Array[List[(SyncEs, List[Op])]] = {
     // require(!calls.contains(e))
     // Possible synchronisations excluding or including e
-    val withoutE = new Array[List[SyncEs]](maxSyncArity+1)
-    val withE = new Array[List[SyncEs]](maxSyncArity+1)
-    withoutE(0) = List(List()); withE(0) = List()
+    val withoutE = new Array[List[(SyncEs, List[Op])]](maxSyncArity+1)
+    val withE = new Array[List[(SyncEs, List[Op])]](maxSyncArity+1)
+    withoutE(0) = List( (List(), List()) ); withE(0) = List()
     for(arity <- 1 to maxSyncArity){
       withoutE(arity) = List(); withE(arity) = List()
       // Try adding e or a member of calls to each member of withoutE(arity-1)
-      var ess = withoutE(arity-1)
-      while(ess.nonEmpty){
-        val es = ess.head; ess = ess.tail; val ops = es.map(_.op)
+      var eoss = withoutE(arity-1)
+      while(eoss.nonEmpty){
+        val (es,ops) = eoss.head; eoss = eoss.tail
         if(arity != maxSyncArity){
           var cs = calls
           while(cs.nonEmpty){
             val e1 = cs.head; cs = cs.tail
-            if(!es.contains(e1) && suffixMatching(e1.op::ops))
-              withoutE(arity) ::= e1::es
+            if(!contains(es,e1) && suffixMatching(e1.op::ops))
+              withoutE(arity) ::= ((e1::es, e1.op::ops))
           }
         }
-        if(suffixMatching(e.op::ops)) withE(arity) ::= e::es
+        if(suffixMatching(e.op::ops)) withE(arity) ::= ((e::es, e.op::ops))
       }
       // Try adding a member of calls to each member of withE(arity-1)
-      ess = withE(arity-1)
-      while(ess.nonEmpty){
-        val es = ess.head; ess = ess.tail; val ops = es.map(_.op); var cs = calls
+      eoss = withE(arity-1)
+      while(eoss.nonEmpty){
+        val (es, ops) = eoss.head; eoss = eoss.tail; var cs = calls
         while(cs.nonEmpty){
           val e1 = cs.head; cs = cs.tail
-          if(!es.contains(e1) && suffixMatching(e1.op::ops))
-            withE(arity) ::= e1::es
+          if(!contains(es,e1) && suffixMatching(e1.op::ops))
+            withE(arity) ::= ((e1::es, e1.op::ops))
         }
       }
     }
@@ -156,9 +163,10 @@ class StatefulTester[Op,S](
     require(doASAP)
     var result = List[SyncInfo]()
     val candidates = allArgsListsWith(calls.filter(_ != e), e)
-    for(arity <- arities; es1 <- candidates(arity)) canSync(spec, es1) match{
-      case Some(spec1) => result ::= (spec1, es1)
-      case None => {}
+    for(arity <- arities; (es1, ops1) <- candidates(arity)) 
+      canSync(spec, es1, ops1) match{ 
+        case Some(spec1) => result ::= (spec1, es1)
+        case None => {}
     }
     result
   }
@@ -219,12 +227,14 @@ class StatefulTester[Op,S](
       * to spec1 and es. */
     private def mkNext(spec1: S, es: List[CallEvent1]): Config = {
       // Update pending and canReturn
-      val newPending = pending.filter(e => !es.contains(e))
+      val newPending = pending.filter(e => !contains(es,e))
       val newCanReturn = es.map(_.ret) ++ canReturn
       // Update matching, matchingSize, linIndices
       val newMatching = matching.clone; val indices = es.map(_.opIndex)
-      val newLinIndices = linIndices.clone
-      for(i <- indices){
+      val newLinIndices = linIndices.clone; var j = 0
+      while(j < indices.length){
+        // for(i <- indices){
+        val i = indices(j); j += 1
         newMatching(i) = indices; newLinIndices(i) = nextLinIndex
       }
       var newMatchingSize = matchingSize

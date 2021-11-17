@@ -1,4 +1,4 @@
-package synchronisationTester
+package synchronisationObject
 
 import java.lang.System.nanoTime
 

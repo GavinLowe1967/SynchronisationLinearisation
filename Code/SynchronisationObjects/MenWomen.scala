@@ -1,4 +1,4 @@
-package synchronisationTester
+package synchronisationObject
 
 trait MenWomenT{
   def manSync(me: Int): Int

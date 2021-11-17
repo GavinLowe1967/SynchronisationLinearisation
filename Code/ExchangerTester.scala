@@ -3,6 +3,7 @@ package synchronisationTester
 import scala.util.Random
 
 import synchronisationTesting.{HistoryLog,HomogeneousBinaryStatelessTester}
+import synchronisationObject.{ExchangerT,Exchanger,FaultyExchanger}
 
 object ExchangerTester{
   /** Number of worker threads to run. */

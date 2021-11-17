@@ -2,6 +2,7 @@ package synchronisationTester
 
 import scala.util.Random
 import synchronisationTesting.{HistoryLog,StatelessTester}
+import synchronisationObject.{ABCT,ABC,FaultyABC}
 
 import ox.gavin.profiling.{SamplingProfiler,ProfilerSummaryTree}
 import scala.collection.mutable.ArrayBuffer

@@ -1,4 +1,4 @@
-package synchronisationTester
+package synchronisationObject
 
 /** A filtering channel, where the receiver specifies a predicate over the values it is willing to receive. */
 trait FilterChanT[A]{

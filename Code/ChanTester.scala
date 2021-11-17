@@ -49,7 +49,7 @@ object ChanTester{
   /** Do a single test. */
   def doTest = {
     val c: Chan[Int] = 
-      if(faulty) new FaultyChan[Int] 
+      if(faulty) new synchronisationObject.FaultyChan[Int] 
       else /* if(faulty2) new FaultyChan2[Int] else */ ManyMany[Int]
     val bst = new synchronisationTesting.BinaryStatelessTester[Op](
       worker(c), p, matching)

@@ -32,6 +32,8 @@ class Tester[Op](worker: (Int, HistoryLog[Op]) => Unit, p: Int){
 
 // ==================================================================
 
+import ox.gavin.profiling.Profiler
+
 object Tester{
   /** Insert x into xs so as to keep the list sorted by index fields.  Pre: xs
     * is so sorted. */
@@ -97,6 +99,7 @@ object Tester{
     seen += config0
 
     while(stack.nonEmpty){
+      Profiler.count("DFS step")
       val config = stack.pop; var nexts = config.nexts
       while(nexts.nonEmpty){
         val next = nexts.head; nexts = nexts.tail

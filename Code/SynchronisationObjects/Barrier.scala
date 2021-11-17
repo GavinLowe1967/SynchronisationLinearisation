@@ -1,4 +1,4 @@
-package synchronisationTester
+package synchronisationObject
 
 /** The trait for a barrier synchronisation. */
 trait BarrierT{

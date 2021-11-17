@@ -2,8 +2,10 @@ package synchronisationTester
 
 import scala.util.Random
 import synchronisationTesting.{HistoryLog,StatefulTester}
+import synchronisationObject.{
+  BarrierCounterT,BarrierCounter,FaultyBarrierCounter,BarrierCounter2}
 
-import ox.gavin.profiling.{SamplingProfiler,ProfilerSummaryTree}
+import ox.gavin.profiling.{SamplingProfiler,ProfilerSummaryTree,Profiler}
 import scala.collection.mutable.ArrayBuffer
 
 /** A tester for a barrier synchronisation with a sequence counter. */
@@ -13,9 +15,6 @@ object BarrierCounterTester{
 
   /** Number of worker threads to run.  Requires p%n == 0. */
   var p = 12
-
-  // /** Number of iterations per worker thread. */
-  // var iters = 20
 
   // Representation of operations within the log
   case class Sync()
@@ -51,10 +50,11 @@ object BarrierCounterTester{
   /** Run a single test. */
   def doTest = {
     val barrier: BarrierCounterT = 
-      if(version2) new BarrierCounter2(n) else new BarrierCounter(n)
+      if(faulty) new FaultyBarrierCounter(n)
+      else if(version2) new BarrierCounter2(n) else new BarrierCounter(n)
     val spec = new Spec
     val tester = new StatefulTester[Sync,Spec](
-      worker(barrier) _, p, List(3), matching _, suffixMatching _, 
+      worker(barrier) _, p, List(n), matching _, suffixMatching _, 
       spec, doASAP, verbose)
     if(!tester()) sys.exit 
   }
@@ -65,16 +65,17 @@ object BarrierCounterTester{
     var reps = 5000; var i = 0; var interval = 50; var profiling = false
     while(i < args.length) args(i) match{
       case "-p" => p = args(i+1).toInt; i += 2
+      case "-n" => n = args(i+1).toInt; i += 2
       // case "--iters" => iters = args(i+1).toInt; i += 2
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--verbose" => verbose = true; i += 1
       case "--doASAP" => doASAP = true; i += 1
-      // case "--faulty" => faulty = true; i += 1
+      case "--faulty" => faulty = true; i += 1
       case "--version2" => version2 = true; i += 1
       case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
       case arg => println(s"Illegal argument: $arg"); sys.exit
     }
-    assert(p%n == 0)
+    assert(p%n == 0, s"Requires p%n == 0.  p = $p, n = $n")
 
 
     def run() = {
@@ -89,7 +90,7 @@ object BarrierCounterTester{
           !frame.getClassName.contains("io.threadcso.semaphore")
       // val printer = 
       def printer(data: ArrayBuffer[SamplingProfiler.StackTrace]) = {
-        SamplingProfiler.print(filter = filter, length = 30)(data)+"\n"+
+        SamplingProfiler.print(filter = filter, length = 20)(data)+"\n"+
         SamplingProfiler.printTree(
           filter = filter, expand = ProfilerSummaryTree.expandToThreshold(0.05)
         )(data)
@@ -100,9 +101,10 @@ object BarrierCounterTester{
     else run()
     val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
     println; println(s"$duration ms")
+    Profiler.report
   }
 
-
-
-
+  /* Note, this works well for small values of n.  But the number of
+   * synchronisations considered within StatefulTester.allSyncs grows as
+   * O(n!). */
 }

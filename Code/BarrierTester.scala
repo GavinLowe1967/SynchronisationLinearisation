@@ -2,6 +2,8 @@ package synchronisationTester
 
 import scala.util.Random
 import synchronisationTesting.{HistoryLog,StatelessTester}
+import synchronisationObject.{
+  BarrierT,Barrier,Barrier2,FaultyBarrier,FaultyBarrier2,FaultyBarrier3}
 // import io.threadcso._
 
 object BarrierTester{

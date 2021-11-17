@@ -1,26 +1,24 @@
-package synchronisationTester
+package synchronisationObject
 import io.threadcso._
 
 /** A trait for three-way synchronisation objects, concerning families A, B
   * and C.  Each thread should call the sync method matching their type, and
-  * gets back the identities of the other threads with which it synchronised,
-  * and also a sequence counter. */ 
-trait ABCCounterT[A,B,C]{
-  def syncA(a: A): (B,C,Int)
-  def syncB(b: B): (A,C,Int)
-  def syncC(c: C): (A,B,Int)
+  * gets back the identities of the other threads with which it
+  * synchronised. */ 
+trait ABCT[A,B,C]{
+  def syncA(a: A): (B,C)
+  def syncB(b: B): (A,C)
+  def syncC(c: C): (A,B)
 }
 
 // ==================================================================
 
 /** Implementation using semaphores. */
-class ABCCounter[A,B,C] extends ABCCounterT[A,B,C]{
+class ABC[A,B,C] extends ABCT[A,B,C]{
   // The identities of the current (or previous) threads.
   private var a: A = _
   private var b: B = _
   private var c: C = _
-
-  private var counter = 0
 
   // Semaphores to signal that threads can write their identities.
   private val aClear = MutexSemaphore()
@@ -33,7 +31,7 @@ class ABCCounter[A,B,C] extends ABCCounterT[A,B,C]{
     aClear.down         // (A1)
     a = me; bClear.up   // signal to b at (B1)
     aSignal.down        // (A2)
-    val result = (b,c,counter)
+    val result = (b,c)
     bSignal.up          // signal to b at (B2)
     result
   }
@@ -42,7 +40,7 @@ class ABCCounter[A,B,C] extends ABCCounterT[A,B,C]{
     bClear.down         // (B1)
     b = me; cClear.up   // signal to C at (C1)
     bSignal.down        // (B2)
-    val result = (a,c,counter)
+    val result = (a,c)
     cSignal.up          // signal to c at (C2)
     result
   }
@@ -51,8 +49,7 @@ class ABCCounter[A,B,C] extends ABCCounterT[A,B,C]{
     cClear.down         // (C1)
     c = me; aSignal.up  // signal to A at (A2)
     cSignal.down        // (C2)
-    val result = (a,b,counter)
-    counter += 1
+    val result = (a,b)
     aClear.up           // signal to an A on the next round at (A1)
     result
   }
@@ -60,14 +57,12 @@ class ABCCounter[A,B,C] extends ABCCounterT[A,B,C]{
 
 // ==================================================================
 
-/** A faulty implementation using semaphores. */
-class FaultyABCCounter[A,B,C] extends ABCCounterT[A,B,C]{
+/** Incorrect implementation using semaphores. */
+class FaultyABC[A,B,C] extends ABCT[A,B,C]{
   // The identities of the current (or previous) threads.
   private var a: A = _
   private var b: B = _
   private var c: C = _
-
-  private var counter = 0
 
   // Semaphores to signal that threads can write their identities.
   private val aClear = MutexSemaphore()
@@ -80,17 +75,15 @@ class FaultyABCCounter[A,B,C] extends ABCCounterT[A,B,C]{
     aClear.down         // (A1)
     a = me; bClear.up   // signal to b at (B1)
     aSignal.down        // (A2)
-    // val result = (b,c,counter)
     bSignal.up          // signal to b at (B2)
-    // result
-    (b,c,counter)
+    (b,c)               // This is an error
   }
 
   def syncB(me: B) = {
     bClear.down         // (B1)
     b = me; cClear.up   // signal to C at (C1)
     bSignal.down        // (B2)
-    val result = (a,c,counter)
+    val result = (a,c)
     cSignal.up          // signal to c at (C2)
     result
   }
@@ -99,8 +92,7 @@ class FaultyABCCounter[A,B,C] extends ABCCounterT[A,B,C]{
     cClear.down         // (C1)
     c = me; aSignal.up  // signal to A at (A2)
     cSignal.down        // (C2)
-    val result = (a,b,counter)
-    counter += 1
+    val result = (a,b)
     aClear.up           // signal to an A on the next round at (A1)
     result
   }

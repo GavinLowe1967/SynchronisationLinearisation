@@ -1,4 +1,4 @@
-package synchronisationTester
+package synchronisationObject
 
 /** A channel with a sequence counter, where the sender receives the current value of the sequence counter. */
 trait ChanCounterT[A]{
