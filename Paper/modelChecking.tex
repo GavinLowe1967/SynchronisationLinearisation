@@ -1,0 +1,126 @@
+\section{Model checking for synchronisation linearisation}
+\label{sec:modelChecking}
+
+In this section we describe how to analyse a synchronisation object using
+model checking, to gain assurance that it satisfies synchronisation
+linearisation.  We present our approach within the framework of the process
+algebra CSP~\cite{awr:ucs} and its model checker FDR~\cite{fdr3,fdr-manual}.
+We assume some familiarity with the syntax of CSP.
+
+In particular, we use checks within the traces model of CSP\null.  This model
+represents a process~$P$ by its traces, denoted $traces(P)$, i.e.~the finite
+sequences of visible events that~$P$ can perform.  Given processes $P$
+and~$Q$, FDR can test whether $traces(P) \subseteq traces(Q)$.  Here $P$ is
+typically a model of some system that we want to analyse, and $Q$ is a
+specification process that has precisely the traces that correspond to the
+desired property.
+
+\framebox{Limitations} of model checking.
+
+We describe how to test for synchronisation linearisation within this
+framework.  We start with the case of heterogeneous binary synchronisations;
+we describe how to generalise at the end of this section.
+
+We build a CSP model of the synchronisation object.  Such modelling is well
+understood, so we don't elaborate in detail.  Typically CSP processes
+representing threads perform events to read or write shared variables, acquire
+or release locks, etc.  The shared variables, locks, etc., are also
+represented by CSP processes.  An example for a synchronous channel can be
+found in~\cite{gavin:syncChan}.  
+
+We assume that the model includes the following events:
+%
+\begin{itemize}
+\item \CSPM{call}$.t.op.x$ to represent thread~$t$ calling operation~$op$ with
+  parameter~$x$; 
+
+\item \CSPM{return}$.t.op.y$ to represent thread~$t$ returning from
+  operation~$op$ with result~$y$.
+\end{itemize}
+%
+We assume that all other events, describing the internal operation of the
+synchronisation object, are hidden, i.e.~converted into internal events.
+
+We now describe how to test whether the model satisfies synchronisation
+linearisation with respect to a specification object.  We build a process
+\CSPM{SyncSpec} corresponding to the specification object.  We assume this
+process uses events of the form \CSPM{sync}$.t_1.t_2.x_1.x_2.y_1.y_2$ to
+represent a synchronisation between threads~$t_1$ and~$t_2$, calling
+$op_1(x_1)$ and~$op_2(x_2)$, and receiving results~$y_1$ and~$y_2$,
+respectively.  For example, for the synchronous channel, we would have
+%
+\begin{cspm}
+SyncSpec = sync?t1?t2?x?u!u!x -> SyncSpec
+\end{cspm}
+
+If the synchronisation object or specification object has unbounded state, we
+have no chance of modelling it using finite-state model checking.  However, we
+can often build approximations.  For example, we could approximate (in an
+informal sense) the synchronous channel with sequence counter by one where the
+sequence counter is stored mod 5.  Then the specification object can
+be modelled by
+%
+\begin{cspm}
+SyncSpec = SyncSpec'(1)
+SyncSpec'(ctr) = sync?t1?t2?x?u!ctr!(x,ctr) -> SyncSpec'((ctr+1)%5)
+\end{cspm}
+
+We then build a \emph{lineariser} process for each thread as follows.
+%
+\begin{cspm}
+Lineariser(t) = 
+  call.t.op£\s1£?x£\s1£ -> sync.t?t£\s2£!x£\s1£?x£\s2£?y£\s1£?y£\s2£ -> return.t.op£\s1£.y£\s1£ -> Lineariser(t)
+  []
+  call.t.op£\s2£?x£\s2£ -> sync?t£\s1£!t?x£\s1£!x£\s2£?y£\s1£?y£\s2£ -> return.t.op£\s2£.y£\s2£ -> Lineariser(t)
+alpha(t) = {| call.t, return.t, sync.t.t£\s1£, sync.t£\s1£.t | t£\s1£ <- ThreadID, t£\s1£ != t |} 
+\end{cspm}
+%
+This ensures that between each \CSPM{call} and \CSPM{return} event
+of~\CSPM{t}, there is a corresponding \CSPM{sync} event.  
+
+We then combine together the specification process with the linearisers,
+synchronising on shared events: this means that each
+\CSPM{sync.t}\s1\CSPM{.t}\s2 event will be a three-way synchronisation between
+\CSPM{SyncSpec}, \CSPM{Lineariser(t}\s1\CSPM{)} and
+\CSPM{Lineariser(t}\s2\CSPM{)}.  
+\begin{cspm}
+Spec£\s0£ = SyncSpec [| {| sync |} |] (**|| t <- ThreadID @ [alpha(t)] Lineariser(t))
+\end{cspm}
+Every trace will represent an interleaving
+between a possible history of the concurrent object and a legal history of the
+specification object.
+%
+Finally, we hide the \CSPM{sync} events. 
+\begin{cspm}
+Spec = Spec£\s0£ \ {| sync |}
+\end{cspm}
+%
+Each trace of the resulting process represents a history for which there is a
+compatible legal history of the specification object; i.e.~it has precisely
+the traces that correspond to histories that are synchronisation linearisable.
+It is therefore enough to test whether the traces of the model of the
+synchronisation object are a subset of the traces of \CSPM{Spec}, which can be
+discharged using FDR.
+
+We now generalise this approach.  For a synchronisation involving $k$ threads,
+the corresponding \CSPM{sync} event contains $k$ thread identities,
+$k$~parameters, and $k$~return values; each such event will be a
+synchronisation (in the CSP model) between $k$ threads and the specification
+process. 
+
+For homogeneous synchronisations the identities of the threads (and
+corresponding parameters and return values) may appear in either order within
+the |sync| events.  The following definition of the lineariser allows this. 
+%
+\begin{cspm}
+Lineariser(t) = 
+  call.t.op?x -> (
+    sync.t?t'!x?x'?y?y' -> return.t.op.y -> Lineariser(t)
+    []
+    sync?t'!t?x'!x?y'!y -> return.t.op.y -> Lineariser(t)
+  )
+\end{cspm}
+
+Finally, for synchronisation objects with multiple synchronisation modes, the
+specification process should have a different branch (with different
+\CSPM{sync} events) for each mode.

@@ -1,0 +1,106 @@
+Synchronisation testing architecture.  In directory SynchronisationTesting
+(class files in package synchronisationTesting).
+
+Log.scala: raw polymorphic log
+
+HistoryLog.scala: log for logging call and return of operation invocations.
+
+ThreadUtil.scala: thread utilities.
+
+Tester.scala: base class of all testers.
+
+BinaryTester.scala: base class of all binary testers.  ** Actually, of the
+stateless testers.
+
+FordFulkerson.scala: implementation of the Ford Fulkerson algorithm.  Used in
+BinaryStatelessTester.
+
+BinaryStatelessTester.scala: tester for the binary, stateless, heterogeneous
+case.
+
+DFS.scala: depth-first search for the binary, stateless, homogeneous case.
+
+HomogeneousBinaryStatelessTester.scala: tester for the binary, stateless,
+homogeneous case.
+
+BinaryStatefulTester: tester for the binary, stateful case.
+
+StatelessTester: tester for the general stateless case.
+
+StatefulTester: tester for the general stateful case.
+
+=======================================================
+
+Synchronisation objects, in directory SynchronisationObjects (class files in
+package synchronisationObject).
+
+FaultyChan.scala: faulty synchronous channel; binary, heterogeneous, stateless.
+
+FilterChan.scala: filtering channel; binary, heterogeneous, stateless.
+
+MenWomen.scala: the men and women problem; binary, heterogeneous, stateless.
+
+Exchanger.scala: faulty synchronous channel; binary, homogeneous, stateless.
+
+ChanCounter.scala: channel with sequence number; binary, heterogeneous,
+stateful.
+
+TwoFamilies.scala: the speed-dating problem; binary, heterogeneous, stateful.
+
+OneFamily.scala: a one-family version of the speed-dating problem; binary,
+homogeneous, stateful.
+
+ABC.scala: the ABC problem; non-binary, heterogeneous, stateless.
+
+Barrier.scala: a barrier synchronisation; non-binary, homogeneous, stateless.
+
+TimeoutChannel: channel with timeouts; non-binary with multiple modes,
+heterogeneous, stateless.
+
+ABCCounter: the ABC problem with a counter; non-binary, heterogeneous,
+stateful.
+
+BarrierCounter: a barrier synchronisation with a sequence number; non-binary,
+homogeneous, stateful.
+
+TerminatingQueue: a terminating queue; non-binary with multiple modes,
+heterogeneous, stateful.
+
+=======================================================
+
+Specific testers
+----------------
+
+In directory SynchronisationTesters, class files in synchronisationTester.
+Each tests the synchronisation objects with a similar name.
+
+ChanTester.scala (binary, stateless, heterogeneous)
+
+FilterChanTester.scala (binary, stateless, heterogeneous)
+
+MenWomenTester.scala (binary, stateless, heterogeneous)
+
+ExchangerTester.scala (binary, stateless, homogeneous)
+
+ChanCounterTester.scala (binary, stateful, heterogeneous)
+
+TwoFamiliesTester.scala (binary, stateful, heterogeneous)
+
+OneFamilyTester.scala (binary, stateful, homogenous)
+
+ABCTester.scala (ternary, stateless, heterogeneous)
+
+BarrierTester.scala (n-ary, stateless, homogenous)
+
+TimeoutChannelTester (mixed modes, stateless, heterogeneous)
+
+ABCCounterTester (ternary, stateful, heterogeneous)
+
+BarrierCounterTester
+
+TerminatingQueueTester
+
+==================================================================
+
+
+TODO: non-binary stateful examples: barrier with counter; terminating stack/queue.  In queue example, order dequeues by thread ID
