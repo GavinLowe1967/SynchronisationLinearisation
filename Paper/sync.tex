@@ -16,6 +16,24 @@
 \def\::{\mathord{\hspace{0.1mm}:\hspace{0.1mm}}}
 \def\range#1#2{[#1 \mathbin{..} #2)}
 \def\op{{\sm{op}}}
+\def\sync{\sm{sync}}
+\def\send{\sm{send}}
+\def\receive{\sm{receive}}
+
+% tikz stuff
+
+\def\X{node {$\cross$}}
+% Bullet at (#1,#2) with text #3 below
+\def\bulletAt(#1,#2)#3{%
+  \draw(#1,#2) node {$\bullet$}; \draw(#1,#2-0.4) node{\footnotesize #3};
+}
+% Cross at (#1,#2) with text #3 below
+\def\crossAt(#1,#2)#3{%
+  \draw(#1,#2) \X; \draw(#1,#2-0.4) node{\footnotesize #3};
+}
+
+\def\topfraction{0.75}
+\renewcommand{\floatpagefraction}{0.7}
 
 \sloppy\raggedbottom
 
@@ -34,10 +52,11 @@
 \input{introduction}
 \input{specification} % formal definition of synchronisation linearisation
 \input{relating} % relating synchronisation linearisation and linearisation
-\input{modelChecking}
 \input{testing} % testing algorithms
-\input{testing2}
-\input{variations} % variations on binary synchronisations.
+\input{direct}
+\input{modelChecking}
+%% \input{testing2}
+%% \input{variations} % variations on binary synchronisations.
 
 
 \end{document}

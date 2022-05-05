@@ -1,8 +1,8 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.11.17)  17 NOV 2021 11:54
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.12.3)  28 APR 2022 14:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**sync.tex
+**sync
 (./sync.tex
 LaTeX2e <2020-02-02> patch level 2
 L3 programming layer <2020-02-14>
@@ -416,20 +416,20 @@ File: l3backend-pdfmode.def 2020-02-03 L3 backend support: PDF mode
 (./sync.aux)
 \openout1 = `sync.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
  ABD: EveryShipout initializing macros
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -454,128 +454,135 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 \c@lstlisting=\count280
-LaTeX Font Info:    Trying to load font information for U+lasy on input line 26
+LaTeX Font Info:    Trying to load font information for U+lasy on input line 44
 .
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/ulasy.fd
 File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
 )
-LaTeX Font Info:    Trying to load font information for U+msa on input line 26.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 44.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 26.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 44.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (./introduction.tex
 LaTeX Font Info:    Trying to load font information for OMS+cmss on input line 
-20.
-LaTeX Font Info:    No file OMScmss.fd. on input line 20.
+25.
+LaTeX Font Info:    No file OMScmss.fd. on input line 25.
 
 
 LaTeX Font Warning: Font shape `OMS/cmss/m/n' undefined
 (Font)              using `OMS/cmsy/m/n' instead
-(Font)              for symbol `textbraceleft' on input line 20.
+(Font)              for symbol `textbraceleft' on input line 25.
 
 [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
 LaTeX Font Info:    Trying to load font information for OML+cmss on input line 
-64.
-LaTeX Font Info:    No file OMLcmss.fd. on input line 64.
+69.
+LaTeX Font Info:    No file OMLcmss.fd. on input line 69.
 
 
 LaTeX Font Warning: Font shape `OML/cmss/m/n' undefined
 (Font)              using `OML/cmm/m/it' instead
-(Font)              for symbol `textgreater' on input line 64.
+(Font)              for symbol `textgreater' on input line 69.
 
-[2]) (./specification.tex [3] [4] [5]
+[2] [3]
+
+LaTeX Warning: Reference `sec:testing' on page 4 undefined on input line 165.
+
+) (./specification.tex [4] [5]
 
 LaTeX Warning: Citation `herlihy-wing' on page 6 undefined on input line 132.
 
+[6]
 Package Listings Info: Deleted | as a short reference for \lstinline on input l
 ine 181.
 Package Listings Info: Made | a short reference for \lstinline on input line 19
 5.
-[6] [7]
+ [7]
 Package Listings Info: Deleted | as a short reference for \lstinline on input l
-ine 289.
+ine 288.
 Package Listings Info: Made | a short reference for \lstinline on input line 30
-6.
- [8] [9]) (./relating.tex [10] [11] [12] [13]
+7.
+ [8] [9]) (./relating.tex [10] [11] [12]
+
+LaTeX Warning: Citation `herlihy-shavit' on page 13 undefined on input line 177
+.
+
+[13]
+Overfull \hbox (12.29677pt too wide) in paragraph at lines 237--238
+[][]
+ []
+
 LaTeX Font Info:    Font shape `OT1/cmss/m/it' in size <10.95> not available
-(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 223.
+(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 245.
 
- [14]) (./modelChecking.tex
-
-LaTeX Warning: Citation `awr:ucs' on page 15 undefined on input line 7.
-
-
-LaTeX Warning: Citation `fdr3' on page 15 undefined on input line 7.
-
-
-LaTeX Warning: Citation `fdr-manual' on page 15 undefined on input line 7.
-
-[15]
-
-LaTeX Warning: Citation `gavin:syncChan' on page 16 undefined on input line 29.
-
-
-[16]) (./testing.tex
+[14] [15] [16]) (./testing.tex
 
 LaTeX Warning: Citation `gavin:lin-testing' on page 17 undefined on input line 
 8.
 
-[17]
 
-LaTeX Warning: Citation `gavin:lin-testing' on page 18 undefined on input line 
+LaTeX Warning: Citation `gavin:lin-testing' on page 17 undefined on input line 
 23.
 
 
-LaTeX Warning: Citation `faulty-pri-queue' on page 18 undefined on input line 3
+LaTeX Warning: Citation `faulty-pri-queue' on page 17 undefined on input line 3
 0.
 
-[18]
-Package Listings Info: Deleted | as a short reference for \lstinline on input l
-ine 96.
-Package Listings Info: Made | a short reference for \lstinline on input line 10
-5.
- [19] [20] [21]
-Underfull \hbox (badness 3460) in paragraph at lines 266--271
-[]\OT1/cmr/m/n/12 We in-sert an event $[][](\OML/cmm/m/it/12 t\OT1/cmr/m/n/12 )
-[]\OML/cmm/m/it/12 y[]$ \OT1/cmr/m/n/12 be-tween ev-ery $[][]\OML/cmm/m/it/12 :
-[][]\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 t\OT1/cmr/m/n/12 )$ and
- []
+[17] [18] [19] [20]) (./direct.tex [21] [22]
 
-[22]
-Underfull \hbox (badness 10000) in paragraph at lines 328--331
-[]\OT1/cmr/m/n/12 We add an event $[][]\OML/cmm/m/it/12 :[][]\OT1/cmr/m/n/12 (\
-OML/cmm/m/it/12 t; x[]\OT1/cmr/m/n/12 )$ im-me-di-ately be-fore each
+LaTeX Warning: Citation `???' on page 23 undefined on input line 66.
+
+[23]
+
+LaTeX Warning: Reference `???' on page 24 undefined on input line 148.
+
+[24]
+Underfull \hbox (badness 10000) in paragraph at lines 186--189
+\OT1/cmr/m/n/12 This cor-re-sponds to find-ing a match-ing in a non-necessarily
+
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 341--343
-[]\OT1/cmr/m/n/12 We add an event $[][]\OML/cmm/m/it/12 :[][][]y[]$ \OT1/cmr/m/
-n/12 im-me-di-ately af-ter each
+Underfull \hbox (badness 10000) in paragraph at lines 186--189
+\OT1/cmr/m/n/12 bi-par-tite graph. This can be done in time $\OML/cmm/m/it/12 O
+\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 n[]\OT1/cmr/m/n/12 )$.
  []
 
-Package Listings Info: Deleted | as a short reference for \lstinline on input l
-ine 397.
-Package Listings Info: Made | a short reference for \lstinline on input line 43
-0.
-[23]) (./testing2.tex [24]
+) (./modelChecking.tex
 
-LaTeX Warning: Citation `???' on page 25 undefined on input line 42.
+LaTeX Warning: Citation `awr:ucs' on page 25 undefined on input line 7.
 
-[25]) (./variations.tex
 
-LaTeX Warning: Reference `???' on page 26 undefined on input line 19.
+LaTeX Warning: Citation `fdr3' on page 25 undefined on input line 7.
 
-[26] [27]) [28] (./sync.aux)
+
+LaTeX Warning: Citation `fdr-manual' on page 25 undefined on input line 7.
+
+[25]
+
+LaTeX Warning: Citation `gavin:syncChan' on page 26 undefined on input line 29.
+
+
+[26] [27]
+
+LaTeX Warning: Citation `herlihy-shavit' on page 28 undefined on input line 143
+.
+
+
+Underfull \hbox (badness 4353) in paragraph at lines 165--173
+[]\OT1/cmr/m/n/12 Consider a model of the syn-chronous chan-nel, and the trace
+ []
+
+[28] [29] [30]) [31] (./sync.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
@@ -584,13 +591,13 @@ LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 15112 strings out of 483183
- 288986 string characters out of 5966291
- 497712 words of memory out of 5000000
- 29852 multiletter control sequences out of 15000+600000
- 549253 words of font info for 91 fonts, out of 8000000 for 9000
+ 15013 strings out of 483183
+ 286901 string characters out of 5966292
+ 499924 words of memory out of 5000000
+ 29754 multiletter control sequences out of 15000+600000
+ 549422 words of font info for 92 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 60i,12n,60p,522b,1701s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 60i,12n,60p,553b,1710s stack positions out of 5000i,500n,10000p,200000b,80000s
  </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1200.600
 pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></u
 sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/sha
@@ -610,15 +617,15 @@ exlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/share/texlive
 dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/texlive/texmf-dist
 /fonts/type1/public/amsfonts/cm/cmssi10.pfb></usr/share/texlive/texmf-dist/font
 s/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type
-1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
-nts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
-/cmti12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/latxfont
-/lasy10.pfb>
-Output written on sync.pdf (28 pages, 338631 bytes).
+1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsf
+onts/cm/cmti12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmtt12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/latxfon
+t/lasy10.pfb>
+Output written on sync.pdf (31 pages, 344562 bytes).
 PDF statistics:
- 199 PDF objects out of 1000 (max. 8388607)
- 142 compressed objects within 2 object streams
+ 209 PDF objects out of 1000 (max. 8388607)
+ 149 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

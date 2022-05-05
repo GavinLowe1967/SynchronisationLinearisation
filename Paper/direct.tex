@@ -1,0 +1,190 @@
+\section{Direct testing of synchronisation linearisation}
+
+We now consider how to test for synchronisation linearisation more directly.
+We perform logging precisely as for standard linearisation: a thread that
+performs a particular operation~$\sm{op}^i(x)$: (1) writes
+$\call.\sm{op}^i(x)$ into the log; (2)~performs $\sm{op}(x)$ on the
+synchonisation object, obtaining result~$y$, say; (3)~writes
+$\return.\sm{op}^i \:: y$ into the log.
+
+In this section we consider algorithms for determining if the resulting log
+history is synchronisation linearisable.  It turns out that the appropriate
+algorithm, and corresponding complexity results, differ depending upon the
+nature of the synchronisation object: whether synchronisations are binary, or
+may involve more than two threads; and whether the object is stateful or
+stateless. 
+
+Main ideas: general algorithm; NP-complete in general case; quadratic in
+stateless binary heterogeneous case; polynomial in binary homogeneous case;
+NP-complete for synchronisations of arity more than~2 even in stateless case.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{The general case}
+
+\framebox{I'm not sure if this matches the implemented algorithm}
+
+
+Suppose the specification object has non-trivial state. 
+
+I think it will be more efficient to give a more direct implementation.
+Define a configuration to be: (1)~a point in the log reached so far; (2)~the
+set of pending operation invocations that have not synchronised; (3)~the set
+of pending operation invocations that have synchronised (but not returned);
+and (4)~the state of the sequential synchronisation object.  In any
+configuration, can: synchronise a pair of pending operations (and update the
+synchronisation object); advance in the log if the next event is a return that
+is not pending; or advance in the log if the next event is a call.  Then
+perform DFS.
+
+Partial order reduction: a synchronisation point must follow either the
+call of one of the concurrent operations, or another synchronisation
+point.  Any synchronisation history can be transformed into this form, by
+moving synchronisation points earlier, but not before any of the corresponding
+call events, and preserving the order of synchronisations.  This means that
+after advancing past the call of an invocation, we may synchronise that
+invocation, and then an arbitrary sequence of other invocations. 
+
+Alternatively, a synchronisation point must precede either the return of one
+of the concurrent operations, or another synchronisation point.  This is more
+like the JIT technique in the linearisability testing paper.  This means that
+before advancing in the log to the return of an invocation that has not
+synchronised, we synchronise some invocations, ending with the one in
+question.  And we only synchronise in these circumstances. 
+
+My intuition is that the former is more efficient: in the latter, we might
+investigate synchronising other invocations even though the returning
+operation can't be synchronised with any invocation.  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Complexity}
+
+Consider the problem of testing whether a given concurrent history has
+synchronisations consistent with a given sequential specification object. 
+
+We make use of a result from~\cite{???} concerning the complexity of the
+corresponding problem for linearizability.  Let |Variable| be a
+linearizability specification object corresponding to a variable with |get|
+and |set| operations.  Then the problem of deciding whether a given concurrent
+history is linearisable with respect to |Variable| is NP-complete.
+
+Let |ConcVariable| be a concurrent object that represents a variable.  
+
+We consider concurrent synchronisation histories on an object with the
+following signature.   
+\begin{scala}
+object VariableSync{
+  def op£\s1£(op: String, x: Int): Int
+  def op£\s2£(u: Unit): Unit
+} 
+\end{scala}
+%
+The intention is that |op|\s1|("get", x)| acts like |get(x)|, and
+|op|\s1|("set", x)| acts like |set(x)| (but returns -1).  The |op|\s2
+invocations do nothing except synchronise.  This can be captured formally by
+the following synchronisation specification object.
+
+\begin{scala}
+object VariableSyncSpec{
+  private var state = 0
+  def sync((op, x): (String, Int), u: Unit): (Int, Unit) = 
+    if(op == "get") (state, ()) else{ state = x; (-1, ()) }
+}
+\end{scala}
+
+
+Let |ConcVariable| be a concurrent object that represents a variable.  Given a
+concurrent history~$h$ of |ConcVariable|, we build a concurrent history~$h'$
+of |VaraibleSync| as follows.  We replace every call or return of |get(x)| by
+(respectively) a call or return of |op|\s1|("get", x)|; and we do similarly
+with |set|s.  If there are $k$ calls of |get| or |set| in total, we prepend
+$k$ calls of |op|\s2, and append $k$ corresponding returns (in any order).
+Then it is clear that $h$ is linearisable with respect to |Variable| if and
+only if $h'$ is linearisable with respect to |VariableSyncSpec|.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{The binary heterogeneous stateless case}
+
+Consider a binary synchronisation object, whose specification object is
+stateless.  Note that in this case we do not need to worry about the order of
+synchronisations: if each individual synchronisation is correct, then any
+permutation of them will be synchronisation-linearisable.
+
+Define two invocations to be \emph{compatible} if they could be synchronised,
+i.e.~they overlap and the return values agree with those for the specification
+object.  For $n$ invocations of each operation (so a history of length~$4n$),
+this can be calculated in $O(n^2)$.
+
+Consider the bipartite graph where the two sets of nodes are invocations
+of~$\op_1$ and~$\op_2$, respectively, and there is an edge between two
+invocations if that are compatible.  A synchronisation linearisation then
+corresponds to a total matching of this graph: given a total matching, we
+build a synchronisation-compatible history of the synchronisation
+specification object by including events
+$\sync^{i_1,i_2}(x_1,x_2)\::(y_1,y_2)$ (in an arbitrary order) whenever there
+is an edge between $\op_1^{i_1}(x_1)\::y_1$ and $\op_2^{i_2}(x_2)\::y_2$ in
+the matching; and conversely, each synchronisation-compatible history
+corresponds to a total matching.
+
+Thus we have reduced the problem to that of deciding whether a total matching
+exits, for which standard algorithms exist.  We use the Ford-Fulkerson method,
+which runs in time $O(n^2)$.
+
+It is straightforward to extend this to a mix of binary and unary
+synchronisations, again with a stateless specification object: the invocations
+of unary operations can be considered in isolation.  
+
+%%%%%
+
+\subsection{The non-binary heterogeneous stateless case}
+
+It turns out that for synchronisations of arity greater than~2, the problem of
+deciding whether a history is synchronisation linearisable is NP-complete in
+general, even in the stateless case.  We prove this fact by reduction from the
+following problem, which is known to be NP-complete~\ref{???}.
+%
+\begin{definition}
+The problem of finding a complete matching in a 3-partite hypergraph is as
+follows: given disjoint finite sets $X$, $Y$ and~$Z$ of the same cardinality,
+and a set $T \subseteq X \times Y \times Z$, find $U \subseteq T$ such that
+each member of~$X$, $Y$ and~$Z$ is included in precisely one element of~$T$.
+\end{definition}
+
+Suppose we are given an instance $(X, Y, Z, T)$ of the above problem.  We
+construct a synchronisation specification and a corresponding history~$h$ such
+that $h$ is synchronisation linearisable if and only if a complete matching
+exists.  The synchronisations are between operations as follows:
+\begin{scala}
+  def op£\s1£(x: X): Unit
+  def op£\s2£(y: Y): Unit
+  def op£\s3£(z: Z): Unit
+\end{scala}
+%
+The synchronisations are specified by:
+%
+\begin{scala}
+  def sync(x: X, y: Y, z: Z): (Unit, Unit, Unit) = {
+    require(£$(\sm x, \sm y, \sm z) \in T$£); ((), (), ())
+  }
+\end{scala}
+%
+The history~$h$ starts with calls of |op|$_1(x)$ for each $x \in X$,
+|op|$_2(y)$ for each $y \in Y$, and |op|$_3(z)$ for each $z \in Z$ (in any
+order); and then continues with returns of the same invocations (in any
+order).  It is clear that any synchronisation linearisation corresponds to a
+complete matching, i.e.~the invocations that synchronise correspond to the
+complete matching~$U$.
+
+%%%%%
+
+\subsection{Binary, stateless, homogeneous}
+
+This corresponds to finding a matching in a non-necessarily bipartite graph.  
+This can be done in time $O(n^{2.5})$.
+\verb!https://en.wikipedia.org/wiki/Maximum_cardinality_matching!
+
+We haven't implemented this. 

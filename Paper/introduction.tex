@@ -4,7 +4,12 @@
 A common step of many concurrent programs involves two or more threads
 \emph{synchronising}: each thread waits until other relevant threads have
 reached the synchronisation point before continuing; in addition, the threads
-can exchange data.  We study synchronisations in this paper.
+can exchange data.  Reasoning about programs can be easier when
+synchronisations are used: it helps us to reason about the states that
+different threads are in. 
+
+We study synchronisations in this paper, formalising the requirements of
+synchronisations, and outlining analysis and testing techniques. 
 
 We start by giving some examples of synchronisations in order to illustrate
 the idea.  (We use Scala notation; we explain non-standard aspects of the
@@ -143,7 +148,7 @@ objects to be correct, and techniques for testing correctness.
 
 In Section~\ref{sec:spec} we describe how to specify a synchronisation
 object.  The definition has similarities with the standard definition of
-\emph{linearisation} for concurrent datatypes except is talks about
+\emph{linearisation} for concurrent datatypes, except it talks about
 synchronisations between invocations, rather than single invocations: we call
 the property \emph{synchronisation linearisation}. 
 
