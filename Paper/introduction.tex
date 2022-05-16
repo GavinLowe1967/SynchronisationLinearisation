@@ -8,8 +8,8 @@ can exchange data.  Reasoning about programs can be easier when
 synchronisations are used: it helps us to reason about the states that
 different threads are in. 
 
-We study synchronisations in this paper, formalising the requirements of
-synchronisations, and outlining analysis and testing techniques. 
+We study synchronisations in this paper: we formalise the requirements of
+synchronisations, and describe testing and analysis techniques.
 
 We start by giving some examples of synchronisations in order to illustrate
 the idea.  (We use Scala notation; we explain non-standard aspects of the
@@ -71,10 +71,11 @@ class CombiningBarrier(n: Int, f: (A,A) => A){
 }
 \end{scala}
 %
-If |n| threads call |sync| with parameters $x_1, \ldots, x_{\ss n}$, in some
-order, then each receives back $\sm f(x_1, \sm f(x_2, \ldots \sm f(x_{{\ss
-    n}-1}, x_{\ss n}) \ldots ))$ (in the common case that |f| is associative
-and commutative, this result is independent of the order of the parameters).
+The function |f| is assumed to be associative.  If |n| threads call |sync|
+with parameters $x_1, \ldots, x_{\ss n}$, in some order, then each receives
+back $\sm f(x_1, \sm f(x_2, \ldots \sm f(x_{{\ss n}-1}, x_{\ss n}) \ldots ))$
+(in the common case that |f| is commutative, this result is independent of the
+order of the parameters).
 
 In addition, we allow the synchronisations to be mediated by an object that
 maintains some state between synchronisations.  As an example, consider a
@@ -107,18 +108,20 @@ The |send| operation returns a boolean to indicate whether the send was
 successful, i.e.~whether it synchronised.  The |receive| operation can return
 a value |Some(x)| to indicate that it synchronised and received~|x|, or can
 return the value |None| to indicate that it failed to synchronise\footnote{The
-  type \scalashape{Option[A]} contains the union of such values.}.  Thus an
+  type {\scalashape Option[A]} contains the union of such values.}.  Thus an
 invocation of each operation may or may not synchronise with an invocation of
 the other operation. 
 
 A \emph{termination-detecting queue} can also be thought of as a stateful
 synchronisation object with multiple modes.  Such an object acts like a
-standard concurrent queue, except if all the threads are attempting to
-dequeue, but the queue is empty, then they all return a special value to
-indicate this fact.  In many concurrent algorithms, such as a concurrent graph
-search, this latter outcome indicates that the algorithm should terminate.
-Such a termination-detecting queue might have the following signature, where a
-dequeue returns the value |None| to indicate the termination case.
+standard partial concurrent queue: if a thread attempts to dequeue, but the
+queue is empty, it blocks until the queue becomes non-empty.  However, if a
+state is reached where all the threads are blocked in this way, then they all
+return a special value to indicate this fact.  In many concurrent algorithms,
+such as a concurrent graph search, this latter outcome indicates that the
+algorithm should terminate.  Such a termination-detecting queue might have the
+following signature, where a dequeue returns the value |None| to indicate the
+termination case.
 %
 \begin{scala}
 class TerminationDetectingQueue(n: Int){ // £n£ is the number of threads   
@@ -159,9 +162,15 @@ corresponds to a small adaptation of linearisation, where one of the
 operations of the synchronisation object corresponds to \emph{two} operations
 of the object used to specify linearisation.  
 
+We then consider testing of synchronisation object implementation.  Our
+techniques are based on the techniques for testing (standard)
+linearisation~\cite{gavin:lin-testing}, which we sketch in
+Section~\ref{sec:lin-testing}.  In Section~\ref{sec:testing-hacking} we show
+how the technique can be adapted to test for synchronisation linearisation,
+using the result of Section~\ref{sec:relating}.  Then in
+Section~\ref{sec:direct} we show how synchronisation linearisation can be
+tested more directly, and present various complexity results.
+
 In Section~\ref{sec:modelChecking} we consider how the property of
 synchronisation linearisation can be analysed via model checking.  
 
-In Section~\ref{sec:testing} we consider how to build testing frameworks for
-synchronisation objects. 
-\framebox{More here.}

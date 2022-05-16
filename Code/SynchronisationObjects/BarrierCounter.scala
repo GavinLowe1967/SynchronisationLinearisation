@@ -59,15 +59,15 @@ class FaultyBarrierCounter(n: Int) extends BarrierCounterT{
 
 // ==================================================================
 
-import io.threadcso._
+// import io.threadcso._
 
 /* An implementation using semaphores. */
 class BarrierCounter2(n: Int) extends BarrierCounterT{
   assert(n>1)
   private var seqNumber = 0 // the current sequence number
   private var waiting = 0 // number of processes currently waiting
-  private val waitSem = SignallingSemaphore()
-  private val mutex = MutexSemaphore()
+  private val waitSem = new SignallingSemaphore()
+  private val mutex = new MutexSemaphore()
 
   def sync = {
     mutex.down

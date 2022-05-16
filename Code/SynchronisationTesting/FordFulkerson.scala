@@ -46,7 +46,7 @@ class FordFulkerson(inX: Array[Boolean], edges: Array[List[Int]] ){
     // Start at nodes in X with no flow
     for(i <- X; if !toEnds(i)){ seen(i) = true; queue += ((i, List[Node](i))) }
     while(queue.nonEmpty){
-      val (n,path) = queue.dequeue
+      val (n,path) = queue.dequeue()
       if(inX(n)) // edges to a node in Y with no flow
         for(j <- edges(n); if !between(n)(j) && !seen(j)){
           seen(j) = true; queue += ((j, j::path))

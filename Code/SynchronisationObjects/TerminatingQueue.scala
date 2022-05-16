@@ -1,6 +1,6 @@
 package synchronisationObject
 
-import io.threadcso._
+// import io.threadcso._
 import scala.collection.mutable.Queue
 
 trait TerminatingQueueT[A]{ 
@@ -11,9 +11,6 @@ trait TerminatingQueueT[A]{
     * @return None if the queue has been shut down, or it the queue is empty
     * and all threads are trying to dequeue. */
   def dequeue: Option[A] 
-
-  /** Shut down this queue. */
-  // def shutdown(): Unit
 }
 
 // ==================================================================
@@ -54,11 +51,9 @@ class TerminatingQueue[A](numWorkers: Int) extends TerminatingQueueT[A]{
         waiting -= 1
       }
     }
-    if(done) None else Some(queue.dequeue)
+    if(done) None else Some(queue.dequeue())
   }
 
-  /** Shut down this queue. */
-  //private def shutdown() = synchronized{ done = true; notifyAll() }
 }
 
 

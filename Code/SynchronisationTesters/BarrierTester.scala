@@ -26,7 +26,7 @@ object BarrierTester{
   /** A worker, which calls barrier.sync once. */
   def worker(barrier: BarrierT)(me: Int, log: HistoryLog[Sync]) = {
     Thread.sleep(Random.nextInt(20))
-    log(me, barrier.sync, Sync(me))
+    log(me, barrier.sync(me), Sync(me))
   }
 
   var faulty = false; var faulty2 = false; 
@@ -41,7 +41,7 @@ object BarrierTester{
       else if(faulty3) new FaultyBarrier3(n) else new Barrier(n)
     val tester = 
       new StatelessTester[Sync](worker(barrier) _, p, List(n), matching, false)
-    if(!tester()) sys.exit
+    if(!tester()) sys.exit()
   }
 
   def main(args: Array[String]) = {
@@ -55,12 +55,12 @@ object BarrierTester{
       case "--faulty2" => faulty2 = true; i += 1
       case "--faulty3" => faulty2 = true; i += 1
       case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
-      case arg => println(s"Illegal argument: $arg"); sys.exit
+      case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
     assert(p%n == 0)
 
     for(i <- 0 until reps){ doTest; if(i%10 == 0) print(".") }
-    println
+    println()
   }
 
 }

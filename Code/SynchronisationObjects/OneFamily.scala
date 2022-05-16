@@ -1,6 +1,6 @@
 package synchronisationObject
 
-import io.threadcso._
+// import io.threadcso._
 
 /** Synchronisation object for the following problem.  Threads have integer
   * identities in a known range.  Each thread must synchronise with each
@@ -16,13 +16,13 @@ class OneFamily(n: Int) extends OneFamilyT{
   private val synced = Array.ofDim[Boolean](n,n)
 
   /** Semaphores on which to signal to processes. */
-  private val semaphores = Array.fill(n)(SignallingSemaphore())
+  private val semaphores = Array.fill(n)(new SignallingSemaphore())
 
   /** Flags showing which processes are waiting. */
   private val waiting = Array.ofDim[Boolean](n)
 
   /** Semaphore for mutual exclusion. */
-  private val mutex = MutexSemaphore()
+  private val mutex = new MutexSemaphore()
 
   /** Identity of thread with which an awakening thread is paired. */
   private var lastSync = -1
@@ -52,13 +52,13 @@ class OneFamilyFaulty(n: Int) extends OneFamilyT{
   private val synced = Array.ofDim[Boolean](n,n)
 
   /** Semaphores on which to signal to processes. */
-  private val semaphores = Array.fill(n)(SignallingSemaphore())
+  private val semaphores = Array.fill(n)(new SignallingSemaphore())
 
   /** Flags showing which processes are waiting. */
   private val waiting = Array.ofDim[Boolean](n)
 
   /** Semaphore for mutual exclusion. */
-  private val mutex = MutexSemaphore()
+  private val mutex = new MutexSemaphore()
 
   /** Identity of thread with which an awakening thread is paired. */
   private var lastSync = -1

@@ -69,7 +69,7 @@ object Tester{
 
     /** Equality test. */
     override def equals(that: Any) = that match{
-      case conf: Config[Op,S] => 
+      case conf: Config[Op,S] @unchecked => 
         conf.index == index && conf.spec == spec &&
         conf.canReturn == canReturn && conf.pending == pending
     }
@@ -100,7 +100,7 @@ object Tester{
 
     while(stack.nonEmpty){
       Profiler.count("DFS step")
-      val config = stack.pop; var nexts = config.nexts
+      val config = stack.pop(); var nexts = config.nexts
       while(nexts.nonEmpty){
         val next = nexts.head; nexts = nexts.tail
         if(seen.add(next)){

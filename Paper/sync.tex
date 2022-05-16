@@ -7,8 +7,8 @@
 \usepackage{scalalistings}
 
 \newtheorem{lemma}{Lemma}
-\newtheorem{definition}{Definition}[lemma]
-\newtheorem{prop}{Proposition}[lemma]
+\newtheorem{definition}[lemma]{Definition}
+\newtheorem{prop}[lemma]{Proposition}
 
 \def\s#1{$_{#1}$}
 \def\call{\mathsf{call}}
@@ -58,5 +58,6 @@
 %% \input{testing2}
 %% \input{variations} % variations on binary synchronisations.
 
-
+\bibliographystyle{alpha}
+\bibliography{sync}
 \end{document}

@@ -1,5 +1,5 @@
 package synchronisationObject
-import io.threadcso._
+// import io.threadcso._
 
 /** A trait for three-way synchronisation objects, concerning families A, B
   * and C.  Each thread should call the sync method matching their type, and
@@ -23,11 +23,11 @@ class ABCCounter[A,B,C] extends ABCCounterT[A,B,C]{
   private var counter = 0
 
   // Semaphores to signal that threads can write their identities.
-  private val aClear = MutexSemaphore()
-  private val bClear, cClear = SignallingSemaphore()
+  private val aClear = new MutexSemaphore()
+  private val bClear, cClear = new SignallingSemaphore()
 
   // Semaphores to signal that threads can collect their results. 
-  private val aSignal, bSignal, cSignal = SignallingSemaphore()
+  private val aSignal, bSignal, cSignal = new SignallingSemaphore()
 
   def syncA(me: A) = {
     aClear.down         // (A1)
@@ -70,11 +70,11 @@ class FaultyABCCounter[A,B,C] extends ABCCounterT[A,B,C]{
   private var counter = 0
 
   // Semaphores to signal that threads can write their identities.
-  private val aClear = MutexSemaphore()
-  private val bClear, cClear = SignallingSemaphore()
+  private val aClear = new MutexSemaphore()
+  private val bClear, cClear = new SignallingSemaphore()
 
   // Semaphores to signal that threads can collect their results. 
-  private val aSignal, bSignal, cSignal = SignallingSemaphore()
+  private val aSignal, bSignal, cSignal = new SignallingSemaphore()
 
   def syncA(me: A) = {
     aClear.down         // (A1)

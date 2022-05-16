@@ -1,38 +1,40 @@
-%% \section{Testing algorithms}
-%% \label{sec:testing}
-
 \section{Linearisability testing}
+\label{sec:lin-testing}
 
-Most of the techniques that we describe for testing synchronisation
-linearisation are influenced by the techniques for testing (standard)
-linearisation testing~\cite{gavin:lin-testing}, so we begin by sketching those
-techniques. 
+In the following two sections, we describe techniques for testing whether the
+implementation of a synchronisation object is synchronisation linearisable
+with respect to a synchronisation specification object.
+%
+Most of the techniques are influenced by the techniques for testing (standard)
+linearisation~\cite{gavin:lin-testing}, so we begin by sketching those
+techniques.
 
 The idea of linearisability testing is as follows.  We run several threads,
 performing operations (typically chosen randomly) upon the concurrent datatype
 that we are testing, and logging the calls and returns.  More precisely, a
 thread that performs a particular operation~$\sm{op}^i(x)$: (1) writes
 $\call.\sm{op}^i(x)$ into the log; (2)~performs $\sm{op}(x)$ on the
-synchonisation object, obtaining result~$y$, say; (3)~writes $\return.\sm{op}^i
-\:: y$ into the log.  
+synchonisation object, obtaining result~$y$, say; (3)~writes
+$\return.\sm{op}^i \:: y$ into the log.  Further, the logging associates each
+invocation with an invocation $\sm{op}(x)$ of the corresponding operation
+on the specification object.
 
 Once all threads have finished, we can use an algorithm to test whether the
 history is linearisable with respect to the specification object.  Informally,
 the algorithm searches for an order to linearise the invocations, consistent
 with what is recorded in the log, and such that the order represents a legal
-history of the specification object.  See~\cite{gavin:lin-testing} for details
-of the algorithms.
+history of the corresponding invocations on the specification object.
+See~\cite{gavin:lin-testing} for details of the algorithms.
 
 This process can be repeated many times, so as to generate and analyse many
 histories.  Our experience is that the technique works well.  It seems
 effective at finding bugs, where they exist, typically within a few seconds;
 for example, we used it to find an error in the concurrent priority queue
 of~\cite{faulty-pri-queue}, which we believe had not previously been
-documented.  Further, the technique is easy to use: we have taught it in our
-undergraduate Concurrent Programming course at Oxford, and students have used
-it effectively.
+documented.  Further, the technique is easy to use: we have taught it to
+undergraduate students, who have used it effectively.
 
-Note that this testing concentrates upon the safety property of linearisation,
+Note that this testing concentrates upon the safety property of linearisability,
 rather than liveness properties such as deadlock-freedom.  However, if the
 concurrent object can deadlock, it is likely that the testing will discover
 this.  Related to this point, it is the responsibility of the tester to define
@@ -61,7 +63,7 @@ the correctness of the concurrent datatype.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Hacking the linearisablity framework}
-\label{ssec:testing-hacking}
+\label{sec:testing-hacking}
 
 %% Can we encode synchronisation linearisability within the linearisability
 %% tester, using the correspondence of the previous section?  Jonathan to think
@@ -76,21 +78,22 @@ requiring the implementation of any new algorithms.
 
 Recall, from the introduction of Section~\ref{sec:relating}, that a
 straightforward approach won't work.  Instead we adapt the idea of two-step
-linearisation from later in that section.  We aim to obtain a log history that
-can be tested for linearisability against |TwoStepLinSpec|.
-
-We start by considering the case of binary heterogeneous synchronisation.
-\framebox{generalise} 
+linearisation from later in that section.  We start by considering the case of
+binary heterogeneous synchronisation.  We aim to obtain a log history that can
+be tested for (standard) linearisability against |TwoStepLinSpec|.
 
 As with standard linearisability testing, we run several threads, calling
 operations on the synchronisation object, and logging the calls and returns. 
 %
 \begin{itemize}
 \item A thread that performs the concrete operation~$\op_1(x_1)$: (1)~writes
-  $\call.\sm{op}_1^i(x_1)$ into the log; (2)~performs $\op_1(x_1)$ on the
-  synchonisation object, obtaining result~$y_1$, say; (3)~writes
-  $\return.\op_1^i \:: ()$,\, $\call.\overline{\op}_1^i()$ and
-  $\return.\overline{\op}_1^i \:: y_1$ into the log (in that order).
+  $\call.\sm{op}_1^i(x_1)$ into the log, associating it with a corresponding
+  invocation $\op_1(x_1)$ on the specification object; (2)~performs
+  $\op_1(x_1)$ on the synchonisation object, obtaining result~$y_1$, say;
+  (3)~writes $\return.\op_1^i \:: ()$ into the log; (4)~writes
+  $\call.\overline{\op}_1^i()$ into the log, associating it with a
+  corresponding invocation $\overline{\op}_1()$ on the specification object;
+  (5)~writes $\return.\overline{\op}_1^i \:: y_1$ into the log.
 
 \item A thread that performs operation~|op|\s2 acts as for standard
   linearisability testing.
@@ -158,7 +161,7 @@ the synchronisation object.
 
 %%%%%
 
-Note that (as with standard linearisation) the tester needs to define the
+As with standard linearisation, the tester needs to define the
 threads so that all invocations will eventually return, i.e.~that each will be
 able to synchronise.  For a binary synchronisation with no precondition, we
 can achieve this by half the threads calling one operation, and the other half
@@ -184,9 +187,9 @@ Let $h$ by a history of actual calls and returns, and let $h_l$ be a
 corresponding log history.  By assumption, $h$ is
 synchronisation-linearisable, so let $h_s$ be the history of |SyncSpec| that
 is synchronisation-compatible with~$h$.  Consider the interleaving of all
-three: i.e.~$h$ and~$h_l$ are interleaved corresponding to temporal ordering;
-and $h$ and~$h_s$ are interleaved, as required for synchronisation
-compatibility.  Figure~\ref{fig:two-step-log} gives an example.
+three: i.e.~$h$ and~$h_l$ interleaved corresponding to temporal ordering; and
+$h$ and~$h_s$ interleaved as required for synchronisation compatibility.
+Figure~\ref{fig:two-step-log} gives an example.
 
 We construct a history~$h_t$ of |TwoStepLinSpec| such that $h_l$ and~$h_t$ are
 compatible.  We define~$h_t$ by interleaving it with the previous
@@ -235,7 +238,7 @@ logging is done fast enough.
 %%%%%%
 \begin{lemma}
 \label{lem:hacking-can-succeed}
-Let $h$ be a complete a history of operation invocations that is not
+Let $h$ be a complete  history of operation invocations that is not
 synchronisation-linearisable with respect to |SyncSpec|.  Then there is a
 corresponding log history~$h_l$ that is not linearisable with respect to
 |TwoStepLinSpec|.
@@ -246,7 +249,7 @@ We construct $h_l$ by interleaving with~$h$, so that each event of~$h_l$
 occurs as close as possible to the corresponding call or return in~$h$, i.e.:
 %
 \begin{itemize}
-\item Each $\call.op_j^{i}(x)$ in~$h_l$ occurs immediately before the
+\item Each $\call.\op_j^{i}(x)$ in~$h_l$ occurs immediately before the
   corresponding call in~$h$, for $j = 1,2$;
 
 \item Each $\return.\op_1^i \:: ()$,\, $\call.\overline{\op}_1^i()$ and
@@ -306,7 +309,7 @@ between corresponding call/return events from~$h$ and~$h_l$.  This means:
 \item Each $\op_2^{i_2}(x_2)\::y_2$ from~$h_t$ occurs between the
   corresponding call and return events of~$\op_2$ in~$h$;
 
-\item Each $\overline{\op}_1^{i_1}()\::y_1$ from~$h_t$ necessarily occurs
+\item Each $\overline{\op}_1^{i_1}()\::y_1$ from~$h_t$  occurs
   between the corresponding $\call.\overline{\op}_1^1()$ and
   $\return.\overline{\op}_1^1\::y_1$, with these three events being
   consecutive.

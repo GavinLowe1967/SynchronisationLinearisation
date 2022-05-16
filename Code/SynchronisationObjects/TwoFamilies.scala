@@ -1,6 +1,6 @@
 package synchronisationObject
 
-import io.threadcso._
+// import io.threadcso._
 
 /** Synchronisation object for the following problem.  There are two families
   * of processes, of types A and B, of known sizes, and with integer
@@ -21,10 +21,10 @@ class TwoFamilies(m: Int, n: Int) extends TwoFamiliesT{
   private val synced = Array.ofDim[Boolean](m,n)
 
   /** Semaphores on which to signal to A processes. */
-  private val aSemaphores = Array.fill(m)(SignallingSemaphore())
+  private val aSemaphores = Array.fill(m)(new SignallingSemaphore())
 
   /** Semaphores on which to signal to B processes. */
-  private val bSemaphores = Array.fill(n)(SignallingSemaphore())
+  private val bSemaphores = Array.fill(n)(new SignallingSemaphore())
 
   /** Flags showing which A processes are waiting. */
   private val aWaiting = Array.ofDim[Boolean](m)
@@ -36,7 +36,7 @@ class TwoFamilies(m: Int, n: Int) extends TwoFamiliesT{
   private var lastSync = -1
 
   /** Semaphore for mutual exclusion. */
-  private val mutex = MutexSemaphore()
+  private val mutex = new MutexSemaphore()
 
   def syncA(a: Int): Int = {
     require(0 <= a && a < m)
@@ -86,10 +86,10 @@ class FaultyTwoFamilies(m: Int, n: Int) extends TwoFamiliesT{
   private val synced = Array.ofDim[Boolean](m,n)
 
   /** Semaphores on which to signal to A processes. */
-  private val aSemaphores = Array.fill(m)(SignallingSemaphore())
+  private val aSemaphores = Array.fill(m)(new SignallingSemaphore())
 
   /** Semaphores on which to signal to B processes. */
-  private val bSemaphores = Array.fill(n)(SignallingSemaphore())
+  private val bSemaphores = Array.fill(n)(new SignallingSemaphore())
 
   /** Flags showing which A processes are waiting. */
   private val aWaiting = Array.ofDim[Boolean](m)
@@ -104,7 +104,7 @@ class FaultyTwoFamilies(m: Int, n: Int) extends TwoFamiliesT{
   private var lastSyncB = -1
 
   /** Semaphore for mutual exclusion. */
-  private val mutex = MutexSemaphore()
+  private val mutex = new MutexSemaphore()
 
   def syncA(a: Int): Int = {
     require(0 <= a && a < m)

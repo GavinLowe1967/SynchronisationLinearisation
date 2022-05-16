@@ -60,7 +60,7 @@ object ChanCounterTester{
     val bst = new synchronisationTesting.BinaryStatefulTester[Op,Spec](
       worker(c), p, matching, spec)
     // assert(bst())
-    if(!bst()) sys.exit 
+    if(!bst()) sys.exit()
   }
 
   def main(args: Array[String]) = {
@@ -73,13 +73,13 @@ object ChanCounterTester{
       case "--MaxVal" => MaxVal = args(i+1).toInt; i += 2
       case "--faulty" => faulty = true; i += 1
       // case "--faulty2" => faulty2 = true; i += 1
-      case arg => println(s"Illegal argument: $arg"); sys.exit
+      case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
     assert(p%2 == 0)
 
     val start = java.lang.System.nanoTime
     for(i <- 0 until reps){ doTest; if(i%100 == 0) print(".") }
     val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
-    println; println(s"$duration ms")
+    println(); println(s"$duration ms")
   }
 }

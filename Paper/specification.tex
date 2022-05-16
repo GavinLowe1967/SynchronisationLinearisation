@@ -3,7 +3,7 @@
 
 In this section we describe how synchronisations can be formally specified.
 For ease of exposition, we start by considering \emph{heterogeneous binary}
-synchronisation in this section, where every synchronisation is between
+synchronisation in this section, i.e.~where every synchronisation is between
 \emph{two} invocations of \emph{different} operations.  We generalise at the
 end of this section.
 
@@ -48,7 +48,7 @@ We formalise below what it means for a synchronisation object to satisfy the
 requirements of a synchronisation specification object.  But first, we give
 some examples to illustrate the style of specification. 
 
-A generic definition of a specification object might take the following form
+A generic definition of a specification object might take the following form: 
 %
 \begin{scala}
 class Spec{
@@ -145,17 +145,16 @@ invocations on~$o$.  It is a sequence of events of the following forms:
   giving result~$y$.
 \end{itemize}
 %
-In each case, $op$ is an operation of~$o$.  Here $i$ is a \emph{invocation
-  identity}, used to identify a particular invocation, and to link the $\call$
-and corresponding~$\return$.  In order to be well formed, each invocation
-identity must appear on at most one $\call$ event and at most one $\return$
-event; and for each event $\return.op^i\::y$, the history must contain an
-earlier event $\call.op^i(x)$, i.e.~for the same operation and invocation
-identity.  We consider only well formed histories from now on.  We say that a
-$\call$ event and a $\return$ event \emph{match} if they have the same
-invocation identifier.  A concurrent history is \emph{complete} if for every
-$\call$ event, there is a matching $\return$ event, i.e.~no invocation is
-still pending at the end of the history.
+Here $i$ is a \emph{invocation identity}, used to identify a particular
+invocation, and to link the $\call$ and corresponding~$\return$.  In order to
+be well formed, each invocation identity must appear on at most one $\call$
+event and at most one $\return$ event; and for each event $\return.op^i\::y$,
+the history must contain an earlier event $\call.op^i(x)$, i.e.~for the same
+operation and invocation identity.  We consider only well formed histories
+from now on.  We say that a $\call$ event and a $\return$ event \emph{match}
+if they have the same invocation identifier.  A concurrent history is
+\emph{complete} if for every $\call$ event, there is a matching $\return$
+event, i.e.~no invocation is still pending at the end of the history.
 
 For example, consider the following complete concurrent history of a
 concurrent object that is intended to implement a queue, with operations |enq|
@@ -314,7 +313,7 @@ invocation of |sync| with parameters $(x_1, x_2)$ and result $(y_1,y_2)$.  The
 event's invocation identity is~$(i_1,i_2)$: each of~$i_1$ and~$i_2$ must
 appear at most once in the history.  Informally, an event $\sync^{i_1,
   i_2}(x_1, x_2)\:: (y_1, y_2)$ corresponds to a synchronisation between
-invocations $\op_1^{i_1}(x_1)\::y_1$ and $\op_2^{i_2}(x:2)\::y_2$ in a history
+invocations $\op_1^{i_1}(x_1)\::y_1$ and $\op_2^{i_2}(x_2)\::y_2$ in a history
 of the corresponding synchronisation object.
 
 A history is \emph{legal} if is consistent with the specification object.  

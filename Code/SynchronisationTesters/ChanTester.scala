@@ -1,9 +1,11 @@
 package synchronisationTester
 
-import io.threadcso._
+// import io.threadcso._
 import scala.util.Random
 
 import synchronisationTesting.{HistoryLog,ThreadUtil}
+
+import synchronisationObject.Chan
 
 /** A testing file. */
 object ChanTester{
@@ -50,10 +52,11 @@ object ChanTester{
   def doTest = {
     val c: Chan[Int] = 
       if(faulty) new synchronisationObject.FaultyChan[Int] 
-      else /* if(faulty2) new FaultyChan2[Int] else */ ManyMany[Int]
+      else new synchronisationObject.WrappedSCLChan[Int]
+      //else /* if(faulty2) new FaultyChan2[Int] else */ ManyMany[Int]
     val bst = new synchronisationTesting.BinaryStatelessTester[Op](
       worker(c), p, matching)
-    if(!bst()) sys.exit
+    if(!bst()) sys.exit()
   }
 
   def main(args: Array[String]) = {
@@ -66,13 +69,13 @@ object ChanTester{
       case "--MaxVal" => MaxVal = args(i+1).toInt; i += 2
       case "--faulty" => faulty = true; i += 1
       // case "--faulty2" => faulty2 = true; i += 1
-      case arg => println(s"Illegal argument: $arg"); sys.exit
+      case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
     assert(p%2 == 0)
 
     val start = java.lang.System.nanoTime
     for(i <- 0 until reps){ doTest; if(i%100 == 0) print(".") }
     val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
-    println; println(s"$duration ms")
+    println(); println(s"$duration ms")
   }
 }

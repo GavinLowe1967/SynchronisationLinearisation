@@ -25,7 +25,7 @@ class HomogeneousBinaryStatelessTester[Op](
         syncs(i)(j) = true; syncs(j)(i) = true
       }
     for(i <- 0 until numInvs; if syncs(i).forall(_ == false)){
-      println; println(events.mkString("\n"))
+      println(); println(events.mkString("\n"))
       println(s"Invocation $i does not synchronise with any other operation.")
       return null
     }
@@ -43,7 +43,7 @@ class HomogeneousBinaryStatelessTester[Op](
     val stack = new scala.collection.mutable.Stack[Int]; stack.push(n)
     val seen = new Array[Boolean](size); seen(n) = true
     while(stack.nonEmpty){
-      val n1 = stack.pop
+      val n1 = stack.pop()
       for(n2 <- 0 until size; if edges(n1)(n2) && !seen(n2)){
         component::= n2; stack.push(n2); seen(n2) = true
       }

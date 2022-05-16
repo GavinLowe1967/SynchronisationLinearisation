@@ -41,7 +41,7 @@ class BinaryStatelessTester[Op](
       assert(!isOp1(i) && !isOp2(i), 
         "Requirements of tester not satisfied: there do not appear to be "+
           "two distinct operations.")
-      println; println(events.mkString("\n"))
+      println(); println(events.mkString("\n"))
       println(s"Invocation $i does not synchronise with any other operation.")
       return null
     }

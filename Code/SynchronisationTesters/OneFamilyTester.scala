@@ -63,7 +63,7 @@ object OneFamilyTester{
     val spec = new Spec()
     val bst = new synchronisationTesting.BinaryStatefulTester[Sync,Spec](
       worker(of), n, matching, spec)
-    if(!bst()) sys.exit
+    if(!bst()) sys.exit()
   }
 
   def main(args: Array[String]) = {
@@ -73,7 +73,7 @@ object OneFamilyTester{
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--faulty" => faulty = true; i += 1
       // case "--faulty2" => faulty2 = true; i += 1
-      case arg => println(s"Illegal argument: $arg"); sys.exit
+      case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
     
     for(i <- 0 until reps){ doTest; if(i%100 == 0) print(".") }

@@ -56,7 +56,7 @@ object BarrierCounterTester{
     val tester = new StatefulTester[Sync,Spec](
       worker(barrier) _, p, List(n), matching _, suffixMatching _, 
       spec, doASAP, verbose)
-    if(!tester()) sys.exit 
+    if(!tester()) sys.exit()
   }
 
 
@@ -73,14 +73,14 @@ object BarrierCounterTester{
       case "--faulty" => faulty = true; i += 1
       case "--version2" => version2 = true; i += 1
       case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
-      case arg => println(s"Illegal argument: $arg"); sys.exit
+      case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
     assert(p%n == 0, s"Requires p%n == 0.  p = $p, n = $n")
 
 
     def run() = {
       for(i <- 0 until reps){ doTest; if(i%100 == 0) print(".") }
-      println
+      println()
     }
     val start = java.lang.System.nanoTime
     if(profiling){
@@ -100,7 +100,7 @@ object BarrierCounterTester{
     }
     else run()
     val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
-    println; println(s"$duration ms")
+    println(); println(s"$duration ms")
     Profiler.report
   }
 

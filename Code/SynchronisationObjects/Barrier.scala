@@ -2,19 +2,23 @@ package synchronisationObject
 
 /** The trait for a barrier synchronisation. */
 trait BarrierT{
-  def sync: Unit
+  def sync(id: Int): Unit
 }
 
 // ==================================================================
 
-/** The CSO barrier. */
-class Barrier(n: Int) extends io.threadcso.Barrier(n) with BarrierT
+/** The SCL barrier. */
+class Barrier(n: Int) extends BarrierT{
+  private val barrier = new ox.scl.Barrier(n) 
+
+  def sync(id: Int) = barrier.sync(id)
+}
 
 // ==================================================================
 
 /** An obviously faulty barrier. */
 class FaultyBarrier(n: Int) extends BarrierT{
-  def sync = {} // return immediately!
+  def sync(id: Int) = {} // return immediately!
 }
 
 // ==================================================================
@@ -23,7 +27,7 @@ class FaultyBarrier(n: Int) extends BarrierT{
 class FaultyBarrier2(n: Int) extends BarrierT{
   private var count = 0
 
-  def sync = synchronized{
+  def sync(id: Int) = synchronized{
     count += 1
     if(count == n){ count = 0; notifyAll() }
     else wait() // This doesn't guard against spurious wake-ups, so is an
@@ -38,7 +42,7 @@ class FaultyBarrier3(n: Int) extends BarrierT{
   private var count = 0
   private var leaving = false
 
-  def sync = synchronized{
+  def sync(id: Int) = synchronized{
     count += 1
     if(count == n){ leaving = true; /* count -= 1;*/ notifyAll() }
     else{ 
@@ -62,7 +66,7 @@ class Barrier2(n: Int) extends BarrierT{
   private var count = 0 // The number of waiting threads.
   private var leaving = false // Are we in the leaving phase?
 
-  def sync = synchronized{
+  def sync(id: Int) = synchronized{
     while(leaving) wait() // Wait for previous round to finish
     count += 1
     if(count == n){ leaving = true; count -= 1; notifyAll() }

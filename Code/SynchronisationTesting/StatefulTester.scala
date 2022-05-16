@@ -2,8 +2,8 @@ package synchronisationTesting
 
 import scala.collection.mutable.ArrayBuffer
 
-/** A tester for synchronisation linearisation in the case of binary
-  * synchronisations with a stateful synchronisation object.
+/** A tester for synchronisation linearisation in the case of synchronisations
+  * of arbitrary arity with a stateful synchronisation object.
   * 
   * @tparam Op the type representing operations on the synchronisation object.
   * @tparam S the type of the specification object.
@@ -190,8 +190,8 @@ class StatefulTester[Op,S](
     * the linearisation order given by linIndices. */
   private def showMatching(matching: Matching, linIndices: Array[Int]) = 
     println(HistoryLog.showHistoryWith(events, e => e match{
-      case _: CallEvent[Op,_] => ""
-      case _: ReturnEvent[Op,_] => 
+      case _: CallEvent[Op,_] @unchecked => ""
+      case _: ReturnEvent[Op,_] @unchecked => 
         val syncIndices = matching(e.opIndex)
         if(syncIndices != null) 
           s":  matched with "+syncIndices.filter(_ != e.opIndex).mkString(", ")+

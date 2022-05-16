@@ -58,7 +58,7 @@ object TimeoutChannelTester{
     val tester = 
       new StatelessTester[Op](worker(chan) _, p, List(1,2), matching, verbose)
     //println(tester())
-    if(!tester()) sys.exit
+    if(!tester()) sys.exit()
   }
 
   def main(args: Array[String]) = {
@@ -75,12 +75,12 @@ object TimeoutChannelTester{
       // case "--faulty2" => faulty2 = true; i += 1
       // case "--faulty3" => faulty2 = true; i += 1
       case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
-      case arg => println(s"Illegal argument: $arg"); sys.exit
+      case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
 
     def run() = {
       for(i <- 0 until reps){ doTest; if(i%10 == 0) print(".") }
-      println
+      println()
     }
 
     if(profiling){

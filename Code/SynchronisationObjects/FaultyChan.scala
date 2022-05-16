@@ -1,7 +1,8 @@
 package synchronisationObject
 
-import io.threadcso._
+//import io.threadcso._
 
+/*
 /** An extension of a CSO Chan[A], giving stub definitions for everything
   * except ! and ?. */
 trait BasicChan[A] extends Chan[A]{
@@ -37,15 +38,21 @@ trait BasicChan[A] extends Chan[A]{
       : channel.PortState = ???
   def unregisterOut(): channel.PortState = ???
 }
+ */
+
+trait Chan[A]{
+  def ?(u:Unit): A
+  def !(x: A): Unit
+}
 
 // ==================================================================
 
 /** A deliberately incorrect implementation of a shared synchronous channel. */
-class FaultyChan[A] extends BasicChan[A]{
+class FaultyChan[A] extends Chan[A]{
   private var data: A = _
   private var full = false
 
-  def ?(): A = synchronized{
+  def ?(u:Unit): A = synchronized{
     while(!full) wait()
     val result = data; full = false
     notifyAll()
@@ -60,6 +67,14 @@ class FaultyChan[A] extends BasicChan[A]{
 }
 
 // ==================================================================
+
+class WrappedSCLChan[A] extends  Chan[A]{
+  private val c = new ox.scl.SyncChan[A] 
+
+  def ?(u:Unit) = c?()
+
+  def !(x: A) = c!x
+}
 
 /*
 /** A faulty many-many synchronous channel passing data of type A, implemented

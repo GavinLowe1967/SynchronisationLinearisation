@@ -1,4 +1,8 @@
-CP = .:/home/gavin/Scala/CSO:/home/gavin/Scala/CADS:/home/gavin/Scala/Util
+CP = .:/home/gavin/Scala/Util
+
+CPSCL = .:/home/gavin/Scala/Util:/home/gavin/Scala/SCL
+
+# CP = .:/home/gavin/Scala/CSO:/home/gavin/Scala/CADS:/home/gavin/Scala/Util
 
 # Directory for the testing architecture
 DIR = synchronisationTesting
@@ -8,6 +12,7 @@ EXDIR = synchronisationTester
 
 # Directory for synchronisation objects
 OBDIR = synchronisationObject
+
 
 # The different types of testers.
 
@@ -32,6 +37,10 @@ all:	$(TESTERS)
 
 clean:
 	rm $(DIR)/*.class $(EXDIR)/*.class $(OBDIR)/*.class; fsc -shutdown
+
+# Synchronisation objects based on semaphores
+
+$(OBDIR)/TwoFamilies.class $(OBDIR)/OneFamily.class $(OBDIR)/ABC.class $(OBDIR)/ABCCounter.class $(OBDIR)/BarrierCounter.class: $(OBDIR)/Semaphore.class
 
 # The testing machinery.
 
@@ -96,15 +105,23 @@ $(EXDIR)/TerminatingQueueTester.class: $(OBDIR)/TerminatingQueue.class
 
 # Recipes for compilation
 
+FSC = fsc -deprecation -cp $(CP)
+
 $(DIR)/%.class:     SynchronisationTesting/%.scala
-	fsc -cp $(CP) $<
+	$(FSC) $<
+
+$(OBDIR)/FaultyChan.class: SynchronisationObjects/FaultyChan.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationObjects/FaultyChan.scala
+
+$(OBDIR)/Barrier.class: SynchronisationObjects/Barrier.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationObjects/Barrier.scala
 
 $(OBDIR)/%.class:     SynchronisationObjects/%.scala
-	fsc -cp $(CP) $<
+	$(FSC) $<
 
 $(EXDIR)/%.class:     SynchronisationTesters/%.scala
-	fsc -cp $(CP) $<
+	$(FSC) $<
 
 %.class:     %.scala
-	fsc -cp $(CP) $<
+	$FSC(CP) $<
 

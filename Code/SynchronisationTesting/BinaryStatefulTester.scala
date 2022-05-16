@@ -65,8 +65,8 @@ class BinaryStatefulTester[Op,S](
     * the linearisation order given by linIndices. */
   private def showMatching(matching: Matching, linIndices: Array[Int]) = 
     println(HistoryLog.showHistoryWith(events, e => e match{
-      case _: CallEvent[Op,_] => ""
-      case _: ReturnEvent[Op,_] => 
+      case _: CallEvent[Op,_] @unchecked => ""
+      case _: ReturnEvent[Op,_] @unchecked => 
         val syncIndex = matching(e.opIndex)
         if(syncIndex >= 0) 
           s":  matched with $syncIndex; linearisation index "+
