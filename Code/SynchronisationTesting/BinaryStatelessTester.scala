@@ -20,14 +20,13 @@ class BinaryStatelessTester[Op](
     * which invocations corresponded to the first operation of the
     * synchronisation object; and syncs(i) is a list of indices of invocations
     * with which the ith invocation can synchronise (overlapped in time and
-    * returned results consistent with matching.  If some operation can
-    * synchronise with no other, then gives an error message and returns
-    * null. */
+    * returned results consistent with matching.  If some invocation can
+    * synchronise with no other, or if some pending invocations should have
+    * synchronised, then gives an error message and returns null. */
   private def findMatches(events: Array[Event])
       : (Array[Boolean], Array[List[Int]]) = {
-    require(events.length%4 == 0); val numInvs = events.length/2
-    val calls = getCalls(events) // in Tester
-
+    val (calls, pending) = getCalls(events) // in Tester
+    val numInvs = calls.length
     // Bitmaps showing whether each of calls is the first or second operation.
     val isOp1, isOp2 = new Array[Boolean](numInvs)
     // Calls with which other calls each call could synchronise 
@@ -36,17 +35,28 @@ class BinaryStatelessTester[Op](
       if(i != j && canSync(calls(i), calls(j))){
         syncs(i)::= j; syncs(j)::= i; isOp1(i) = true; isOp2(j) = true
       }
-    // Each invocation should be an op1 or op2, but not both
+
+    // Check that every invocation is an op1 or op2, but not both.  And check
+    // that every operation that returned could have synchronised.
     for(i <- 0 until numInvs; if !(isOp1(i) ^ isOp2(i))){
       assert(!isOp1(i) && !isOp2(i), 
         "Requirements of tester not satisfied: there do not appear to be "+
           "two distinct operations.")
       println(); println(events.mkString("\n"))
-      println(s"Invocation $i does not synchronise with any other operation.")
+      println(s"Invocation $i does not synchronise with any other completed "+
+        "operation.")
       return null
     }
 
-    (isOp1, syncs)
+    // Test if any two pending invocations could synchronise
+    canAnyPendingSync(pending) match{ // in BinaryTester
+      case (i,j) => 
+        println(); println(events.mkString("\n"))
+        println(s"Pending invocations "+pending(i).opIndex+" and "+
+          pending(j).opIndex+" should have synchronised.")
+        null
+      case null =>  (isOp1, syncs)
+    }
   }
 
   /** Print history represented by `events`, annotated with matching
@@ -59,10 +69,8 @@ class BinaryStatelessTester[Op](
     HistoryLog.showHistoryWith(events, annotation)
   }
 
-  /** Run the tester.  Return true if the history produced was synchronisation
-    * linearisable. */
-  def apply(): Boolean = {
-    val events = getLog() // From Tester.class
+  /** Check the log represented by events. */
+  private def checkLog(events: Array[Event]): Boolean = 
     findMatches(events) match{
       case (isOp1, syncs) =>
         val (ok,matching) = new FordFulkerson(isOp1, syncs)()
@@ -70,6 +78,17 @@ class BinaryStatelessTester[Op](
         else{ debug(events, matching); false }
       case null => false
     }
+
+  /** Run the tester.  Return true if the history produced was synchronisation
+    * linearisable. 
+    * @param delay if positive, the amount of time after which the testing 
+    * system should be interrupted. */
+  def apply(delay: Int = -1): Boolean = {
+    if(delay > 0){
+      val (deadlock, events) = getLogDetectDeadlock(delay) // From Tester
+      checkLog(events)
+    }
+    else{ val events = getLog(); checkLog(events) }
   }
 
 }

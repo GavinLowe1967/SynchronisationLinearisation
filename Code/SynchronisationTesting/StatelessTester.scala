@@ -9,12 +9,15 @@ class StatelessTester[Op](
 
   import HistoryLog.{Event,CallEvent,ReturnEvent} 
 
-  /** The CallEvents used here. */
-  type CallEvent1 = CallEvent[Op,_]
+  // /** The CallEvents used here. */
+  //type CallEvent1 = CallEvent[Op,_]
 
   /** A representation of a synchronisation: the list of CallEvents for the
     * invocations that synchronise. */
-  type SyncEs = List[CallEvent1]
+  //type SyncEs = List[CallEvent1]
+
+  /** Maximum arity of any synchronisation. */
+  private val maxArity = arities.max
 
   /** Can the events es synchronise? */
   private def canSync(es: SyncEs): Boolean = {
@@ -22,6 +25,15 @@ class StatelessTester[Op](
     // Check the invocations can produce the observed result
     matching.isDefinedAt(ops) &&
     (try{ es.map(_.ret.result) == matching(ops) }
+    catch{ case _: IllegalArgumentException => false })
+  }
+
+  /** Can the pending invocations in es synchronise? */
+  private def canSyncPending(es: SyncEs): Boolean = {
+    val ops = es.map(_.op)
+    // Check the invocations can produce the observed result
+    matching.isDefinedAt(ops) &&
+    (try{ matching(ops); true }
     catch{ case _: IllegalArgumentException => false })
   }
 
@@ -34,7 +46,6 @@ class StatelessTester[Op](
     * maximum start index and minimum end index. */
   private def allArgsLists(calls: Array[CallEvent1])
       : Array[List[SyncInfo]] = {
-    val maxArity = arities.max
     val result = new Array[List[SyncInfo]](maxArity+1)
     result(0) = List((List(), Int.MinValue, Int.MaxValue))
     for(arity <- 1 to maxArity){
@@ -61,24 +72,49 @@ class StatelessTester[Op](
     result
   }
 
+
   /** A representation of a synchronisation: the list of indices of CallEvents
     * for the invocations that synchronise. */
   type SyncIndices = List[Int]
 
-  /** Find which invocations could synchronise.  Return an array indexed by
-    * invocation indices, giving the list of possible synchronisations for
+  /** Find which invocations could synchronise.  If any returned invocation has
+    * no possible synchronisations, return null.  If any pending invocations
+    * could have synchronised, return null.  Otherwise return an array indexed
+    * by invocation indices, giving the list of possible synchronisations for
     * each invocation.  */
-  private def findMatches(calls: Array[CallEvent1]): Array[List[SyncIndices]] = {
-    val result = Array.fill(calls.length)(List[SyncIndices]())
+  private def findMatches(events: Array[Event]): Array[List[SyncIndices]] = {
+    val (calls,pending) = getCalls(events) 
+    // Identify possible synchronisations
+    val matches = Array.fill(calls.length)(List[SyncIndices]())
     val allArgs = allArgsLists(calls)
     for(arity <- arities; (arg,_,_) <- allArgs(arity); 
         if canSync(arg); ce <- arg)
-      result(ce.opIndex) ::= arg.map(_.opIndex)
+      matches(ce.opIndex) ::= arg.map(_.opIndex)
     // if(verbose){
     //   println("Matches:")
     //   for(i <- 0 until result.length) println(s"$i: "+result(i))
     // }
-    result
+
+    // Check every returned invocation could synchronise; otherwise return null
+    val nonSyncs = (0 until matches.length).filter(i => matches(i).isEmpty)
+    if(nonSyncs.nonEmpty){
+      // for(i <- 0 until matches.length) if(matches(i).isEmpty){
+      println(events.mkString("\n"))
+      println(s"No candidate synchronisation for invocations "+
+        nonSyncs.mkString(", ")+".\nPossible synchronisations:")
+      for(i <- 0 until matches.length) println(s"$i: "+matches(i))
+      return null
+    }
+
+    // Check no collection of pending calls could have synchronised
+    val allPendingArgs = allPotentialPendingSyncs(pending, maxArity)// in Tester
+    for(arity <- arities; arg <- allPendingArgs(arity); if canSyncPending(arg)){
+      println(events.mkString("\n"))
+      println("Missed synchronisation: "+arg)
+      return null
+    }
+
+    matches
   }
 
   /** Are sync1 and sync2 disjoint? */
@@ -122,42 +158,40 @@ class StatelessTester[Op](
           val rec = search1(toDo2, matches2)
           if(rec != null) return sync::rec
         }
-        else println("failed")
+        // else println("failed")
       } // end of for
-      println("backtracking")
+      //println("backtracking")
       null
     }
   }
 
+  /** Test whether events represents a valid history. */
+  private def checkLog(events: Array[Event]): Boolean = {
+    val matches = findMatches(events)
+    if(matches == null) false
+    else{
+      // Try to find matching
+      val result = search1((0 until matches.length).toList, matches)
+      if(verbose) println(result)
+      if(result == null){
+        println(events.mkString("\n"))
+        println("No matching possible.  Possible synchronisations:")
+        for(i <- 0 until matches.length) println(s"$i: "+matches(i))
+        false
+      }
+      else true
+    }
+  }
 
   /** Run the tester.  Return true if the history produced was synchronisation
     * linearisable. */
-  def apply(): Boolean = {
-    val events = getLog() // From Tester
-    val calls = getCalls(events)
-    val matches = findMatches(calls)
-    if(verbose){
-      println(events.mkString("\n"))
-      for(i <- 0 until matches.length) println(s"$i: "+matches(i))
+  def apply(delay: Int = -1): Boolean = {
+    if(delay > 0){
+      val (deadlock, events) = getLogDetectDeadlock(delay) // From Tester
+      checkLog(events)
     }
-    for(i <- 0 until matches.length) if(matches(i).isEmpty){
-      println(events.mkString("\n"))
-      println(s"No candidate synchronisation for invocation $i.")
-      for(i <- 0 until matches.length) println(s"$i: "+matches(i))
-      return false
-    }
-    // println("Searching")
-    val result = search1((0 until calls.length).toList, matches)
-    if(verbose) println(result)
-    if(result == null){
-      println(events.mkString("\n"))
-      for(i <- 0 until matches.length) println(s"$i: "+matches(i))
-      false
-    }
-    else true
+    else{ val events = getLog(); checkLog(events) }
   }
-
-
 
 }
 

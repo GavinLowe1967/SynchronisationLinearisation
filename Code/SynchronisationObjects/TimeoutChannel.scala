@@ -116,6 +116,6 @@ class FaultyTimeoutChannel[A] extends TimeoutChannelT[A]{
    * successfully returns.  3. A second sender C stores its value, sets full =
    * true and waits. 4. The first sender A reaches its timeout time, sees full
    * = true, and returns false.  There is no successful send corresponding to
-   * A's receive. */
+   * B's receive. */
 }
  

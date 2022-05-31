@@ -2,13 +2,14 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows}
 \usepackage{latexsym}
-\usepackage{tech,mathsx}
+\usepackage{tech,mathsx,mytheorems}
 \usepackage{cspm}
 \usepackage{scalalistings}
 
 \newtheorem{lemma}{Lemma}
 \newtheorem{definition}[lemma]{Definition}
 \newtheorem{prop}[lemma]{Proposition}
+\newtheorem{example}[lemma]{Example}
 
 \def\s#1{$_{#1}$}
 \def\call{\mathsf{call}}
@@ -51,6 +52,7 @@
 
 \input{introduction}
 \input{specification} % formal definition of synchronisation linearisation
+\input{specification2}
 \input{relating} % relating synchronisation linearisation and linearisation
 \input{testing} % testing algorithms
 \input{direct}

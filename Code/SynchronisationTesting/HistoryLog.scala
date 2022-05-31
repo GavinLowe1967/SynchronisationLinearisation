@@ -55,7 +55,6 @@ object HistoryLog{
     var ret: ReturnEvent[Op,A] = null
 
     override def toString = s"$opIndexString Call of $op" // Thread $t calls $op"
-
   }
 
   /** An event representing an operation returning.
@@ -76,8 +75,13 @@ object HistoryLog{
     * annotation(e). */
   def showHistoryWith(events: Array[Event], annotation: Event => String)
       : String = {
+    assert(events.nonEmpty)
     val width = events.map(_.toString.length).max
     (for(e <- events) yield lJustify(e.toString, width)+annotation(e)
     ).mkString("\n")
   }
+
+  /** A String, representing events. */
+  def showHistory(events: Array[Event]): String = 
+    events.map(_.toString).mkString("\n")
 }

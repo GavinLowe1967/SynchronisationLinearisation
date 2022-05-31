@@ -38,8 +38,8 @@ class Exchanger[A] extends ExchangerT[A]{
 
 // =======================================================
 
+/** A faulty implementation. */
 class FaultyExchanger[A] extends ExchangerT[A]{
-
   /** The step to happen next. */
   private var step = 0
 
@@ -59,4 +59,8 @@ class FaultyExchanger[A] extends ExchangerT[A]{
       result
     }
   }
+
+  /* This goes wrong because, after the signal in the else clause, a new thread
+   * might run and overwrite data.  That can lead to threads returning
+   * non-matching values, or threads getting stuck. */
 }

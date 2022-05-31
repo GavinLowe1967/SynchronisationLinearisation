@@ -28,14 +28,18 @@ class BinaryStatefulTester[Op,S](
   /** The number of invocations in the log.  Set by apply. */
   private var invocs = -1
 
+  /** The number of returns in the log.  Set by apply. */
+  private var numReturns = -1
+
   /** Try to synchronise the invocations corresponding to ce1 and ce2, given
     * state spec of the specification object.  If successful, return the
     * resulting state of the specification.  */
   protected def trySync(spec: S, ce1: CallEvent[Op,_], ce2: CallEvent[Op,_])
       : Option[S] = {
     // Each is called before the other returns
-    if(ce1.index < ce2.ret.index && ce2.index < ce1.ret.index &&
-      specMatching(spec).isDefinedAt(ce1.op, ce2.op)){
+    if(ce1.ret != null && ce2.ret != null && 
+        ce1.index < ce2.ret.index && ce2.index < ce1.ret.index &&
+        specMatching(spec).isDefinedAt(ce1.op, ce2.op)){
       try{
         val (spec1, (ret1,ret2)) = specMatching(spec)(ce1.op, ce2.op)
         if((ce1.ret.result, ce2.ret.result) == (ret1, ret2)) Some(spec1) 
@@ -45,6 +49,16 @@ class BinaryStatefulTester[Op,S](
     }
     else None
   }
+
+  /** Could the two pending operations ce1 and ce2 synchronise, given
+    * specification spec? */
+  private def canSyncPending(spec: S, ce1: CallEvent[Op,_], ce2: CallEvent[Op,_])
+      : Boolean =
+    if(ce1 != ce2 && specMatching(spec).isDefinedAt(ce1.op, ce2.op)){
+      try{ specMatching(spec)(ce1.op, ce2.op); true }
+      catch{ case _: IllegalArgumentException => false }
+    }
+    else false
 
   /** Array representing invocations that have been matched so far.  A negative
     * value represents an unmatched invocation. */
@@ -61,18 +75,26 @@ class BinaryStatefulTester[Op,S](
     * corresponding to maxMatching. */
   private var maxLinIndices: Array[Int] = null
 
+  /** The state of the spec corresponding to maMatching if it is a total
+    * matching of returned invocations. */
+  private var totalMatchingSpec: S = null.asInstanceOf[S]
+
   /** Show the history, together with the matching represented by matching and
     * the linearisation order given by linIndices. */
-  private def showMatching(matching: Matching, linIndices: Array[Int]) = 
-    println(HistoryLog.showHistoryWith(events, e => e match{
-      case _: CallEvent[Op,_] @unchecked => ""
+  private def showMatching(matching: Matching, linIndices: Array[Int]) = {
+    // Annotation on e
+    def annotate(e: Event) = e match{
+      case ce: CallEvent[Op,_] @unchecked => 
+        if(ce.ret == null) ":  no return" else ""
       case _: ReturnEvent[Op,_] @unchecked => 
         val syncIndex = matching(e.opIndex)
         if(syncIndex >= 0) 
           s":  matched with $syncIndex; linearisation index "+
             linIndices(e.opIndex)
         else ":  unmatched"
-    }))
+    }
+    println(HistoryLog.showHistoryWith(events, annotate))
+  }
 
   /** A configuration in the search. 
     * @param the index in the history reached so far. 
@@ -94,8 +116,8 @@ class BinaryStatefulTester[Op,S](
     index: Int, spec: S, 
     canReturn: List[ReturnEvent[Op,Any]], pending: List[CallEvent[Op,Any]],
     val matching: Array[Int], val matchingSize: Int,
-    val linIndices: Array[Int], val nextLinIndex: Int
-  ) extends Tester.Config(index, spec, length, canReturn, pending){
+    val linIndices: Array[Int], val nextLinIndex: Int) 
+      extends Tester.Config(index, spec, canReturn, pending){
     /** Next configurations in the search graph. */
     def nexts: List[Config] = {
       var result = List[Config]()
@@ -134,6 +156,7 @@ class BinaryStatefulTester[Op,S](
           if(newMatchingSize > maxMatchingSize){
             maxMatching = newMatching; maxMatchingSize = newMatchingSize
             maxLinIndices = newLinIndices
+            if(maxMatchingSize == numReturns) totalMatchingSpec = spec1
           }
           // println(s"Pairing $e1 and $e2")
           result ::= new Config(index, spec1, newCanReturn, newPending, 
@@ -143,30 +166,64 @@ class BinaryStatefulTester[Op,S](
     result
     }
 
+    def done: Boolean = 
+      if(index == length && canReturn.isEmpty){
+        for(e <- pending) assert(e.ret == null)
+        // Check that no calls in pending could synchronise here
+        for(e1 <- pending; e2 <- pending)
+          if(canSyncPending(spec, e1, e2)) return false
+        true 
+      }
+      else false
   } // end of Config
   // IMPROVE: use a partial order reduction
 
   /** Perform a DFS. */
   private def search(): Boolean = {
+    length = events.length    // if(length == 0) println("Empty log")
+    val (_, pending) = getCalls(events) // From Tester; adds opIndex fields 
+    invocs = (length+pending.length)/2; numReturns = (length-pending.length)/2
     maxMatching = Array.fill(invocs)(-1); maxLinIndices = Array.fill(invocs)(-1)
+    // Starting configuration
     val config0 = new Config(0, spec0, List(), List(), 
       Array.fill(invocs)(-1), 0, Array.fill(invocs)(-1), 0)
+    if(numReturns == 0) totalMatchingSpec = spec0
     def atEnd(c: Config) = {
       if(false) showMatching(c.matching, c.linIndices)
-      assert(c.matchingSize == invocs && c.nextLinIndex == invocs/2)
+      assert(c.matchingSize == numReturns && 2*c.nextLinIndex == numReturns,
+        s"matchingSize = ${c.matchingSize}; invocs = $invocs; "+
+          s"nextLinIndex = ${c.nextLinIndex}; numReturns = $numReturns")
     }
-    Tester.search[Op,S,Config](config0, atEnd)
+
+    // Perform the search
+    if(Tester.search[Op,S,Config](config0, atEnd))true
+    else{ // Give debugging information
+      println("Error found.")
+      showMatching(maxMatching, maxLinIndices)
+      if(maxMatchingSize == numReturns){
+        assert(totalMatchingSpec != null)
+        println(s"Final specification state: $totalMatchingSpec")
+        // See if any of the pending invocations could have synchronised
+        var done = false
+        for(e1 <- pending; e2 <- pending; if !done)
+          if(canSyncPending(totalMatchingSpec, e1, e2)){
+            println(s"${e1.opIndex} and ${e2.opIndex} could synchronise.")
+            done = true
+          }
+      }
+      false
+    }
   }
 
   /** Main function. */
-  def apply(): Boolean = {
-    events = getLog() // From Tester.class
-    length = events.length; invocs = length / 2
-    val calls = getCalls(events) // From Tester; adds opIndex fields 
-    if(search()) true
-    else{ 
-      println("Error found.")
-      showMatching(maxMatching, maxLinIndices); false 
+  def apply(delay: Int = -1): Boolean = {
+    if(delay > 0){
+      val (deadlock, events0) = getLogDetectDeadlock(delay) // From Tester
+      events = events0; search()
+    }
+    else{
+      events = getLog() // From Tester
+      search()
     }
   }
 }

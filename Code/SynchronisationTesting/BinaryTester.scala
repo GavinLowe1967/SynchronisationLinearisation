@@ -22,4 +22,24 @@ class BinaryTester[Op](
     (try{ (ce1.ret.result, ce2.ret.result) == matching(ce1.op, ce2.op) }
      catch{ case _: IllegalArgumentException => false })
   }
+
+  /** Could the pending invocations corresponding to ce1 and ce2 have
+    * synchronised? */
+  private def canSyncPending(ce1: CallEvent[Op,_], ce2: CallEvent[Op,_])
+      : Boolean = {
+    matching.isDefinedAt(ce1.op, ce2.op) &&
+    (try{ matching(ce1.op, ce2.op); true }
+     catch{ case _: IllegalArgumentException => false })
+  }
+
+  /** Test if any pending operations could have synchronised.  If so, return
+    * their indices.  Otherwise return null. */
+  protected def canAnyPendingSync(pending: Array[CallEvent[Op,_]]): (Int,Int) = {
+    val numPending = pending.length
+    for(i <- 0 until numPending; j <- 0 until numPending)
+      if(i != j && canSyncPending(pending(i), pending(j))) 
+        return(i,j)
+    null
+  }
+
 }

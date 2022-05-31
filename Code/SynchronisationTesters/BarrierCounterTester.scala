@@ -3,7 +3,8 @@ package synchronisationTester
 import scala.util.Random
 import synchronisationTesting.{HistoryLog,StatefulTester}
 import synchronisationObject.{
-  BarrierCounterT,BarrierCounter,FaultyBarrierCounter,BarrierCounter2}
+  BarrierCounterT, BarrierCounter, FaultyBarrierCounter,
+  BarrierCounter2, BarrierCounter3}
 
 import ox.gavin.profiling.{SamplingProfiler,ProfilerSummaryTree,Profiler}
 import scala.collection.mutable.ArrayBuffer
@@ -13,8 +14,16 @@ object BarrierCounterTester{
   /** The number of threads involved in each synchronisation. */
   var n = 3
 
-  /** Number of worker threads to run.  Requires p%n == 0. */
+  /** Number of worker threads to run. */
   var p = 12
+
+  var iters = 3
+
+  /** Do we check the progress condition? */
+  var progressCheck = false
+
+  /** The timeout time with the progress check. */
+  var timeout = -1
 
   // Representation of operations within the log
   case class Sync()
@@ -45,18 +54,29 @@ object BarrierCounterTester{
   var verbose = false
   var faulty = false
   var version2 = false
+  var version3 = false
   var doASAP = false
 
   /** Run a single test. */
   def doTest = {
     val barrier: BarrierCounterT = 
       if(faulty) new FaultyBarrierCounter(n)
-      else if(version2) new BarrierCounter2(n) else new BarrierCounter(n)
+      else if(version2) new BarrierCounter2(n)
+      else if(version3) new BarrierCounter3(n)
+      else new BarrierCounter(n)
     val spec = new Spec
-    val tester = new StatefulTester[Sync,Spec](
-      worker(barrier) _, p, List(n), matching _, suffixMatching _, 
-      spec, doASAP, verbose)
-    if(!tester()) sys.exit()
+    if(progressCheck){
+      val tester = new StatefulTester[Sync,Spec](
+        worker(barrier) _, p, List(n), matching _, suffixMatching _,
+        spec, doASAP, verbose)
+      if(!tester(timeout)) sys.exit()
+    }
+    else{
+      val tester = new StatefulTester[Sync,Spec](
+        worker(barrier) _, p, List(n), matching _, suffixMatching _,
+        spec, doASAP, verbose)
+      if(!tester()) sys.exit()
+    }
   }
 
 
@@ -70,8 +90,14 @@ object BarrierCounterTester{
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--verbose" => verbose = true; i += 1
       case "--doASAP" => doASAP = true; i += 1
+
       case "--faulty" => faulty = true; i += 1
       case "--version2" => version2 = true; i += 1
+      case "--version3" => version3 = true; i += 1
+
+      case "--progressCheck" => 
+        progressCheck = true; timeout = args(i+1).toInt; i += 2
+
       case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }

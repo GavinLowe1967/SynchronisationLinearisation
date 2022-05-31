@@ -15,6 +15,12 @@ object ABCCounterTester{
   /** Number of iterations per worker thread. */
   var iters = 20
 
+  /** Do we check the progress condition? */
+  var progressCheck = false
+
+  /** The timeout time with the progress check. */
+  var timeout = -1
+
   // Representation of operations within the log
   trait Op
   case class SyncA(id: Int) extends Op
@@ -62,6 +68,15 @@ object ABCCounterTester{
     }
   }
 
+  /** A worker with identity me that performs random operations. */
+  def worker1(abc: ABCCounterT[Int,Int,Int])(me: Int, log: HistoryLog[Op]) = {
+    for(i <- 0 until iters) Random.nextInt(3) match{
+      case 0 => log(me, abc.syncA(me), SyncA(me)) 
+      case 1 => log(me, abc.syncB(me), SyncB(me)) 
+      case 2 => log(me, abc.syncC(me), SyncC(me))
+    }
+  }
+
   var verbose = false
   var faulty = false
   var doASAP = false
@@ -72,10 +87,18 @@ object ABCCounterTester{
       if(faulty) new FaultyABCCounter[Int,Int,Int] 
       else new ABCCounter[Int,Int,Int]
     val spec = new Spec
-    val tester = new StatefulTester[Op,Spec](
-      worker(abc) _, p, List(3), matching _, suffixMatching _, 
-      spec, doASAP, verbose)
-    if(!tester()) sys.exit()
+    if(progressCheck){
+      val tester = new StatefulTester[Op,Spec](
+        worker1(abc) _, p, List(3), matching _, suffixMatching _,
+        spec, doASAP, verbose)
+      if(!tester(timeout)) sys.exit()
+    }
+    else{
+      val tester = new StatefulTester[Op,Spec](
+        worker(abc) _, p, List(3), matching _, suffixMatching _,
+        spec, doASAP, verbose)
+      if(!tester()) sys.exit()
+    }
   }
 
   def main(args: Array[String]) = {
@@ -87,14 +110,21 @@ object ABCCounterTester{
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--verbose" => verbose = true; i += 1
       case "--doASAP" => doASAP = true; i += 1
+
       case "--faulty" => faulty = true; i += 1
+
+      case "--progressCheck" => 
+        progressCheck = true; timeout = args(i+1).toInt; i += 2
+
       case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
     assert(p%3 == 0)
 
     def run() = {
-      for(i <- 0 until reps){ doTest; if(i%100 == 0) print(".") }
+      for(i <- 0 until reps){ 
+        doTest; if(i%100 == 0 || progressCheck && i%10 == 0) print(".") 
+      }
       println()
     }
     val start = java.lang.System.nanoTime

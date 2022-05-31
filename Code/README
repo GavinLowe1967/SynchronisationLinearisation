@@ -9,8 +9,8 @@ ThreadUtil.scala: thread utilities.
 
 Tester.scala: base class of all testers.
 
-BinaryTester.scala: base class of all binary testers.  ** Actually, of the
-stateless testers.
+BinaryTester.scala: base class of all binary testers.  Actually just the
+stateless ones.
 
 FordFulkerson.scala: implementation of the Ford Fulkerson algorithm.  Used in
 BinaryStatelessTester.
@@ -40,7 +40,8 @@ FilterChan.scala: filtering channel; binary, heterogeneous, stateless.
 
 MenWomen.scala: the men and women problem; binary, heterogeneous, stateless.
 
-Exchanger.scala: faulty synchronous channel; binary, homogeneous, stateless.
+Exchanger.scala: allows two threads to exchange values; binary, homogeneous,
+stateless.
 
 ChanCounter.scala: channel with sequence number; binary, heterogeneous,
 stateful.
@@ -94,13 +95,15 @@ BarrierTester.scala (n-ary, stateless, homogenous)
 
 TimeoutChannelTester (mixed modes, stateless, heterogeneous)
 
+TimeoutExchangerTester (mixed modes, stateless, homogeneous)
+
 ABCCounterTester (ternary, stateful, heterogeneous)
 
-BarrierCounterTester
+BarrierCounterTester (n-ary, stateful, homogeneous)
 
-TerminatingQueueTester
+TerminatingQueueTester (mixed modes, stateful, heterogeneous)
 
 ==================================================================
 
 
-TODO: non-binary stateful examples: barrier with counter; terminating stack/queue.  In queue example, order dequeues by thread ID
+TODO: 

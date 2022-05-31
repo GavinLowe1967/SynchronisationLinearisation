@@ -2,7 +2,8 @@ package synchronisationTester
 
 import scala.util.Random
 import synchronisationTesting.{HistoryLog,BinaryStatelessTester}
-import synchronisationObject.{MenWomenT,MenWomen,FaultyMenWomen}
+import synchronisationObject.{
+ MenWomenT, MenWomen, FaultyMenWomen, DeadlockMenWomen}
 
 /** A testing file. */
 object MenWomenTester{
@@ -17,6 +18,12 @@ object MenWomenTester{
     * so this will not affect the likelihood of finding errors.  A smaller
     * value stresses the tester more. */
   var MaxVal = 100
+
+  /** Do we check the progress condition? */
+  var progressCheck = false
+
+  /** The timeout time with the progress check. */
+  var timeout = -1
 
   // Representation of operations within the log
   trait Op
@@ -43,15 +50,35 @@ object MenWomenTester{
     }
   }
 
-  /** Should we use the faulty channel implementation? */
-  private var faulty = false
+  /** A worker for checking the progress condition.  This worker chooses their
+    * gender randomly! */
+  def worker1(mw: MenWomenT)(me: Int, log: HistoryLog[Op]) = {
+    for(i <- 0 until iters){
+      val id = Random.nextInt(MaxVal)
+      if(Random.nextBoolean()) log(me, mw.manSync(id), ManSync(id)) 
+      else log(me, mw.womanSync(id), WomanSync(id))
+    }
+  }
+
+  /* Flags to identify the implementation to use. */
+  private var faulty = false // FaultyMenWomen
+  private var deadlock = false // DeadlockMenWomen
+  /* Default is MenWomen */
   // private var faulty2 = false
 
   /** Do a single test. */
   def doTest = {
-    val mw: MenWomenT = if(faulty) new FaultyMenWomen else new MenWomen 
-    val bst = new BinaryStatelessTester[Op](worker(mw), p, matching)
-    if(!bst()) sys.exit()
+    val mw: MenWomenT = 
+      if(faulty) new FaultyMenWomen else if(deadlock) new DeadlockMenWomen
+      else new MenWomen
+    if(progressCheck){
+      val bst = new BinaryStatelessTester[Op](worker1(mw), p, matching)
+      if(!bst(timeout)) sys.exit()
+    }
+    else{
+      val bst = new BinaryStatelessTester[Op](worker(mw), p, matching)
+      if(!bst()) sys.exit()
+    }
   }
 
   def main(args: Array[String]) = {
@@ -62,14 +89,22 @@ object MenWomenTester{
       case "--iters" => iters = args(i+1).toInt; i += 2
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--MaxVal" => MaxVal = args(i+1).toInt; i += 2
+
       case "--faulty" => faulty = true; i += 1
+      case "--deadlock" => deadlock = true; i += 1
       // case "--faulty2" => faulty2 = true; i += 1
+
+      case "--progressCheck" => 
+        progressCheck = true; timeout = args(i+1).toInt; i += 2
+
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
     assert(p%2 == 0)
 
     val start = java.lang.System.nanoTime
-    for(i <- 0 until reps){ doTest; if(i%100 == 0) print(".") }
+    for(i <- 0 until reps){ 
+      doTest; if(i%100 == 0 || progressCheck && i%10 == 0) print(".") 
+    }
     val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
     println(); println(s"$duration ms")
   }

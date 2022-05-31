@@ -25,7 +25,7 @@ $(EXDIR)/TwoFamiliesTester.class $(EXDIR)/OneFamilyTester.class
 BINARY_HOMO_TESTERS = $(EXDIR)/ExchangerTester.class
 
 NON_BINARY_TESTERS = $(EXDIR)/ABCTester.class $(EXDIR)/BarrierTester.class	\
-$(EXDIR)/TimeoutChannelTester.class
+$(EXDIR)/TimeoutChannelTester.class $(EXDIR)/TimeoutExchangerTester.class
 
 NON_BINARY_STATEFUL_TESTERS = $(EXDIR)/ABCCounterTester.class			\
 $(EXDIR)/BarrierCounterTester.class $(EXDIR)/TerminatingQueueTester.class
@@ -33,14 +33,14 @@ $(EXDIR)/BarrierCounterTester.class $(EXDIR)/TerminatingQueueTester.class
 TESTERS = $(BINARY_HETERO_TESTERS) $(BINARY_STATEFUL_TESTERS)	\
 $(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS) $(NON_BINARY_STATEFUL_TESTERS)
 
-all:	$(TESTERS)
+all:	$(TESTERS) $(OBDIR)/TimeoutExchanger.class
 
 clean:
 	rm $(DIR)/*.class $(EXDIR)/*.class $(OBDIR)/*.class; fsc -shutdown
 
 # Synchronisation objects based on semaphores
 
-$(OBDIR)/TwoFamilies.class $(OBDIR)/OneFamily.class $(OBDIR)/ABC.class $(OBDIR)/ABCCounter.class $(OBDIR)/BarrierCounter.class: $(OBDIR)/Semaphore.class
+$(OBDIR)/TwoFamilies.class $(OBDIR)/OneFamily.class $(OBDIR)/ABC.class $(OBDIR)/ABCCounter.class $(OBDIR)/BarrierCounter.class $(OBDIR)/FilterChan.class: $(OBDIR)/Semaphore.class
 
 # The testing machinery.
 
@@ -48,13 +48,12 @@ $(DIR)/HistoryLog.class: $(DIR)/Log.class
 
 $(DIR)/Tester.class: $(DIR)/HistoryLog.class $(DIR)/ThreadUtil.class
 
-$(DIR)/BinaryTester.class: $(DIR)/Tester.class
+$(DIR)/BinaryTester.class $(DIR)/BinaryStatefulTester.class $(DIR)/StatelessTester.class $(DIR)/StatefulTester.class: $(DIR)/Tester.class
 
 $(DIR)/BinaryStatelessTester.class: $(DIR)/BinaryTester.class $(DIR)/FordFulkerson.class
 
 $(DIR)/HomogeneousBinaryStatelessTester.class: $(DIR)/BinaryTester.class $(DIR)/DFS.class
 
-$(DIR)/BinaryStatefulTester.class: $(DIR)/Tester.class
 
 # Each tester depends upon the testing machinery, and the synchronisation
 # objects it is testing.
@@ -63,7 +62,7 @@ $(DIR)/BinaryStatefulTester.class: $(DIR)/Tester.class
 
 $(BINARY_HETERO_TESTERS):	$(DIR)/BinaryStatelessTester.class
 
-$(EXDIR)/ChanTester.class:	$(OBDIR)/FaultyChan.class
+$(EXDIR)/ChanTester.class:	$(OBDIR)/Chan.class
 
 $(EXDIR)/FilterChanTester.class:	$(OBDIR)/FilterChan.class
 
@@ -93,6 +92,8 @@ $(EXDIR)/BarrierTester.class:  $(OBDIR)/Barrier.class
 
 $(EXDIR)/TimeoutChannelTester.class: $(OBDIR)/TimeoutChannel.class
 
+$(EXDIR)/TimeoutExchangerTester.class: $(OBDIR)/TimeoutExchanger.class
+
 # Non-binary stateful
 
 $(NON_BINARY_STATEFUL_TESTERS): $(DIR)/StatefulTester.class
@@ -110,14 +111,20 @@ FSC = fsc -deprecation -cp $(CP)
 $(DIR)/%.class:     SynchronisationTesting/%.scala
 	$(FSC) $<
 
-$(OBDIR)/FaultyChan.class: SynchronisationObjects/FaultyChan.scala
-	fsc -deprecation -cp $(CPSCL) SynchronisationObjects/FaultyChan.scala
+$(OBDIR)/Chan.class: SynchronisationObjects/Chan.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationObjects/Chan.scala
 
 $(OBDIR)/Barrier.class: SynchronisationObjects/Barrier.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationObjects/Barrier.scala
 
 $(OBDIR)/%.class:     SynchronisationObjects/%.scala
 	$(FSC) $<
+
+# $(OBDIR)/ChanTester.class: SynchronisationTesters/ChanTester.scala
+# 	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/ChanTester.scala
+
+$(EXDIR)/ChanTester.class:  SynchronisationTesters/ChanTester.scala
+	fsc -cp $(CPSCL) SynchronisationTesters/ChanTester.scala
 
 $(EXDIR)/%.class:     SynchronisationTesters/%.scala
 	$(FSC) $<

@@ -82,3 +82,25 @@ class BarrierCounter2(n: Int) extends BarrierCounterT{
   }
 }
     
+
+/** Another correct version (I think). */
+class BarrierCounter3(n: Int) extends BarrierCounterT{
+  private var seqNumber = 0 // the current sequence number
+  private var count = 0 // The number of waiting threads.
+  private var leaving = false // Are we in the leaving phase?
+
+  def sync: Int = synchronized{
+    while(leaving) wait() // Wait for previous round to finish
+    count += 1
+    if(count == n){ leaving = true; count -= 1; notifyAll(); seqNumber }
+    else{ 
+      while(!leaving) wait()
+      count -= 1
+      if(count == 0){ 
+        leaving = false; notifyAll() // Allow next round to continue
+        seqNumber += 1; seqNumber-1
+      }
+      else seqNumber
+    }
+  }
+}

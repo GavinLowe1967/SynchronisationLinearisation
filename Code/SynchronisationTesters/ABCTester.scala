@@ -1,8 +1,8 @@
 package synchronisationTester
 
 import scala.util.Random
-import synchronisationTesting.{HistoryLog,StatelessTester}
-import synchronisationObject.{ABCT,ABC,FaultyABC}
+import synchronisationTesting.{HistoryLog, StatelessTester}
+import synchronisationObject.{ABCT, ABC, FaultyABC, DeadlockABC}
 
 import ox.gavin.profiling.{SamplingProfiler,ProfilerSummaryTree}
 import scala.collection.mutable.ArrayBuffer
@@ -14,6 +14,12 @@ object ABCTester{
 
   /** Number of iterations per worker thread. */
   var iters = 20
+
+  /** Do we check the progress condition? */
+  var progressCheck = false
+
+  /** The timeout time with the progress check. */
+  var timeout = -1
 
   // Representation of operations within the log
   trait Op 
@@ -45,13 +51,32 @@ object ABCTester{
     }
   }
 
-  var faulty = false
+  /** A worker with identity me who chooses invocations randomly. */
+  def worker1(abc: ABCT[Int,Int,Int])(me: Int, log: HistoryLog[Op]) = {
+    for(i <- 0 until iters) Random.nextInt(3) match{
+      case 0 => log(me, abc.syncA(me), SyncA(me)) 
+      case 1 => log(me, abc.syncB(me), SyncB(me)) 
+      case 2 => log(me, abc.syncC(me), SyncC(me))
+    }
+  }
+
+  /* Flags for which implementation to use.  Default is ABC */
+  var faulty = false // FaultyABC
+  var deadlock = false // DeadlockABC
 
   def doTest = {
     val abc: ABCT[Int,Int,Int] = 
-      if(faulty) new FaultyABC[Int,Int,Int] else new ABC[Int,Int,Int]
-    val tester = new StatelessTester[Op](worker(abc) _, p, List(3), matching)
-    if(!tester()) sys.exit()
+      if(faulty) new FaultyABC[Int,Int,Int] 
+      else if(deadlock) new DeadlockABC[Int,Int,Int]
+      else new ABC[Int,Int,Int]
+    if(progressCheck){
+      val tester = new StatelessTester[Op](worker1(abc) _, p, List(3), matching)
+      if(!tester(timeout)) sys.exit()
+    }
+    else{
+      val tester = new StatelessTester[Op](worker(abc) _, p, List(3), matching)
+      if(!tester()) sys.exit()
+    }
   }
 
   def main(args: Array[String]) = {
@@ -61,16 +86,22 @@ object ABCTester{
       case "-p" => p = args(i+1).toInt; i += 2
       case "--iters" => iters = args(i+1).toInt; i += 2
       case "--reps" => reps = args(i+1).toInt; i += 2
-      //case "--MaxVal" => MaxVal = args(i+1).toInt; i += 2
+
       case "--faulty" => faulty = true; i += 1
-      // case "--faulty2" => faulty2 = true; i += 1
+      case "--deadlock" => deadlock = true; i += 1
+
+      case "--progressCheck" => 
+        progressCheck = true; timeout = args(i+1).toInt; i += 2
+
       case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
     assert(p%3 == 0)
 
     def run() = {
-      for(i <- 0 until reps){ doTest; if(i%100 == 0) print(".") }
+      for(i <- 0 until reps){ 
+        doTest; if(i%100 == 0 || progressCheck && i%10 == 0) print(".") 
+      }
       println()
     }
     val start = java.lang.System.nanoTime

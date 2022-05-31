@@ -26,14 +26,14 @@ class StatefulTester[Op,S](
   specMatching: S => PartialFunction[List[Op], (S,List[Any])],
   suffixMatching: List[Op] => Boolean,
   spec0: S, doASAP: Boolean = false, verbose: Boolean = false)
-    extends Tester(worker, p){
+    extends Tester[Op](worker, p){
 
   import HistoryLog.{Event,CallEvent,ReturnEvent} 
 
   private val maxSyncArity = arities.max
 
-  /** The CallEvents used here. */
-  type CallEvent1 = CallEvent[Op,Any]
+  // /** The CallEvents used here. */
+  //type CallEvent1 = CallEvent[Op,_]
 
   /** The events in the log.  Set by apply. */
   private var events: Array[Event] = null
@@ -41,12 +41,12 @@ class StatefulTester[Op,S](
   /** The number of events in the log.  Set by apply. */
   private var length = -1
 
-  /** The number of invocations in the log.  Set by apply. */
+  /** The number of invocations in the log that return.  Set by apply. */
   private var invocs = -1
 
   /** A representation of a synchronisation: the list of CallEvents for the
     * invocations that synchronise. */
-  type SyncEs = List[CallEvent1]
+  //type SyncEs = List[CallEvent1]
 
   /** Get all lists of potential synchronisations.  All lists of length up to
     * maxArity of CallEvents by different threads, each paired with their
@@ -63,7 +63,7 @@ class StatefulTester[Op,S](
         // Consider extending es with a member of calls
         while(cs.nonEmpty){
           val e = cs.head; cs = cs.tail
-          if(!contains(es,e) && suffixMatching(e.op::ops) ) 
+          if(e.ret != null && !contains(es,e) && suffixMatching(e.op::ops) ) 
             result(arity) ::= ((e::es, e.op::ops))
         }
       }
@@ -86,6 +86,7 @@ class StatefulTester[Op,S](
         // Compare rets and es.map(_.ret.result)
         assert(rets0.length == es.length)
         var rets = rets0; var es1 = es
+// FIXME: es1.head might not return
         while(rets.nonEmpty && rets.head == es1.head.ret.result){
           rets = rets.tail; es1 = es1.tail
         }
@@ -98,6 +99,16 @@ class StatefulTester[Op,S](
       catch{ case _: IllegalArgumentException => None }
     }
     else None
+  }
+
+  /** Can the pending invocations in es synchronise given state spec of the
+    * specification? */
+  private def canSyncPending(spec: S, es: SyncEs): Boolean = {
+    val ops = es.map(_.op)
+    // Check the invocations can produce the observed result
+    specMatching(spec).isDefinedAt(ops) &&
+    (try{ specMatching(spec)(ops); true }
+    catch{ case _: IllegalArgumentException => false })
   }
 
   /** Information about a candidate synchronisation: the subsequent state of the
@@ -199,13 +210,33 @@ class StatefulTester[Op,S](
         else ":  unmatched"
     }))
 
+  /** Merge rets1 and rets2 in decreasing order of index.  Pre: rets1 and rets2
+    * are sorted in this way. */ 
+  private def merge(
+    rets1: List[ReturnEvent[Op,_]], rets2: List[ReturnEvent[Op,_]])
+      : List[ReturnEvent[Op,_]] = {
+    if(rets1.isEmpty) rets2
+    else if(rets2.isEmpty) rets1
+    else{
+      val r1 = rets1.head; val r2 = rets2.head
+      if(r1.index > r2.index) r1 :: merge(rets1.tail, rets2)
+      else r2 :: merge(rets1, rets2.tail)
+    }
+  }
+
+  /** Is rets in decreasing order of index? */
+  def isSortedByIndex(rets: List[ReturnEvent[Op,_]]): Boolean =
+    rets.length <= 1 || 
+      rets(0).index > rets(1).index && isSortedByIndex(rets.tail)
+
+
   /** A configuration in the search. 
     * @param the index in the history reached so far. 
     * @param spec the state of the specification object. 
     * @param canReturn invocations that have been linearised so can return, 
-    * sorted by index.
+    * sorted in decreasing order of index.
     * @param pending invocations that have been called but not yet linearised,
-    * sorted by index.
+    * sorted in decreasing order of index.
     * @param matching array showing which invocations have been matched so far.
     * matching(ix) gives the list of indices in the synchronisation for ix.
     * @param matchingSize the length of the longest prefix of the calls of the 
@@ -217,18 +248,20 @@ class StatefulTester[Op,S](
     */
   private class Config(
     index: Int, spec: S, 
-    canReturn: List[ReturnEvent[Op,Any]], pending: List[CallEvent1],
+    canReturn: List[ReturnEvent[Op,_]], pending: List[CallEvent1],
     val matching: Matching, val matchingSize: Int,
-    val linIndices: Array[Int], val nextLinIndex: Int
-  ) 
-      extends Tester.Config(index, spec, length, canReturn, pending)
-  {
+    val linIndices: Array[Int], val nextLinIndex: Int) 
+      extends Tester.Config(index, spec, canReturn, pending)
+  { 
     /** The next configuration from this after the synchronisation corresponding
       * to spec1 and es. */
     private def mkNext(spec1: S, es: List[CallEvent1]): Config = {
       // Update pending and canReturn
       val newPending = pending.filter(e => !contains(es,e))
-      val newCanReturn = es.map(_.ret) ++ canReturn
+      val newCanReturn = merge(es.map(_.ret).sortBy(e => - e.index), canReturn) 
+      // es.map(_.ret) ++ canReturn
+      // assert(isSortedByIndex(newCanReturn),
+      // s"es = $es\n canReturn = $canReturn")
       // Update matching, matchingSize, linIndices
       val newMatching = matching.clone; val indices = es.map(_.opIndex)
       val newLinIndices = linIndices.clone; var j = 0
@@ -281,6 +314,7 @@ class StatefulTester[Op,S](
       if(index < length) events(index) match{
         case ce: CallEvent[Op,Any] @unchecked =>
           // add to pending
+          assert(pending.isEmpty || ce.index > pending.head.index)
           val newPending = ce::pending
           val config1 = new Config(index+1, spec, canReturn, newPending,
             matching, matchingSize, linIndices, nextLinIndex)
@@ -300,10 +334,28 @@ class StatefulTester[Op,S](
         result ::= mkNext(spec1, es)
       result
     } // end of nexts
+
+
+    /** Does this represent a complete linearisation? */
+    def done: Boolean = 
+      if(index == length && canReturn.isEmpty){
+        for(e <- pending) assert(e.ret == null)
+        // Check that no calls in pending can return
+        val allPendingArgs = 
+          allPotentialPendingSyncs(pending.toArray, maxSyncArity) // in Tester
+        for(arity <- arities; arg <- allPendingArgs(arity))
+          if(canSyncPending(spec, arg)) return false
+        true
+      }
+      else false
+
   } // end of Config
   
   /** Perform a DFS. */
   private def search(): Boolean = {
+    length = events.length
+    val (calls, pending) = getCalls(events) // from Tester
+    invocs = calls.length
     maxMatching = Array.fill[List[Int]](invocs)(null) 
     maxLinIndices = Array.fill(invocs)(-1)
     val config0 = new Config(0, spec0, List(), List(), 
@@ -313,17 +365,21 @@ class StatefulTester[Op,S](
       assert(c.matchingSize == invocs)
       if(arities.length == 1) assert(c.nextLinIndex*arities.head == invocs)
     }
-    Tester.search[Op,S,Config](config0, atEnd)
-  }
-
-  /** Main function. */
-  def apply(): Boolean = {
-    events = getLog() // From Tester.class
-    length = events.length; invocs = length / 2
-    val calls = getCalls(events) // from Tester
-    if(!search()){
+    if(!Tester.search[Op,S,Config](config0, atEnd)){
       println("Failed"); showMatching(maxMatching, maxLinIndices); false
     }
     else true
+  }
+
+  /** Main function. */
+  def apply(delay: Int = -1): Boolean = {
+    if(delay > 0){
+      val (deadlock, events0) = getLogDetectDeadlock(delay) // From Tester
+      events = events0; search()
+    }
+    else{
+      events = getLog() // From Tester
+      search()
+    }
   }
 }

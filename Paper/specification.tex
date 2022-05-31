@@ -369,7 +369,7 @@ $h_s$ of~$Spec$ such that $h$ and~$h_s$ are synchronisation compatible.
 
 We say that a (not necessarily complete) concurrent history~$h$ is
 \emph{synchronisation-linearisable} if there is an extension~$h'$ of~$h$ such
-that $complete(h)$ is synchronisation-linearisable.  We say that a
+that $complete(h')$ is synchronisation-linearisable.  We say that a
 synchronisation object is synchronisation-linearisable if all of its histories
 are synchronisation-linearisable.
 
@@ -386,66 +386,3 @@ are synchronisation-linearisable.
 %% Maybe call this \emph{synchronisation linearisation}. 
 
 \framebox{Is the definition compositional?}  I think so.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\subsection{Variations}
-\label{ssec:spec-variations}
-
-Above we considered heterogeneous binary synchronisations, i.e.~two
-invocations of different operations, with a single mode of synchronisation.
-
-It is straightforward to generalise to synchronisations between an arbitrary
-number of invocations, some of which might be invocations of the same
-operation.  Consider a $k$-way synchronisation between operations
-\begin{scala}
-  def op£\s j£(x£\s j£: A£\s j£): B£\s j£   £for $j = 1, \ldots, k,$£
-\end{scala}
-%
-where the $\op_j$ might not be distinct.
-The specification object will have a corresponding operation
-%
-\begin{scala} 
-  def sync(x£\s1£: A£\s1£, ..., x£\s k£: A£\s k£): (B£\s1£, ..., B£\s k£)
-\end{scala}
-%
-For example, for the combining barrier |CombiningBarrier(n, f)| of the
-Introduction, the corresponding specification object would be
-\begin{scala}
-class CombiningBarrierSpec{
-  def sync(x£\s1£: A, ..., x£\s n£: A) = {
-    val result = f(x£\s1£, f(x£\s2£, ...f(x£\s{{\ss n}-1}£, x£\s{\ss n}£)...)); (result,...,result)
-  }
-}
-\end{scala}
-
-A history of the specification object will have corresponding events
-$\sm{sync}^{i_1, \ldots, i_k}(x_1, \ldots, x_k)\:: (y_1, \ldots, y_k)$.
-%
-The definition of synchronisation compatibility is an obvious adaptation of
-earlier: in the interleaving of the complete history of the synchronisation
-history and the history of the specification object, each $\sm{sync}^{i_1,
-  \ldots, i_k}(x_1, \ldots, x_k)\:: (y_1, \ldots, y_k)$ occurs between
-$\call.\op_1^{i_j}(x_j)$ and $\return.\op_j^{i_j}\::y_j$ for each $j = 1, \ldots,
-k$.  The definition of synchronisation-linearisability follows in the obvious
-way. 
-
-It is also straightforward to adapt the definitions to deal with multiple
-modes of synchronisation: the specification object has a different operation
-for each mode.  For example, recall the |TimeoutChannel| from the
-Introduction, where sends and receives may timeout and return without
-synchronisation.  The corresponding specification object would be:
-%
-\begin{scala}
-class TimeoutChannelSpec{
-  def sync£\s s£(x: A) = false
-  def sync£\s r£(u: Unit) = None
-  def sync£\s{s,r}£(x: A, u: Unit) = (true, Some(x))
-}
-\end{scala}
-%
-The operation $\sm{sync}_s$ corresponds to a send returning without
-synchronising; likewise $\sm{sync}_r$ corresponds to a receive returning
-without synchronising; and $\sm{sync}_{s,r}$ corresponds to a send and receive
-synchronising.  The formal definition of synchronisation linearisation is the
-obvious adaptation of the earlier definition.

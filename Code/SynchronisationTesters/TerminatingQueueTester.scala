@@ -16,24 +16,30 @@ object TerminatingQueueTester{
 
   val MaxVal = 20
 
+  /** Do we check the progress condition? */
+  var progressCheck = false
+
+  /** The timeout time with the progress check. */
+  var timeout = -1
+
   // Representation of operations
   trait Op
   case class Enqueue(x: Int) extends Op
-  case object Dequeue extends Op
+  case class Dequeue(id: Int) extends Op
 
   /** The specification class.  queue represents the contents.  done is true if
     * we've reached termination. */
   case class Spec(queue: Queue[Int], done: Boolean){
-    def enqueue(x: Int) = {Profiler.count("enqueue")
+    def enqueue(x: Int) = { // Profiler.count("enqueue")
       require(!done); (Spec(queue.enqueue(x), false), List(()))
     }
 
-    def dequeue() = {Profiler.count("dequeue")
+    def dequeue() = { // Profiler.count("dequeue")
       require(!done && queue.nonEmpty); val (x,q1) = queue.dequeue
       (Spec(q1, false), List(Some(x)))
     }
 
-    def terminate() = { Profiler.count("terminate")
+    def terminate() = { // Profiler.count("terminate")
       require(!done && queue.isEmpty); (Spec(queue, true), allNone)
     }
   }
@@ -41,17 +47,22 @@ object TerminatingQueueTester{
   // Set to List.fill(p)(None) by doTest
   private var allNone: List[Option[Int]] = null
 
-  // private def allNone(k: Int): List[Option[Int]] = 
-  //   if(k == 0) List() else None :: allNone(k-1)
     
-  /** Are all members of ops Dequeues? */
-  private def allDequeues(ops: List[Op]) = ops.forall(_ == Dequeue)
+  /** Are all members of ops Dequeues and in increasing order? */
+  private def allDequeues(ops: List[Op]): Boolean = 
+    ops match{
+      case List(Dequeue(_)) => true
+      case Dequeue(id1) :: Dequeue(id2) :: _ => 
+        id1 < id2 && allDequeues(ops.tail)
+      case _ => false
+    }
+  // ops.forall(_ == Dequeue)
 
   /** Mapping showing how synchronisations of concrete operations correspond to
     * operations of the specification object. */
   def matching(spec: Spec): PartialFunction[List[Op], (Spec,List[Any])] = {
     case List(Enqueue(x)) => spec.enqueue(x)
-    case List(Dequeue) => spec.dequeue()
+    case List(Dequeue(_)) => spec.dequeue()
     case ops if ops.length == p && allDequeues(ops) => spec.terminate()
   }
 
@@ -64,17 +75,21 @@ object TerminatingQueueTester{
     val random = new Random(me) // independent RNGs
     var done = false
     while(!done){
-      Profiler.count("worker step")
+      // Profiler.count("worker step")
       if(me%2 == 0 || random.nextFloat() < 0.50){
         // println(s"$me: dequeue")
         var res: Option[Int] = None
-        log(me, { res = queue.dequeue; res }, Dequeue)
+        log(me, { res = queue.dequeue; res }, Dequeue(me))
         done = res == None; // println(s"$me: $res")
+        // Profiler.count(s"dequeue $done")
       }
       else{
         val x = Random.nextInt(MaxVal)
         // println(s"$me: enqueue($x)")
         log(me, queue.enqueue(x), Enqueue(x))
+        // Profiler.count("Thread enqueue") 
+        // curiously, ~45% of invocations take this branch, when one would
+        // expect it to be ~25%.
       }
     }
   }
@@ -90,7 +105,10 @@ object TerminatingQueueTester{
     val tester = new StatefulTester[Op,Spec](
       worker(queue) _, p, List(1,p), matching _, suffixMatching _, 
       spec, doASAP, verbose)
-    if(!tester()) sys.exit()
+    // The progressCheck should make no difference here, since each run
+    // terminates with probability 1.
+    if(progressCheck){ if(!tester(timeout)) sys.exit() }
+    else if(!tester()) sys.exit()
   }
 
   def main(args: Array[String]) = {
@@ -103,8 +121,12 @@ object TerminatingQueueTester{
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--verbose" => verbose = true; i += 1
       case "--doASAP" => doASAP = true; i += 1
+
       //case "--faulty" => faulty = true; i += 1
       //case "--version2" => version2 = true; i += 1
+
+      case "--progressCheck" => 
+        progressCheck = true; timeout = args(i+1).toInt; i += 2
       case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }

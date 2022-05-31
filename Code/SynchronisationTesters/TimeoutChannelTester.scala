@@ -1,9 +1,9 @@
 package synchronisationTester
 
 import scala.util.Random
-import synchronisationTesting.{HistoryLog,StatelessTester}
+import synchronisationTesting.{HistoryLog, StatelessTester}
 import synchronisationObject.{
-  TimeoutChannelT,TimeoutChannel,FaultyTimeoutChannel}
+  TimeoutChannelT, TimeoutChannel, FaultyTimeoutChannel}
 
 import ox.gavin.profiling.{SamplingProfiler,ProfilerSummaryTree}
 import scala.collection.mutable.ArrayBuffer
@@ -19,6 +19,12 @@ object TimeoutChannelTester{
   /** The maximum value sent. */
   var MaxVal = 20
 
+  /** Do we check the progress condition? */
+  var progressCheck = false
+
+  /** The timeout time with the progress check. */
+  var timeout = -1
+
   var verbose = false
 
   /** Representation of an operation in the log. */
@@ -27,15 +33,14 @@ object TimeoutChannelTester{
   case object Receive extends Op
 
   /** Mapping showing how synchronisations of concrete operations correspond to
-    * operations of the specification object. Any n invocations can
-    * synchronise, and all should receive the unit value.  */
+    * operations of the specification object.   */
   def matching: PartialFunction[List[Op], List[Any]] = {
     case List(Send(x)) => List(false)
     case List(Receive) => List(None)
     case List(Send(x), Receive) => List(true, Some(x))
   }
 
-  /** A worker, which calls barrier.sync once. */
+  /** A worker. */
   def worker(chan: TimeoutChannelT[Int])(me: Int, log: HistoryLog[Op]) = {
     // Note: the parameters defining the delays seem to give a reasonable mix
     // of successful and unsuccessful invocations.
@@ -57,8 +62,8 @@ object TimeoutChannelTester{
       if(faulty) new FaultyTimeoutChannel[Int] else new TimeoutChannel[Int]
     val tester = 
       new StatelessTester[Op](worker(chan) _, p, List(1,2), matching, verbose)
-    //println(tester())
-    if(!tester()) sys.exit()
+    // Following might or might not involve timeouts
+    if(!tester(timeout)) sys.exit()
   }
 
   def main(args: Array[String]) = {
@@ -70,16 +75,23 @@ object TimeoutChannelTester{
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--iters" => iters = args(i+1).toInt; i += 2
       case "--MaxVal" => MaxVal = args(i+1).toInt; i += 2
+
       // case "--version2" => version2 = true; i += 1
       case "--faulty" => faulty = true; i += 1
       // case "--faulty2" => faulty2 = true; i += 1
       // case "--faulty3" => faulty2 = true; i += 1
+
+      case "--progressCheck" => 
+        progressCheck = true; timeout = args(i+1).toInt; i += 2
+
       case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
 
     def run() = {
-      for(i <- 0 until reps){ doTest; if(i%10 == 0) print(".") }
+      for(i <- 0 until reps){ 
+        doTest; if(i%10 == 0) print(".") 
+      }
       println()
     }
 
