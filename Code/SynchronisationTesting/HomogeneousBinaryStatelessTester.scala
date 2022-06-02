@@ -19,7 +19,6 @@ class HomogeneousBinaryStatelessTester[Op](
     // require(events.length%4 == 0); val numInvs = events.length/2
     val (calls, pending) = getCalls(events) // in Tester
     val numInvs = calls.length
-// FIXME: consider pending
     // Calls with which other calls each call could synchronise 
     val syncs = Array.ofDim[Boolean](numInvs,numInvs) 
     for(i <- 0 until numInvs; j <- 0 until numInvs)

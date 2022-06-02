@@ -44,10 +44,6 @@ class StatefulTester[Op,S](
   /** The number of invocations in the log that return.  Set by apply. */
   private var invocs = -1
 
-  /** A representation of a synchronisation: the list of CallEvents for the
-    * invocations that synchronise. */
-  //type SyncEs = List[CallEvent1]
-
   /** Get all lists of potential synchronisations.  All lists of length up to
     * maxArity of CallEvents by different threads, each paired with their
     * operations. */
@@ -86,9 +82,10 @@ class StatefulTester[Op,S](
         // Compare rets and es.map(_.ret.result)
         assert(rets0.length == es.length)
         var rets = rets0; var es1 = es
-// FIXME: es1.head might not return
+        // assert(es1.head.ret != null)
         while(rets.nonEmpty && rets.head == es1.head.ret.result){
           rets = rets.tail; es1 = es1.tail
+          // assert(es1.isEmpty || es1.head.ret != null)
         }
         if(rets.isEmpty){ // es.map(_.ret.result) == rets
           if(verbose) println(s"Sync of $es with $spec")
@@ -132,6 +129,7 @@ class StatefulTester[Op,S](
     * from calls, each paired with their operations. */
   private def allArgsListsWith(calls: List[CallEvent1], e: CallEvent1)
       : Array[List[(SyncEs, List[Op])]] = {
+    require(e.ret != null)
     // require(!calls.contains(e))
     // Possible synchronisations excluding or including e
     val withoutE = new Array[List[(SyncEs, List[Op])]](maxSyncArity+1)
@@ -147,7 +145,7 @@ class StatefulTester[Op,S](
           var cs = calls
           while(cs.nonEmpty){
             val e1 = cs.head; cs = cs.tail
-            if(!contains(es,e1) && suffixMatching(e1.op::ops))
+            if(e1.ret != null && !contains(es,e1) && suffixMatching(e1.op::ops))
               withoutE(arity) ::= ((e1::es, e1.op::ops))
           }
         }
@@ -159,7 +157,7 @@ class StatefulTester[Op,S](
         val (es, ops) = eoss.head; eoss = eoss.tail; var cs = calls
         while(cs.nonEmpty){
           val e1 = cs.head; cs = cs.tail
-          if(!contains(es,e1) && suffixMatching(e1.op::ops))
+          if(e1.ret != null && !contains(es,e1) && suffixMatching(e1.op::ops))
             withE(arity) ::= ((e1::es, e1.op::ops))
         }
       }
@@ -171,7 +169,7 @@ class StatefulTester[Op,S](
     * `calls` given state `spec` of the specification. */
   private def allSyncsWith(spec: S, calls: List[CallEvent1], e: CallEvent1)
       : List[SyncInfo] = {
-    require(doASAP)
+    require(doASAP && e.ret != null)
     var result = List[SyncInfo]()
     val candidates = allArgsListsWith(calls.filter(_ != e), e)
     for(arity <- arities; (es1, ops1) <- candidates(arity)) 
@@ -258,15 +256,12 @@ class StatefulTester[Op,S](
     private def mkNext(spec1: S, es: List[CallEvent1]): Config = {
       // Update pending and canReturn
       val newPending = pending.filter(e => !contains(es,e))
-      val newCanReturn = merge(es.map(_.ret).sortBy(e => - e.index), canReturn) 
-      // es.map(_.ret) ++ canReturn
-      // assert(isSortedByIndex(newCanReturn),
-      // s"es = $es\n canReturn = $canReturn")
+      val newCanReturn = merge(es.map(_.ret).sortBy(e => - e.index), canReturn)
+      // assert(isSortedByIndex(newCanReturn))
       // Update matching, matchingSize, linIndices
       val newMatching = matching.clone; val indices = es.map(_.opIndex)
       val newLinIndices = linIndices.clone; var j = 0
       while(j < indices.length){
-        // for(i <- indices){
         val i = indices(j); j += 1
         newMatching(i) = indices; newLinIndices(i) = nextLinIndex
       }
@@ -298,14 +293,16 @@ class StatefulTester[Op,S](
       * ce, and then zero or more additional linearisations.  Add all such
       * configurations to buffer. */
     private def iterateLinearisationsWith(ce: CallEvent1, buffer: List[Config])
-        : List[Config] = {
-      var buff = buffer
-      for((spec1,es1) <- allSyncsWith(spec,pending,ce)){
-        val config1 = mkNext(spec1,es1)
-        buff = config1.iterateLinearisations(buff)
+        : List[Config] = 
+      if(ce.ret == null) buffer
+      else{
+        var buff = buffer
+        for((spec1,es1) <- allSyncsWith(spec,pending,ce)){
+          val config1 = mkNext(spec1,es1)
+          buff = config1.iterateLinearisations(buff)
+        }
+        buff
       }
-      buff
-    }
 
     /** Next configurations in the search graph. */
     def nexts: List[Config] = {
@@ -319,8 +316,9 @@ class StatefulTester[Op,S](
           val config1 = new Config(index+1, spec, canReturn, newPending,
             matching, matchingSize, linIndices, nextLinIndex)
           result ::= config1
-          // Consider linearisations, starting with a linearisation involving e
+          // Consider linearisations, starting with a linearisation involving ce
           if(doASAP) result = config1.iterateLinearisationsWith(ce, result)
+
         case re: ReturnEvent[Op,Any] @unchecked =>
           // maybe allow this event to return
           if(canReturn.contains(re)){

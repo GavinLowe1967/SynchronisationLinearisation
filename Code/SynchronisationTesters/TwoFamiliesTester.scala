@@ -19,6 +19,8 @@ object TwoFamiliesTester{
   /** The timeout time with the progress check. */
   var timeout = -1
 
+  var doASAP = false
+
   // Representation of operations within the log
   trait Op
   case class ASync(a: Int) extends Op
@@ -89,12 +91,12 @@ object TwoFamiliesTester{
     val spec = new Spec()
     if(progressCheck){ 
       val bst = new BinaryStatefulTester[Op,Spec](
-        worker1(tf), m+n, matching, spec)
+        worker1(tf), m+n, matching, spec, doASAP)
       if(!bst(timeout)) sys.exit() 
     }
     else{ 
       val bst = new BinaryStatefulTester[Op,Spec](
-        worker(tf), m+n, matching, spec)
+        worker(tf), m+n, matching, spec, doASAP)
       if(!bst()) sys.exit() 
     }
   }
@@ -112,11 +114,15 @@ object TwoFamiliesTester{
 
       case "--progressCheck" => 
         progressCheck = true; timeout = args(i+1).toInt; i += 2
+      case "--doASAP" => doASAP = true; i += 1
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
   
+    val start = java.lang.System.nanoTime
     for(i <- 0 until reps){ 
       doTest; if(i%100 == 0 || progressCheck && i%10 == 0) print(".") 
     }
+    val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
+    println(); println(s"$duration ms")
   }
 }

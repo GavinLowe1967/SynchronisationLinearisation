@@ -27,6 +27,9 @@ object ChanCounterTester{
   /** The timeout time with the progress check. */
   var timeout = -1
 
+  /** Use the ASAP partial-order reduction? */
+  var doASAP = false
+
   // Representation of operations within the log
   trait Op
   case class Send(x: Int) extends Op
@@ -84,11 +87,13 @@ object ChanCounterTester{
       else new ChanCounter[Int]
     val spec = new Spec()
     if(progressCheck){
-      val bst = new BinaryStatefulTester[Op,Spec](worker1(c), p, matching, spec)
+      val bst = 
+        new BinaryStatefulTester[Op,Spec](worker1(c), p, matching, spec, doASAP)
       if(!bst(timeout)) sys.exit()
     }
     else{
-      val bst = new BinaryStatefulTester[Op,Spec](worker(c), p, matching, spec)
+      val bst = 
+        new BinaryStatefulTester[Op,Spec](worker(c), p, matching, spec, doASAP)
       if(!bst()) sys.exit()
     }
   }
@@ -110,6 +115,7 @@ object ChanCounterTester{
 
       case "--progressCheck" => 
         progressCheck = true; timeout = args(i+1).toInt; i += 2
+      case "--doASAP" => doASAP = true; i += 1
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
     assert(p%2 == 0 || progressCheck)

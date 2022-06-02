@@ -16,18 +16,20 @@ FordFulkerson.scala: implementation of the Ford Fulkerson algorithm.  Used in
 BinaryStatelessTester.
 
 BinaryStatelessTester.scala: tester for the binary, stateless, heterogeneous
-case.
+case.  Uses Ford-Fulkerson to find matching.  
 
-DFS.scala: depth-first search for the binary, stateless, homogeneous case.
-
-HomogeneousBinaryStatelessTester.scala: tester for the binary, stateless,
+DFS.scala: heuristic-based depth-first search for the binary, stateless,
 homogeneous case.
 
-BinaryStatefulTester: tester for the binary, stateful case.
+HomogeneousBinaryStatelessTester.scala: tester for the binary, stateless,
+homogeneous case.  Performs heuristic-guided DFS to find matching. 
+
+BinaryStatefulTester: tester for the binary, stateful case.  Performs DFS
+(specialisation of that for the StatefulTester).
 
 StatelessTester: tester for the general stateless case.
 
-StatefulTester: tester for the general stateful case.
+StatefulTester: tester for the general stateful case.  Performs DFS.
 
 =======================================================
 
@@ -107,3 +109,6 @@ TerminatingQueueTester (mixed modes, stateful, heterogeneous)
 
 
 TODO: 
+
+- Extend binary stateless testers to also deal with unary cases, for
+  TimeOutChannelTester and TimeoutExchangerTester.

@@ -6,18 +6,44 @@ We perform logging precisely as for standard linearisation: a thread that
 performs a particular operation~$\sm{op}^i(x)$: (1) writes
 $\call.\sm{op}^i(x)$ into the log; (2)~performs $\sm{op}(x)$ on the
 synchonisation object, obtaining result~$y$, say; (3)~writes
-$\return.\sm{op}^i \:: y$ into the log.
+$\return.\sm{op}^i \:: y$ into the log.  
 
-In this section we consider algorithms for determining if the resulting log
-history is synchronisation linearisable.  In Section~\ref{sec:algorithm-dfs}
-we present a general algorithm for this problem, based on depth-first search.
-We then consider the complexity of this problem.  We show, in
+When not testing for progress, we make it the responsibility of the tester to
+define the threads in a way that ensures that all invocations will be able to
+synchronise, so all threads will eventually terminate.  For example, for a
+binary heterogeneous synchronisation object, threads collectively should
+perform the same number of each operation. 
+
+When testing for progress, we remove the requirement on the tester to ensure
+that all invocations can synchronise.  Indeed, in some cases, in order to find
+failures of progress, it is necessary that not all invocations can
+synchronise: we have examples of incorrect synchronisation objects where (for
+example) if there are two invocations of $\op_1$ and one of~$\op_2$, then
+\emph{neither} invocation of~$\op_1$ returns, signifying the failure of
+progressability; but if there were a second invocation of~$\op_2$, it would
+unblock both invocations of~$\op_1$, so all invocations would return, and the
+failure of progressability would be missed.
+
+Instead, we run threads performing operations, typically chosen at random; and
+after a suitable duration, we interrupt any threads that have not yet
+returned.  The duration before the interrupts needs to be chosen so that it is
+highly likely that any threads that have not returned really are stuck:
+otherwise this approach it likely to produce false positives.  In practice, we
+have found it easy to identify a suitable duration.  A downside of this
+approach is that the duration needs to be chosen fairly conservatively, which
+increases the time that a given number of runs will take.
+
+In the remainder of this section we consider algorithms for determining if the
+resulting log history is synchronisation linearisable, and whether it also
+satisfies progressability.  In Section~\ref{sec:algorithm-dfs} we present a
+general algorithm for this problem, based on depth-first search.  We then
+consider the complexity of this problem.  We show, in
 Section~\ref{sec:NP-complete}, that the problem of deciding whether a history
-is synchronisation linearisable is NP-complete in general.  Nevertheless, we
-show that in the case of binary synchronisations with a stateless
-specification object the problem can be solved in polynomial time: we consider
-the heterogeneous case in Section~\ref{sec:binary-heterogeneous}, and the
-homogeneous case in Section~\ref{sec:binary-homogeneous}.  However, in
+is synchronisation linearisable is NP-complete in general.  However, we show
+that in the case of binary synchronisations with a stateless specification
+object the problem can be solved in polynomial time: we consider the
+heterogeneous case in Section~\ref{sec:binary-heterogeneous}, and the
+homogeneous case in Section~\ref{sec:binary-homogeneous}.  Nevertheless, in
 Section~\ref{sec:non-binary-stateless} we show that for synchronisations of
 three or more invocations, the problem is again NP-complete, even in the
 stateless case.
@@ -62,49 +88,108 @@ comprising:
 %
 From such a configuration, there are edges to configurations as follows:
 %
+\def\edgeFont#1{\textsf{#1}}
 \begin{description}
-\item[Synchronisation.] If some set of invocations in $pending$ can
+\item[\edgeFont{Synchronisation}.] If some set of invocations in $pending$ can
   synchronise, giving results compatible with~$spec$, then there is an edge to
   a configuration where the synchronising invocations are moved into
   $linearised$, and the specification object is updated corresponding to the
   synchronisation;
 
-\item[Call.] If the next event in the log is a $\call$ event, then there is an
-  edge where that event is added to $pending$, and $i$ is advanced;
+\item[\edgeFont{Call}.] If the next event in the log is a $\call$ event, then
+  there is an edge where that event is added to $pending$, and $i$ is
+  advanced;
 
-\item[Return.] If the next event in the log is a $\return$ event, and the
-  corresponding invocation is in $linearised$, then that invocation is removed
-  from $linearised$, and $i$ is advanced.
+\item[\edgeFont{Return}.] If the next event in the log is a $\return$ event,
+  and the corresponding invocation is in $linearised$, then that invocation is
+  removed from $linearised$, and $i$ is advanced.
 \end{description}
 %
 The initial configuration has $i$ at the start of the log, $pending$ and
 $linearised$ empty, and $spec$ the initial state of the specification object.
 Target configurations have $i$ at the end of the log, and $pending$ and
-$linearised$ empty.  
+$linearised$ empty.
 
 Any path from the initial configuration to a target configuration clearly
 represents an interleaving of a history of the specification object with~$h$,
 as required for compatibility.  We can therefore search this graph using a
 standard algorithm.  Our implementation uses depth-first search.
 
-\framebox{**} Our implementation employs a partial-order reduction.  This
-allows synchronisation edges only after a call edge or another synchronisation
-edge, with the first synchronisation in each such sequence including the
-invocation corresponding to the call.  \framebox{**} Test whether this
-actually helps.  If so, justify better.
+%%%%%
+
+It is straightforward to adapt the search to also test for progress.  It is
+enough to change configurations as follows, followingthe definition of
+progressability.
+%
+\begin{itemize}
+\item The definition of \edgeFont{synchronisation} edges is changed so that they
+  involve only invocations that do subsequently return.
+  %% : this ensures that all invocations that synchronised did return.
+
+\item The definition of target configurations is changed so that $pending$ may
+  be non-empty, but must contain no set of invocations that can synchronise
+  according to~$spec$ (i.e.~satisfying the precondition in~$spec$).  This
+  ensures that there no further synchronisations are possible at the end.
+\end{itemize}
+
+%%%%%
+
+We have investigated a form of partial-order reduction, which we call
+\emph{ASAP linearisation}.  The idea is that we try to linearise invocations
+as soon as possible.
+%
+\begin{definition}
+Let $h$ be a complete history of a synchronisation object, and let~$h_s$ be a
+legal history of the corresponding specification object; and consider an
+interleaving, as required for synchronisation compatibility.  We say that the
+interleaving is an \emph{ASAP interleaving} if every event in~$h_s$ appears
+either: (1)~directly after the $\call$ event of one of the corresponding
+invocations from~$h$; or (2)~directly after another event from~$h_s$.
+\end{definition}
+%
+\begin{lemma}
+Let $h$ be a complete history of a synchronisation object, and let~$h_s$ be a
+legal history of the corresponding specification object.  If $h$ and~$h_s$ are
+synchronisation-compatible, then there is an ASAP interleaving of them.
+\end{lemma}
+%
+\begin{proof}
+Consider an interleaving of~$h$ and~$h_s$, as required for synchronisation
+compatibility.  We transform it into an ASAP interleaving as follows.  Working
+forwards through the interleaving, we move every event of $h_s$ earlier in the
+interleaving, as far as possible, without it moving past any of the corresponding
+$\call$ events, nor moving past any other event from~$h_s$.  This means that
+subsequently each such event follows either a corresponding $\call$ event or
+another event from~$h_s$.
+
+Note that each event from~$h_s$ is still between the $\call$ and $return$
+events of the corresponding invocations.  Further, we do not reorder events
+from~$h_s$ so the resulting interleaving is still an interleaving of~$h$
+and~$h_s$.
+
+Thus the resulting interleaving is an ASAP interleaving.
+\end{proof}
+%
+Our approach, then is to trim the search graph by removing
+\edgeFont{synchronisation} edges that do not correspond to an ASAP
+linearisation: after a \edgeFont{call} edge, we attempt to linearise a
+synchronisation corresponding to that call, and then, if successful, to
+linearise an arbitrary sequence of other synchronisations; but we do not
+otherwise allow linearisations.
+
+Our experience is that this tactic is moderately successful.  In some cases,
+it can reduce the total time to check a fixed number of runs by over~30\%;
+although in most cases the gains are smaller, sometimes negligible.  The gains
+seem highest in examples where there can be a reasonably large number of
+pending invocations.
+ 
+%% \framebox{**} Our implementation employs a partial-order reduction.  This
+%% allows synchronisation edges only after a call edge or another synchronisation
+%% edge, with the first synchronisation in each such sequence including the
+%% invocation corresponding to the call.  \framebox{**} Test whether this
+%% actually helps.  If so, justify better.
 
 
-%% Suppose the specification object has non-trivial state. 
-
-%% I think it will be more efficient to give a more direct implementation.
-%% Define a configuration to be: (1)~a point in the log reached so far; (2)~the
-%% set of pending operation invocations that have not synchronised; (3)~the set
-%% of pending operation invocations that have synchronised (but not returned);
-%% and (4)~the state of the sequential synchronisation object.  In any
-%% configuration, can: synchronise a pair of pending operations (and update the
-%% synchronisation object); advance in the log if the next event is a return that
-%% is not pending; or advance in the log if the next event is a call.  Then
-%% perform DFS.
 
 %% Partial order reduction: a synchronisation point must follow either the
 %% call of one of the concurrent operations, or another synchronisation
@@ -135,12 +220,8 @@ synchronisation linearisable with respect to a given synchronisation
 specification object.  We show that this problem is NP-complete in general.
 
 
-%%  It is clearly in NP: a
-%% suitable certificate would be the interleaving with the corresponding history
-%% of the specification object.
-
-We make use of a result from~\cite{???} concerning the complexity of the
-corresponding problem for linearisability.  Let |Variable| be a
+We make use of a result from~\cite{gibbons-korach} concerning the complexity
+of the corresponding problem for linearisability.  Let |Variable| be a
 linearisability specification object corresponding to a variable with |get|
 and |set| operations.  Then the problem of deciding whether a given concurrent
 history is linearisable with respect to |Variable| is NP-complete.
@@ -205,10 +286,10 @@ stateless.  Note that in this case we do not need to worry about the order of
 synchronisations: if each individual synchronisation is correct, then any
 permutation of them will be synchronisation-linearisable.
 
-Define two invocations to be \emph{compatible} if they could be synchronised,
-i.e.~they overlap and the return values agree with those for the specification
-object.  For $n$ invocations of each operation (so a history of length~$4n$),
-this can be calculated in $O(n^2)$.
+Define two complete invocations to be \emph{compatible} if they could be
+synchronised, i.e.~they overlap and the return values agree with those for the
+specification object.  For $n$ invocations of operations this can be
+calculated in $O(n^2)$.
 
 Consider the bipartite graph where the two sets of nodes are invocations
 of~$\op_1$ and~$\op_2$, respectively, and there is an edge between two
@@ -229,6 +310,9 @@ It is straightforward to extend this to a mix of binary and unary
 synchronisations, again with a stateless specification object: the invocations
 of unary operations can be considered in isolation.  
 
+This approach can be easily extended to also test for progress.  It is enough
+to additionally check that no two pending invocations could synchronise.
+
 %%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -247,6 +331,22 @@ the blossom algorithm~\cite{edmonds_1965}, which runs in time $O(n^4)$.
 
 %We haven't implemented this. 
 
+In fact, our experiments use a simpler algorithm.  We attempt to find a
+matching via a depth-first search: we pick a node~$n$ that has not yet been
+matched, try matching it with some unmatched compatible node~$n'$, and recurse
+on the remainder of the graph; if that recursive search is unsuccessful, we
+backtrack and try matching~$n$ with a different node.  We guide this search by
+the standard heuristic of, at each point, expanding the node~$n$ that has
+fewest unmatched compatible nodes~$n'$.  
+
+In our only example of this category, the |Exchanger| from the Introduction,
+we can choose the values to be exchanged randomly from a reasonably large
+range (say size~100).  Then we can nearly always find a node~$n$ for which
+there is a unique unmatched compatible node: this means that the algorithm
+nearly always runs in linear time.  We expect that similar techniques could be
+used in other examples in this category.
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{The non-binary  stateless case}
@@ -255,7 +355,7 @@ the blossom algorithm~\cite{edmonds_1965}, which runs in time $O(n^4)$.
 It turns out that for synchronisations of arity greater than~2, the problem of
 deciding whether a history is synchronisation linearisable is NP-complete in
 general, even in the stateless case.  We prove this fact by reduction from the
-following problem, which is known to be NP-complete~\ref{???}.
+following problem, which is known to be NP-complete~\cite{Karp1972}.
 %
 \begin{definition}
 The problem of finding a complete matching in a 3-partite hypergraph is as
@@ -288,3 +388,6 @@ order); and then continues with returns of the same invocations (in any
 order).  It is clear that any synchronisation linearisation corresponds to a
 complete matching, i.e.~the invocations that synchronise correspond to the
 complete matching~$U$.
+
+Our implementation uses a depth-first search to find a matching, very much
+like in the binary homogeneous case. 

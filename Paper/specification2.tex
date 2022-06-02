@@ -112,10 +112,15 @@ long as each is scheduled infinitely often).
 We make clear what we mean by saying that an invocation can eventually return.
 %
 \begin{definition}
+We say that an infinite execution is \emph{fair} if every  invocation
+either returns or performs infinitely many steps.
+
 Consider a state~$st$ of a synchronisation object.  We say that the object can
-\emph{eventually return} if in every state~$st'$ reachable from~$st$ via an
-execution with no $\call$ or $\return$ event, there is an execution from~$st'$
-where the next event is a $\return$ event.
+\emph{eventually return} if for every fair infinite execution from~$st$ that
+contains no $\call$ event, there is a $\return$ event.
+%% in every state~$st'$ reachable from~$st$ via an execution with no $\call$
+%% or $\return$ event, there is an execution from~$st'$ where the next event
+%% is a $\return$ event.
 \end{definition}
 %
 Note that the condition means that a return event can happen next on
@@ -145,25 +150,23 @@ acceptable for an object to block, and so does not eventually return.
 \begin{definition}
 Let $Sync$ be a synchronisation object that is synchronisation-linearisable
 with respect to specification object $Spec$.  Let $h$ be a history of~$Sync$.
-We say that $Sync$ \emph{may block} after~$h$ if there is
-%%  an extension~$h_e$ of~$h$, and
-a valid history~$h_s$ of~$Spec$, such that:
+We say that $Sync$ \emph{may block} after~$h$ if there is a valid
+history~$h_s$ of~$Spec$, such that:
 %
 \begin{itemize}
 \item $complete(h)$ and~$h_s$ are compatible;
 
-%% \item Every $\return$ event in $h_e$ is also in~$h$;
-
-\item There is no proper extension~$h_e$ of~$h$ and proper extension~$h_s'$
-  of~$h_s$ such that $complete(h_e)$ and~$h_s'$ are compatible. 
+\item There is no proper extension~$h_e$ of~$h$ (adding one or more $\return$
+  events) and synchronisation event~$sync$ such that $complete(h_e)$ and~$h_s
+  \cat \seq{sync}$ are compatible.
 \end{itemize}
 \end{definition}
 
 Note that the first condition says that for every synchronisation in~$h_s$,
 there are corresponding $\return$ events in~$h$: there is no invocation that
 has synchronised but not yet returned.  The second condition says that no more
-synchronisations are possible: such a synchronisation would correspond to an
-event in~$h_s'$ but not~$h_s$.
+synchronisations are possible: such a synchronisation would correspond to a
+synchronisation event~$sync$.
 
 
 We give two examples, both for a synchronous channel.
@@ -171,17 +174,12 @@ We give two examples, both for a synchronous channel.
 \begin{example}
 Consider $h = \seq{ \call.\send^1(3), \call.\receive^2(()),
   \return.\receive^2\::3 }$.  There is no history~$h_s$ of~$Spec$ such that
-$complete(h)$ and~$h_s$ are compatible.  (However, the extension $h_e = h \cat
-\seq{ \return.\send^1 \:: () }$ is compatible with $h_s =
+$complete(h) = \seq{\call.\receive^2(()),\linebreak[1] \return.\receive^2\::3
+}$ and~$h_s$ are compatible.  (However, the extension $h_e = h \cat \seq{
+  \return.\send^1 \:: () }$ is compatible with $h_s =
 \seq{\sync^{1,2}(3,())\::((),3) }$).  Informally, the channel may not block
 after~$h$ because a synchronisation has occurred, and so there is a pending
 return of the send invocation.
-
-%%  via extension $h_e = h
-%% \cat \seq{ \return.\send^1 \:: () }$ (and no other histories).  The channel
-%% may not block after~$h$ since there is a $\return$ event in~$h_e$ that is not
-%% in~$h$.  Informally, the send should be able to return, since it has
-%% synchronised. 
 \end{example}
 
 \begin{example}
@@ -195,68 +193,24 @@ pending invocations can synchronise and then return.
 \end{example}
 
 
-%% synch\-ronisation-linearisable in two ways:
-%% \begin{itemize}
-%% \item With respect to $h_s = \linebreak[1] \seq{\sync^{1,2}(3,()) \:: ((),3)}$
-%%   via extension $h_e = h \cat \seq{\return.\send^1\::(),\linebreak[1]
-%%     \return.\receive^2\::3}$ (or with the $\return$ events in the opposite
-%%   order); but there are $\return$ events in~$h_e$ but not~$h$.
-  
-%% \item With respect to $h_s = \seq{}$ via extension $h_e = h$; but it is
-%%   also synchronisation-linearisable with respect to the extensions $h_s =
-%%   \linebreak[1] \seq{\sync^{1,2}(3,()) \:: ((),3)}$ and $h_e = h
-%%   \cat \seq{\return.\send^1\::(),\linebreak[1] \return.\receive^2\::3}$.
-%% \end{itemize}
-%% %
-%% Thus the channel may not block after~$h$, since neither case satisfies the
-%% conditions.  Informally, the two invocations should be able to synchronise (if
-%% they haven't already), and then both should be able to return.
 
 \begin{definition}
 Let $Sync$ be a synchronisation object that is synchronisation-linearisable
 with respect to specification object $Spec$.  We say that $Sync$ is
-\emph{progressive} if for every history~$h$, if it is not the case that $Sync$
+\emph{progressable} if for every history~$h$, if it is not the case that $Sync$
 may block after~$h$, then $Sync$ can eventually return from each state reached
 after~$h$.
 \end{definition}
 
-*** Example with nondeterministic synchronisations.
+%  Example with nondeterministic synchronisations?
 
 
 
-%% *** That's not quite right.  We want to say that all relevant returns are
-%% possible, at least in the CSP models.  I don't think we want to make that
-%% distinction here.
+%% We want to say that all relevant returns are possible, at least in the CSP
+%% models.  I don't think we want to make that distinction here.  It won't be
+%% true if a return happens before the lock is released.  In the CSP models,
+%% we arrange for the end events to be the final events, so after the lock if
+%% released.  That also corresponds to what happens at the (virtual-) machine
+%% level, if not the high-level language level.  With this placement of end
+%% events, the two properties are equivalent. 
 
-%% \begin{definition}
-%% Let $Sync$ be a synchronisation object that is synchronisation-linearisable
-%% with respect to specification object $Spec$.  Let $h$ be a (not necessarily
-%% complete) history of~$Sync$. We say that $h$ is \emph{maximally
-%%   synchronisation-linearisable} if there is a legal history $h_s$ of~$Spec$
-%% such that
-%% %
-%% \begin{itemize}
-%% \item $complete(h)$ and $h_s$ are synchronisation linearisable;
-
-%% \item There are no proper extension~$h'$ of~$h$ and proper extension~$h_s'$
-%%   of~$h_s$ such that $complete(h')$ and~$h_s'$ are synchronisation compatible.
-%% \end{itemize}
-%% \end{definition}
-
-%% \begin{lemma}
-%% Any synchronisation-linearisable history can be extended to a maximally
-%% synchronisation-linearisable history.  
-%% \end{lemma}
-
-%% \begin{definition}
-%% Let $h$ be a synchronisation-linearisable history, and let $h_m$ be an
-%% extension that is maximally synchronisation-linearisable.  Then we say that
-%% the pending $\return$ events are those in~$h_m$ that are not in~$h$.
-
-%% Consider an execution~$e$ of~$Sync$.  We say that a return event~$ret$ is
-%% \emph{eventually available} if in every extension~$e'$ of~$e$ with no other
-%% $\call$ or $\return$ event, there is an extension~$e''$ of~$e'$ where the next
-%% event is~$ret$. 
-
-%% Given a history~$h$ of~$Sync$, we say that a .............
-%% \end{definition}

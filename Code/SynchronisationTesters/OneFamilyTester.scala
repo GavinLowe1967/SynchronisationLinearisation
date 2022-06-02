@@ -72,6 +72,8 @@ object OneFamilyTester{
   var deadlock = false // DeadlockOneFamily
   /* Default is OneFamily. */
 
+  var doASAP = false
+
   /** Do a single test. */
   def doTest = {
     val of: OneFamilyT = 
@@ -80,13 +82,13 @@ object OneFamilyTester{
       else new OneFamily(n)
     val spec = new Spec()
     if(progressCheck){
-      val bst = 
-        new BinaryStatefulTester[Sync,Spec](worker1(of), n, matching, spec)
+      val bst = new BinaryStatefulTester[Sync,Spec](
+        worker1(of), n, matching, spec, doASAP)
       if(!bst(timeout)) sys.exit()
     }
     else{
-      val bst = 
-        new BinaryStatefulTester[Sync,Spec](worker(of), n, matching, spec)
+      val bst = new BinaryStatefulTester[Sync,Spec](
+        worker(of), n, matching, spec, doASAP)
       if(!bst()) sys.exit()
     }
   }
@@ -102,12 +104,16 @@ object OneFamilyTester{
 
       case "--progressCheck" => 
         progressCheck = true; timeout = args(i+1).toInt; i += 2
+      case "--doASAP" => doASAP = true; i += 1
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
     
+    val start = java.lang.System.nanoTime
     for(i <- 0 until reps){ 
       doTest; if(i%100 == 0 || progressCheck && i%10 == 0) print(".") 
     }
+    val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
+    println(); println(s"$duration ms")
   }
 
 }
