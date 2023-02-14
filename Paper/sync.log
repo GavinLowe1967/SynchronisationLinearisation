@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.12.3)  2 JUN 2022 11:59
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.12.3)  12 SEP 2022 14:03
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -502,37 +502,62 @@ Underfull \hbox (badness 1824) in paragraph at lines 74--79
 
 [2] [3]) (./specification.tex [4] [5] [6]
 Package Listings Info: Deleted | as a short reference for \lstinline on input l
-ine 180.
+ine 181.
 Package Listings Info: Made | a short reference for \lstinline on input line 19
-4.
+5.
  [7]
 Package Listings Info: Deleted | as a short reference for \lstinline on input l
-ine 287.
+ine 290.
 Package Listings Info: Made | a short reference for \lstinline on input line 30
-6.
+9.
  [8] [9]) (./specification2.tex
-[10] [11] [12]) (./relating.tex [13] [14] [15] [16]
+[10] [11] [12]) (./relating.tex
+Underfull \hbox (badness 2088) in paragraph at lines 1--1
+[]\OT1/cmr/bx/n/17.28 Comparing syn-chro-ni-sa-tion lin-eari-sa-tion
+ []
+
+[13] [14] [15] [16]
 Missing character: There is no ; in font nullfont!
- [17] [18]) (./testing.tex
-[19] [20] [21] [22] [23]) (./direct.tex [24] [25] [26] [27] [28] [29] [30])
-(./examples.tex) (./modelChecking.tex [31] [32] [33]
+ [17] [18] [19]
+Overfull \hbox (21.79962pt too wide) in paragraph at lines 654--655
+[][][][][][][][][][][][][][][][][][][]$[]$[][][] 
+ []
+
+
+Overfull \hbox (57.56326pt too wide) in paragraph at lines 662--663
+[][][][][][][][][][][][][]$[]$[][][][][][][]$[]$[][][][][][][][][][][][]$[]$[][
+][][][][][] 
+ []
+
+
+Overfull \hbox (62.5669pt too wide) in paragraph at lines 666--667
+[][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (9.49698pt too wide) in paragraph at lines 685--687
+[][] 
+ []
+
+) (./testing.tex [20] [21] [22] [23] [24]) (./direct.tex [25] [26] [27]
+[28] [29] [30]) (./examples.tex [31]) (./modelChecking.tex [32] [33] [34]
 Underfull \hbox (badness 4353) in paragraph at lines 165--173
 []\OT1/cmr/m/n/12 Consider a model of the syn-chronous chan-nel, and the trace
  []
 
-[34] [35] [36]) (./sync.bbl [37]) [38] (./sync.aux)
+[35] [36] [37]) (./sync.bbl [38]) [39] (./sync.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 15118 strings out of 483183
- 288260 string characters out of 5966292
- 498680 words of memory out of 5000000
- 29846 multiletter control sequences out of 15000+600000
+ 15116 strings out of 483183
+ 288222 string characters out of 5966292
+ 499864 words of memory out of 5000000
+ 29844 multiletter control sequences out of 15000+600000
  549014 words of font info for 91 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 60i,12n,60p,553b,1716s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 60i,12n,60p,554b,1712s stack positions out of 5000i,500n,10000p,200000b,80000s
  </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1200.600
 pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></u
 sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/sha
@@ -556,10 +581,10 @@ public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
 /amsfonts/cm/cmti12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
 nts/cm/cmtt12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/la
 txfont/lasy10.pfb>
-Output written on sync.pdf (38 pages, 357529 bytes).
+Output written on sync.pdf (39 pages, 360180 bytes).
 PDF statistics:
- 229 PDF objects out of 1000 (max. 8388607)
- 163 compressed objects within 2 object streams
+ 232 PDF objects out of 1000 (max. 8388607)
+ 165 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

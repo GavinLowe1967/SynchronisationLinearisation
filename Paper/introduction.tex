@@ -100,7 +100,7 @@ synchronisation.  Such a channel might have a signature as follows.
 \begin{scala}
 class TimeoutChannel{
   def send(x: A): Boolean
-  def receive(u: Unit): Option[A]
+  def receive(): Option[A]
 }
 \end{scala}
 %
@@ -158,11 +158,11 @@ the property \emph{synchronisation linearisation}.
 In Section~\ref{sec:relating} we consider the relationship between
 synchronisation linearisation and (standard) linearisation.  We show that the
 two notions are different; but we show that synchronisation linearisation
-corresponds to a small adaptation of linearisation, where one of the
-operations of the synchronisation object corresponds to \emph{two} operations
+corresponds to a small adaptation of linearisation, where an
+operation of the synchronisation object may correspond to \emph{two} operations
 of the object used to specify linearisation.  
 
-We then consider testing of synchronisation object implementation.  Our
+We then consider testing of synchronisation object implementations.  Our
 techniques are based on the techniques for testing (standard)
 linearisation~\cite{gavin:lin-testing}, which we sketch in
 Section~\ref{sec:lin-testing}.  In Section~\ref{sec:testing-hacking} we show

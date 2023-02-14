@@ -16,8 +16,8 @@ has a single parameter, with signatures as follows.
 \end{scala}
 %
 (We can model a concrete operation that takes $k \ne 1$ parameters by an
-operation that takes a $k$-tuple as its parameter; we identify a 0-tuple with a
-unit value.)
+operation that takes a $k$-tuple as its parameter; we identify a 0-tuple with
+the unit value.)
 %
 In addition, the synchronisation object might have some state, |state: S|.
 Each invocation of~|op|\s1 must synchronise with an invocation of~|op|\s2, and
@@ -78,8 +78,9 @@ For example, consider a synchronous channel with operations
 (Note that we model the |receive| operation as taking a parameter of type
 |Unit|, in order to fit our uniform setting.) 
 %
-This can be specified using a synchronisation specification object as follows,
-with empty state
+This can be specified using a synchronisation specification object
+with empty state:
+%
 \begin{scala}
 class SyncChanSpec{
   def sync(x: A, u: Unit): (Unit, A) = ((), x)
@@ -213,7 +214,7 @@ is as for the definition of the operation in~$Spec$.
 
 For example, consider the history
 \begin{eqnarray*}
-h_s & = & \seq{\sm{enq}^2(4)\::(),\; \sm{enq}^1(5)\::(),\; \sm{deq}^3\::4}.
+h_s & = & \seq{\sm{enq}^2(4)\::(),\; \sm{enq}^1(5)\::(),\; \sm{deq}^3()\::4}.
 \end{eqnarray*}
 %
 This is a legal history for a specification object that represents a queue.
@@ -221,15 +222,16 @@ This history is illustrated by the ``$\cross$''s in
 Figure~\ref{fig:lin-timeline}.
 
 Let $h$ be a complete concurrent history, and let $h_s$ be a legal history of
-the specification object corresponding to the same invocations, i.e., for each
-$\call.op^i(x)$ and $\return.op^i\::y$ in $h$,\, $h_s$ contains $op^i(x)\::y$,
-and vice versa.  We say that $h$ and~$h_s$ are \emph{compatible} if there is
-some way of interleaving the two histories (i.e.~creating a history containing
-the events of~$h$ and~$h_s$, preserving the order of events) such that each
-$op^i(x)\::y$ occurs between $\call.op^i(x)$ and $\return.op^i\::y$.
-Informally, this indicates that the invocations of~$h$ appeared to take place
-in the order described by~$h_s$, and that this order is consistent with the
-specification object.
+the specification object.  We say that $h$ and~$h_s$ \emph{correspond} if they
+contain the same invocations, i.e., for each $\call.op^i(x)$ and
+$\return.op^i\::y$ in $h$,\, $h_s$ contains $op^i(x)\::y$, and vice versa.  We
+say that $h$ and~$h_s$ are \emph{compatible} if there is some way of
+interleaving the two histories (i.e.~creating a history containing the events
+of~$h$ and~$h_s$, preserving the order of events) such that each $op^i(x)\::y$
+occurs between $\call.op^i(x)$ and $\return.op^i\::y$.  Informally, this
+indicates that the invocations of~$h$ appeared to take place in the order
+described by~$h_s$, and that this order is consistent with the specification
+object.
 
 Continuing the running example, the histories $h$ and~$h_s$ are compatible, as
 evidenced by the interleaving
@@ -241,17 +243,18 @@ evidenced by the interleaving
   \return.\sm{deq}^3\::4,\; \return.\sm{enq}^2\::() },
   \end{align}
 \]
-which is again illustrated in  Figure~\ref{fig:lin-timeline}.
+as illustrated in  Figure~\ref{fig:lin-timeline}.
 
 We say that a complete history~$h$ is \emph{linearisable} with respect to
-$Spec$ if there is a corresponding valid history~$h_s$ of~$Spec$ such that $h$
+$Spec$ if there is a corresponding legal history~$h_s$ of~$Spec$ such that $h$
 and~$h_s$ are compatible.  
 
 A concurrent history might not be complete, i.e.~it might have some pending
-invocations.  An \emph{extension} of a history~$h$ is formed by adding zero or
-more $\return$ events corresponding to pending invocations.  We write
-$complete(h)$ for the subsequence of~$h$ formed by removing all $\call$ events
-corresponding to pending invocations. 
+invocations that have been called but have not returned.  An \emph{extension}
+of a history~$h$ is formed by adding zero or more $\return$ events
+corresponding to pending invocations.  We write $complete(h)$ for the
+subsequence of~$h$ formed by removing all $\call$ events corresponding to
+pending invocations.
 %
 We say that a (not necessarily complete) concurrent history~$h$ is
 \emph{linearisable} if there is an extension~$h'$ of~$h$ such that
@@ -273,7 +276,7 @@ from earlier, and is illustrated in Figure~\ref{fig:sync-timeline}:
 h & = & 
 \seq{\begin{align}
   \call.\sm{send}^1(8),\; \call.\sm{send}^2(8),\; \call.\sm{receive}^3(()),\;
-  \return.\sm{receive}^3\::(),\; \\
+  \return.\sm{receive}^3\::8,\; \\
   \call.\sm{receive}^4(()),\; \return.\sm{send}^1\::(),\;
   \call.\sm{send}^5(9),\; \return.\sm{receive}^4\::9,\; \\
   \call.\sm{receive}^6(()),\; \return.\sm{send}^2\::(), \;

@@ -1,5 +1,7 @@
+# Basic class path
 CP = .:/home/gavin/Scala/Util
 
+# Class path including SCL
 CPSCL = .:/home/gavin/Scala/Util:/home/gavin/Scala/SCL
 
 # CP = .:/home/gavin/Scala/CSO:/home/gavin/Scala/CADS:/home/gavin/Scala/Util
@@ -12,7 +14,6 @@ EXDIR = synchronisationTester
 
 # Directory for synchronisation objects
 OBDIR = synchronisationObject
-
 
 # The different types of testers.
 
@@ -31,7 +32,7 @@ NON_BINARY_STATEFUL_TESTERS = $(EXDIR)/ABCCounterTester.class			\
 $(EXDIR)/BarrierCounterTester.class $(EXDIR)/TerminatingQueueTester.class
 
 TESTERS = $(BINARY_HETERO_TESTERS) $(BINARY_STATEFUL_TESTERS)	\
-$(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS) $(NON_BINARY_STATEFUL_TESTERS)
+$(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS) $(NON_BINARY_STATEFUL_TESTERS) $(EXDIR)/ChanTwoStepTester.class
 
 all:	$(TESTERS) $(OBDIR)/TimeoutExchanger.class
 
@@ -82,6 +83,8 @@ $(EXDIR)/TwoFamiliesTester.class: $(OBDIR)/TwoFamilies.class
 
 $(EXDIR)/OneFamilyTester.class: $(OBDIR)/OneFamily.class
 
+$(EXDIR)/ChanTwoStepTester.class: $(DIR)/TwoStepLinSpec.class
+
 # Non-binary stateless
 
 $(NON_BINARY_TESTERS): $(DIR)/StatelessTester.class
@@ -108,6 +111,9 @@ $(EXDIR)/TerminatingQueueTester.class: $(OBDIR)/TerminatingQueue.class
 
 FSC = fsc -deprecation -cp $(CP)
 
+$(DIR)/TwoStepLinSpec.class: SynchronisationTesting/TwoStepLinSpec.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesting/TwoStepLinSpec.scala
+
 $(DIR)/%.class:     SynchronisationTesting/%.scala
 	$(FSC) $<
 
@@ -116,6 +122,9 @@ $(OBDIR)/Chan.class: SynchronisationObjects/Chan.scala
 
 $(OBDIR)/Barrier.class: SynchronisationObjects/Barrier.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationObjects/Barrier.scala
+
+$(EXDIR)/ChanTwoStepTester.class: SynchronisationTesters/ChanTwoStepTester.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/ChanTwoStepTester.scala
 
 $(OBDIR)/%.class:     SynchronisationObjects/%.scala
 	$(FSC) $<

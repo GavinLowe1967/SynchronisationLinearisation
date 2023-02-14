@@ -1,10 +1,10 @@
-\section{Relating synchronisation linearisation and linearisation}
+\section{Comparing synchronisation linearisation and standard linearisation}
 \label{sec:relating}
 
 In this section we describe the relationship between synchronisation
-linearisation and standard linearisation.  
+linearisation and standard linearisation.
 
-It is clear that standard linearisation is equivalent to synchronisation
+It is clear that synchronisation linearisation is equivalent to standard
 linearisation in the (rather trivial) case that no operations synchronise, so
 each operation of the synchronisation specification object corresponds to a
 single operation of the concurrent object.  Put another way: standard
@@ -27,8 +27,8 @@ linearisable with respect to |Spec|.
 For example, consider the example of a synchronous channel from
 Section~\ref{sec:spec}, where synchronisation linearisation is captured by
 |SyncChanSpec|.  Assume (for a contradiction) that the same property can be
-captured by linerisation with respect to linearisability specification~|Spec|.
-Consider the history
+captured by linearisation with respect to linearisability
+specification~|Spec|.  Consider the history
 \begin{eqnarray*}
 h & = & \seq{ 
   \call.\send^1(3), \call.\receive^2(), 
@@ -65,14 +65,14 @@ do not overlap.  Hence no such linearisability specification~|Spec| exists.
 %% \framebox{Note: I don't think we want both this and the construction in
 %%   Section~\ref{ssec:testing-hacking}.}
 
-We now show that binary synchronisation linearisability corresponds to a small
-adaptation of linearisability, where one of the operations on the concurrent
-object corresponds to \emph{two} operations of the linearisability
-specification object.  We define what we mean by this, and then prove the
-correspondence in the next subsection; we generalise to synchronisations of
-more than two threads in Section~\ref{ssec:relating-variations}.  In the
-definitions below, we describe just the differences from standard
-linearisation, to avoid repetition.
+We now show that binary heterogeneous synchronisation linearisability
+corresponds to a small adaptation of linearisability, where one of the
+operations on the synchronisation object corresponds to \emph{two} operations
+of the linearisability specification object.  We define what we mean by this,
+and then prove the correspondence in the next subsection; we generalise to
+synchronisations of more than two threads, and to the homogeneous case in
+Section~\ref{ssec:relating-variations}.  In the definitions below, we describe
+just the differences from standard linearisation, to avoid repetition.
 
 Given a synchronisation object with operations |op|\s1 and |op|\s2,
 we will consider a linearisability specification object with signature
@@ -85,12 +85,12 @@ class TwoStepLinSpec{
 }
 \end{scala}
 %
-The idea is that the operation |op|\s1 on the concurrent object will be
+The idea is that the operation |op|\s1 on the synchronisation object will be
 linearised by the composition of the two operations |op|\s1 and
-$\overline{\sm{op}}_1$; but operation |op|\s2 on the concurrent object will be
-linearised by just the operation |op|\s2 of the specification object, as
-before.  We call such an object a \emph{two-step linearisability specification
-  object}. 
+$\overline{\sm{op}}_1$; but operation |op|\s2 on the synchronisation object
+will be linearised by just the operation |op|\s2 of the specification object,
+as before.  We call such an object a \emph{two-step linearisability
+  specification object}.
 
 We define a legal history~$h_s$ of such a two-step specification object much
 as in Section~\ref{sec:specification-linearisability}, with the addition that
@@ -147,7 +147,7 @@ below represent the corresponding operations of the specification object.
 \begin{tikzpicture}[xscale = 0.9]
 \draw[|-|] (0,0) -- node[above] {$\send^1(3)\::()$} (5,0);
 \crossAt(1,0){$\send^1(3)\::()$}
-\crossAt(4,0){$\overline{\send}^1(3)\::()$}
+\crossAt(4,0){$\overline{\send}^1()\::()$}
 %\draw (1, 0) \X; \draw(4,0) \X;
 \draw[|-|] (2,-1.5) -- node[above] {$\receive^2(())\::3$} (6,-1.5);
 \crossAt(3,-1.5){$\receive^2(())\::3$}
@@ -178,9 +178,10 @@ the testing framework we use in Section~\ref{sec:testing-hacking}.
 The definition of |TwoStepLinSpec| is below.  We assume that each thread has
 an identity in some range $\range 0 {\sm{NumThreads}}$.  For simplicity, we
 arrange for this identity to be included in the $\call$ events written to the
-log for operations~|op|\s1 and $\overline{\sm{op}}_1$.  (Alternatively, we
-could implement thread identities internally to the object, for example using
-the technique from~\cite[Appendix~A.2.4]{herlihy-shavit}.)
+log for operations~|op|\s1 and $\overline{\sm{op}}_1$. 
+%%  (Alternatively, we
+%% could implement thread identities internally to the object, for example using
+%% the technique from~\cite[Appendix~A.2.4]{herlihy-shavit}.)
 
 This object requires that corresponding invocations of~|op|\s1 and~|op|\s2 are
 linearised consecutively: it does this by encoding the automaton on the right.
@@ -199,7 +200,7 @@ the corresponding $\overline\op_1$ into |returns|.
 type ThreadID = Int               // Thread identifiers
 val NumThreads: ThreadID = ... // Number of threads
 trait State
-case class Zero extends State
+case object Zero extends State
 case class One(t: ThreadID, x£\s1£: A£\s1£) extends State
 \end{scala}
 \end{minipage}
@@ -226,14 +227,14 @@ object TwoStepLinSpec{
   private val returns = new Array[Option[B£\s1£]](NumThreads)
   for(t <- 0 until NumThreads) returns(t) = None
   def op£\s1£(t: ThreadID, x£\s1£: A£\s1£): Unit = {
-    require(state.isInstanceOf[Zero] && returns(t) == None); state = One(t, x£\s1£); ()
+    require(state == Zero && returns(t) == None); state = One(t, x£\s1£); ()
   }
   def op£\s2£(x£\s2£: A£\s2£): B£\s2£ = {
     require(state.isInstanceOf[One]); val One(t, x£\s1£) = state
     val (y£\s1£, y£\s2£) = SyncSpec.sync(x£\s1£, x£\s2£); returns(t) = Some(y£\s1£); state = Zero; y£\s2£
   }
   def £$\overline{\sm{op}}_1$£(t: ThreadID): B£\s1£ = {
-    require(state.isInstanceOf[Zero] && returns(t).isInstanceOf[Some])
+    require(state == Zero && returns(t).isInstanceOf[Some[B£\s1£]])
     val Some(y£\s1£) = returns(t); returns(t) = None; y£\s1£
   }
 }
@@ -246,12 +247,12 @@ object TwoStepLinSpec{
 %%   TwoStepDelayedLinSpec?} -- containing all three events of a set
 
 The following lemma identifies important properties of
-|Two|\-|Step|\-|Delayed|\-|LinSpec|.  It follows immediately from the
+|Two|\-|Step|\-|LinSpec|.  It follows immediately from the
 definition.
 %
 \begin{lemma}
 \label{lem:TwoStepLinSpec-histories}
-Within any legal history of |TwoStepDelayedLinSpec|, events $\op_1$ and
+Within any legal history of |TwoStepLinSpec|, events $\op_1$ and
 $\op_2$ alternate.  Let $\op_1^{i_1}(t,x_1) \:: ()$ and $\op_2^{i_2}(x_2) \::
 y_2$ be a consecutive pair of such events.  Then |op|\s2 makes a call
 $\sm{SyncSpec.sync}(x_1, x_2)$ obtaining result $(y_1,y_2)$.  The next event
@@ -261,7 +262,7 @@ corresponding history of events $\sm{sync}^{i_1,i_2}(x_1,x_2) \:: (y_1,y_2)$
 is a legal history of |SyncSpec|.
 
 Conversely, each history with events ordered in this way will be a legal
-history of |TwoStepDelayedLinSpec| if  the corresponding history
+history of |TwoStepLinSpec| if  the corresponding history
 of events $\sm{sync}^{i_1,i_2}(x_1,x_2) \:: (y_1,y_2)$ is a legal history of
 |SyncSpec|.
 \end{lemma}
@@ -549,7 +550,7 @@ object SyncChanTwoStepLinSpec{
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Synchronising more than two operations}
+\subsection{Generalisations}
 \label{ssec:relating-variations}
 
 The results of the previous subsections carry across to non-binary
@@ -616,3 +617,72 @@ itself.  In the case $k=4$, it has definition:
 %
 Each $\overline{\sm{op}}_i$ operation retrieves the result from the
 corresponding |returns|\s{i} array.
+
+We now consider the homogeneous case.  For simplicity, we describe the binary
+case; synchronisations of more than two invocations are handled similarly.
+Suppose we have a synchronisation object with a single operation 
+\SCALA{def op(x: A): B}.
+All invocations of~|op| have to be treated similarly, so we associate
+\emph{each} with two operations |op| and $\overline{\sm{op}}$ of the
+specification object.  The specification object is below, and encodes the
+automaton on the right.
+%% %
+%% \begin{center}
+%% \begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
+%% \draw (0,0) node[draw] (zero) {$\sm{Zero}$};
+%% \draw[->] (zero) ++ (-1.5, 0) -- (zero);
+%% %
+%% \draw (4,0) node[draw] (one) {$\sm{One}(\sm t_1, \sm{x}_1)$};
+%% \draw[->] (zero) .. controls ++(1.75,0.6) .. 
+%%   node[above] {$\sm{op}(\sm t_1, \sm{x}_1)$} (one); 
+%% %
+%% \draw[<-] (zero) .. controls ++(1.75,-0.6) .. 
+%%   node[below] {$\sm{op}(\sm t_2, \sm x_2)$} (one);
+%% \end{tikzpicture}
+%% \end{center}
+%
+The second invocation of |op| in any synchronisation (from the |One| state of the
+automaton) writes the results of the invocation into the |returns| array.
+Each invocation of $\overline{\sm{op}}$ returns the stored value.
+
+\begin{trivlist}
+\item[]
+\begin{minipage}{92mm}
+\begin{scala}
+class TwoStepLinSpec{
+  private var state: State = Zero
+  private val returns = new Array[Option[B£\s1£]](NumThreads)
+  for(t <- 0 until NumThreads) returns(t) = None
+  def op(t: ThreadID, x: A): Unit = {
+    require(returns(t) == None); 
+    state match{
+      case Zero => state = One(t, x)
+      case One(t£\s1£, x£\s1£) => 
+        val (y£\s1£, y£\s2£) = SyncSpec.sync(x£\s1£, x) 
+        returns(t£\s1£) = Some(y£\s1£); returns(t) = Some(y£\s2£); state = Zero
+    }
+  }
+  def £$\overline{\sm{op}}$£(t: ThreadID): B = {
+    require(state.isInstanceOf[Zero] && returns(t).isInstanceOf[Some])
+    val Some(y) = returns(t); returns(t) = None; y
+  }
+}
+\end{scala}
+\end{minipage}
+\hfill 
+%
+\begin{minipage}{37.8mm}
+\begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
+\draw (0,0) node[draw] (zero) {$\sm{Zero}$};
+\draw[->] (zero) ++ (-1.5, 0) -- (zero);
+%
+\draw (0,-4) node[draw] (one) {$\sm{One}(\sm t_1, \sm{x}_1)$};
+\draw[->] (zero) .. controls ++(0.3,-2) .. 
+  node[right] {$\sm{op}(\sm t_1, \sm{x}_1)$} (one); 
+%
+\draw[->] (one) .. controls ++(-0.3,2) .. 
+  node[left] {$\sm{op}(\sm t_2, \sm x_2)$} (zero);
+\end{tikzpicture}%
+\vspace{40mm}
+\end{minipage}%
+\end{trivlist}

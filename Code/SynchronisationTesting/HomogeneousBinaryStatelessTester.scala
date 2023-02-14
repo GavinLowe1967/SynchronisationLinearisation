@@ -1,5 +1,5 @@
 package synchronisationTesting
-
+ 
 class HomogeneousBinaryStatelessTester[Op](
   worker: (Int, HistoryLog[Op]) => Unit,
   p: Int,

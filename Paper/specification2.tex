@@ -97,13 +97,14 @@ condition requires that, assuming invocations collectively are scheduled
 infinitely often, then eventually some invocation returns.  Lock freedom makes
 no assumption about scheduling being fair.  For example, if a particular
 invocation holds a lock then it allows the scheduler to never schedule that
-invocation; in most cases, this will mean that no invocation returns: an
+invocation; in most cases, this will mean that no invocation returns: any
 implementation that uses a lock in a non-trivial way is not lock-free.
 
 By contrast, our assumption, that each unblocked pending invocation is
 scheduled infinitely often, reflects that modern schedulers \emph{are} fair,
 and do not starve any single invocation.  For example, if an invocation holds
-a lock, and is not in a potentially unbounded loop, then it will be scheduled
+a lock, and is not in a potentially unbounded loop (or permanently blocked
+trying to obtain a second lock), then it will be scheduled
 sufficiently often that it eventually releases the lock.  Thus our progress
 condition can be satisfied by an implementation that uses locks.  However, our
 assumption does allow invocations to be scheduled in an unfortunate order (as
@@ -112,12 +113,13 @@ long as each is scheduled infinitely often).
 We make clear what we mean by saying that an invocation can eventually return.
 %
 \begin{definition}
-We say that an infinite execution is \emph{fair} if every  invocation
-either returns or performs infinitely many steps.
+We say that an infinite execution is \emph{fair} if every invocation either
+returns or performs infinitely many steps.
 
-Consider a state~$st$ of a synchronisation object.  We say that the object can
-\emph{eventually return} if for every fair infinite execution from~$st$ that
-contains no $\call$ event, there is a $\return$ event.
+Consider a synchronisation object in a particular state~$st$.  We say that the
+object can \emph{eventually return} if (1)~no execution leads to a deadlocked
+state, and (2)~for every fair infinite execution
+from~$st$ that contains no $\call$ event, there is a $\return$ event.
 %% in every state~$st'$ reachable from~$st$ via an execution with no $\call$
 %% or $\return$ event, there is an execution from~$st'$ where the next event
 %% is a $\return$ event.
@@ -150,15 +152,15 @@ acceptable for an object to block, and so does not eventually return.
 \begin{definition}
 Let $Sync$ be a synchronisation object that is synchronisation-linearisable
 with respect to specification object $Spec$.  Let $h$ be a history of~$Sync$.
-We say that $Sync$ \emph{may block} after~$h$ if there is a valid
+We say that $Sync$ \emph{may block} after~$h$ if there is a legal
 history~$h_s$ of~$Spec$, such that:
 %
 \begin{itemize}
-\item $complete(h)$ and~$h_s$ are compatible;
+\item $complete(h)$ and~$h_s$ are compatible; nd
 
 \item There is no proper extension~$h_e$ of~$h$ (adding one or more $\return$
-  events) and synchronisation event~$sync$ such that $complete(h_e)$ and~$h_s
-  \cat \seq{sync}$ are compatible.
+  events, but no $\call$ events) and synchronisation event~$sync$ such that
+  $complete(h_e)$ and~$h_s \cat \seq{sync}$ are compatible.
 \end{itemize}
 \end{definition}
 
@@ -192,6 +194,22 @@ of~$h_s$.  Hence the channel may not block after~$h$.  Informally, the two
 pending invocations can synchronise and then return. 
 \end{example}
 
+We now give two examples where blocking is allowed.
+%
+\begin{example}  
+Let $h = \seq{\call.\send^1(3)}$, so $complete(h) =
+\seq{\call.\send^1(3),\linebreak[1] \return.\send^1\::()}$.  No legal history
+of~$Spec$ is compatible with~$complete(h)$.
+\end{example}
+
+\begin{example}
+Let $h = h_s = \seq{}$,
+%% \seq{ \call.\send^1(3), \call.\receive^2(()),
+%%   \return.\receive^2\::3,\linebreak[1] \return.\send^1\::()}$ and $h_s =
+%%   \seq{\sync^{1,2}(3,())}$,
+so $complete(h) = h$ and~$h_s$ are compatible.  But
+no $\return$ event is possible without additional $\call$ events.
+\end{example}
 
 
 \begin{definition}
@@ -201,6 +219,9 @@ with respect to specification object $Spec$.  We say that $Sync$ is
 may block after~$h$, then $Sync$ can eventually return from each state reached
 after~$h$.
 \end{definition}
+
+\framebox{Relate testing to progress.}
+
 
 %  Example with nondeterministic synchronisations?
 
