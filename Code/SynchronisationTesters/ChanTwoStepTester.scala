@@ -75,12 +75,14 @@ object ChanTwoStepTester{
     val c: Chan[Int] = 
       if(faulty) new FaultyChan[Int] 
       else if(deadlock) new DeadlockingChan[Int] 
-      else if(faulty2) new FaultyChan2[Int]
+      else if(faulty2) new FaultyChan2[Int] 
       else if(wrapped) new WrappedSCLChan[Int]
       else new SyncChan[Int]
     if(!reversed){
-      def sync(x: Int, u: Unit) = ((), x)
-      val spec = TwoStepLinSpec[Int,Unit,Unit,Int](numThreads, sync _)
+      val specObj = new TwoStepLinSpec.SpecObject[Int,Unit,Unit,Int]{ 
+        def sync(x: Int, u: Unit) = ((), x) 
+      }
+      val spec = TwoStepLinSpec[Int,Unit,Unit,Int](numThreads, specObj)
       val tester = LinearizabilityTester[Spec,C](spec, c, numThreads, worker _)
       if(tester() <= 0) sys.exit()
     }
