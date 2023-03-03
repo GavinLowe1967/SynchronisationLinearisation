@@ -32,7 +32,7 @@ NON_BINARY_STATEFUL_TESTERS = $(EXDIR)/ABCCounterTester.class			\
 $(EXDIR)/BarrierCounterTester.class $(EXDIR)/TerminatingQueueTester.class
 
 TESTERS = $(BINARY_HETERO_TESTERS) $(BINARY_STATEFUL_TESTERS)	\
-$(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS) $(NON_BINARY_STATEFUL_TESTERS) $(EXDIR)/ChanTwoStepTester.class
+$(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS) $(NON_BINARY_STATEFUL_TESTERS) $(EXDIR)/ChanTwoStepTester.class $(EXDIR)/ChanCounterTwoStepTester.class
 
 all:	$(TESTERS) $(OBDIR)/TimeoutExchanger.class
 
@@ -85,6 +85,8 @@ $(EXDIR)/OneFamilyTester.class: $(OBDIR)/OneFamily.class
 
 $(EXDIR)/ChanTwoStepTester.class: $(DIR)/TwoStepLinSpec.class
 
+$(EXDIR)/ChanCounterTwoStepTester.class: $(DIR)/TwoStepLinSpec.class
+
 # Non-binary stateless
 
 $(NON_BINARY_TESTERS): $(DIR)/StatelessTester.class
@@ -111,6 +113,9 @@ $(EXDIR)/TerminatingQueueTester.class: $(OBDIR)/TerminatingQueue.class
 
 FSC = fsc -deprecation -cp $(CP)
 
+$(DIR)/StatefulTwoStepLinSpec.class: SynchronisationTesting/StatefulTwoStepLinSpec.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesting/StatefulTwoStepLinSpec.scala
+
 $(DIR)/TwoStepLinSpec.class: SynchronisationTesting/TwoStepLinSpec.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationTesting/TwoStepLinSpec.scala
 
@@ -125,6 +130,9 @@ $(OBDIR)/Barrier.class: SynchronisationObjects/Barrier.scala
 
 $(EXDIR)/ChanTwoStepTester.class: SynchronisationTesters/ChanTwoStepTester.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/ChanTwoStepTester.scala
+
+$(EXDIR)/ChanCounterTwoStepTester.class: SynchronisationTesters/ChanCounterTwoStepTester.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/ChanCounterTwoStepTester.scala
 
 $(OBDIR)/%.class:     SynchronisationObjects/%.scala
 	$(FSC) $<

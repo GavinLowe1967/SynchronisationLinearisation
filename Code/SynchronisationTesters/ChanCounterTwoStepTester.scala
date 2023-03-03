@@ -3,12 +3,13 @@ package synchronisationTester
 import ox.scl.{LinearizabilityTester,LinearizabilityLog}
 import scala.util.Random
 import synchronisationTesting.{TwoStepLinSpec}
-import synchronisationObject.{
-  Chan, FaultyChan, DeadlockingChan, FaultyChan2, WrappedSCLChan, SyncChan}
-import TwoStepLinSpec.log2
+import synchronisationObject.{  
+  ChanCounterT, ChanCounter, ChanCounter2, ChanCounter3, FaultyChanCounter, 
+  DeadlockingChanCounter}
+import TwoStepLinSpec.{log2,SyncSpecObject}
 
 /** A testing file. */
-object ChanTwoStepTester{
+object ChanCounterTwoStepTester{
   /** Number of worker threads to run. */
   var numThreads = 4
 
@@ -22,12 +23,20 @@ object ChanTwoStepTester{
   var MaxVal = 100
 
   /** The type we're testing. */
-  type C = Chan[Int]
+  type C = ChanCounterT[Int]
 
-  /* We will take `!` to correspond to op_1, and `?` to correspond to op_2.
-   * That corresponds to taking A_1 = B_2 = Int, and A_2 = B_1 = Unit. */ 
+  /* We will take `send` to correspond to op_1, and `receive` to correspond to
+   * op_2.  That corresponds to taking A_1 = B_1 = B_2 = Int, and A_2 Unit. */
 
-  type Spec = TwoStepLinSpec[Int,Unit,Unit,Int]
+  /** The synchronisation specification object.  It keeps track of the sequence
+    * counter. */
+  case class SyncSpec(counter: Int = 0) extends SyncSpecObject[Int,Unit,Int,Int]{
+    def sync(x: Int, u: Unit): ((Int, Int), SyncSpec) = 
+      ((counter+1, x), new SyncSpec(counter+1))
+  }
+ 
+  /** The type of two-step linearizability specification objects. */
+  type Spec = TwoStepLinSpec[Int,Unit,Int,Int]
 
   /** A worker.  An even number of these workers should not produce a
     * deadlock. */
@@ -39,54 +48,62 @@ object ChanTwoStepTester{
         // log(c => y, s"$me: sendX($x)", _.op1X(me)) // Register the second step
         // Note: the above can be simplified, because y = () throughout.  But
         // it follows the standard pattern. 
-        log2(log, me, (c:C) => c!x, s"send($x)", x)
+        log2(log, me, (c:C) => c.send(x), s"send($x)", x)
       }
-      else log(_?(), s"receive", _.op2(()))
+      else log(_.receive(), s"receive", _.op2(()))
   }
 
-  /* Now with the roles of `!` and `?` swapped. */
+  /* Now with the roles of `send` and `receive` swapped. */
 
-  type SpecR = TwoStepLinSpec[Unit,Int,Int,Unit]
+  case class SyncSpecR(counter: Int = 0) 
+      extends SyncSpecObject[Unit,Int,Int,Int]{
+    def sync(u: Unit, x: Int): ((Int, Int), SyncSpecR) = 
+      ((x, counter+1), new SyncSpecR(counter+1))
+  }
+
+  type SpecR = TwoStepLinSpec[Unit,Int,Int,Int]
 
   def workerR(me: Int, log: LinearizabilityLog[SpecR,C]) = {
     for(i <- 0 until iters)
       if(me%2 == 0){
-        val x = Random.nextInt(MaxVal); log(_!x, s"send($x)", _.op2(x))
+        val x = Random.nextInt(MaxVal); log(_.send(x), s"send($x)", _.op2(x))
       }
       else{
         // var y: Int = -1
         // log(c => {y = c?()}, s"$me: receive", _.op1(me,()))
         // log(c => y, s"$me: receiveX", _.op1X(me))
-        log2(log, me, (c:C) => c?(), "receive", ())
+        log2(log, me, (c:C) => c.receive(), "receive", ())
       }
   }
 
-  /* Flags for which channel implementation to use.  Default is SyncChan*/
-  private var faulty = false   // FaultyChan
-  private var faulty2 = false // FaultyChan2
-  private var deadlock = false // DeadlockingChan
-  private var wrapped = false // WrappedSCLChan
+  /* Flags for which channel implementation to use. */
+  private var faulty = false // FaultyChanCounter
+  private var deadlock = false // DeadlockingChanCounter
+  private var version2 = false // ChanCounter2
+  private var version3 = false // ChanCounter3
+  /* The default is ChanCounter */
 
   /** Are we doing the test with SpecR and workerR. */
   private var reversed = false
 
   /** Do a single test. */
   def doTest = {
-    val c: Chan[Int] = 
-      if(faulty) new FaultyChan[Int] 
-      else if(deadlock) new DeadlockingChan[Int] 
-      else if(faulty2) new FaultyChan2[Int] 
-      else if(wrapped) new WrappedSCLChan[Int]
-      else new SyncChan[Int]
+    val c: C = 
+      if(faulty) new FaultyChanCounter[Int]
+      else if(deadlock) new DeadlockingChanCounter[Int]
+      else if(version2) new ChanCounter2[Int]
+      else if(version3) new ChanCounter3[Int]
+      else new ChanCounter[Int]
     if(!reversed){
-      def sync(x: Int, u: Unit) = ((), x)
-      val spec = TwoStepLinSpec[Int,Unit,Unit,Int](numThreads, sync _)
+      val specObj = new SyncSpec
+      val spec = TwoStepLinSpec[Int,Unit,Int,Int](numThreads, specObj)
       val tester = LinearizabilityTester[Spec,C](spec, c, numThreads, worker _)
       if(tester() <= 0) sys.exit()
     }
     else{
-      def syncR(u: Unit, x: Int) = (x, ())
-      val spec = TwoStepLinSpec[Unit,Int,Int,Unit](numThreads, syncR _)
+      // def syncR(u: Unit, x: Int) = (x, ())
+      val specObj = new SyncSpecR
+      val spec = TwoStepLinSpec[Unit,Int,Int,Int](numThreads, specObj)
       val tester = LinearizabilityTester[SpecR,C](spec, c, numThreads, workerR _)
       if(tester() <= 0) sys.exit()
     }
@@ -104,8 +121,8 @@ object ChanTwoStepTester{
 
       case "--faulty" => faulty = true; i += 1
       case "--deadlock" => deadlock = true; i += 1
-      case "--faulty2" => faulty2 = true; i += 1
-      case "--wrapped" => wrapped = true; i += 1
+      case "--version2" => version2 = true; i += 1
+      case "--version3" => version3 = true; i += 1
 
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }

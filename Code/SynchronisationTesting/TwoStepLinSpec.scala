@@ -13,25 +13,33 @@ object TwoStepLinSpec{
   private def isOne[A](state: AState[A]) =
     state match{ case Zero() => false; case One(_,_) => true }
 
-  /** A specification object. */
-  trait SpecObject[A1,A2,B1,B2]{
+  /** A synchronisation specification object. */
+  trait SyncSpecObject[A1,A2,B1,B2]{
     /** The results for a synchronisation between operations providing parameters
-      * `x1` and `x2`. */
-    def sync(x1:A1, x2: A2): (B1,B2)
+      * `x1` and `x2`. 
+      * @returns a tuple ((y1, y2), newSyncSpec) where y1 and y2 are the results
+      * that should be returned by the two operations, and newSyncSpec is the
+      * new state of the SyncSpecObject.  */
+    def sync(x1: A1, x2: A2): ((B1,B2), SyncSpecObject[A1,A2,B1,B2])
   }
 
-  /** Factory method for a TwoStepLinSpec specification for `numThreads` threads
-    * and using synchronisation object `sync`. */
-  def apply[A1,A2,B1,B2](numThreads: Int, spec: SpecObject[A1,A2,B1,B2]) = 
-    new TwoStepLinSpec[A1,A2,B1,B2](Zero(), Array.fill(numThreads)(None), spec)
+  /** Factory method for a TwoStepLinSpec specification for `numThreads`
+    * threads and using synchronisation specification object `syncSpec`. */
+  def apply[A1,A2,B1,B2](numThreads: Int, syncSpec: SyncSpecObject[A1,A2,B1,B2])
+      : TwoStepLinSpec[A1,A2,B1,B2] =
+    new TwoStepLinSpec[A1,A2,B1,B2](
+      Zero(), Array.fill(numThreads)(None), syncSpec)
 
-  /** Factory method for a TwoStepLinSpec specification for `numThreads` threads
-    * and using synchronisation function `sync`. */
-  def apply[A1,A2,B1,B2](numThreads: Int, sync1: (A1,A2) => (B1,B2)) = {
-    val spec = new SpecObject[A1,A2,B1,B2]{ 
-      def sync(x1:A1, x2: A2) = sync1(x1, x2)  
+  /** Factory method for a stateless TwoStepLinSpec specification for
+    * `numThreads` threads and using synchronisation specification function
+    * `sync1`. */
+  def apply[A1,A2,B1,B2](numThreads: Int, sync1: (A1,A2) => (B1,B2))
+      : TwoStepLinSpec[A1,A2,B1,B2] = {
+    val syncSpec = new SyncSpecObject[A1,A2,B1,B2]{ 
+      def sync(x1:A1, x2: A2) = (sync1(x1, x2), this) 
     }
-    new TwoStepLinSpec[A1,A2,B1,B2](Zero(), Array.fill(numThreads)(None), spec)
+    apply(numThreads, syncSpec)
+    //new TwoStepLinSpec[A1,A2,B1,B2](Zero(), Array.fill(numThreads)(None), spec)
   }
 
   /** Log and perform the op_1 in the two-step linearisation scheme. 
@@ -62,7 +70,7 @@ object TwoStepLinSpec{
 
 // =======================================================
  
-import TwoStepLinSpec.{AState,SpecObject}
+import TwoStepLinSpec.{AState,SyncSpecObject}
 
 /** A specification object for the two-step linearisability technique.  This
   * assumes that we are testing for synchronisation linearisability of a
@@ -83,11 +91,12 @@ import TwoStepLinSpec.{AState,SpecObject}
 class TwoStepLinSpec[A1,A2,B1,B2](
   private val state: AState[A1], 
   private val returns: Array[Option[B1]],
-  spec: SpecObject[A1,A2,B1,B2] 
+  private val syncSpec: SyncSpecObject[A1,A2,B1,B2] 
 ){
   import TwoStepLinSpec.{Zero,One,ThreadID,isOne}
 
-  private type Spec = TwoStepLinSpec[A1,A2,B1,B2] // shorthand
+  /** The type of specification object in the linearizability tester. */
+  private type LinSpec = TwoStepLinSpec[A1,A2,B1,B2] // shorthand
 
   /** returns with t set to ob. */
   @inline private 
@@ -96,34 +105,36 @@ class TwoStepLinSpec[A1,A2,B1,B2](
   }
 
   /** Operation corresponding to op_1. */
-  def op1(t: ThreadID, x: A1): (Unit, Spec) = {
+  def op1(t: ThreadID, x: A1): (Unit, LinSpec) = {
     require(state == Zero() && returns(t) == None)
-    ((), new Spec(One(t,x), returns, spec))
+    ((), new LinSpec(One(t,x), returns, syncSpec))
   }
 
   /** Operation corresponding to op_2. */
-  def op2(x2: A2): (B2, Spec) = {
-    require(isOne(state)); val One(t,x1) = state; val (y1,y2) = spec.sync(x1,x2)
-    (y2, new Spec(Zero(), addToReturns(t, Some(y1)), spec))
+  def op2(x2: A2): (B2, LinSpec) = {
+    require(isOne(state)); val One(t,x1) = state; 
+    val ((y1,y2), newSyncSpec) = syncSpec.sync(x1,x2)
+    (y2, new LinSpec(Zero(), addToReturns(t, Some(y1)), newSyncSpec))
   }
 
   /** Operation corresponding to \overline{op_1}. */
-  def op1X(t: ThreadID): (B1, Spec) = {
+  def op1X(t: ThreadID): (B1, LinSpec) = {
     require(state == Zero() && returns(t).nonEmpty); val Some(y1) = returns(t)
-    (y1, new Spec(state, addToReturns(t, None), spec))
+    (y1, new LinSpec(state, addToReturns(t, None), syncSpec))
   }
 
   /* Need to override hashcode and equality. */
 
   override def hashCode = {
-    var h = state.hashCode
+    var h = state.hashCode*73+syncSpec.hashCode
     for(i <- 0 until returns.length) h = h*73 + returns(i).hashCode
     h
   }
 
   override def equals(that: Any) = that match{
-    case spec: Spec @unchecked =>
-      spec.state == state && spec.returns.sameElements(returns)
+    case lSpec: LinSpec @unchecked =>
+      lSpec.state == state && lSpec.syncSpec == syncSpec && 
+      lSpec.returns.sameElements(returns)
   }
 
   override def toString = s"Spec($state, ${returns.mkString("<",",",">")}"
