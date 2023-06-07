@@ -1,42 +1,58 @@
-Synchronisation testing architecture.  In directory SynchronisationTesting
-(class files in package synchronisationTesting).
+Overview of code, categorised by subdirectory. 
 
-Log.scala: raw polymorphic log
+SynchronisationTesting
+======================
 
-HistoryLog.scala: log for logging call and return of operation invocations.
+Synchronisation testing architecture.  (Class files in package
+synchronisationTesting.)
 
-ThreadUtil.scala: thread utilities.
+- Log.scala: raw polymorphic log
 
-Tester.scala: base class of all testers.
+- HistoryLog.scala: log for logging call and return of operation invocations.
 
-BinaryTester.scala: base class of all binary testers.  Actually just the
+- ThreadUtil.scala: thread utilities.
+
+- Tester.scala: base class of all testers.
+
+- BinaryTester.scala: base class of all binary testers.  Actually just the
 stateless ones.
 
-FordFulkerson.scala: implementation of the Ford Fulkerson algorithm.  Used in
+- FordFulkerson.scala: implementation of the Ford Fulkerson algorithm.  Used in
 BinaryStatelessTester.
 
-BinaryStatelessTester.scala: tester for the binary, stateless, heterogeneous
+- BinaryStatelessTester.scala: tester for the binary, stateless, heterogeneous
 case.  Uses Ford-Fulkerson to find matching.  
 
-DFS.scala: heuristic-based depth-first search for the binary, stateless,
+- DFS.scala: heuristic-based depth-first search for the binary, stateless,
 homogeneous case.
 
-HomogeneousBinaryStatelessTester.scala: tester for the binary, stateless,
+- HomogeneousBinaryStatelessTester.scala: tester for the binary, stateless,
 homogeneous case.  Performs heuristic-guided DFS to find matching. 
 
-BinaryStatefulTester: tester for the binary, stateful case.  Performs DFS
+- BinaryStatefulTester: tester for the binary, stateful case.  Performs DFS
 (specialisation of that for the StatefulTester).
 
-StatelessTester: tester for the general stateless case.
+- StatelessTester: tester for the general stateless case.
 
-StatefulTester: tester for the general stateful case.  Performs DFS.
+- StatefulTester: tester for the general stateful case.  Performs DFS.
 
-=======================================================
+- TwoStepLinSpec: implementation of two-step linearisation testing. 
 
-Synchronisation objects, in directory SynchronisationObjects (class files in
-package synchronisationObject).
 
-FaultyChan.scala: faulty synchronous channel; binary, heterogeneous, stateless.
+SynchronisationObjects
+======================
+
+Synchronisation objects.  (Class files in package synchronisationObject.)
+
+Semaphore.scala: implemenation of semaphore; supporting code, only. 
+
+Chan.scala: synchronous channels; binary, heterogeneous, stateless.
+
+ChanCounter.scala: channel with sequence number; binary, heterogeneous,
+stateful.
+
+TimeoutChannel: channel with timeouts; non-binary with multiple modes,
+heterogeneous, stateless.
 
 FilterChan.scala: filtering channel; binary, heterogeneous, stateless.
 
@@ -45,8 +61,7 @@ MenWomen.scala: the men and women problem; binary, heterogeneous, stateless.
 Exchanger.scala: allows two threads to exchange values; binary, homogeneous,
 stateless.
 
-ChanCounter.scala: channel with sequence number; binary, heterogeneous,
-stateful.
+TimeoutExchanger: also allows timeouts.  Multiple modes. 
 
 TwoFamilies.scala: the speed-dating problem; binary, heterogeneous, stateful.
 
@@ -55,13 +70,10 @@ homogeneous, stateful.
 
 ABC.scala: the ABC problem; non-binary, heterogeneous, stateless.
 
-Barrier.scala: a barrier synchronisation; non-binary, homogeneous, stateless.
-
-TimeoutChannel: channel with timeouts; non-binary with multiple modes,
-heterogeneous, stateless.
-
-ABCCounter: the ABC problem with a counter; non-binary, heterogeneous,
+ABCCounter.scala: ABC extended with a counter. non-binary, heterogeneous,
 stateful.
+
+Barrier.scala: a barrier synchronisation; non-binary, homogeneous, stateless.
 
 BarrierCounter: a barrier synchronisation with a sequence number; non-binary,
 homogeneous, stateful.
@@ -69,13 +81,16 @@ homogeneous, stateful.
 TerminatingQueue: a terminating queue; non-binary with multiple modes,
 heterogeneous, stateful.
 
+CloseableChan: a channel with a close operation. 
+
+TODO:  combining barrier.
+
 =======================================================
 
-Specific testers
-----------------
+SynchronisationTesters
 
-In directory SynchronisationTesters, class files in synchronisationTester.
-Each tests the synchronisation objects with a similar name.
+Specific testers.  (Class files in synchronisationTester.)  Each tests the
+synchronisation objects with a similar name.
 
 ChanTester.scala (binary, stateless, heterogeneous)
 
@@ -104,6 +119,14 @@ ABCCounterTester (ternary, stateful, heterogeneous)
 BarrierCounterTester (n-ary, stateful, homogeneous)
 
 TerminatingQueueTester (mixed modes, stateful, heterogeneous)
+
+CloseableChanTester (mixed modes, stateful, heterogeneous)
+
+Two-step testers:
+
+ChanCounterTwoStepTester
+
+ChanTwoStepTester
 
 ==================================================================
 

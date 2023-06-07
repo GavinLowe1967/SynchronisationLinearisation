@@ -8,7 +8,8 @@ It is clear that synchronisation linearisation is equivalent to standard
 linearisation in the (rather trivial) case that no operations synchronise, so
 each operation of the synchronisation specification object corresponds to a
 single operation of the concurrent object.  Put another way: standard
-linearisation is an instance of synchronisation linearisation. 
+linearisation is an instance of synchronisation linearisation with just unary
+synchronisations.
 
 %% Below, we show that the two notions
 %% are different: synchronisation linearisation cannot, in general, be captured
@@ -69,12 +70,19 @@ We now show that binary heterogeneous synchronisation linearisability
 corresponds to a small adaptation of linearisability, where one of the
 operations on the synchronisation object corresponds to \emph{two} operations
 of the linearisability specification object.  We define what we mean by this,
-and then prove the correspondence in the next subsection; we generalise to
+and then prove the correspondence in the next subsection.  We generalise to
 synchronisations of more than two threads, and to the homogeneous case in
 Section~\ref{ssec:relating-variations}.  In the definitions below, we describe
 just the differences from standard linearisation, to avoid repetition.
 
-Given a synchronisation object with operations |op|\s1 and |op|\s2,
+Given a synchronisation object with signature
+% |op|\s1 and |op|\s2,
+\begin{scala}
+class SyncObj{
+  def op£\s1£(x£\s1£: A£\s1£): B£\s1£
+  def op£\s2£(x£\s2£: A£\s2£): B£\s2£
+}
+\end{scala}
 we will consider a linearisability specification object with signature
 %
 \begin{scala}
@@ -85,12 +93,11 @@ class TwoStepLinSpec{
 }
 \end{scala}
 %
-The idea is that the operation |op|\s1 on the synchronisation object will be
-linearised by the composition of the two operations |op|\s1 and
-$\overline{\sm{op}}_1$; but operation |op|\s2 on the synchronisation object
-will be linearised by just the operation |op|\s2 of the specification object,
-as before.  We call such an object a \emph{two-step linearisability
-  specification object}.
+The idea is that the operation |op|\s1 on |SyncObj| will be linearised by the
+composition of the two operations |op|\s1 and $\overline{\sm{op}}_1$; but
+operation |op|\s2 on |SyncObj| will be linearised by just the operation
+|op|\s2 of the specification object, as before.  We call such an object a
+\emph{two-step linearisability specification object}.
 
 We define a legal history~$h_s$ of such a two-step specification object much
 as in Section~\ref{sec:specification-linearisability}, with the addition that
@@ -149,8 +156,8 @@ below represent the corresponding operations of the specification object.
 \crossAt(1,0){$\send^1(3)\::()$}
 \crossAt(4,0){$\overline{\send}^1()\::()$}
 %\draw (1, 0) \X; \draw(4,0) \X;
-\draw[|-|] (2,-1.5) -- node[above] {$\receive^2(())\::3$} (6,-1.5);
-\crossAt(3,-1.5){$\receive^2(())\::3$}
+\draw[|-|] (2,-1.5) -- node[above] {$\receive^2()\::3$} (6,-1.5);
+\crossAt(3,-1.5){$\receive^2()\::3$}
 %\draw(3,-1.5) \X;
 \end{tikzpicture}
 \end{center}
@@ -167,31 +174,33 @@ Section~\ref{sec:specification-linearisability}.
 
 We now prove the relationship between synchronisation linearisation and
 two-step linearisation.
-
-Consider a synchonisation specification object |SyncSpec|.  We build a
-corresponding two-step linearisation specification object~|TwoStepLinSpec|
-such that synchronisation linearisation with respect to |SyncSpec| is
-equivalent to two-step linearisation with respect to~|TwoStepLinSpec|.  The
-definition we choose is not the simplest possible, but it is convenient for
-the testing framework we use in Section~\ref{sec:testing-hacking}.  
+%
+Consider a synchonisation specification object |Sync|\-|Spec|.  We build a
+corresponding two-step linearisation specification object |Two|\-|StepLinSpec|
+such that synchronisation linearisation with respect to |Sync|\-|Spec| is
+equivalent to two-step linearisation with respect to
+|Two|\-|Step|\-|Lin|\-|Spec|.  The definition we choose is not the simplest
+possible, but it is convenient for the testing framework we use in
+Section~\ref{sec:testing-hacking}.
 
 The definition of |TwoStepLinSpec| is below.  We assume that each thread has
 an identity in some range $\range 0 {\sm{NumThreads}}$.  For simplicity, we
-arrange for this identity to be included in the $\call$ events written to the
-log for operations~|op|\s1 and $\overline{\sm{op}}_1$. 
+arrange for this identity to be included in the $\call$ events for
+operations~|op|\s1 and $\overline{\sm{op}}_1$.
 %%  (Alternatively, we
 %% could implement thread identities internally to the object, for example using
 %% the technique from~\cite[Appendix~A.2.4]{herlihy-shavit}.)
 
-This object requires that corresponding invocations of~|op|\s1 and~|op|\s2 are
-linearised consecutively: it does this by encoding the automaton on the right.
-However, it allows the corresponding $\overline{\sm{op}}_1$ to be linearised
-later (but before the next operation invocation by the same thread).  It uses
-an array |returns|, indexed by thread identities, to record the value that
-should be returned by an $\overline{\sm{op}}_1$ invocation by each thread.
-Each invocation of $\op_2$ calls |SyncSpec.sync| to obtain the values that
-should be returned for synchronisation linearisation; it writes the value for
-the corresponding $\overline\op_1$ into |returns|.
+The object |TwoStepLinSpec| requires that corresponding invocations of~|op|\s1
+and~|op|\s2 are linearised consecutively: it does this by encoding the
+automaton on the right.  However, it allows the corresponding
+$\overline{\sm{op}}_1$ to be linearised later (but before the next operation
+invocation by the same thread).  It uses an array |returns|, indexed by thread
+identities, to record the value that should be returned by an
+$\overline{\sm{op}}_1$ invocation by each thread.  Each invocation of $\op_2$
+calls |SyncSpec.sync| to obtain the values that should be returned for
+synchronisation linearisation; it writes the value for the corresponding
+$\overline\op_1$ into |returns|.
 %
 \begin{trivlist}
 \item[]
@@ -273,11 +282,11 @@ The following proposition reduces synchronisation linearisability to two-step
 linearisability.
 %
 \begin{prop}
-Let |SyncObj| be a synchronisation object, |SyncSpec| be a synchronisation
-specification object, and let |TwoStepLinSpec| be built from |SyncSpec| as
-above.  Then |SyncObj| is two-step linearisable with respect to
-|Two|\-|Step|\-|LinSpec| if and only if it is synchronisation linearisable
-with respect to |SyncSpec|.
+Let |SyncObj| be a binary heterogeneous synchronisation object, |SyncSpec| 
+a corresponding synchronisation specification object, and let |TwoStepLinSpec|
+be built from |SyncSpec| as above.  Then |SyncObj| is two-step linearisable
+with respect to |Two|\-|Step|\-|LinSpec| if and only if it is synchronisation
+linearisable with respect to |SyncSpec|.
 \end{prop}
 %%%%%%
 \begin{proof}
@@ -305,9 +314,9 @@ by the horizontal lines and the labels above; $h_s$ is represented by the
 \crossAt(6,0){$\overline{\send^1}():()$}
 %\draw(6,0) \X; \draw(6,-0.4) node{$\overline{\sm{send}^1}():()$};
 %
-\draw[|-|] (2,-1.5) -- node[above] {$\receive^2(())\::3$} (5,-1.5);
-\crossAt(3,-1.5){$\receive^2(())\::3$};
-%\draw(3,-1.5) \X; \draw(3,-1.9) node{$\sm{receive}^2(())\::3$};
+\draw[|-|] (2,-1.5) -- node[above] {$\receive^2()\::3$} (5,-1.5);
+\crossAt(3,-1.5){$\receive^2()\::3$};
+%\draw(3,-1.5) \X; \draw(3,-1.9) node{$\sm{receive}^2()\::3$};
 %
 \draw(3,-2.5) node{$\bullet$}; 
 \draw(3,-2.9) node{$\sm{sync}^{1,2}(3,()): ((),3)$};

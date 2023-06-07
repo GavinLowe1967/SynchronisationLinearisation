@@ -24,7 +24,7 @@ history is linearisable with respect to the specification object.  Informally,
 the algorithm searches for an order to linearise the invocations, consistent
 with what is recorded in the log, and such that the order represents a legal
 history of the corresponding invocations on the specification object.
-See~\cite{gavin:lin-testing} for details of the algorithms.
+See~\cite{gavin:lin-testing} for details of several algorithms.
 
 This process can be repeated many times, so as to generate and analyse many
 histories.  Our experience is that the technique works well.  It seems
@@ -44,10 +44,10 @@ operation blocks while the stack is empty; here, the tester would need to
 ensure that threads collectively perform at least as many |push|es as |pop|s,
 to ensure that each |pop| does eventually return.
 
-Another thing to note is that there is potentially a delay between a thread
-writing the $\call$ event into the log and actually calling the operation; and
-likewise there is potentially a delay between the operation returning and the
-thread writing the $\return$ event into the log.  However, these delays do not
+Note also that there is potentially a delay between a thread writing the
+$\call$ event into the log and actually calling the operation; and likewise
+there is potentially a delay between the operation returning and the thread
+writing the $\return$ event into the log.  However, these delays do not
 generate false errors: if a history without such delays is linearisable, then
 so is a corresponding history with delays.  We believe that it is essential
 that the technique does not give false errors: an error reported by testing
@@ -72,7 +72,7 @@ the correctness of the concurrent datatype.
 
 In this section we investigate how to use the existing linearisation testing
 framework for testing synchronisation linearisation, using the ideas of
-Section~\ref{sec:twoStepLinSpec}.  This is not a use for which the framework
+Section~\ref{sec:relating}.  This is not a use for which the framework
 was intended, so we consider it a hack.  However, it has the advantage of not
 requiring the implementation of any new algorithms.
 
@@ -86,13 +86,13 @@ As with standard linearisability testing, we run several threads, calling
 operations on the synchronisation object, and logging the calls and returns. 
 %
 \begin{itemize}
-\item A thread that performs the concrete operation~$\op_1(x_1)$: (1)~writes
+\item A thread~$t$ that performs the concrete operation~$\op_1(x_1)$: (1)~writes
   $\call.\sm{op}_1^i(x_1)$ into the log, associating it with a corresponding
-  invocation $\op_1(x_1)$ on the specification object; (2)~performs
+  invocation $\op_1(t, x_1)$ on the specification object; (2)~performs
   $\op_1(x_1)$ on the synchonisation object, obtaining result~$y_1$, say;
   (3)~writes $\return.\op_1^i \:: ()$ into the log; (4)~writes
   $\call.\overline{\op}_1^i()$ into the log, associating it with a
-  corresponding invocation $\overline{\op}_1()$ on the specification object;
+  corresponding invocation $\overline{\op}_1(t)$ on the specification object;
   (5)~writes $\return.\overline{\op}_1^i \:: y_1$ into the log.
 
 \item A thread that performs operation~|op|\s2 acts as for standard
@@ -110,7 +110,7 @@ the synchronisation object.
 \begin{figure}[tp]
 \def\twoStep(#1,#2)#3{%
   \draw(#1-0.2,#2) \X; \draw(#1+0.2,#2) \X;
-  \draw(#1,#2-0.4) node{\footnotesize #3};
+  \draw(#1-0.2,#2-0.4) node{\footnotesize #3};
 }
 \begin{center}
 \begin{tikzpicture}[xscale = 1.0, yscale = 1.0]
@@ -126,7 +126,9 @@ the synchronisation object.
 \bulletAt(0.2,\ya){$\call.\sm{op}_2^2(x_2)$}
 \bulletAt(3.5,\ya){$\return.\sm{op}_2^2\::y_2$}
 % sync 1 and 2
-\draw (1.9,0) \X; \draw (1.9,\ya) \X; \draw[dashed] (1.9,0) -- (1.9,\ya); 
+\def\syncX{1.7} % x coord of first sync
+\draw (\syncX,0) \X; \draw (\syncX,\ya) \X; 
+\draw[dashed] (\syncX,0) -- (\syncX,\ya); 
 % op_1^3
 \def\yb{-3.0}
 \draw[|-|] (4.5,\yb) -- node[above] {$\sm{op}_1^3(x_3)\::y_3$} (6.1,\yb);
@@ -143,17 +145,17 @@ the synchronisation object.
 \draw (5.6,\yb) \X; \draw (5.6,\yc) \X; \draw[dashed] (5.6,\yb) -- (5.6,\yc); 
 % two-step linearisation
 \def\yd{-6.0}
-\twoStep(1.9,\yd){$\op_1^1(x_1)\::()\; \op_2^2(x_2)\::y_2$}
-\crossAt(10.5,\yd){$\overline{\op}_1^1()\::y_1$}
-\twoStep(5.6,\yd){$\op_1^3(x_3)\::()\; \op_2^4(x_4)\::y_4$}
-\crossAt(9.0,\yd){$\overline{\op}_1^3()\::y_3$}
+\twoStep(\syncX,\yd){$\op_1^1(t_1,x_1)\::()\; \op_2^2(x_2)\::y_2$}
+\crossAt(10.6,\yd){$\overline{\op}_1^1(t_1)\::y_1$}
+\twoStep(5.6,\yd){$\op_1^3(t_2,x_3)\::()\; \op_2^4(x_4)\::y_4$}
+\crossAt(8.9,\yd){$\overline{\op}_1^3(t_2)\::y_3$}
 \end{tikzpicture}
 \end{center}
 \caption{Illustration of a log for two-step synchronisation linearisation
   testing.  Horizontal lines represent the operation calls themselves.
   Bullets (read from left to right) represent the log history.  The crosses on
-  operation calls, lined by dashed lines, represent the synchronisation
-  points.  The bottom row illustrates the history of the two-step
+  operation calls, linked by dashed lines, represent the synchronisation
+  points.  The bottom row illustrates the history~$h_t$ of the two-step
   synchronisation object constructed in the proof of
   Lemma~\ref{lem:two-step-testing}.}
 \label{fig:two-step-log}
@@ -197,13 +199,13 @@ histories as follows.
 \begin{itemize}
 \item For each synchronisation point $s =
   \sm{sync}^{i_1,i_2}(x_1,x_2)\::(y_1,y_2)$ in~$h_s$, we add an event
-  $\op_1^{i_1}(x_1)\::()$ immediately before~$s$, and an event
+  $\op_1^{i_1}(t,x_1)\::()$ immediately before~$s$, and an event
   $\op_2^2(x_2)\::y_2$ immediately after~$s$ (i.e.~such that there is no
   other event between these two events).
 
 \item For each pair of events $\call.\overline\op_1^{i_1}()$ and
   $\return.\overline\op_1^{i_1}\::y_1$, we insert an event
-  $\overline\op_1^{i_1}()\::y_1$ at an arbitrary place in between (but not
+  $\overline\op_1^{i_1}(t)\::y_1$ at an arbitrary place in between (but not
   between a pair of events inserted under the previous item).
 \end{itemize}
 %
@@ -287,7 +289,8 @@ illustrative example.
 \caption{Illustration of the construction in the proof of Lemma
   \ref{lem:hacking-can-succeed}.  Horizontal lines represent the operation
   calls themselves.  Bullets represent the log history.  Crosses represent
-  the linearisation points of the two-step synchronisation object.}
+  the linearisation points of the two-step synchronisation object (we omit
+  thread identities).}
 \label{fig:hacking-can-succeed}
 \end{figure}
 

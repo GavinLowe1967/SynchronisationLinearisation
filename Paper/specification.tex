@@ -16,8 +16,8 @@ has a single parameter, with signatures as follows.
 \end{scala}
 %
 (We can model a concrete operation that takes $k \ne 1$ parameters by an
-operation that takes a $k$-tuple as its parameter; we identify a 0-tuple with
-the unit value.)
+operation that takes a $k$-tuple as its parameter.  We identify a 0-tuple with
+the unit value, but will sometimes omit that value in examples.)
 %
 In addition, the synchronisation object might have some state, |state: S|.
 Each invocation of~|op|\s1 must synchronise with an invocation of~|op|\s2, and
@@ -82,7 +82,7 @@ This can be specified using a synchronisation specification object
 with empty state:
 %
 \begin{scala}
-class SyncChanSpec{
+class SyncChanSpec[A]{
   def sync(x: A, u: Unit): (Unit, A) = ((), x)
 }
 \end{scala}
@@ -92,7 +92,7 @@ unit value~|()|, and the latter receives~|x|.
 
 As another example, consider a filtering channel.
 \begin{scala}
-class FilterChan{
+class FilterChan[A]{
   def send(x: A): Unit
   def receive(p: A => Boolean): A
 }
@@ -115,7 +115,7 @@ from the introduction.  This can be specified using the following
 specification object.
 %
 \begin{scala}
-class SyncChanCounterSpec{
+class SyncChanCounterSpec[A]{
   private var counter = 0
   def sync(x: A, u: Unit): (Int, (A, Int)) = {
     counter += 1; (counter, (x, counter))
@@ -152,7 +152,9 @@ be well formed, each invocation identity must appear on at most one $\call$
 event and at most one $\return$ event; and for each event $\return.op^i\::y$,
 the history must contain an earlier event $\call.op^i(x)$, i.e.~for the same
 operation and invocation identity.  We consider only well formed histories
-from now on.  We say that a $\call$ event and a $\return$ event \emph{match}
+from now on.  
+
+We say that a $\call$ event and a $\return$ event \emph{match}
 if they have the same invocation identifier.  A concurrent history is
 \emph{complete} if for every $\call$ event, there is a matching $\return$
 event, i.e.~no invocation is still pending at the end of the history.
@@ -266,9 +268,10 @@ linearisable if all of its histories are linearisable.
 \subsection{Synchronisation linearisability}
 
 We now adapt the definition of linearisability to synchronisations.  We
-consider a concurrent history of the synchronisation object~$Sync$, as with
-linearisability; in the case of binary synchronisation, this will contain
-events corresponding to the operations~$\op_1$ and~$\op_2$.
+consider a concurrent history of the synchronisation object~$Sync$.  The
+history contains $\call$ and $\return$ events, as in the previous subsection;
+in the case of binary synchronisation, the events correspond to the
+operations~$\op_1$ and~$\op_2$.
 
 For example, the following is a complete history of the synchronous channel
 from earlier, and is illustrated in Figure~\ref{fig:sync-timeline}:
@@ -363,8 +366,7 @@ y_2)$ occurs between $\call.\op_1^{i_1}(x_1)$ and $\return.\op_1^{i_1}\::y_1$,
 and between $\call.\op_2^{i_2}(x_2)$ and $\return.\op_2^{i_2}\::y_2$.
 %
 In~the running example, the histories~$h$ and~$h_s$ are synchronisation
-compatible, as evidenced by the interleaving illustrated in
-Figure~\ref{fig:sync-timeline}.
+compatible, as shown by the interleaving in Figure~\ref{fig:sync-timeline}.
 
 We say that a complete history $h$ of~$Sync$ is
 \emph{synchronisation-linearisable} if there is a corresponding legal history

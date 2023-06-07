@@ -33,17 +33,20 @@ have found it easy to identify a suitable duration.  A downside of this
 approach is that the duration needs to be chosen fairly conservatively, which
 increases the time that a given number of runs will take.
 
+\framebox{Discuss progress later?}
+
 In the remainder of this section we consider algorithms for determining if the
 resulting log history is synchronisation linearisable, and whether it also
 satisfies progressability.  In Section~\ref{sec:algorithm-dfs} we present a
 general algorithm for this problem, based on depth-first search.  We then
 consider the complexity of this problem.  We show, in
-Section~\ref{sec:NP-complete}, that the problem of deciding whether a history
-is synchronisation linearisable is NP-complete in general.  However, we show
-that in the case of binary synchronisations with a stateless specification
-object the problem can be solved in polynomial time: we consider the
-heterogeneous case in Section~\ref{sec:binary-heterogeneous}, and the
-homogeneous case in Section~\ref{sec:binary-homogeneous}.  Nevertheless, in
+Section~\ref{sec:NP-complete}, that, in the case of a stateful synchronisation
+object, the problem of deciding whether a history is synchronisation
+linearisable is NP-complete in general.  However, we show that in the case of
+binary synchronisations with a stateless specification object the problem can
+be solved in polynomial time: we consider the heterogeneous case in
+Section~\ref{sec:binary-heterogeneous}, and the homogeneous case in
+Section~\ref{sec:binary-homogeneous}.  Nevertheless, in
 Section~\ref{sec:non-binary-stateless} we show that for synchronisations of
 three or more invocations, the problem is again NP-complete, even in the
 stateless case.
@@ -115,10 +118,12 @@ represents an interleaving of a history of the specification object with~$h$,
 as required for compatibility.  We can therefore search this graph using a
 standard algorithm.  Our implementation uses depth-first search.
 
-%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-It is straightforward to adapt the search to also test for progress.  It is
-enough to change configurations as follows, followingthe definition of
+\subsubsection{Progress}
+
+It is straightforward to adapt the search algorithm to also test for progress.
+It is enough to change configurations as follows, following the definition of
 progressability.
 %
 \begin{itemize}
@@ -128,11 +133,17 @@ progressability.
 
 \item The definition of target configurations is changed so that $pending$ may
   be non-empty, but must contain no set of invocations that can synchronise
-  according to~$spec$ (i.e.~satisfying the precondition in~$spec$).  This
-  ensures that there no further synchronisations are possible at the end.
+  according to~$spec$ (i.e.~satisfying the precondition in~$spec$).  (However,
+  $linearised$ must still be empty.)  This ensures that there no further
+  synchronisations are possible at the end.
 \end{itemize}
 
-%%%%%
+\framebox{??} Why not leave \edgeFont{synchronisation} edges unchanged, since
+we require $linearised$ to be empty?
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsubsection{Partial-order reduction}
 
 We have investigated a form of partial-order reduction, which we call
 \emph{ASAP linearisation}.  The idea is that we try to linearise invocations

@@ -29,19 +29,23 @@ NON_BINARY_TESTERS = $(EXDIR)/ABCTester.class $(EXDIR)/BarrierTester.class	\
 $(EXDIR)/TimeoutChannelTester.class $(EXDIR)/TimeoutExchangerTester.class
 
 NON_BINARY_STATEFUL_TESTERS = $(EXDIR)/ABCCounterTester.class			\
-$(EXDIR)/BarrierCounterTester.class $(EXDIR)/TerminatingQueueTester.class
+$(EXDIR)/BarrierCounterTester.class $(EXDIR)/TerminatingQueueTester.class	\
+$(EXDIR)/CloseableChanTester.class
 
-TESTERS = $(BINARY_HETERO_TESTERS) $(BINARY_STATEFUL_TESTERS)	\
-$(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS) $(NON_BINARY_STATEFUL_TESTERS) $(EXDIR)/ChanTwoStepTester.class $(EXDIR)/ChanCounterTwoStepTester.class
+TESTERS = $(BINARY_HETERO_TESTERS) $(BINARY_STATEFUL_TESTERS)			\
+$(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS) $(NON_BINARY_STATEFUL_TESTERS)	\
+$(EXDIR)/ChanTwoStepTester.class $(EXDIR)/ChanCounterTwoStepTester.class
 
-all:	$(TESTERS) $(OBDIR)/TimeoutExchanger.class
+all:	$(TESTERS)
 
 clean:
 	rm $(DIR)/*.class $(EXDIR)/*.class $(OBDIR)/*.class; fsc -shutdown
 
 # Synchronisation objects based on semaphores
 
-$(OBDIR)/TwoFamilies.class $(OBDIR)/OneFamily.class $(OBDIR)/ABC.class $(OBDIR)/ABCCounter.class $(OBDIR)/BarrierCounter.class $(OBDIR)/FilterChan.class: $(OBDIR)/Semaphore.class
+$(OBDIR)/TwoFamilies.class $(OBDIR)/OneFamily.class $(OBDIR)/ABC.class	\
+  $(OBDIR)/ABCCounter.class $(OBDIR)/BarrierCounter.class		\
+  $(OBDIR)/FilterChan.class: $(OBDIR)/Semaphore.class
 
 # The testing machinery.
 
@@ -109,6 +113,8 @@ $(EXDIR)/BarrierCounterTester.class: $(OBDIR)/BarrierCounter.class
 
 $(EXDIR)/TerminatingQueueTester.class: $(OBDIR)/TerminatingQueue.class
 
+$(EXDIR)/CloseableChanTester.class: $(OBDIR)/CloseableChan.class
+
 # Recipes for compilation
 
 FSC = fsc -deprecation -cp $(CP)
@@ -125,6 +131,9 @@ $(DIR)/%.class:     SynchronisationTesting/%.scala
 $(OBDIR)/Chan.class: SynchronisationObjects/Chan.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationObjects/Chan.scala
 
+$(OBDIR)/CloseableChan.class: SynchronisationObjects/CloseableChan.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationObjects/CloseableChan.scala
+
 $(OBDIR)/Barrier.class: SynchronisationObjects/Barrier.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationObjects/Barrier.scala
 
@@ -133,6 +142,9 @@ $(EXDIR)/ChanTwoStepTester.class: SynchronisationTesters/ChanTwoStepTester.scala
 
 $(EXDIR)/ChanCounterTwoStepTester.class: SynchronisationTesters/ChanCounterTwoStepTester.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/ChanCounterTwoStepTester.scala
+
+$(EXDIR)/CloseableChanTester.class: SynchronisationTesters/CloseableChanTester.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/CloseableChanTester.scala
 
 $(OBDIR)/%.class:     SynchronisationObjects/%.scala
 	$(FSC) $<

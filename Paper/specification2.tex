@@ -36,8 +36,11 @@ The definition of synchronisation compatibility is an obvious adaptation of
 earlier: in the interleaving of the complete history of the synchronisation
 history and the history of the specification object, each $\sm{sync}^{i_1,
   \ldots, i_k}(x_1, \ldots, x_k)\:: (y_1, \ldots, y_k)$ occurs between
-$\call.\op_1^{i_j}(x_j)$ and $\return.\op_j^{i_j}\::y_j$ for each $j = 1, \ldots,
-k$.  The definition of synchronisation-linearisability follows in the obvious
+$\call.\op_1^{i_j}(x_j)$ and $\return.\op_j^{i_j}\::y_j$ for each $j = 1,
+\ldots, k$.  Note that the parameters of the $k$ invocations could be passed
+to $\sm{sync}$ in $k!$ different orders (although in this case, if |f| is
+associative and commutative, the order makes no difference). 
+The definition of synchronisation-linearisability follows in the obvious
 way. 
 
 It is also straightforward to adapt the definitions to deal with multiple
@@ -47,7 +50,7 @@ Introduction, where sends and receives may timeout and return without
 synchronisation.  The corresponding specification object would be:
 %
 \begin{scala}
-class TimeoutChannelSpec{
+class TimeoutChannelSpec[A]{
   def sync£\s s£(x: A) = false
   def sync£\s r£(u: Unit) = None
   def sync£\s{s,r}£(x: A, u: Unit) = (true, Some(x))
@@ -58,8 +61,25 @@ The operation $\sm{sync}_s$ corresponds to a send returning without
 synchronising; likewise $\sm{sync}_r$ corresponds to a receive returning
 without synchronising; and $\sm{sync}_{s,r}$ corresponds to a send and receive
 synchronising.  The formal definition of synchronisation linearisation is the
-obvious adaptation of the earlier definition.
+obvious adaptation of the earlier definition: in particular |sync|\s{s} must
+occur between the call and return of send, and likewise for |sync|\s{r}.
 
+As another example, the following is a specification object for a channel with
+a close operation.
+%
+\begin{scala}
+class ClosableChannelSpec[A]{
+  private var isClosed = false
+  def close(u: Unit) = { isClosed = true; () }
+  def sync(x: A, u: Unit) = { require(!isClosed); ((), x)
+  def sendFail(x: A) = { require(isClosed); throw new Closed }
+  def receiveFail(u: Unit) = { require(isClosed); throw new Closed }
+}
+\end{scala}
+%
+A send and receive can synchronise corresponding to |sync|, but only before
+the channel is closed; or each may fail once the channel is closed,
+corresponding to |sendFail| and |receiveFail|. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -96,21 +116,23 @@ Note that our progress condition is somewhat different from the condition of
 condition requires that, assuming invocations collectively are scheduled
 infinitely often, then eventually some invocation returns.  Lock freedom makes
 no assumption about scheduling being fair.  For example, if a particular
-invocation holds a lock then it allows the scheduler to never schedule that
-invocation; in most cases, this will mean that no invocation returns: any
-implementation that uses a lock in a non-trivial way is not lock-free.
+invocation holds a lock then lock freedom allows the scheduler to never
+schedule that invocation; in most cases, this will mean that no invocation
+returns: any implementation that uses a lock in a non-trivial way is not
+lock-free.
 
 By contrast, our assumption, that each unblocked pending invocation is
 scheduled infinitely often, reflects that modern schedulers \emph{are} fair,
 and do not starve any single invocation.  For example, if an invocation holds
 a lock, and is not in a potentially unbounded loop (or permanently blocked
-trying to obtain a second lock), then it will be scheduled
-sufficiently often that it eventually releases the lock.  Thus our progress
-condition can be satisfied by an implementation that uses locks.  However, our
-assumption does allow invocations to be scheduled in an unfortunate order (as
-long as each is scheduled infinitely often).
+trying to obtain a second lock), then it will be scheduled sufficiently often,
+and so will eventually release the lock.  Thus our progress condition can be
+satisfied by an implementation that uses locks.  However, our assumption does
+allow invocations to be scheduled in an unfortunate order (as long as each is
+scheduled infinitely often), which may cause the progress condition to fail.
 
-We make clear what we mean by saying that an invocation can eventually return.
+The following definitions make this notion precise.
+% make clear what we mean by saying that an invocation can eventually return.
 %
 \begin{definition}
 We say that an infinite execution is \emph{fair} if every invocation either
@@ -125,8 +147,8 @@ from~$st$ that contains no $\call$ event, there is a $\return$ event.
 %% is a $\return$ event.
 \end{definition}
 %
-Note that the condition means that a return event can happen next on
-\emph{every} execution path.
+%% Note that the condition means that a return event can happen next on
+%% \emph{every} execution path.
 
 
 %% \begin{definition}
@@ -156,27 +178,29 @@ We say that $Sync$ \emph{may block} after~$h$ if there is a legal
 history~$h_s$ of~$Spec$, such that:
 %
 \begin{itemize}
-\item $complete(h)$ and~$h_s$ are compatible; nd
+\item $complete(h)$ and~$h_s$ are compatible; and
 
 \item There is no proper extension~$h_e$ of~$h$ (adding one or more $\return$
-  events, but no $\call$ events) and synchronisation event~$sync$ such that
-  $complete(h_e)$ and~$h_s \cat \seq{sync}$ are compatible.
+  events, but no $\call$ events) and extension $h_s'$ of~$h_s$ such that
+  $h_s'$ is a legal history of~$Spec$, and $complete(h_e)$ and~$h_s'$ are
+  compatible.
 \end{itemize}
 \end{definition}
-
-Note that the first condition says that for every synchronisation in~$h_s$,
-there are corresponding $\return$ events in~$h$: there is no invocation that
+%
+The first condition says that for each synchronisation in~$h_s$,
+there is a corresponding $\return$ event in~$h$: there is no invocation that
 has synchronised but not yet returned.  The second condition says that no more
 synchronisations are possible: such a synchronisation would correspond to a
 synchronisation event~$sync$.
 
+%%%%%
 
 We give two examples, both for a synchronous channel.
 %
 \begin{example}
-Consider $h = \seq{ \call.\send^1(3), \call.\receive^2(()),
+Consider $h = \seq{ \call.\send^1(3), \call.\receive^2(),
   \return.\receive^2\::3 }$.  There is no history~$h_s$ of~$Spec$ such that
-$complete(h) = \seq{\call.\receive^2(()),\linebreak[1] \return.\receive^2\::3
+$complete(h) = \seq{\call.\receive^2(),\linebreak[1] \return.\receive^2\::3
 }$ and~$h_s$ are compatible.  (However, the extension $h_e = h \cat \seq{
   \return.\send^1 \:: () }$ is compatible with $h_s =
 \seq{\sync^{1,2}(3,())\::((),3) }$).  Informally, the channel may not block
@@ -185,7 +209,7 @@ return of the send invocation.
 \end{example}
 
 \begin{example}
-Now consider $h = \seq{\call.\send^1(3), \call.\receive^2(())}$.  We have that
+Now consider $h = \seq{\call.\send^1(3), \call.\receive^2()}$.  We have that
 $complete(h) = \seq{}$ is compatible with the history $h_s = \seq{}$ of $Spec$
 (and no other). But the extension $h_e = h \cat
 \seq{\return.\send^1\::(),\linebreak[1] \return.\receive^2\::3}$ is compatible
@@ -194,22 +218,23 @@ of~$h_s$.  Hence the channel may not block after~$h$.  Informally, the two
 pending invocations can synchronise and then return. 
 \end{example}
 
-We now give two examples where blocking is allowed.
+We now give an example where blocking is allowed.
 %
 \begin{example}  
-Let $h = \seq{\call.\send^1(3)}$, so $complete(h) =
-\seq{\call.\send^1(3),\linebreak[1] \return.\send^1\::()}$.  No legal history
-of~$Spec$ is compatible with~$complete(h)$.
+Let $h = \seq{\call.\send^1(3)}$.  Then $complete(h) = \seq{}$ is compatible
+with the history $h_s = \seq{}$ of $Spec$.  But the only proper extension
+of~$h$ is $h_e = \seq{\call.\send^1(3),\linebreak[1] \return.\send^1\::()}$,
+and no history of $Spec$ is compatible with~$complete(h_e) = h_e$.
 \end{example}
 
-\begin{example}
-Let $h = h_s = \seq{}$,
-%% \seq{ \call.\send^1(3), \call.\receive^2(()),
-%%   \return.\receive^2\::3,\linebreak[1] \return.\send^1\::()}$ and $h_s =
-%%   \seq{\sync^{1,2}(3,())}$,
-so $complete(h) = h$ and~$h_s$ are compatible.  But
-no $\return$ event is possible without additional $\call$ events.
-\end{example}
+%% \begin{example}
+%% Let $h = h_s = \seq{}$,
+%% %% \seq{ \call.\send^1(3), \call.\receive^2(),
+%% %%   \return.\receive^2\::3,\linebreak[1] \return.\send^1\::()}$ and $h_s =
+%% %%   \seq{\sync^{1,2}(3,())}$,
+%% so $complete(h) = h$ and~$h_s$ are compatible.  But
+%% no $\return$ event is possible without additional $\call$ events.
+%% \end{example}
 
 
 \begin{definition}

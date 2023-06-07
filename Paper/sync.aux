@@ -8,64 +8,66 @@
 \newlabel{sec:specification-linearisability}{{2.1}{6}}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Timeline representing the linearisation example.}}{7}\protected@file@percent }
 \newlabel{fig:lin-timeline}{{1}{7}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Synchronisation linearisability}{8}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Timeline representing the synchronisation example.}}{9}\protected@file@percent }
 \newlabel{fig:sync-timeline}{{2}{9}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Synchronisation linearisability}{9}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Variations}{10}\protected@file@percent }
 \newlabel{ssec:spec-variations}{{2.3}{10}}
 \citation{herlihy-shavit}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Specifying progress}{11}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}Comparing synchronisation linearisation and standard linearisation}{13}\protected@file@percent }
-\newlabel{sec:relating}{{3}{13}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Two-step linearisability}{14}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Proving the relationship}{16}\protected@file@percent }
-\newlabel{sec:twoStepLinSpec}{{3.2}{16}}
-\newlabel{lem:TwoStepLinSpec-histories}{{8}{17}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Specifying progress}{12}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Comparing synchronisation linearisation and standard linearisation}{14}\protected@file@percent }
+\newlabel{sec:relating}{{3}{14}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Two-step linearisability}{15}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Proving the relationship}{17}\protected@file@percent }
+\newlabel{sec:twoStepLinSpec}{{3.2}{17}}
+\newlabel{lem:TwoStepLinSpec-histories}{{7}{18}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Generalisations}{19}\protected@file@percent }
 \newlabel{ssec:relating-variations}{{3.3}{19}}
 \citation{gavin:lin-testing}
 \citation{gavin:lin-testing}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Linearisability testing}{20}\protected@file@percent }
-\newlabel{sec:lin-testing}{{4}{20}}
 \citation{faulty-pri-queue}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Hacking the linearisablity framework}{21}\protected@file@percent }
-\newlabel{sec:testing-hacking}{{5}{21}}
-\newlabel{lem:two-step-testing}{{10}{22}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Illustration of a log for two-step synchronisation linearisation testing. Horizontal lines represent the operation calls themselves. Bullets (read from left to right) represent the log history. The crosses on operation calls, lined by dashed lines, represent the synchronisation points. The bottom row illustrates the history of the two-step synchronisation object constructed in the proof of Lemma\penalty \@M \ 10\hbox {}.}}{23}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Linearisability testing}{21}\protected@file@percent }
+\newlabel{sec:lin-testing}{{4}{21}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Hacking the linearisablity framework}{22}\protected@file@percent }
+\newlabel{sec:testing-hacking}{{5}{22}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Illustration of a log for two-step synchronisation linearisation testing. Horizontal lines represent the operation calls themselves. Bullets (read from left to right) represent the log history. The crosses on operation calls, linked by dashed lines, represent the synchronisation points. The bottom row illustrates the history\penalty \@M \ $h_t$ of the two-step synchronisation object constructed in the proof of Lemma\penalty \@M \ 9\hbox {}.}}{23}\protected@file@percent }
 \newlabel{fig:two-step-log}{{3}{23}}
-\newlabel{lem:hacking-can-succeed}{{11}{24}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Illustration of the construction in the proof of Lemma 11\hbox {}. Horizontal lines represent the operation calls themselves. Bullets represent the log history. Crosses represent the linearisation points of the two-step synchronisation object.}}{25}\protected@file@percent }
+\newlabel{lem:two-step-testing}{{9}{24}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Illustration of the construction in the proof of Lemma 10\hbox {}. Horizontal lines represent the operation calls themselves. Bullets represent the log history. Crosses represent the linearisation points of the two-step synchronisation object (we omit thread identities).}}{25}\protected@file@percent }
 \newlabel{fig:hacking-can-succeed}{{4}{25}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Direct testing of synchronisation linearisation}{25}\protected@file@percent }
-\newlabel{sec:direct}{{6}{25}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}The general case}{26}\protected@file@percent }
-\newlabel{sec:algorithm-dfs}{{6.1}{26}}
+\newlabel{lem:hacking-can-succeed}{{10}{25}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Direct testing of synchronisation linearisation}{26}\protected@file@percent }
+\newlabel{sec:direct}{{6}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}The general case}{27}\protected@file@percent }
+\newlabel{sec:algorithm-dfs}{{6.1}{27}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.1.1}Progress}{28}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.1.2}Partial-order reduction}{29}\protected@file@percent }
 \citation{gibbons-korach}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Complexity}{28}\protected@file@percent }
-\newlabel{sec:NP-complete}{{6.2}{28}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}The binary heterogeneous stateless case}{29}\protected@file@percent }
-\newlabel{sec:binary-heterogeneous}{{6.3}{29}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Complexity}{30}\protected@file@percent }
+\newlabel{sec:NP-complete}{{6.2}{30}}
 \citation{edmonds_1965}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}The binary homogeneous stateless case}{30}\protected@file@percent }
-\newlabel{sec:binary-homogeneous}{{6.4}{30}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}The binary heterogeneous stateless case}{31}\protected@file@percent }
+\newlabel{sec:binary-heterogeneous}{{6.3}{31}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}The binary homogeneous stateless case}{31}\protected@file@percent }
+\newlabel{sec:binary-homogeneous}{{6.4}{31}}
 \citation{Karp1972}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.5}The non-binary stateless case}{31}\protected@file@percent }
-\newlabel{sec:non-binary-stateless}{{6.5}{31}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.5}The non-binary stateless case}{32}\protected@file@percent }
+\newlabel{sec:non-binary-stateless}{{6.5}{32}}
 \citation{awr:ucs}
 \citation{fdr3}
 \citation{fdr-manual}
 \citation{gavin:syncChan}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Examples}{32}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {8}Model checking for synchronisation linearisation}{32}\protected@file@percent }
-\newlabel{sec:modelChecking}{{8}{32}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Examples}{33}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Model checking for synchronisation linearisation}{33}\protected@file@percent }
+\newlabel{sec:modelChecking}{{8}{33}}
 \citation{herlihy-shavit}
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Progress conditions}{34}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Alternative approach}{35}\protected@file@percent }
-\newlabel{mc:condition1}{{1}{36}}
-\newlabel{mc:condition2}{{2}{36}}
-\newlabel{mc:condition3}{{3}{36}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces An implementation of a synchronous channel, using semaphores. Signal points are indicated by comments. }}{37}\protected@file@percent }
-\newlabel{fig:signal-points}{{5}{37}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Progress conditions}{36}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Alternative approach}{37}\protected@file@percent }
+\newlabel{mc:condition1}{{1}{37}}
+\newlabel{mc:condition2}{{2}{37}}
+\newlabel{mc:condition3}{{3}{37}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces An implementation of a synchronous channel, using semaphores. Signal points are indicated by comments. }}{38}\protected@file@percent }
+\newlabel{fig:signal-points}{{5}{38}}
 \bibstyle{alpha}
 \bibdata{sync}
 \bibcite{edmonds_1965}{Edm65}

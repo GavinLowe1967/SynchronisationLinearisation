@@ -202,9 +202,12 @@ class StatefulTester[Op,S](
       case _: CallEvent[Op,_] @unchecked => ""
       case _: ReturnEvent[Op,_] @unchecked => 
         val syncIndices = matching(e.opIndex)
-        if(syncIndices != null) 
-          s":  matched with "+syncIndices.filter(_ != e.opIndex).mkString(", ")+
-            "; linearisation index "+linIndices(e.opIndex)
+        if(syncIndices != null){
+          val others = syncIndices.filter(_ != e.opIndex)
+          ( if(others.isEmpty) ":  unary"
+            else ":  matched with "+others.mkString(", ") 
+          ) + "; linearisation index "+linIndices(e.opIndex)
+        }
         else ":  unmatched"
     }))
 
