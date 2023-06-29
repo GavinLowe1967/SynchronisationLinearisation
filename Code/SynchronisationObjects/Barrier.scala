@@ -52,7 +52,16 @@ class FaultyBarrier3(n: Int) extends BarrierT{
     }
   }
   /* This goes wrong because threads can call sync before all the threads have
-   * left from the previous round. */
+   * left from the previous round.  This might manifest itself as a deadlock. 
+   * 
+   * With two threads, and two iterations each, we can get the following
+   * behaviour:
+   * 1. Thread 0 calls, and waits; 
+   * 2. Thread 1 calls and returns (count = 1; leaving = true); 
+   * 3. Thread 1 calls and returns (count = 1; leaving = true);
+   * 4. Thread 0 returns (count = 0; leaving = false); 
+   * 5. Thread 0 calls and is stuck.
+   */
 } 
 
 // ==================================================================

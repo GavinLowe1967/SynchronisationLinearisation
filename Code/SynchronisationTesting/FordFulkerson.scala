@@ -61,7 +61,8 @@ class FordFulkerson(inX: Array[Boolean], edges: Array[List[Int]] ){
   }
 
   /** Run the Ford-Fulkerson algorithm.
-    * @return true if a complete matching is found. */
+    * @return true if a complete matching is found.  Also return the maximal 
+    * matching found (complete or not). */
   def apply(): (Boolean, Array[Int]) = {
     val between = Array.ofDim[Boolean](N,N); val toEnds = Array.ofDim[Boolean](N)
     var done = false; var flow = 0

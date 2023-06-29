@@ -9,21 +9,12 @@ import synchronisationObject.{
   Chan, FaultyChan, DeadlockingChan, FaultyChan2, WrappedSCLChan, SyncChan}
 
 /** A testing file. */
-object ChanTester{
-  /** Number of worker threads to run. */
-  var p = 4
-
-  /** Number of iterations per worker thread. */
-  var iters = 20
-
+object ChanTester extends Tester{
   /** The maximum value sent.  A larger value will make it easier to test
     * whether a matching exists.  And the implementation is data independent,
     * so this will not affect the likelihood of finding errors.  A smaller
     * value stresses the tester more. */
   var MaxVal = 100
-
-  /** Do we check the progress condition? */
-  var progressCheck = false
 
   /** The timeout time with the progress check. */
   var timeout = -1
@@ -71,8 +62,8 @@ object ChanTester{
   private var deadlock = false // DeadlockingChan
   private var wrapped = false // WrappedSCLChan
 
-  /** Do a single test. */
-  def doTest = {
+  /** Do a single test.  Return true if it passes. */
+  def doTest: Boolean = {
     val c: Chan[Int] = 
       if(faulty) new FaultyChan[Int] 
       else if(deadlock) new DeadlockingChan[Int] 
@@ -81,22 +72,23 @@ object ChanTester{
       else new SyncChan[Int]
     if(progressCheck){
       val bst = new BinaryStatelessTester[Op](worker1(c), p, matching)
-      if(!bst(timeout)) sys.exit()
+      bst(timeout)
     }
     else{
       val bst = new BinaryStatelessTester[Op](worker(c), p, matching)
-      if(!bst()) sys.exit()
+      bst()
     }
   }
-
+ 
   def main(args: Array[String]) = {
     // Parse arguments
-    var reps = 5000; var i = 0
+    var reps = 5000; var i = 0; var timing = false; var expectTrueTest = false
     while(i < args.length) args(i) match{
       case "-p" => p = args(i+1).toInt; i += 2
       case "--iters" => iters = args(i+1).toInt; i += 2
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--MaxVal" => MaxVal = args(i+1).toInt; i += 2
+      case "--timing" => timing = true; i += 1
 
       case "--faulty" => faulty = true; i += 1
       case "--deadlock" => deadlock = true; i += 1
@@ -105,13 +97,13 @@ object ChanTester{
 
       case "--progressCheck" => 
         progressCheck = true; timeout = args(i+1).toInt; i += 2
+      case "--expectTrue" => expectTrueTest = true; i += 1 
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
+ 
     assert(p%2 == 0 || progressCheck)
 
-    val start = java.lang.System.nanoTime
-    for(i <- 0 until reps){ doTest; if(i%100 == 0 || progressCheck) print(".") }
-    val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
-    println(); println(s"$duration ms")
+    if(expectTrueTest) expectTrue(reps)
+    else runTests(reps, timing)
   }
 }

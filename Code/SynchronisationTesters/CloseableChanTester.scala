@@ -9,19 +9,9 @@ import synchronisationObject.{
 import ox.gavin.profiling.{SamplingProfiler,ProfilerSummaryTree}
 import scala.collection.mutable.ArrayBuffer
 
-object CloseableChanTester{
-
-  /** Number of worker threads to run.  */
-  var p = 4
-
-  /** The number of iterations by each thread. */
-  var iters = 10
-
+object CloseableChanTester extends Tester{
   /** The maximum value sent. */
   var MaxVal = 20
-
-  /** Do we check the progress condition? */
-  var progressCheck = false
 
   /** The timeout time with the progress check. */
   var timeout = -1
@@ -60,7 +50,7 @@ object CloseableChanTester{
   /** Try to receive on chan, catching a ClosedException.  Optionally return the
     * value received. */ 
   @inline private def tryReceive(chan: CloseableChan[Int]): Option[Int] = 
-    try{ Some(chan?()) } catch { case _:ClosedException => None }
+    try{ Some(chan?()) } catch { case _: ClosedException => None }
 
   /** A worker.  Workers close the channel with probability closeProb;
     * otherwise, workers with an even identity send; workers with an odd
@@ -69,6 +59,16 @@ object CloseableChanTester{
     for(i <- 0 until iters){
       if(Random.nextFloat() < closeProb) log(me, chan.close, Close)
       else if(me%2 == 0){
+        val x = Random.nextInt(MaxVal); log(me, trySend(chan, x), Send(x))
+      }
+      else log(me, tryReceive(chan), Receive)
+    }
+  }    
+
+  def worker1(chan: CloseableChan[Int])(me: Int, log: HistoryLog[Op]) = {
+    for(i <- 0 until iters){
+      if(Random.nextFloat() < closeProb) log(me, chan.close, Close)
+      else if(Random.nextFloat() < 0.5){
         val x = Random.nextInt(MaxVal); log(me, trySend(chan, x), Send(x))
       }
       else log(me, tryReceive(chan), Receive)
@@ -84,7 +84,7 @@ object CloseableChanTester{
   var faulty = false
   var wrapped = false
   var faultyWrapped = false
-
+ 
   /** Do we use ASAP? */
   var doASAP = false
 
@@ -95,16 +95,26 @@ object CloseableChanTester{
       else if(wrapped) new WrappedCloseableChan[Int]
       else if(faultyWrapped) new FaultyWrappedCloseableChan[Int]
       else new CloseableSyncChan[Int]
-    val tester = 
-      new StatefulTester[Op,Boolean](
-        worker(chan) _, p, List(1,2), matching _, suffixMatching _, false, 
-        doASAP, verbose)
-    if(!tester()) sys.exit()
+    if(progressCheck){ 
+      val tester =
+        new StatefulTester[Op,Boolean](
+          worker1(chan) _, p, List(1,2), matching _, suffixMatching _, false,
+          doASAP, verbose)
+      tester(timeout)
+    }
+    else{
+      val tester =
+        new StatefulTester[Op,Boolean](
+          worker(chan) _, p, List(1,2), matching _, suffixMatching _, false,
+          doASAP, verbose)
+      tester()
+    }
   }
 
   def main(args: Array[String]) = {
     // Parse arguments
     var reps = 1000; var i = 0; var interval = 50; var profiling = false
+    var timing = false; var countReps = false
     while(i < args.length) args(i) match{
       case "-p" => p = args(i+1).toInt; i += 2
       case "--verbose" => verbose = true; i += 1
@@ -113,28 +123,21 @@ object CloseableChanTester{
       case "--MaxVal" => MaxVal = args(i+1).toInt; i += 2
       case "--closeProb" => closeProb = args(i+1).toDouble; i += 2
 
-      // case "--version2" => version2 = true; i += 1
       case "--faulty" => faulty = true; i += 1
       case "--wrapped" => wrapped = true; i += 1
       case "--faultyWrapped" => faultyWrapped = true; i += 1
-      // case "--faulty2" => faulty2 = true; i += 1
-      // case "--faulty3" => faulty2 = true; i += 1
 
       case "--progressCheck" => 
         progressCheck = true; timeout = args(i+1).toInt; i += 2
+
+      case "--timing" => timing = true; i += 1
+      case "--countReps" => countReps = true; i += 1
 
       case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
 
     assert(p%2 == 0)
-
-    def run() = {
-      for(i <- 0 until reps){ 
-        doTest; if(i%10 == 0) print(".") 
-      }
-      println()
-    }
 
     if(profiling){
       def filter(frame: StackTraceElement) : Boolean =
@@ -147,9 +150,9 @@ object CloseableChanTester{
         )(data)
       }
       val profiler = new SamplingProfiler(interval = interval, print = printer)
-      profiler{ run() }
+      profiler{ runTests(reps, timing, countReps) }
     }
-    else run()
+    else runTests(reps, timing, countReps)
     () 
   }
 }

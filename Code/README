@@ -130,8 +130,21 @@ ChanTwoStepTester
 
 ==================================================================
 
+Experiments:
+
+Experiment.scala: compares times on various correct examples. 
+
+BugFinderExperiment
+
+BugParametersExperiment
+
 
 TODO: 
 
 - Extend binary stateless testers to also deal with unary cases, for
   TimeOutChannelTester and TimeoutExchangerTester.
+
+- Experiments: different testers, time against #iterations/#threads.  Maybe
+  also #ops against #iterations/#threads
+
+- Experiment: Barrier, time against # threads.

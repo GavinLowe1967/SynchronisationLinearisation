@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2023.6.2)  6 JUN 2023 11:35
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2023.6.2)  29 JUN 2023 14:04
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -343,22 +343,130 @@ File: tikzlibraryarrows.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 tex
 File: pgflibraryarrows.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 \arrowsize=\dimen187
-)) (/usr/share/texlive/texmf-dist/tex/latex/base/latexsym.sty
+)) (/usr/share/texlive/texmf-dist/tex/latex/pgfplots/pgfplots.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.revision.tex)
+Package: pgfplots 2018/03/28 v1.16 Data Visualization (1.16)
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotscore.code.tex
+\t@pgfplots@toka=\toks27
+\t@pgfplots@tokb=\toks28
+\t@pgfplots@tokc=\toks29
+\pgfplots@tmpa=\dimen188
+\c@pgfplots@coordindex=\count196
+\c@pgfplots@scanlineindex=\count197
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/sys/pgfplotssysgeneric.code
+.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/libs/pgfplotslibrary.code.t
+ex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/oldpgfcompatib/pgfplotsoldp
+gfsupp_loader.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryfpu.code.tex
+))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotsutil.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotslists
+tructure.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotslists
+tructureext.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsarray
+.code.tex
+\c@pgfplotsarray@tmp=\count198
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsmatri
+x.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/numtable/pgfplotstableshare
+d.code.tex
+\c@pgfplotstable@counta=\count199
+\t@pgfplotstable@a=\toks30
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsdeque
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotsbinary.code.te
+x
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotsbinary.data.co
+de.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotsutil.verb.code
+.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/libs/pgflibrarypgfplots.sur
+fshading.code.tex
+\c@pgfplotslibrarysurf@no=\count266
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/sys/pgflibrarypgfplots.surf
+shading.pgfsys-pdftex.def)))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotscolormap.code.
+tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotscolor.code.tex
+))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotsstackedplots.code.t
+ex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotsplothandlers.code.t
+ex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotsmeshplothandler.cod
+e.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotsmeshplotimage.code.
+tex)))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.scaling.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotscoordprocessing.cod
+e.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.errorbars.code.tex
+) (/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.markers.code.tex
+) (/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotsticks.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.paths.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarydecorations.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduledecorations.cod
+e.tex
+\pgfdecoratedcompleteddistance=\dimen189
+\pgfdecoratedremainingdistance=\dimen190
+\pgfdecoratedinputsegmentcompleteddistance=\dimen191
+\pgfdecoratedinputsegmentremainingdistance=\dimen192
+\pgf@decorate@distancetomove=\dimen193
+\pgf@decorate@repeatstate=\count267
+\pgfdecorationsegmentamplitude=\dimen194
+\pgfdecorationsegmentlength=\dimen195
+)
+\tikz@lib@dec@box=\box56
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarydecorations.pathmorphing.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/decorations/pgflibrary
+decorations.pathmorphing.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarydecorations.pathreplacing.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/decorations/pgflibrary
+decorations.pathreplacing.code.tex))
+\pgfplots@numplots=\count268
+\pgfplots@xmin@reg=\dimen196
+\pgfplots@xmax@reg=\dimen197
+\pgfplots@ymin@reg=\dimen198
+\pgfplots@ymax@reg=\dimen199
+\pgfplots@zmin@reg=\dimen256
+\pgfplots@zmax@reg=\dimen257
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibraryplotmarks.code.tex
+File: tikzlibraryplotmarks.code.tex 2020/01/08 v3.1.5b (3.1.5b)
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplotmarks.co
+de.tex
+File: pgflibraryplotmarks.code.tex 2020/01/08 v3.1.5b (3.1.5b)
+))) (/usr/share/texlive/texmf-dist/tex/latex/base/latexsym.sty
 Package: latexsym 1998/08/17 v2.2e Standard LaTeX package (lasy symbols)
 \symlasy=\mathgroup4
 LaTeX Font Info:    Overwriting symbol font `lasy' in version `bold'
 (Font)                  U/lasy/m/n --> U/lasy/b/n on input line 52.
 )
 (/home/gavin/tex/tech.sty
-\pftopsep=\dimen188
-\oldtopsep=\dimen189
+\pftopsep=\dimen258
+\oldtopsep=\dimen259
 ) (/home/gavin/tex/mathsx.sty
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty
 Package: amssymb 2013/01/14 v3.01 AMS font symbols
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty
 Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
-\@emptytoks=\toks27
+\@emptytoks=\toks31
 \symAMSa=\mathgroup5
 \symAMSb=\mathgroup6
 LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
@@ -372,23 +480,23 @@ Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 ) (/home/gavin/tex/cspm.sty
 Package: cspm 
 (/home/gavin/tex/listings.sty
-\lst@mode=\count196
-\lst@gtempboxa=\box56
-\lst@token=\toks28
-\lst@length=\count197
-\lst@currlwidth=\dimen190
-\lst@column=\count198
-\lst@pos=\count199
-\lst@lostspace=\dimen191
-\lst@width=\dimen192
-\lst@newlines=\count266
-\lst@lineno=\count267
-\lst@maxwidth=\dimen193
+\lst@mode=\count269
+\lst@gtempboxa=\box57
+\lst@token=\toks32
+\lst@length=\count270
+\lst@currlwidth=\dimen260
+\lst@column=\count271
+\lst@pos=\count272
+\lst@lostspace=\dimen261
+\lst@width=\dimen262
+\lst@newlines=\count273
+\lst@lineno=\count274
+\lst@maxwidth=\dimen263
  (/home/gavin/tex/lstmisc.sty
 File: lstmisc.sty 2007/02/22 1.4 (Carsten Heinz)
-\c@lstnumber=\count268
-\lst@skipnumbers=\count269
-\lst@framebox=\box57
+\c@lstnumber=\count275
+\lst@skipnumbers=\count276
+\lst@framebox=\box58
 )
 (/usr/share/texlive/texmf-dist/tex/latex/listings/listings.cfg
 File: listings.cfg 2019/09/10 1.8c listings configuration
@@ -407,44 +515,44 @@ Package: scalalistings
 Package Listings Info: Made | a short reference for \lstinline on input line 88
 .
 )
-\c@lemma=\count270
+\c@lemma=\count277
 
 (/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdfmode.def
 File: l3backend-pdfmode.def 2020-02-03 L3 backend support: PDF mode
-\l__kernel_color_stack_int=\count271
-\l__pdf_internal_box=\box58
+\l__kernel_color_stack_int=\count278
+\l__pdf_internal_box=\box59
 )
 (./sync.aux)
 \openout1 = `sync.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
  ABD: EveryShipout initializing macros
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count272
-\scratchdimen=\dimen194
-\scratchbox=\box59
-\nofMPsegments=\count273
-\nofMParguments=\count274
-\everyMPshowfont=\toks29
-\MPscratchCnt=\count275
-\MPscratchDim=\dimen195
-\MPnumerator=\count276
-\makeMPintoPDFobject=\count277
-\everyMPtoPDFconversion=\toks30
+\scratchcounter=\count279
+\scratchdimen=\dimen264
+\scratchbox=\box60
+\nofMPsegments=\count280
+\nofMParguments=\count281
+\everyMPshowfont=\toks33
+\MPscratchCnt=\count282
+\MPscratchDim=\dimen265
+\MPnumerator=\count283
+\makeMPintoPDFobject=\count284
+\everyMPtoPDFconversion=\toks34
 ) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
@@ -454,20 +562,22 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-\c@lstlisting=\count278
-LaTeX Font Info:    Trying to load font information for U+lasy on input line 45
-.
+Package pgfplots notification 'compat/show suggested version=true': document ha
+s been generated with the most recent feature set (\pgfplotsset{compat=1.16}).
 
+\c@lstlisting=\count285
+LaTeX Font Info:    Trying to load font information for U+lasy on input line 47
+.
 (/usr/share/texlive/texmf-dist/tex/latex/base/ulasy.fd
 File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
 )
-LaTeX Font Info:    Trying to load font information for U+msa on input line 45.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 47.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 45.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 47.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
@@ -500,7 +610,12 @@ Underfull \hbox (badness 1824) in paragraph at lines 76--81
 /12 , in some or-der, then each re-ceives back
  []
 
-[2] [3]) (./specification.tex [4] [5] [6]
+[2] [3]
+
+LaTeX Warning: Reference `sec:modelChecking' on page 4 undefined on input line 
+190.
+
+) (./specification.tex [4] [5] [6]
 Package Listings Info: Deleted | as a short reference for \lstinline on input l
 ine 183.
 Package Listings Info: Made | a short reference for \lstinline on input line 19
@@ -510,8 +625,8 @@ Package Listings Info: Deleted | as a short reference for \lstinline on input l
 ine 293.
 Package Listings Info: Made | a short reference for \lstinline on input line 31
 2.
- [9]) (./specification2.tex
-[10] [11] [12] [13]) (./relating.tex
+ [9]) (./specification2.tex [10]
+[11] [12] [13]) (./relating.tex
 Underfull \hbox (badness 2088) in paragraph at lines 1--1
 []\OT1/cmr/bx/n/17.28 Comparing syn-chro-ni-sa-tion lin-eari-sa-tion
  []
@@ -540,27 +655,37 @@ Overfull \hbox (9.49698pt too wide) in paragraph at lines 694--696
  []
 
 [20]) (./testing.tex [21] [22] [23] [24] [25]) (./direct.tex [26] [27] [28]
-[29] [30] [31]) (./examples.tex [32]) (./modelChecking.tex [33] [34] [35]
-Underfull \hbox (badness 4353) in paragraph at lines 165--173
-[]\OT1/cmr/m/n/12 Consider a model of the syn-chronous chan-nel, and the trace
+[29] [30] [31]) (./examples.tex [32] [33]
+
+LaTeX Warning: Citation `???' on page 34 undefined on input line 66.
+
+[34] (./BPN-ChanTester--faulty.tex
+Package pgfplots info on input line 17: Using 'lua backend=false' for axis: xmo
+de=log unsupported (yet).
+) (./BPN-ABCTester--faulty.tex
+Package pgfplots info on input line 17: Using 'lua backend=false' for axis: xmo
+de=log unsupported (yet).
+)
+Overfull \hbox (2.61108pt too wide) in paragraph at lines 116--125
+[]$[]$ $[]$ 
  []
 
-[36] [37] [38]) (./sync.bbl [39]) [40] (./sync.aux)
+[35] [36]) (./sync.bbl [37]) [38] [39] (./sync.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 15127 strings out of 483183
- 288354 string characters out of 5966293
- 505969 words of memory out of 5000000
- 29855 multiletter control sequences out of 15000+600000
- 549014 words of font info for 91 fonts, out of 8000000 for 9000
+ 25293 strings out of 483183
+ 631689 string characters out of 5966293
+ 1004283 words of memory out of 5000000
+ 39888 multiletter control sequences out of 15000+600000
+ 548707 words of font info for 90 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 60i,12n,60p,574b,1703s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 73i,21n,127p,721b,2693s stack positions out of 5000i,500n,10000p,200000b,80000s
  </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1200.600
 pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></u
 sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/sha
@@ -584,10 +709,10 @@ public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
 /amsfonts/cm/cmti12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
 nts/cm/cmtt12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/la
 txfont/lasy10.pfb>
-Output written on sync.pdf (40 pages, 363260 bytes).
+Output written on sync.pdf (39 pages, 361927 bytes).
 PDF statistics:
- 235 PDF objects out of 1000 (max. 8388607)
- 167 compressed objects within 2 object streams
+ 232 PDF objects out of 1000 (max. 8388607)
+ 165 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

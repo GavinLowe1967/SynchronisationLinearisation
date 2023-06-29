@@ -6,18 +6,18 @@ import synchronisationObject.{
   BarrierT,Barrier,Barrier2,FaultyBarrier,FaultyBarrier2,FaultyBarrier3}
 // import io.threadcso._
 
-object BarrierTester{
+object BarrierTester extends Tester{
   /** The number of threads involved in each synchronisation. */
   var n = 4
 
   /** Number of worker threads to run.  Requires p%n == 0 if all are to
     * terminate. */
-  var p = 4
+  // var p = 4
 
-  var iters = 5
+  // var iters = 5
 
   /** Do we check the progress condition? */
-  var progressCheck = false
+  // var progressCheck = false
 
   /** The timeout time with the progress check. */
   var timeout = -1
@@ -40,8 +40,11 @@ object BarrierTester{
 
   /** A worker, which calls barrier.sync. */
   def worker(barrier: BarrierT)(me: Int, log: HistoryLog[Sync]) = {
-    for(i <- 0 until iters){
-      Thread.sleep(Random.nextInt(5))
+    // # iterations to perform; maybe one short if progressCheck (probability
+    // 1/n).
+    val iters1 = if(progressCheck && Random.nextInt(n) == 0) iters-1 else iters
+    for(i <- 0 until iters1){
+      // Thread.sleep(Random.nextInt(5))
       log(me, barrier.sync(me), Sync(me))
     }
   }
@@ -64,18 +67,19 @@ object BarrierTester{
     if(progressCheck){
       val tester = 
         new StatelessTester[Sync](worker(barrier) _, p, List(n), matching, false)
-      if(!tester(timeout)) sys.exit()
+      tester(timeout) // if(!tester(timeout)) sys.exit()
     }
     else{
       val tester =
         new StatelessTester[Sync](worker(barrier) _, p, List(n), matching, false)
-      if(!tester()) sys.exit()
+      tester() // if(!tester()) sys.exit()
     }
   }
 
   def main(args: Array[String]) = {
     // Parse arguments
     var reps = 1000; var i = 0; var interval = 50; var profiling = false
+    var timing = false
     while(i < args.length) args(i) match{
       case "-p" => p = args(i+1).toInt; i += 2
       case "-n" => n = args(i+1).toInt; i += 2
@@ -84,8 +88,10 @@ object BarrierTester{
 
       case "--version2" => version2 = true; i += 1
       case "--faulty" => faulty = true; i += 1
-      case "--faulty2" => faulty2 = true; i += 1
-      case "--faulty3" => faulty3 = true; i += 1
+      case "--faulty2" => faulty2 = true; i += 1 // spurious wakeups; error not found 
+      case "--faulty3" => faulty3 = true; i += 1 // deadlocks
+
+      case "--timing" => timing = true; i += 1
 
       case "--progressCheck" => 
         progressCheck = true; timeout = args(i+1).toInt; i += 2
@@ -95,8 +101,7 @@ object BarrierTester{
     }
     // assert(p%n == 0)
 
-    for(i <- 0 until reps){ doTest; if(i%10 == 0) print(".") }
-    println()
+    runTests(reps, timing)
   }
 
 }

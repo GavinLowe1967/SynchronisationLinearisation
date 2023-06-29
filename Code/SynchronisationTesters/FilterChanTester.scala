@@ -10,12 +10,12 @@ import synchronisationObject.{
 }
 
 /** A testing file. */
-object FilterChanTester{
-  /** Number of worker threads to run. */
-  var p = 4
+object FilterChanTester extends Tester{
+  // /** Number of worker threads to run. */
+  // var p = 4
 
-  /** Number of iterations per worker thread. */
-  var iters = 20
+  // /** Number of iterations per worker thread. */
+  // var iters = 20
 
   /** The maximum value sent.  A larger value will make it easier to test
     * whether a matching exists.  And the implementation is data independent,
@@ -23,8 +23,8 @@ object FilterChanTester{
     * value stresses the tester more. */
   var MaxVal = 100
 
-  /** Do we check the progress condition? */
-  var progressCheck = false
+  // /** Do we check the progress condition? */
+  // var progressCheck = false
 
   /** The timeout time with the progress check. */
   var timeout = -1
@@ -91,8 +91,9 @@ object FilterChanTester{
 
   /* Flags to decide which implementation to use. */
   private var faulty = false // FaultyFilterChan
-  private var semaphore = false // SemaphoreFilterChan
+  // private var semaphore = false // SemaphoreFilterChan
   private var deadlock = false // DeadlockingChan
+  private var nonProgressing = false
 
   /* Default is FilterChan. */
 
@@ -100,30 +101,32 @@ object FilterChanTester{
   def doTest = {
     val c: FChan = 
       if(faulty) new FaultyFilterChan[Int] 
-      else if(semaphore) new SemaphoreFilterChan[Int]
       else if(deadlock) new DeadlockingFilterChan[Int]
-      else new FilterChan[Int]
+      else if(nonProgressing) new FilterChan[Int]
+      else new SemaphoreFilterChan[Int]
     if(progressCheck){
       val bst = new BinaryStatelessTester[Op](worker1(c), p, matching)
-      if(!bst(timeout)) sys.exit()
+      bst(timeout) // if(!bst(timeout)) sys.exit()
     }
     else{
       val bst = new BinaryStatelessTester[Op](worker(c), p, matching)
-      if(!bst()) sys.exit()
+      bst() // if(!bst()) sys.exit()
     }
   }
 
   def main(args: Array[String]) = {
     // Parse arguments
-    var reps = 5000; var i = 0
+    var reps = 5000; var i = 0; var timing = false
     while(i < args.length) args(i) match{
       case "-p" => p = args(i+1).toInt; i += 2
       case "--iters" => iters = args(i+1).toInt; i += 2
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--MaxVal" => MaxVal = args(i+1).toInt; i += 2
+      case "--timing" => timing = true; i += 1
 
       case "--faulty" => faulty = true; i += 1
-      case "--semaphore" => semaphore = true; i += 1
+      // case "--semaphore" => semaphore = true; i += 1
+      case "--nonProgressing" => nonProgressing = true; i += 1
       case "--deadlock" => deadlock = true; i += 1
 
       case "--progressCheck" => 
@@ -132,11 +135,12 @@ object FilterChanTester{
     }
     assert(p%4 == 0 || progressCheck)
 
-    val start = java.lang.System.nanoTime
-    for(i <- 0 until reps){ 
-      doTest; if(i%100 == 0 || progressCheck && i%10 == 0) print(".") 
-    }
-    val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
-    println(); println(s"$duration ms")
+    runTests(reps, timing)
+    // val start = java.lang.System.nanoTime
+    // for(i <- 0 until reps){ 
+    //   doTest; if(i%100 == 0 || progressCheck && i%10 == 0) print(".") 
+    // }
+    // val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
+    // println(); println(s"$duration ms")
   }
 }

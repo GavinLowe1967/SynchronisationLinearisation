@@ -8,15 +8,9 @@ import ox.gavin.profiling.{SamplingProfiler,ProfilerSummaryTree}
 import scala.collection.mutable.ArrayBuffer
 
 /** A tester for the ABC synchronisation problem. */
-object ABCTester{
-  /** Number of worker threads to run. */
-  var p = 6
-
-  /** Number of iterations per worker thread. */
-  var iters = 20
-
-  /** Do we check the progress condition? */
-  var progressCheck = false
+object ABCTester extends Tester{
+  /* Number of worker threads to run.  Needs to be a multiple of 3 here. */
+  p = 6
 
   /** The timeout time with the progress check. */
   var timeout = -1
@@ -71,17 +65,18 @@ object ABCTester{
       else new ABC[Int,Int,Int]
     if(progressCheck){
       val tester = new StatelessTester[Op](worker1(abc) _, p, List(3), matching)
-      if(!tester(timeout)) sys.exit()
+      tester(timeout) // if(!tester(timeout)) sys.exit()
     }
     else{
       val tester = new StatelessTester[Op](worker(abc) _, p, List(3), matching)
-      if(!tester()) sys.exit()
+      tester() // if(!tester()) sys.exit()
     }
   }
 
   def main(args: Array[String]) = {
     // Parse arguments
     var reps = 1000; var i = 0; var interval = 50; var profiling = false
+    var timing = false; var countReps = false
     while(i < args.length) args(i) match{
       case "-p" => p = args(i+1).toInt; i += 2
       case "--iters" => iters = args(i+1).toInt; i += 2
@@ -93,17 +88,13 @@ object ABCTester{
       case "--progressCheck" => 
         progressCheck = true; timeout = args(i+1).toInt; i += 2
 
+      case "--timing" => timing = true; i += 1
+      case "--countReps" => countReps = true; i += 1
       case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
     assert(p%3 == 0)
 
-    def run() = {
-      for(i <- 0 until reps){ 
-        doTest; if(i%100 == 0 || progressCheck && i%10 == 0) print(".") 
-      }
-      println()
-    }
     val start = java.lang.System.nanoTime
     if(profiling){
       def filter(frame: StackTraceElement) : Boolean =
@@ -117,11 +108,10 @@ object ABCTester{
         )(data)
       }
       val profiler = new SamplingProfiler(interval = interval, print = printer)
-      profiler{ run() }
+      profiler{ runTests(reps, timing, countReps) }
     }
-    else run()
-    val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
-    println(); println(s"$duration ms")
+    else  runTests(reps, timing, countReps)
+    ()
   }
 
 

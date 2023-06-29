@@ -122,7 +122,7 @@ an exception.  Thus such an object is stateful, with two states, open and
 closed; and the operations have mixed modes of synchronisation, either
 successful or throwing an exception.
 
-A \emph{termination-detecting queue} can also be thought of as a stateful
+A \emph{terminating queue} can also be thought of as a stateful
 synchronisation object with multiple modes.  Such an object acts like a
 standard partial concurrent queue: if a thread attempts to dequeue, but the
 queue is empty, it blocks until the queue becomes non-empty.  However, if a
@@ -134,7 +134,7 @@ following signature, where a dequeue returns the value |None| to indicate the
 termination case.
 %
 \begin{scala}
-class TerminationDetectingQueue[A](n: Int){ // £n£ is the number of threads   
+class TerminatingQueue[A](n: Int){ // £n£ is the number of threads   
   def enqueue(x: A): Unit
   def dequeue: Option[A]
 }

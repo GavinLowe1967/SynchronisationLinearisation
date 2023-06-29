@@ -7,12 +7,9 @@ import synchronisationObject.{
   OneFamilyT, OneFamily, OneFamilyFaulty, DeadlockOneFamily}
 
 /** A testing file for OneFamilyT objects. */
-object OneFamilyTester{
+object OneFamilyTester extends Tester{
   /** Number of threads to run. */
-  var n = 4
-
-  /** Do we check the progress condition? */
-  var progressCheck = false
+  var n = p
 
   /** The timeout time with the progress check. */
   var timeout = -1
@@ -62,9 +59,10 @@ object OneFamilyTester{
     for(_ <- 0 until n-1) log(me, of.sync(me), Sync(me))
   }
 
-  /** A worker who performs a random number of invocations.  */
+  /** A worker that might perform one operation fewer than the normal
+    * number.  */
   def worker1(of: OneFamilyT)(me: Int, log: HistoryLog[Sync]) = {
-    for(_ <- 0 until Random.nextInt(n)) log(me, of.sync(me), Sync(me))
+    for(_ <- 0 until n-2+Random.nextInt(2)) log(me, of.sync(me), Sync(me))
   }
 
   /* Flags to decide which implementation to use. */
@@ -84,36 +82,36 @@ object OneFamilyTester{
     if(progressCheck){
       val bst = new BinaryStatefulTester[Sync,Spec](
         worker1(of), n, matching, spec, doASAP)
-      if(!bst(timeout)) sys.exit()
+      bst(timeout) // if(!bst(timeout)) sys.exit()
     }
     else{
       val bst = new BinaryStatefulTester[Sync,Spec](
         worker(of), n, matching, spec, doASAP)
-      if(!bst()) sys.exit()
+      bst() // if(!bst()) sys.exit()
     }
   }
 
   def main(args: Array[String]) = {
     var reps = 5000; var i = 0
+    var timing = false; var expectTrueTest = false
     while(i < args.length) args(i) match{
       case "-n" => n = args(i+1).toInt; i += 2
       case "--reps" => reps = args(i+1).toInt; i += 2
+      case "--iters" => i += 2 // Ignore this! 
 
       case "--faulty" => faulty = true; i += 1
       case "--deadlock" => deadlock = true; i += 1
 
+      case "--timing" => timing = true; i += 1
       case "--progressCheck" => 
         progressCheck = true; timeout = args(i+1).toInt; i += 2
+      case "--expectTrue" => expectTrueTest = true; i += 1 
       case "--doASAP" => doASAP = true; i += 1
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
     
-    val start = java.lang.System.nanoTime
-    for(i <- 0 until reps){ 
-      doTest; if(i%100 == 0 || progressCheck && i%10 == 0) print(".") 
-    }
-    val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
-    println(); println(s"$duration ms")
+    if(expectTrueTest) expectTrue(reps)
+    else runTests(reps, timing)
   }
 
 }

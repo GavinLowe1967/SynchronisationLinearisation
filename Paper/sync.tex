@@ -1,6 +1,8 @@
 \documentclass[12pt,a4paper]{article}
 \usepackage{tikz}
 \usetikzlibrary{arrows}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.16}
 \usepackage{latexsym}
 \usepackage{tech,mathsx,mytheorems,url}
 \usepackage{cspm}
@@ -57,9 +59,13 @@
 \input{testing} % testing algorithms: standard lin and two-step
 \input{direct}
 \input{examples}
-\input{modelChecking}
+%%\input{modelChecking}
 %% \input{testing2}
 %% \input{variations} % variations on binary synchronisations.
+
+\section{Conclusions}
+
+Model checking. 
 
 \bibliographystyle{alpha}
 \bibliography{sync}

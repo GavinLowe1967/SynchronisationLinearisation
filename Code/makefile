@@ -15,6 +15,9 @@ EXDIR = synchronisationTester
 # Directory for synchronisation objects
 OBDIR = synchronisationObject
 
+# Directory for experiments
+EXPDIR = experiments
+
 # The different types of testers.
 
 BINARY_HETERO_TESTERS = $(EXDIR)/ChanTester.class		\
@@ -32,11 +35,16 @@ NON_BINARY_STATEFUL_TESTERS = $(EXDIR)/ABCCounterTester.class			\
 $(EXDIR)/BarrierCounterTester.class $(EXDIR)/TerminatingQueueTester.class	\
 $(EXDIR)/CloseableChanTester.class
 
-TESTERS = $(BINARY_HETERO_TESTERS) $(BINARY_STATEFUL_TESTERS)			\
-$(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS) $(NON_BINARY_STATEFUL_TESTERS)	\
-$(EXDIR)/ChanTwoStepTester.class $(EXDIR)/ChanCounterTwoStepTester.class
+TESTERS = $(EXDIR)/Tester.class $(BINARY_HETERO_TESTERS)		\
+$(BINARY_STATEFUL_TESTERS) $(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS)	\
+$(NON_BINARY_STATEFUL_TESTERS) $(EXDIR)/ChanTwoStepTester.class		\
+$(EXDIR)/ChanCounterTwoStepTester.class
 
-all:	$(TESTERS)
+EXPERIMENTS = $(EXPDIR)/Experiment.class $(EXPDIR)/ParameterExperiment.class	\
+$(EXPDIR)/BugFinderExperiment.class $(EXPDIR)/BugParametersExperiment.class	\
+$(EXPDIR)/ProgressExperiment.class
+
+all:	$(TESTERS) $(EXPERIMENTS)
 
 clean:
 	rm $(DIR)/*.class $(EXDIR)/*.class $(OBDIR)/*.class; fsc -shutdown
@@ -156,6 +164,9 @@ $(EXDIR)/ChanTester.class:  SynchronisationTesters/ChanTester.scala
 	fsc -cp $(CPSCL) SynchronisationTesters/ChanTester.scala
 
 $(EXDIR)/%.class:     SynchronisationTesters/%.scala
+	$(FSC) $<
+
+$(EXPDIR)/%.class:	Experiments/%.scala
 	$(FSC) $<
 
 %.class:     %.scala

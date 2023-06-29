@@ -13,7 +13,10 @@ trait FilterChanT[A]{
 // =======================================================
 
 /** An implementation where each send waits for the previous send to complete,
-  * so doesn't satisfy the progress property. */
+  * so doesn't satisfy the progress property.
+  * 
+  * Note: this is *not* the default for FilterChanTester, but is selected
+  * using the --nonProgressing flag. */
 class FilterChan[A] extends FilterChanT[A]{
 
   /** The current value being sent, if full = true. */
@@ -87,7 +90,9 @@ class FaultyFilterChan[A] extends FilterChanT[A]{
 
 import scala.collection.mutable.Queue
 
-/** A version using semaphores.  I think this version is correct. */
+/** A version using semaphores.  I think this version is correct. 
+  * 
+  * Nonte: this is the default from FilterChanTester. */
 class SemaphoreFilterChan[A] extends FilterChanT[A]{
   // println("SemaphoreFilterChan")
   /** A queue of values being sent together with a semaphore for signalling to

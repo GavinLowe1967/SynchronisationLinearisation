@@ -6,15 +6,15 @@ import synchronisationTesting.{HistoryLog,BinaryStatefulTester}
 import synchronisationObject.{TwoFamiliesT,TwoFamilies,FaultyTwoFamilies}
 
 /** A testing file for TwoFamiliesT objects. */
-object TwoFamiliesTester{
+object TwoFamiliesTester extends Tester{
   /** Number of A threads threads to run. */
   var m = 4
 
   /** Number of B threads to run. */
   var n = 3
 
-  /** Do we check the progress condition? */
-  var progressCheck = false
+  // /** Do we check the progress condition? */
+  // var progressCheck = false
 
   /** The timeout time with the progress check. */
   var timeout = -1
@@ -72,14 +72,14 @@ object TwoFamiliesTester{
   }
 
   /** A worker.  Threads [0..m) are A-threads, and threads [m..m+n) are
-    * B-threads.  These workers might synchronise fewer than the expected
-    * number of times.*/
+    * B-threads.  These workers might call their operation one time fewer than
+    * the expected number of times (probability 0.5). */
   def worker1(tf: TwoFamiliesT)(me: Int, log: HistoryLog[Op]) = {
     if(me < m) // A thread
-      for(_ <- 0 until Random.nextInt(n+1)) log(me, tf.syncA(me), ASync(me))
+      for(_ <- 0 until (n-1)+Random.nextInt(2)) log(me, tf.syncA(me), ASync(me))
     else{ // B thread
       val b = me-m // the id to use
-      for(_ <- 0 until Random.nextInt(m+1)) log(me, tf.syncB(b), BSync(b))
+      for(_ <- 0 until (m-1)+Random.nextInt(2)) log(me, tf.syncB(b), BSync(b))
     }
   }
 
@@ -88,26 +88,29 @@ object TwoFamiliesTester{
   /** Do a single test. */
   def doTest = {
     val tf = if(faulty) new FaultyTwoFamilies(m, n) else new TwoFamilies(m, n)
-    val spec = new Spec()
+    val spec = new Spec() 
     if(progressCheck){ 
       val bst = new BinaryStatefulTester[Op,Spec](
         worker1(tf), m+n, matching, spec, doASAP)
-      if(!bst(timeout)) sys.exit() 
+      bst(timeout) // if(!bst(timeout)) sys.exit() 
     }
     else{ 
       val bst = new BinaryStatefulTester[Op,Spec](
         worker(tf), m+n, matching, spec, doASAP)
-      if(!bst()) sys.exit() 
+      bst() // if(!bst()) sys.exit() 
     }
   }
 
   def main(args: Array[String]) = {
     // Parse arguments
     var reps = 5000; var i = 0
+    var timing = false
     while(i < args.length) args(i) match{
       case "-m" => m = args(i+1).toInt; i += 2
       case "-n" => n = args(i+1).toInt; i += 2
       case "--reps" => reps = args(i+1).toInt; i += 2
+      case "--iters" =>  i += 2 // ignore this
+      case "--timing" => timing = true; i += 1
 
       case "--faulty" => faulty = true; i += 1
       // case "--faulty2" => faulty2 = true; i += 1
@@ -118,11 +121,12 @@ object TwoFamiliesTester{
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
   
-    val start = java.lang.System.nanoTime
-    for(i <- 0 until reps){ 
-      doTest; if(i%100 == 0 || progressCheck && i%10 == 0) print(".") 
-    }
-    val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
-    println(); println(s"$duration ms")
+    runTests(reps, timing)
+    // val start = java.lang.System.nanoTime
+    // for(i <- 0 until reps){ 
+    //   doTest; if(i%100 == 0 || progressCheck && i%10 == 0) print(".") 
+    // }
+    // val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
+    // println(); println(s"$duration ms")
   }
 }

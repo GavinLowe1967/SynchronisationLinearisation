@@ -5,27 +5,20 @@ import synchronisationTesting.{HistoryLog, StatelessTester}
 import synchronisationObject.{
   TimeoutChannelT, TimeoutChannel, FaultyTimeoutChannel}
 
-import ox.gavin.profiling.{SamplingProfiler,ProfilerSummaryTree}
+import ox.gavin.profiling.{Profiler,SamplingProfiler,ProfilerSummaryTree}
 import scala.collection.mutable.ArrayBuffer
 
-object TimeoutChannelTester{
-
-  /** Number of worker threads to run.  */
-  var p = 4
-
-  /** The number of iterations by each thread. */
-  var iters = 10
+object TimeoutChannelTester extends Tester{
 
   /** The maximum value sent. */
   var MaxVal = 20
-
-  /** Do we check the progress condition? */
-  var progressCheck = false
 
   /** The timeout time with the progress check. */
   var timeout = -1
 
   var verbose = false
+
+  var countProfile = false
 
   /** Representation of an operation in the log. */
   trait Op
@@ -42,15 +35,27 @@ object TimeoutChannelTester{
 
   /** A worker. */
   def worker(chan: TimeoutChannelT[Int])(me: Int, log: HistoryLog[Op]) = {
-    // Note: the parameters defining the delays seem to give a reasonable mix
-    // of successful and unsuccessful invocations.
     for(i <- 0 until iters){
-      Thread.sleep(Random.nextInt(2))
+      // Note: the delay below means we get a reasonable mix of successul and
+      // unsuccessful invocations.
+      Thread.sleep(Random.nextInt(1))
       if(Random.nextInt(2) == 0){
         val x = Random.nextInt(MaxVal)
-        log(me, chan.sendWithin(x, 1+Random.nextInt(2)), Send(x))
+        def doSend() = chan.sendWithin(x, 1+Random.nextInt(1))
+        if(countProfile)
+          log(me, 
+            { val op = doSend(); Profiler.count(s"send $op"); op },
+            Send(x))
+        else log(me, doSend(), Send(x))
       }
-      else log(me, chan.receiveWithin(1+Random.nextInt(2)), Receive)
+      else{ // receive
+        def doRec() = chan.receiveWithin(1+Random.nextInt(1))
+        if(countProfile)
+          log(me, 
+            { val op = doRec(); Profiler.count(s"receive ${op.nonEmpty}"); op }, 
+            Receive)
+        else log(me, doRec(), Receive)
+      }
     }
   }
 
@@ -62,13 +67,15 @@ object TimeoutChannelTester{
       if(faulty) new FaultyTimeoutChannel[Int] else new TimeoutChannel[Int]
     val tester = 
       new StatelessTester[Op](worker(chan) _, p, List(1,2), matching, verbose)
-    // Following might or might not involve timeouts
-    if(!tester(timeout)) sys.exit()
+    // Following might or might not involve timeouts: default is timeout = -1
+    tester(timeout)
+    // if(!tester(timeout)) sys.exit()
   }
 
-  def main(args: Array[String]) = {
+  def main(args: Array[String]): Unit = {
     // Parse arguments
     var reps = 1000; var i = 0; var interval = 50; var profiling = false
+    var timing = false
     while(i < args.length) args(i) match{
       case "-p" => p = args(i+1).toInt; i += 2
       case "--verbose" => verbose = true; i += 1
@@ -76,23 +83,15 @@ object TimeoutChannelTester{
       case "--iters" => iters = args(i+1).toInt; i += 2
       case "--MaxVal" => MaxVal = args(i+1).toInt; i += 2
 
-      // case "--version2" => version2 = true; i += 1
       case "--faulty" => faulty = true; i += 1
-      // case "--faulty2" => faulty2 = true; i += 1
-      // case "--faulty3" => faulty2 = true; i += 1
 
+      case "--timing" => timing = true; i += 1
       case "--progressCheck" => 
         progressCheck = true; timeout = args(i+1).toInt; i += 2
 
       case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
+      case "--countProfile" => countProfile = true; i += 1
       case arg => println(s"Illegal argument: $arg"); sys.exit()
-    }
-
-    def run() = {
-      for(i <- 0 until reps){ 
-        doTest; if(i%10 == 0) print(".") 
-      }
-      println()
     }
 
     if(profiling){
@@ -106,9 +105,10 @@ object TimeoutChannelTester{
         )(data)
       }
       val profiler = new SamplingProfiler(interval = interval, print = printer)
-      profiler{ run() }
+      profiler{ runTests(reps, timing) }
     }
-    else run()
-    () 
+    else runTests(reps, timing) 
+
+    if(countProfile) Profiler.report
   }
 }

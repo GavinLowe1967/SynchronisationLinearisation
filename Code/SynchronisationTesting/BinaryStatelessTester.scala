@@ -26,7 +26,7 @@ class BinaryStatelessTester[Op](
   private def findMatches(events: Array[Event])
       : (Array[Boolean], Array[List[Int]]) = {
     val (calls, pending) = getCalls(events) // in Tester
-    val numInvs = calls.length
+    val numInvs = calls.length 
     // Bitmaps showing whether each of calls is the first or second operation.
     val isOp1, isOp2 = new Array[Boolean](numInvs)
     // Calls with which other calls each call could synchronise 
@@ -63,11 +63,21 @@ class BinaryStatelessTester[Op](
     * `matching`. */
   private def debug(events: Array[Event], matching: Array[Int]) = {
     def annotation(e: Event) = {
-      val syncIx = matching(e.opIndex)
-      if(syncIx >= 0) s" matched with $syncIx" else " unmatched"
+      if(e.opIndex >= matching.length) " not returned"
+      // Note: I'm not certain about the above case.  The condition can arise
+      // (every few hundred cases with ChanTester within BugFinderExperiment).
+      // But I haven't seen a history including it.
+      else{
+        // assert(e.opIndex < matching.length,
+        //   "Error\n"+events.mkString("\n")+
+        // "\nmatching: "+matching.mkString(", "))
+        val syncIx = matching(e.opIndex)
+        if(syncIx >= 0) s" matched with $syncIx" else " unmatched"
+      }
     }
     HistoryLog.showHistoryWith(events, annotation)
   }
+
 
   /** Check the log represented by events. */
   private def checkLog(events: Array[Event]): Boolean = 

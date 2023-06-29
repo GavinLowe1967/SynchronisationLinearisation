@@ -62,5 +62,5 @@ class FaultyExchanger[A] extends ExchangerT[A]{
 
   /* This goes wrong because, after the signal in the else clause, a new thread
    * might run and overwrite data.  That can lead to threads returning
-   * non-matching values, or threads getting stuck. */
+   * non-matching values. */
 }

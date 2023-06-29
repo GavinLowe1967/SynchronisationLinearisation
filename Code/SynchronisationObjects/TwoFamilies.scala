@@ -30,7 +30,7 @@ class TwoFamilies(m: Int, n: Int) extends TwoFamiliesT{
   private val aWaiting = Array.ofDim[Boolean](m)
 
   /** Flags showing which B processes are waiting. */
-  private val bWaiting = Array.ofDim[Boolean](m)
+  private val bWaiting = Array.ofDim[Boolean](n)
 
   /** Identity of thread with which an awakening thread is paired. */
   private var lastSync = -1

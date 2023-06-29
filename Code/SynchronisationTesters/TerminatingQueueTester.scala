@@ -10,14 +10,14 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.immutable.Queue
 
 /** A tester for a terminating queue. */
-object TerminatingQueueTester{
-  /** The number of threads to run. */
-  var p = 4
+object TerminatingQueueTester extends Tester{
+  // /** The number of threads to run. */
+  // var p = 4
 
   val MaxVal = 20
 
-  /** Do we check the progress condition? */
-  var progressCheck = false
+  // /** Do we check the progress condition? */
+  // var progressCheck = false
 
   /** The timeout time with the progress check. */
   var timeout = -1
@@ -69,29 +69,38 @@ object TerminatingQueueTester{
   /** Does ops represent a suffix of a possible synchronisation? */
   def suffixMatching(ops: List[Op]) = ops.length == 1 || allDequeues(ops)
 
+  // var iters = 0
+
+  def addToIters(n: Int) = synchronized{ iters += n }
+
+  val dequeueProb = 0.5
+
   def worker(queue: TerminatingQueueT[Int])(me: Int, log: HistoryLog[Op]) = {
     // Even-numbered workers always dequeue; odd-numbered workers randomly
-    // choose whether to enqueue or dequeue (50% dequeues).
+    // choose whether to enqueue or dequeue (dequeueing with probability
+    // dequeueProb).
     val random = new Random(me) // independent RNGs
-    var done = false
+    var done = false; var myIters = 0
     while(!done){
+      myIters += 1
       // Profiler.count("worker step")
-      if(me%2 == 0 || random.nextFloat() < 0.50){
+      if(me%2 == 0 ||  random.nextFloat() < dequeueProb){
         // println(s"$me: dequeue")
         var res: Option[Int] = None
         log(me, { res = queue.dequeue; res }, Dequeue(me))
-        done = res == None; // println(s"$me: $res")
+        done = res == None; 
         // Profiler.count(s"dequeue $done")
       }
-      else{
+      else{ 
         val x = Random.nextInt(MaxVal)
-        // println(s"$me: enqueue($x)")
         log(me, queue.enqueue(x), Enqueue(x))
-        // Profiler.count("Thread enqueue") 
-        // curiously, ~45% of invocations take this branch, when one would
-        // expect it to be ~25%.
+        // Profiler.count("Thread enqueue") curiously, ~45% of invocations
+        // take this branch (with dequeueProb = 0.5), when one would expect it
+        // to be ~25%.  Maybe even-numbered threads spend longer waiting in
+        // dequeue.
       }
-    }
+    } // end of while loop
+    addToIters(myIters)
   }
 
   var verbose = false
@@ -107,13 +116,14 @@ object TerminatingQueueTester{
       spec, doASAP, verbose)
     // The progressCheck should make no difference here, since each run
     // terminates with probability 1.
-    if(progressCheck){ if(!tester(timeout)) sys.exit() }
-    else if(!tester()) sys.exit()
+    if(progressCheck) tester(timeout) // { if(!tester(timeout)) sys.exit() }
+    else tester() // if(!tester()) sys.exit()
   }
 
-  def main(args: Array[String]) = {
+  def main(args: Array[String]): Unit = {
     // Parse arguments
     var reps = 5000; var i = 0; var interval = 50; var profiling = false
+    var timing = false; var itersBound = -1
     while(i < args.length) args(i) match{
       case "-p" => p = args(i+1).toInt; i += 2
       //case "-n" => n = args(i+1).toInt; i += 2
@@ -121,9 +131,9 @@ object TerminatingQueueTester{
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--verbose" => verbose = true; i += 1
       case "--doASAP" => doASAP = true; i += 1
-
-      //case "--faulty" => faulty = true; i += 1
-      //case "--version2" => version2 = true; i += 1
+      case "--timing" => timing = true; i += 1
+      // case "--iters" => i += 2 // Ignore this flag!
+      case "--untilIters" => itersBound = args(i+1).toInt; i += 2
 
       case "--progressCheck" => 
         progressCheck = true; timeout = args(i+1).toInt; i += 2
@@ -132,10 +142,25 @@ object TerminatingQueueTester{
     }
     
     def run() = {
-      for(i <- 0 until reps){ doTest; if(i%100 == 0) print(".") }
-      println()
+      if(itersBound < 0) runTests(reps, timing)
+      //   for(i <- 0 until reps){ doTest; if(i%100 == 0) print(".") }
+      //   println()
+      // }
+      else{
+        val start = java.lang.System.nanoTime; var i = 0
+        while(iters < itersBound && doTest){ i += 1 }
+        println(s"\n$i runs")
+        if(timing){
+          val duration = java.lang.System.nanoTime - start // nanos
+          println(); println(duration)
+        }
+        else{
+          val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
+          println(); println(s"$duration ms")
+        }
+      }
     }
-    val start = java.lang.System.nanoTime
+    // val start = java.lang.System.nanoTime
     if(profiling){
       def filter(frame: StackTraceElement) : Boolean =
         SamplingProfiler.defaultFilter(frame) &&
@@ -149,12 +174,18 @@ object TerminatingQueueTester{
         )(data)
       }
       val profiler = new SamplingProfiler(interval = interval, print = printer)
-      profiler{ run() }
+      profiler{ run()  }
     }
     else run()
-    val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
-    println(); println(s"$duration ms")
-    Profiler.report
+    // if(timing){
+    //   val duration = java.lang.System.nanoTime - start // nanos
+    //   println(); println(duration)
+    // }
+    // else{
+    //   val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
+    //   println(); println(s"$duration ms")
+    //   Profiler.report
+    // }
   }
 
 }
