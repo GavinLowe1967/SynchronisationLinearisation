@@ -11,8 +11,8 @@ We assume that the synchronisation object has two operations, each of which
 has a single parameter, with signatures as follows.
 %
 \begin{scala}
-  def op£\s1£(x£\s1£: A£\s1£): B£\s1£
-  def op£\s2£(x£\s2£: A£\s2£): B£\s2£
+def op£\s1£(x£\s1£: A£\s1£): B£\s1£
+def op£\s2£(x£\s2£: A£\s2£): B£\s2£
 \end{scala}
 %
 (We can model a concrete operation that takes $k \ne 1$ parameters by an
@@ -40,8 +40,9 @@ class Spec{
 The idea is that if two invocations |op|\s1|(x|\s1|)| and |op|\s2|(x|\s2|)|
 synchronise, then the results |y|\s1 and |y|\s2 of the invocations are such
 that $\sm{sync}(\sm x_1, \sm x_2)$ could return the pair |(y|\s1|, y|\s2|)|.
-The specification object might have some private state that is accessed and
-updated within~|sync|.  Note that invocations of |sync| occur
+(We allow |sync| to be nondeterministic; but in all our examples it will be
+deterministic.)  The specification object might have some private state that
+is accessed and updated within~|sync|.  Note that invocations of |sync| occur
 \emph{sequentially}.
 
 We formalise below what it means for a synchronisation object to satisfy the
@@ -71,8 +72,8 @@ updated.
 
 For example, consider a synchronous channel with operations
 \begin{scala}
-  def send(x: A): Unit
-  def receive(u: Unit): A
+def send(x: A): Unit
+def receive(u: Unit): A
 \end{scala}
 %
 (Note that we model the |receive| operation as taking a parameter of type
@@ -103,7 +104,7 @@ property of any value received.  This can be specified using a specification
 object with operation
 %
 \begin{scala}
-  def sync(x: A, p: A => Boolean): (Unit, A) = { require(p(x)); ((), x) }
+def sync(x: A, p: A => Boolean): (Unit, A) = { require(p(x)); ((), x) }
 \end{scala}
 %
 The |require| clause specifies that invocations |send(x)| and |receive(p)| can

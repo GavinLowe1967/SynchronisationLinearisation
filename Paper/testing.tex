@@ -301,7 +301,7 @@ $h$ is synchronisation-linearisable.  So let $h_t$ be a history of
 
 We interleave $h_t$ with the interleaving of~$h_l$ and~$h$, by inserting each
 event of~$h_t$ in a way that is consistent with the interleaving of~$h_l$
-and~$h_t$, but consistent with the above construction of~$h_l$, maintaining
+and~$h_t$, and also consistent with the above construction of~$h_l$, maintaining
 the ``immediately before'' and ``immediately after'' properties, so not
 between corresponding call/return events from~$h$ and~$h_l$.  This means:
 %
@@ -314,7 +314,7 @@ between corresponding call/return events from~$h$ and~$h_l$.  This means:
 
 \item Each $\overline{\op}_1^{i_1}()\::y_1$ from~$h_t$  occurs
   between the corresponding $\call.\overline{\op}_1^1()$ and
-  $\return.\overline{\op}_1^1\::y_1$, with these three events being
+  $\return.\overline{\op}_1^1\::y_1$ in~$h_l$, with these three events being
   consecutive.
 \end{itemize}
 %

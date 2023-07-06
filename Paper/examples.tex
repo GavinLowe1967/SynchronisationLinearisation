@@ -1,4 +1,5 @@
-\section{Examples}
+\section{Experiments}
+\label{sec:experiments}
 
 In this section we describe experiments based on our testing framework. 
 
@@ -41,36 +42,39 @@ men and women: each thread wants to pair off with a thread of the other type;
 each passes in its own identity, and expects to receive back the identity of
 the thread with which it has paired.  In the \emph{two families} problem,
 there are two families of threads, with $n$~threads of each family; each
-thread calls an operation~$n$ times, and each time should synchronise with a
-different thread of the opposite family.  In the \emph{one family} problem,
-there are $n$~threads, each of which calls an operation $n-1$~times, and each
-time should synchronise with a different thread.  The \emph{ABC} problem can
-be thought of as a ternary version of the men and women problem: there are
-three types of threads, A, B and C; each synchronisation involves one thread
-of each type.  Finally, the \emph{timeout exchanger} is a timed version of the
-exchanger: if a thread fails to exchange data with another thread, it can
-timeout and return an appropriate result.
+thread calls an operation~$n$ times, and each invocation should synchronise
+with a thread of the opposite family, a different thread each time.  In the
+\emph{one family} problem, there are $n$~threads, each of which calls an
+operation $n-1$~times, and each time should synchronise with a different
+thread.  The \emph{ABC} problem can be thought of as a ternary version of the
+men and women problem: there are three types of threads, A, B and C; each
+synchronisation involves one thread of each type.  Finally, the \emph{timeout
+  exchanger} is a timed version of the exchanger: if a thread fails to
+exchange data with another thread, it can timeout and return an appropriate
+result.
+
+%% For each interface, we have implemented a tester, using the appropriate
+%% algorithm from earlier sections.  When considering synchronisation
+%% linearisation, in most cases, the invocations performed by threads had to be
+%% chosen so that every invocation will synchronise, so as to avoid deadlocks.
+%% For example, for the synchronous channel tester, half the threads perform
+%% sends, and half perform receives; in the exchanger tester, each thread ran a
+%% single invocation (or else a slow thread could get stuck).
+
+%% For synchronisation objects involving data, the data values were chosen
+%% randomly from a reasonably large range (e.g.~$\range{0}{100}$); this makes it
+%% easier for the algorithm to identify matchings, and also makes it easier for
+%% the user to understand any incorrect histories that are detected.  The
+%% implementations are data independent~\cite{???}: they store and return the
+%% data, but otherwise their operation does not depend on the data values used;
+%% this means that the data values used do not affect the occurrences of bugs.
 
 For each interface, we have implemented a tester, using the appropriate
-algorithm from earlier sections.  When considering synchronisation
-linearisation, in most cases, the invocations performed by threads had to be
-chosen so that every invocation will synchronise, so as to avoid deadlocks.
-For example, for the synchronous channel tester, half the threads perform
-sends, and half perform receives; in the exchanger tester, each thread ran a
-single invocation (or else a slow thread could get stuck).
-
-For synchronisation objects involving data, the data values were chosen
-randomly from a reasonably large range (e.g.~$\range{0}{100}$); this makes it
-easier for the algorithm to identify matchings, and also makes it easier for
-the user to understand any incorrect histories that are detected.  The
-implementations are data independent~\cite{???}: they store and return the
-data, but otherwise their operation does not depend on the data values used;
-this means that the data values used do not affect the occurrences of bugs.
-
-For each interface, we implemented a correct version.  For most interfaces, we
-also implemented one or more faulty versions that fail to achieve either
-synchronisation linearisation or progressibility.  The faulty versions mostly
-have realistic mistakes, mistakes that we believe programmers could make.  
+algorithm from earlier sections, and have produced a correct implementation.
+For most interfaces, we also implemented one or more faulty versions that fail
+to achieve either synchronisation linearisation or progressibility.  The
+faulty versions mostly have realistic mistakes, mistakes that we believe
+programmers could make.
 
 We describe various experiments below: some concern the time required to find
 bugs; and some concern the throughput for correct versions.
@@ -173,20 +177,32 @@ Closeable channel     & 182 & 8\\
 %%%%%%
 \begin{minipage}{0.51\textwidth}
 \begin{tabular}{lr@{$\null\pm\null$}l@{}} % 
-Synchronous channel  	& 8,253	 & 556 \\
-%Filter channel  	& 8,757	 & 448 \\
-Filter channel & 9,961 &  252 \\
-Men and women  	& 7,136	 & 452 \\
-% Exchanger  	& 5,828	 & 95 \\
-Exchanger & 29,033 & 143 \\
-Two families  &	11,598	 & 462 \\
-One family  	& 17,608	 & 105 \\
-ABC  	& 11,628	 & 357 \\
-Barrier  	& 11,457	 & 519 \\
-Timeout channel  	& 57,818	 & 162 \\
-Timeout exchanger  	& 105,085	 & 151 \\
-Closeable channel  	& 6,815	 & 138  \\
-Terminating queue  	& 8,237	 & 163 \\
+Synchronous channel  	& 6,670	 & 107 \\
+Filter channel  	& 6,987	 & 58 \\
+Men and women  	& 6,711	 & 56 \\
+Exchanger  	& 28,930	 & 159 \\
+Two families  	& 10,431	 & 67 \\
+One family  	& 13,403	 & 350 \\
+ABC  	& 11,462	 & 78 \\
+Barrier  	& 10,575	 & 90 \\
+Timeout channel  	& 57,860	 & 125 \\
+Timeout exchanger  	& 105,784	 & 118 \\
+Closeable channel  	& 6,718	 & 73 \\
+Terminating queue  	& 6,881	 & 49
+%% Synchronous channel  	& 8,253	 & 556 \\
+%% %Filter channel  	& 8,757	 & 448 \\
+%% Filter channel & 9,961 &  252 \\
+%% Men and women  	& 7,136	 & 452 \\
+%% % Exchanger  	& 5,828	 & 95 \\
+%% Exchanger & 29,033 & 143 \\
+%% Two families  &	11,598	 & 462 \\
+%% One family  	& 17,608	 & 105 \\
+%% ABC  	& 11,628	 & 357 \\
+%% Barrier  	& 11,457	 & 519 \\
+%% Timeout channel  	& 57,818	 & 162 \\
+%% Timeout exchanger  	& 105,085	 & 151 \\
+%% Closeable channel  	& 6,815	 & 138  \\
+%% Terminating queue  	& 8,237	 & 163 \\
 \end{tabular}
 \end{minipage}
 %\end{center}

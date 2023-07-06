@@ -24,6 +24,9 @@ object Experiment{
     * checks. */
   var progress = -1
 
+  var doASAP = false
+
+
   // def options = s"  --reps $reps --iters $iters --timing"
   /** Options for most testers. */
   def opts0 =  s"--reps $reps --iters $iters "
@@ -35,8 +38,12 @@ object Experiment{
   def maybeProgressCheck =
     if(progressCheck) s"--progressCheck $progress" else ""
 
-  /** Make command to run file. */
-  def mkCmd(file: String) = cmd0+file+" --timing" // options
+  /** Make command to run file. 
+    * @param asap does this tester allow the "--doASAP" option? */
+  def mkCmd(file: String, asap: Boolean) = {
+    val maybeASAP = if(doASAP && asap) "--doASAP" else ""
+    s"$cmd0 $file $maybeProgressCheck $maybeASAP --timing" // options
+  }
 
   val Million = 1000000
 
@@ -48,32 +55,32 @@ object Experiment{
 
   /** List of names of examples, testers to check, and with extra flags to
     * include. */
-  def linFiles = Array[(String,String,String)](
-    ("Synchronous channel", "ChanTester", opts0), 
-    ("Filter channel", "FilterChanTester", opts0),
-    ("Men and women", "MenWomenTester", opts0),
+  def linFiles = Array[(String,String,String,Boolean)](
+    ("Synchronous channel", "ChanTester", opts0, false), 
+    ("Filter channel", "FilterChanTester", opts0, false),
+    ("Men and women", "MenWomenTester", opts0, false),
     { // Each thread does one op, so run more threads
       val p1 = p*iters; val reps1 = p*iters*reps/p1 
-      ("Exchanger", "ExchangerTester", s"-p $p1 --reps $reps1") },
+      ("Exchanger", "ExchangerTester", s"-p $p1 --reps $reps1", false) },
     { val m = Math.sqrt(p*iters/2).toInt; val n = m+1; 
       // Expected number of invocations per run
       val expInvs = if(progressCheck) (m-0.5)*n+m*(n-0.5) else 2*m*n
       val reps1 = (reps*iters*p/expInvs + 0.5).toInt
-      ("Two families", "TwoFamiliesTester", s"-m $m -n $n  --reps $reps1")},
+      ("Two families", "TwoFamiliesTester", s"-m $m -n $n --reps $reps1", true)},
     { val n = Math.sqrt(p*iters).toInt+1; 
       val expInvs = if(progressCheck) n*(n-1.5) else n*(n-1)
       val reps1 = (reps*iters*p/expInvs + 0.5).toInt
-      ("One family", "OneFamilyTester", s"-n $n --reps $reps1 ") },
+      ("One family", "OneFamilyTester", s"-n $n --reps $reps1 ", true) },
     { val p1 = 6; val iters1 = iters*p/p1; 
-      ("ABC", "ABCTester", s"-p $p1 --iters $iters1 --reps $reps") },
+      ("ABC", "ABCTester", s"-p $p1 --iters $iters1 --reps $reps", false) },
     { val expInvs = if(progressCheck) p*iters-1 else p*iters
       val reps1 = round1(reps*iters*p/expInvs)
-      ("Barrier", "BarrierTester", s"--iters $iters --reps $reps") },
-    ("Timeout channel", "TimeoutChannelTester", opts0),
-    ("Timeout exchanger", "TimeoutExchangerTester", opts0),
-    ("Closeable channel", "CloseableChanTester", opts0),
+      ("Barrier", "BarrierTester", s"--iters $iters --reps $reps", false) },
+    ("Timeout channel", "TimeoutChannelTester", opts0, false),
+    ("Timeout exchanger", "TimeoutExchangerTester", opts0, false),
+    ("Closeable channel", "CloseableChanTester", opts0, true),
     { val bound = p*iters*reps
-      ("Terminating queue", "TerminatingQueueTester", s"--untilIters $bound") }
+      ("Terminating queue", "TerminatingQueueTester", s"--untilIters $bound", true) }
   ) 
 
   /* Notes.
@@ -105,15 +112,15 @@ object Experiment{
     val length = files.length; val results = new Array[(Double,Double)](length)
 
     for(ix <- 0 until length){
-      val (name, file, opts) = files(ix)
-      val cmd = mkCmd(s"synchronisationTester.$file $opts $maybeProgressCheck")
+      val (name, file, opts, hasASAP) = files(ix)
+      val cmd = mkCmd(s"synchronisationTester.$file $opts", hasASAP)
       println(cmd)
       def measure : Double = { // returns time in nanos
         val t = Experiments.timeProc(cmd, verbose=true)
         print(s"${t/Million} ms ") // print time in millis
         t.toDouble
       }
-      val (m, s) = 
+      val (m, s) =
         if(samples > 1) Experiments.iterateMeasurement(measure, params)
         else (measure, 0.0)
       println("\n("+m/Million+"ms, "+s/Million+"ms)")
@@ -121,12 +128,15 @@ object Experiment{
     }
 
     for(ix <- 0 until length){
-      val (name,file,ops) = files(ix); val (m,s) = results(ix)
-      print(name+"  \t")
-      if(latex) print("& "+round(m)+"\t & ")
-      else print(s"${round(m)}\t +- ")
-      println(round(s))
-      // println(name+s"  \t$m +- $s")
+      val (name,file,ops,_) = files(ix); results(ix) match{
+        case (m,s) =>
+          print(name+"  \t")
+          if(latex) print("& "+round(m)+"\t & ")
+          else print(s"${round(m)}\t +- ")
+          println(round(s))
+          // println(name+s"  \t$m +- $s")
+        case null => {}
+      }
     }
   }
 
@@ -136,6 +146,7 @@ object Experiment{
       case "--samples" => samples = args(i+1).toInt; i += 2
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--progressCheck" => progress = args(i+1).toInt; i += 2
+      case "--doASAP" => doASAP = true; i += 2
       // case "--progress" => progressCheck = true; i += 1
       case "--latex" => latex = true; i += 1
     }

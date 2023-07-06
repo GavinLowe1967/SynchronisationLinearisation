@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2023.6.2)  29 JUN 2023 14:04
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2023.6.2)  6 JUL 2023 15:15
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -584,49 +584,44 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 47.
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (./introduction.tex
 LaTeX Font Info:    Trying to load font information for OMS+cmss on input line 
-25.
-LaTeX Font Info:    No file OMScmss.fd. on input line 25.
+26.
+LaTeX Font Info:    No file OMScmss.fd. on input line 26.
 
 
 LaTeX Font Warning: Font shape `OMS/cmss/m/n' undefined
 (Font)              using `OMS/cmsy/m/n' instead
-(Font)              for symbol `textbraceleft' on input line 25.
+(Font)              for symbol `textbraceleft' on input line 26.
 
 [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
 LaTeX Font Info:    Trying to load font information for OML+cmss on input line 
-71.
-LaTeX Font Info:    No file OMLcmss.fd. on input line 71.
+77.
+LaTeX Font Info:    No file OMLcmss.fd. on input line 77.
 
 
 LaTeX Font Warning: Font shape `OML/cmss/m/n' undefined
 (Font)              using `OML/cmm/m/it' instead
-(Font)              for symbol `textgreater' on input line 71.
+(Font)              for symbol `textgreater' on input line 77.
 
 
-Underfull \hbox (badness 1824) in paragraph at lines 76--81
+Underfull \hbox (badness 1824) in paragraph at lines 82--87
 \OT1/cmr/m/n/12 with pa-ram-e-ters $\OML/cmm/m/it/12 x[]; [] ; x[]$\OT1/cmr/m/n
 /12 , in some or-der, then each re-ceives back
  []
 
-[2] [3]
-
-LaTeX Warning: Reference `sec:modelChecking' on page 4 undefined on input line 
-190.
-
-) (./specification.tex [4] [5] [6]
+[2] [3]) (./specification.tex [4] [5] [6]
 Package Listings Info: Deleted | as a short reference for \lstinline on input l
-ine 183.
+ine 184.
 Package Listings Info: Made | a short reference for \lstinline on input line 19
-7.
+8.
  [7] [8]
 Package Listings Info: Deleted | as a short reference for \lstinline on input l
-ine 293.
+ine 294.
 Package Listings Info: Made | a short reference for \lstinline on input line 31
-2.
- [9]) (./specification2.tex [10]
-[11] [12] [13]) (./relating.tex
+3.
+ [9]) (./specification2.tex
+[10] [11] [12] [13]) (./relating.tex
 Underfull \hbox (badness 2088) in paragraph at lines 1--1
 []\OT1/cmr/bx/n/17.28 Comparing syn-chro-ni-sa-tion lin-eari-sa-tion
  []
@@ -655,35 +650,29 @@ Overfull \hbox (9.49698pt too wide) in paragraph at lines 694--696
  []
 
 [20]) (./testing.tex [21] [22] [23] [24] [25]) (./direct.tex [26] [27] [28]
-[29] [30] [31]) (./examples.tex [32] [33]
-
-LaTeX Warning: Citation `???' on page 34 undefined on input line 66.
-
-[34] (./BPN-ChanTester--faulty.tex
-Package pgfplots info on input line 17: Using 'lua backend=false' for axis: xmo
-de=log unsupported (yet).
-) (./BPN-ABCTester--faulty.tex
+[29] [30] [31]) (./examples.tex [32] [33] (./BPN-ChanTester--faulty.tex
 Package pgfplots info on input line 17: Using 'lua backend=false' for axis: xmo
 de=log unsupported (yet).
 )
-Overfull \hbox (2.61108pt too wide) in paragraph at lines 116--125
+(./BPN-ABCTester--faulty.tex
+Package pgfplots info on input line 17: Using 'lua backend=false' for axis: xmo
+de=log unsupported (yet).
+)
+Overfull \hbox (2.61108pt too wide) in paragraph at lines 120--129
 []$[]$ $[]$ 
  []
 
-[35] [36]) (./sync.bbl [37]) [38] [39] (./sync.aux)
+[34] [35] [36]) (./sync.bbl [37]) [38] (./sync.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-
-LaTeX Warning: There were undefined references.
-
  ) 
 Here is how much of TeX's memory you used:
- 25293 strings out of 483183
- 631689 string characters out of 5966293
- 1004283 words of memory out of 5000000
- 39888 multiletter control sequences out of 15000+600000
- 548707 words of font info for 90 fonts, out of 8000000 for 9000
+ 25287 strings out of 483183
+ 631617 string characters out of 5966293
+ 1008443 words of memory out of 5000000
+ 39883 multiletter control sequences out of 15000+600000
+ 548244 words of font info for 88 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  73i,21n,127p,721b,2693s stack positions out of 5000i,500n,10000p,200000b,80000s
  </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1200.600
@@ -707,12 +696,11 @@ dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/texlive/texmf-dist
 /type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/
 public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
 /amsfonts/cm/cmti12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
-nts/cm/cmtt12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/la
-txfont/lasy10.pfb>
-Output written on sync.pdf (39 pages, 361927 bytes).
+nts/latxfont/lasy10.pfb>
+Output written on sync.pdf (38 pages, 355200 bytes).
 PDF statistics:
- 232 PDF objects out of 1000 (max. 8388607)
- 165 compressed objects within 2 object streams
+ 225 PDF objects out of 1000 (max. 8388607)
+ 160 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

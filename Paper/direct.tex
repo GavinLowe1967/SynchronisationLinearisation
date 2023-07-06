@@ -28,12 +28,12 @@ Instead, we run threads performing operations, typically chosen at random; and
 after a suitable duration, we interrupt any threads that have not yet
 returned.  The duration before the interrupts needs to be chosen so that it is
 highly likely that any threads that have not returned really are stuck:
-otherwise this approach it likely to produce false positives.  In practice, we
-have found it easy to identify a suitable duration.  A downside of this
-approach is that the duration needs to be chosen fairly conservatively, which
-increases the time that a given number of runs will take.
+otherwise this approach it likely to produce false positives.  Our informal
+experiments suggest that a duration of 100ms is appropriate (at least, on the
+architecture we were using): we have not observed any false positives with
+this duration, but did with a shorter duration of 80ms.  This delay does
+significantly increase the time that a given number of runs will take.
 
-\framebox{Discuss progress later?}
 
 In the remainder of this section we consider algorithms for determining if the
 resulting log history is synchronisation linearisable, and whether it also
@@ -91,7 +91,7 @@ comprising:
 %
 From such a configuration, there are edges to configurations as follows:
 %
-\def\edgeFont#1{\textsf{#1}}
+\def\edgeFont#1{\rm\textsf{#1}}
 \begin{description}
 \item[\edgeFont{Synchronisation}.] If some set of invocations in $pending$ can
   synchronise, giving results compatible with~$spec$, then there is an edge to
@@ -104,8 +104,8 @@ From such a configuration, there are edges to configurations as follows:
   advanced;
 
 \item[\edgeFont{Return}.] If the next event in the log is a $\return$ event,
-  and the corresponding invocation is in $linearised$, then that invocation is
-  removed from $linearised$, and $i$ is advanced.
+  and the corresponding invocation is in $linearised$, then there is an edge
+  where that invocation is removed from $linearised$, and $i$ is advanced.
 \end{description}
 %
 The initial configuration has $i$ at the start of the log, $pending$ and
@@ -120,26 +120,30 @@ standard algorithm.  Our implementation uses depth-first search.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsubsection{Progress}
+%\subsubsection{Progress}
 
 It is straightforward to adapt the search algorithm to also test for progress.
-It is enough to change configurations as follows, following the definition of
-progressability.
-%
-\begin{itemize}
-\item The definition of \edgeFont{synchronisation} edges is changed so that they
-  involve only invocations that do subsequently return.
-  %% : this ensures that all invocations that synchronised did return.
+We change the definition of a target configuration to have $i$ at the end of
+the log, $linearised$ empty, and such that no set of invocations in pending
+can synchronise.  
 
-\item The definition of target configurations is changed so that $pending$ may
-  be non-empty, but must contain no set of invocations that can synchronise
-  according to~$spec$ (i.e.~satisfying the precondition in~$spec$).  (However,
-  $linearised$ must still be empty.)  This ensures that there no further
-  synchronisations are possible at the end.
-\end{itemize}
+%% It is enough to change configurations as follows, following the definition of
+%% progressability.
+%% %
+%% \begin{itemize}
+%% \item The definition of \edgeFont{synchronisation} edges is changed so that they
+%%   involve only invocations that do subsequently return.
+%%   %% : this ensures that all invocations that synchronised did return.
 
-\framebox{??} Why not leave \edgeFont{synchronisation} edges unchanged, since
-we require $linearised$ to be empty?
+%% \item The definition of target configurations is changed so that $pending$ may
+%%   be non-empty, but must contain no set of invocations that can synchronise
+%%   according to~$spec$ (i.e.~satisfying the precondition in~$spec$).  (However,
+%%   $linearised$ must still be empty.)  This ensures that there no further
+%%   synchronisations are possible at the end.
+%% \end{itemize}
+
+%% \framebox{??} Why not leave \edgeFont{synchronisation} edges unchanged, since
+%% we require $linearised$ to be empty?
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -164,6 +168,8 @@ legal history of the corresponding specification object.  If $h$ and~$h_s$ are
 synchronisation-compatible, then there is an ASAP interleaving of them.
 \end{lemma}
 %
+The following lemma shows that it suffices to consider ASAP interleavings.
+%
 \begin{proof}
 Consider an interleaving of~$h$ and~$h_s$, as required for synchronisation
 compatibility.  We transform it into an ASAP interleaving as follows.  Working
@@ -173,7 +179,7 @@ $\call$ events, nor moving past any other event from~$h_s$.  This means that
 subsequently each such event follows either a corresponding $\call$ event or
 another event from~$h_s$.
 
-Note that each event from~$h_s$ is still between the $\call$ and $return$
+Note that each event from~$h_s$ is still between the $\call$ and $\return$
 events of the corresponding invocations.  Further, we do not reorder events
 from~$h_s$ so the resulting interleaving is still an interleaving of~$h$
 and~$h_s$.
@@ -181,7 +187,7 @@ and~$h_s$.
 Thus the resulting interleaving is an ASAP interleaving.
 \end{proof}
 %
-Our approach, then is to trim the search graph by removing
+Our approach, then, is to trim the search graph by removing
 \edgeFont{synchronisation} edges that do not correspond to an ASAP
 linearisation: after a \edgeFont{call} edge, we attempt to linearise a
 synchronisation corresponding to that call, and then, if successful, to
@@ -189,8 +195,8 @@ linearise an arbitrary sequence of other synchronisations; but we do not
 otherwise allow linearisations.
 
 Our experience is that this tactic is moderately successful.  In some cases,
-it can reduce the total time to check a fixed number of runs by over~30\%;
-although in most cases the gains are smaller, sometimes negligible.  The gains
+it can reduce the total time to check histories by over~30\%;
+although in some cases the gains are smaller, sometimes negligible.  The gains
 seem highest in examples where there can be a reasonably large number of
 pending invocations.
  
@@ -287,15 +293,19 @@ former is NP-complete; hence the latter is also.
 \subsection{The binary heterogeneous stateless case}
 \label{sec:binary-heterogeneous}
 
-The result of the previous subsection used a stateful specification object.
-We now consider the stateless case for binary heterogeneous synchronisations.
-We show that in this case the problem of deciding whether a history is
-synchronisation linearisable can be decided in quadratic time.
+The result of the previous subsection used a \emph{stateful} specification
+object.  We now consider the \emph{stateless} case.  We show that for binary
+heterogeneous synchronisations, the problem of deciding whether a history is
+synchronisation linearisable can be decided in quadratic time.  We consider
+the homogeneous case in the next subsection.
 
-So consider a binary synchronisation object, whose specification object is
-stateless.  Note that in this case we do not need to worry about the order of
-synchronisations: if each individual synchronisation is correct, then any
-permutation of them will be synchronisation-linearisable.
+So consider a binary heterogeneous synchronisation object, whose specification
+object is stateless.  Note that in this case we do not need to worry about the
+order of synchronisations: if each individual synchronisation is correct, then
+any permutation of them will be synchronisation-linearisable.  Informally, the
+idea is to find matching invocations in the history that could correspond to a
+particular synchronisation; we therefore reduce the problem to that of finding
+a matching in a graph.
 
 Define two complete invocations to be \emph{compatible} if they could be
 synchronised, i.e.~they overlap and the return values agree with those for the
@@ -330,7 +340,7 @@ to additionally check that no two pending invocations could synchronise.
 \subsection{The binary homogeneous stateless case}
 \label{sec:binary-homogeneous} 
 
-We now consider the case of binary homogeneous synchronisations with a
+We now consider the case of binary \emph{homogeneous} synchronisations with a
 stateless specification object.  This case is almost identical to the case
 with heterogeneous synchronisations, except the graph produced is not
 necessarily bipartite.  Thus we have reduced the problem to that of finding a
@@ -360,7 +370,7 @@ used in other examples in this category.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{The non-binary  stateless case}
+\subsection{The non-binary stateless case}
 \label{sec:non-binary-stateless}
 
 It turns out that for synchronisations of arity greater than~2, the problem of
@@ -402,3 +412,20 @@ complete matching~$U$.
 
 Our implementation uses a depth-first search to find a matching, very much
 like in the binary homogeneous case. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Implementation}
+
+We have implemented a testing framework (in Scala), based on the above
+algorithms, and used it to implement testers for particular synchronisation
+objects\footnote{The implementation is available from ???.}.  We consider the
+framework to be straightforward to use: defining a tester for a new
+synchronisation object takes just a few minutes.  The analyst needs to define
+threads that repeatedly call operations on the object, and log the calls and
+returns.  In addition, the analyst needs to specify correct synchronisations,
+in a way equivalent to the specification objects we used earlier: in the
+stateless case, this is defined by a partial function that, given a tuple of
+operations that can synchronise, returns a tuple giving the result of each; in
+the stateful case, the partial function also takes the state as an argument,
+and returns a tuple including the new state.

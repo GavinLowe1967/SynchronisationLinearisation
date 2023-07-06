@@ -127,6 +127,7 @@ object CloseableChanTester extends Tester{
       case "--wrapped" => wrapped = true; i += 1
       case "--faultyWrapped" => faultyWrapped = true; i += 1
 
+      case "--doASAP" => doASAP = true; i += 1
       case "--progressCheck" => 
         progressCheck = true; timeout = args(i+1).toInt; i += 2
 

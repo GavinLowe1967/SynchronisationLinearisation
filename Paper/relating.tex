@@ -206,8 +206,8 @@ $\overline\op_1$ into |returns|.
 \item[]
 \begin{minipage}{92mm}
 \begin{scala}
-type ThreadID = Int               // Thread identifiers
-val NumThreads: ThreadID = ... // Number of threads
+type ThreadID = Int              // Thread identifiers
+val NumThreads: Int = ...       // Number of threads
 trait State
 case object Zero extends State
 case class One(t: ThreadID, x£\s1£: A£\s1£) extends State
@@ -563,11 +563,11 @@ object SyncChanTwoStepLinSpec{
 \label{ssec:relating-variations}
 
 The results of the previous subsections carry across to non-binary
-synchronisations, in a straightforward way.  For a synchronisation object with
-$k$ operations, |op|\s1, \ldots, |op|$_k$, the corresponding two-step
-linearisation specification object has $2k-1$ operations, |op|\s1, \ldots,
-|op|$_k$, $\overline{\sm{op}}_1$, \ldots, $\overline{\sm{op}}_{k-1}$.  The
-definition of two-step linearisation is then the obvious adaptation of the
+synchronisations, in a straightforward way.  For a $k$-ary synchronisation
+between distinct operations |op|\s1, \ldots, |op|$_k$, the corresponding
+two-step linearisation specification object has $2k-1$ operations, |op|\s1,
+\ldots, |op|$_k$, $\overline{\sm{op}}_1$, \ldots, $\overline{\sm{op}}_{k-1}$.
+The definition of two-step linearisation is then the obvious adaptation of the
 binary case: each operation |op|\s{i} of the synchronisation object is
 linearised by the composition of |op|\s{i} and $\overline{\op}_i$ of the
 specification object, for $i = 1, \ldots, k-1$.
@@ -663,7 +663,7 @@ class TwoStepLinSpec{
   private val returns = new Array[Option[B£\s1£]](NumThreads)
   for(t <- 0 until NumThreads) returns(t) = None
   def op(t: ThreadID, x: A): Unit = {
-    require(returns(t) == None); 
+    require(returns(t) == None)
     state match{
       case Zero => state = One(t, x)
       case One(t£\s1£, x£\s1£) => 

@@ -1,4 +1,3 @@
-
 \subsection{Variations}
 \label{ssec:spec-variations}
 
@@ -9,22 +8,22 @@ It is straightforward to generalise to synchronisations between an arbitrary
 number of invocations, some of which might be invocations of the same
 operation.  Consider a $k$-way synchronisation between operations
 \begin{scala}
-  def op£\s j£(x£\s j£: A£\s j£): B£\s j£   £for $j = 1, \ldots, k,$£
+def op£\s j£(x£\s j£: A£\s j£): B£\s j£   £for $j = 1, \ldots, k,$£
 \end{scala}
 %
 where the $\op_j$ might not be distinct.
 The specification object will have a corresponding operation
 %
 \begin{scala} 
-  def sync(x£\s1£: A£\s1£, ..., x£\s k£: A£\s k£): (B£\s1£, ..., B£\s k£)
+def sync(x£\s1£: A£\s1£, ..., x£\s k£: A£\s k£): (B£\s1£, ..., B£\s k£)
 \end{scala}
 %
 For example, for the combining barrier |CombiningBarrier(n, f)| of the
 Introduction, the corresponding specification object would be
 \begin{scala}
 class CombiningBarrierSpec{
-  def sync(x£\s1£: A, ..., x£\s n£: A) = {
-    val result = f(x£\s1£, f(x£\s2£, ...f(x£\s{{\ss n}-1}£, x£\s{\ss n}£)...)); (result,...,result)
+  def sync(x£\s1£: A, ..., x£\s{\ss n}£: A) = {
+    val result = f(x£\s1£, f(x£\s2£,...f(x£\s{{\ss{n}}-1}£, x£\s{\ss n}£)...)); (result,...,result)
   }
 }
 \end{scala}
@@ -139,7 +138,7 @@ We say that an infinite execution is \emph{fair} if every invocation either
 returns or performs infinitely many steps.
 
 Consider a synchronisation object in a particular state~$st$.  We say that the
-object can \emph{eventually return} if (1)~no execution leads to a deadlocked
+object \emph{eventually returns} if (1)~no execution leads to a deadlocked
 state, and (2)~for every fair infinite execution
 from~$st$ that contains no $\call$ event, there is a $\return$ event.
 %% in every state~$st'$ reachable from~$st$ via an execution with no $\call$
@@ -180,9 +179,9 @@ history~$h_s$ of~$Spec$, such that:
 \begin{itemize}
 \item $complete(h)$ and~$h_s$ are compatible; and
 
-\item There is no proper extension~$h_e$ of~$h$ (adding one or more $\return$
+\item There is no proper extension~$h'$ of~$h$ (adding one or more $\return$
   events, but no $\call$ events) and extension $h_s'$ of~$h_s$ such that
-  $h_s'$ is a legal history of~$Spec$, and $complete(h_e)$ and~$h_s'$ are
+  $h_s'$ is a legal history of~$Spec$, and $complete(h')$ and~$h_s'$ are
   compatible.
 \end{itemize}
 \end{definition}
@@ -191,7 +190,7 @@ The first condition says that for each synchronisation in~$h_s$,
 there is a corresponding $\return$ event in~$h$: there is no invocation that
 has synchronised but not yet returned.  The second condition says that no more
 synchronisations are possible: such a synchronisation would correspond to a
-synchronisation event~$sync$.
+synchronisation event in~$h_s'$ and $\return$ event in~$h'$.
 
 %%%%%
 
@@ -201,17 +200,17 @@ We give two examples, both for a synchronous channel.
 Consider $h = \seq{ \call.\send^1(3), \call.\receive^2(),
   \return.\receive^2\::3 }$.  There is no history~$h_s$ of~$Spec$ such that
 $complete(h) = \seq{\call.\receive^2(),\linebreak[1] \return.\receive^2\::3
-}$ and~$h_s$ are compatible.  (However, the extension $h_e = h \cat \seq{
-  \return.\send^1 \:: () }$ is compatible with $h_s =
-\seq{\sync^{1,2}(3,())\::((),3) }$).  Informally, the channel may not block
-after~$h$ because a synchronisation has occurred, and so there is a pending
-return of the send invocation.
+}$ and~$h_s$ are compatible.  
+%% (However, the extension $h' = h \cat \seq{ \return.\send^1 \:: () }$ is
+%%   compatible with $h_s = \seq{\sync^{1,2}(3,())\::((),3) }$).
+Informally, the channel may not block after~$h$ because a synchronisation has
+occurred, and so there is a pending return of the send invocation.
 \end{example}
 
 \begin{example}
 Now consider $h = \seq{\call.\send^1(3), \call.\receive^2()}$.  We have that
 $complete(h) = \seq{}$ is compatible with the history $h_s = \seq{}$ of $Spec$
-(and no other). But the extension $h_e = h \cat
+(and no other). But the extension $h' = h \cat
 \seq{\return.\send^1\::(),\linebreak[1] \return.\receive^2\::3}$ is compatible
 with the extension $h_s' = \linebreak[1] \seq{\sync^{1,2}(3,()) \:: ((),3)}$
 of~$h_s$.  Hence the channel may not block after~$h$.  Informally, the two
@@ -223,8 +222,8 @@ We now give an example where blocking is allowed.
 \begin{example}  
 Let $h = \seq{\call.\send^1(3)}$.  Then $complete(h) = \seq{}$ is compatible
 with the history $h_s = \seq{}$ of $Spec$.  But the only proper extension
-of~$h$ is $h_e = \seq{\call.\send^1(3),\linebreak[1] \return.\send^1\::()}$,
-and no history of $Spec$ is compatible with~$complete(h_e) = h_e$.
+of~$h$ is $h' = \seq{\call.\send^1(3),\linebreak[1] \return.\send^1\::()}$,
+and no history of $Spec$ is compatible with~$complete(h') = h'$.
 \end{example}
 
 %% \begin{example}
@@ -240,15 +239,12 @@ and no history of $Spec$ is compatible with~$complete(h_e) = h_e$.
 \begin{definition}
 Let $Sync$ be a synchronisation object that is synchronisation-linearisable
 with respect to specification object $Spec$.  We say that $Sync$ is
-\emph{progressable} if for every history~$h$, if it is not the case that $Sync$
-may block after~$h$, then $Sync$ can eventually return from each state reached
-after~$h$.
+\emph{progressable} if for every history~$h$, if it is not the case that
+$Sync$ may block after~$h$, then, for every state reached after~$h$,\, $Sync$
+eventually returns.
 \end{definition}
 
-\framebox{Relate testing to progress.}
-
-
-%  Example with nondeterministic synchronisations?
+%% \framebox{Relate testing to progress.}
 
 
 
