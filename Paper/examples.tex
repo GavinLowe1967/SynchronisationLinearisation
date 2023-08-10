@@ -73,7 +73,7 @@ For each interface, we have implemented a tester, using the appropriate
 algorithm from earlier sections, and have produced a correct implementation.
 For most interfaces, we also implemented one or more faulty versions that fail
 to achieve either synchronisation linearisation or progressibility.  The
-faulty versions mostly have realistic mistakes, mistakes that we believe
+faulty versions mostly have realistic mistakes: mistakes that we believe
 programmers could make.
 
 We describe various experiments below: some concern the time required to find
@@ -83,10 +83,10 @@ The experiments were performed on an eight-core machine (two 2.40GHz Intel(R)
 Xeon(R) E5620 CPUs, with 12GB of RAM).
 
 In each experiment below, we performed \emph{observations}, by running a
-tester and recording the time taken.  Each observation aims to reflect a
-typical use case.  In each experiment we performed multiple observations; we
-give the average running time and a 95\%-confidence interval.  Each
-observation was run as a separate operating system process, to ensure
+tester multiple times, and recording the time taken.  Each observation aims to
+reflect a typical use case.  In each experiment we performed multiple
+observations; we give the average running time and a 95\%-confidence interval.
+Each observation was run as a separate operating system process, to ensure
 independence.  The number of observations is chosen so as to obtain a
 reasonably small confidential interval, but avoiding excessively long
 experiments.
@@ -106,13 +106,13 @@ likely to have the biggest effect on the likelihood of finding bugs are
 We ran experiments on two testers, using incorrect implementations of a
 synchronous channel and the ABC problem, to investigate how the time taken to
 find an error is affected by these two parameters.  Each observation used
-particular values for these parameters, performed repeated runs until an error
-was found, and recorded the time taken.  (Note that the two testers assume
-that the number of threads is divisible by two or three, respectively; and we
-believe that the error in the ABC case requires more than three threads.)  For
-each choice of parameters, 200 observations were performed.
-Figure~\ref{fig:tuning} gives results, displaying average times and
-95\%-confidence intervals.
+particular values for these parameters; the observation performed repeated
+runs until an error was found, and recorded the time taken.  (Note that the
+two testers assume that the number of threads is divisible by two or three,
+respectively; and we believe that the error in the ABC case requires more than
+three threads.)  For each choice of parameters, 200 observations were
+performed.  Figure~\ref{fig:tuning} gives results, displaying average times
+and 95\%-confidence intervals.
 
 %%%%%%%%%%%%
 
@@ -147,13 +147,14 @@ interfering (as is the case with the faulty ABC implementation).
 %\subsection{Finding bugs}
 
 We now describe experiments concerning how quickly the framework discovers a
-range of bugs.  In most cases, we ran four threads, except for the ABC problem
-we ran six, and for the exchanger we ran 16.  In most cases, threads performed
-four invocations per run, except for the exchanger where each thread performed
-one invocation (see earlier), and in the one- and two-family problems, where
-the number of invocations is defined by the problem.  Each observation
-performed repeated runs until an error was found.  For each experiment, we
-performed 200 observations.
+range of bugs that represent a failure of synchronisation linearisation.  In
+most cases, we ran four threads, except for the ABC problem we ran six, and
+for the exchanger we ran 16.  In most cases, threads performed four
+invocations per run, except for the exchanger where each thread performed one
+invocation (to avoid the possibility of deadlocks), and in the one- and
+two-family problems, where the number of invocations is defined by the
+problem.  Each observation performed repeated runs until an error was found.
+For each experiment, we performed 200 observations.
 
 %%%%%
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2023.6.2)  6 JUL 2023 15:15
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2023.6.2)  10 JUL 2023 09:37
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -629,28 +629,28 @@ Underfull \hbox (badness 2088) in paragraph at lines 1--1
 [14] [15] [16] [17]
 Missing character: There is no ; in font nullfont!
  [18] [19]
-Overfull \hbox (21.79962pt too wide) in paragraph at lines 663--664
+Overfull \hbox (21.79962pt too wide) in paragraph at lines 666--667
 [][][][][][][][][][][][][][][][][][][]$[]$[][][] 
  []
 
 
-Overfull \hbox (57.56326pt too wide) in paragraph at lines 671--672
+Overfull \hbox (57.56326pt too wide) in paragraph at lines 674--675
 [][][][][][][][][][][][][]$[]$[][][][][][][]$[]$[][][][][][][][][][][][]$[]$[][
 ][][][][][] 
  []
 
 
-Overfull \hbox (62.5669pt too wide) in paragraph at lines 675--676
+Overfull \hbox (62.5669pt too wide) in paragraph at lines 678--679
 [][][][][][][][][][][][][][][][][][][][][][][][][] 
  []
 
 
-Overfull \hbox (9.49698pt too wide) in paragraph at lines 694--696
+Overfull \hbox (9.49698pt too wide) in paragraph at lines 697--699
 [][] 
  []
 
-[20]) (./testing.tex [21] [22] [23] [24] [25]) (./direct.tex [26] [27] [28]
-[29] [30] [31]) (./examples.tex [32] [33] (./BPN-ChanTester--faulty.tex
+[20]) (./testing.tex [21] [22] [23]) (./direct.tex [24] [25] [26] [27] [28]
+[29]) (./examples.tex [30] [31] (./BPN-ChanTester--faulty.tex
 Package pgfplots info on input line 17: Using 'lua backend=false' for axis: xmo
 de=log unsupported (yet).
 )
@@ -662,16 +662,19 @@ Overfull \hbox (2.61108pt too wide) in paragraph at lines 120--129
 []$[]$ $[]$ 
  []
 
-[34] [35] [36]) (./sync.bbl [37]) [38] (./sync.aux)
+[32] [33] [34]) (./sync.bbl [35]) [36] (./sync.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
  ) 
 Here is how much of TeX's memory you used:
- 25287 strings out of 483183
- 631617 string characters out of 5966293
- 1008443 words of memory out of 5000000
- 39883 multiletter control sequences out of 15000+600000
+ 25269 strings out of 483183
+ 631372 string characters out of 5966293
+ 1008263 words of memory out of 5000000
+ 39865 multiletter control sequences out of 15000+600000
  548244 words of font info for 88 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  73i,21n,127p,721b,2693s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -697,10 +700,10 @@ dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/texlive/texmf-dist
 public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
 /amsfonts/cm/cmti12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
 nts/latxfont/lasy10.pfb>
-Output written on sync.pdf (38 pages, 355200 bytes).
+Output written on sync.pdf (36 pages, 345867 bytes).
 PDF statistics:
- 225 PDF objects out of 1000 (max. 8388607)
- 160 compressed objects within 2 object streams
+ 216 PDF objects out of 1000 (max. 8388607)
+ 153 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

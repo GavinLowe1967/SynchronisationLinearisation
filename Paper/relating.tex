@@ -282,11 +282,14 @@ The following proposition reduces synchronisation linearisability to two-step
 linearisability.
 %
 \begin{prop}
-Let |SyncObj| be a binary heterogeneous synchronisation object, |SyncSpec| 
-a corresponding synchronisation specification object, and let |TwoStepLinSpec|
-be built from |SyncSpec| as above.  Then |SyncObj| is two-step linearisable
-with respect to |Two|\-|Step|\-|LinSpec| if and only if it is synchronisation
-linearisable with respect to |SyncSpec|.
+\label{prop:two-step-lin}
+Let |SyncObj| be a binary heterogeneous synchronisation object, |SyncSpec| a
+corresponding synchronisation specification object, and let |TwoStepLinSpec|
+be built from |SyncSpec| as above.  Then each history~$h$ of |SyncObj| is
+two-step linearisable with respect to |Two|\-|Step|\-|LinSpec| if and only if
+it is synchronisation linearisable with respect to |SyncSpec|.  And hence
+|SyncObj| is two-step linearisable with respect to |Two|\-|Step|\-|LinSpec| if
+and only if it is synchronisation linearisable with respect to |SyncSpec|.
 \end{prop}
 %%%%%%
 \begin{proof}
