@@ -35,10 +35,11 @@ NON_BINARY_STATEFUL_TESTERS = $(EXDIR)/ABCCounterTester.class			\
 $(EXDIR)/BarrierCounterTester.class $(EXDIR)/TerminatingQueueTester.class	\
 $(EXDIR)/CloseableChanTester.class
 
-TESTERS = $(EXDIR)/Tester.class $(BINARY_HETERO_TESTERS)		\
-$(BINARY_STATEFUL_TESTERS) $(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS)	\
-$(NON_BINARY_STATEFUL_TESTERS) $(EXDIR)/ChanTwoStepTester.class		\
-$(EXDIR)/ChanCounterTwoStepTester.class
+TESTERSX = $(BINARY_HETERO_TESTERS) $(BINARY_STATEFUL_TESTERS)			\
+$(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS) $(NON_BINARY_STATEFUL_TESTERS)	\
+$(EXDIR)/ChanTwoStepTester.class $(EXDIR)/ChanCounterTwoStepTester.class
+
+TESTERS = $(EXDIR)/Tester.class $(TESTERSX)
 
 EXPERIMENTS = $(EXPDIR)/Experiment.class $(EXPDIR)/ParameterExperiment.class	\
 $(EXPDIR)/BugFinderExperiment.class $(EXPDIR)/BugParametersExperiment.class	\
@@ -70,6 +71,8 @@ $(DIR)/HomogeneousBinaryStatelessTester.class: $(DIR)/BinaryTester.class $(DIR)/
 
 # Each tester depends upon the testing machinery, and the synchronisation
 # objects it is testing.
+
+$(TESTERSX):	$(EXDIR)/Tester.class
 
 # Binary stateless heterogeneous
 
