@@ -22,76 +22,70 @@ class FordFulkerson(inX: Array[Boolean], edges: Array[List[Int]] ){
 
   type Node = Int
 
-  // The sets X and Y, as Lists. 
-  private val X = (0 until N).toList.filter(i => inX(i))
-  private val Y = (0 until N).toList.filter(i => !inX(i))
+  // The sets X and Y, as Arrays. 
+  private val X = (0 until N).toList.filter(i => inX(i)).toArray
+  private val Y = (0 until N).toList.filter(i => !inX(i)).toArray
 
   def inY(n: Node) = !inX(n)
 
-  /* We represent a flow by
-   * - An N by N bit map `between` indicating flow from X to Y node
-   * - A size N bit map `toEnds` showing the flow from source to nodes in X,
-   *   or from nodes in Y to the target.
-   */
+  /* We represent a flow by the following two variables.  */
+  /** Array showing whether there is a flow between a pair of nodes. */
+  private val between = Array.ofDim[Boolean](N,N)
+  /** Array showing whether there is flow from the source node to a node in X,
+    * or from a node in Y to the target. */
+  private val toEnds = Array.ofDim[Boolean](N)
 
   // Representation of a path; stored in reverse order, and implicitly
   // starting at source node.
   type Path = List[Node]
 
-  /** Try to form an augmenting path of the flow represented by between and
-    * toEnds. */
-  private def augment(between: Array[Array[Boolean]], toEnds: Array[Boolean])
-      : Path = {
-    val seen = new Array[Boolean](N); val queue = new Queue[(Node, Path)]
-    // Start at nodes in X with no flow
-    for(i <- X; if !toEnds(i)){ seen(i) = true; queue += ((i, List[Node](i))) }
-    while(queue.nonEmpty){
-      val (n,path) = queue.dequeue()
-      if(inX(n)) // edges to a node in Y with no flow
+  /** Try to find  an augmenting path of the flow starting from x in X. */
+  private def findPath(x: Node): Path = {
+    val seen = new Array[Boolean](N); val queue = new Queue[Path]
+    queue += List[Node](x) 
+    var result: Path = null // holds augmenting path if non-null
+    while(result == null && queue.nonEmpty){
+      val path = queue.dequeue(); val n = path.head
+      if(inX(n)){ // edges to a node in Y with no flow
         for(j <- edges(n); if !between(n)(j) && !seen(j)){
-          seen(j) = true; queue += ((j, j::path))
+          seen(j) = true; queue += j::path
         }
-      else if(!toEnds(n)) return(path.reverse) // IMPROVE
+      }
+      else if(!toEnds(n)) result = path.reverse 
       else // edges back to an X node, against the flow
         for(i <- edges(n); if between(i)(n) && !seen(i)){
-          seen(i) = true; queue += ((i, i::path))
+          seen(i) = true; queue += i::path
         }
     }
-    null
+    result 
+  }
+
+  /** Augment the flow based on path. */
+  private def augment(path0: Path) = {
+    var path = path0; val start = path.head; assert(inX(start) && !toEnds(start))
+    toEnds(start) = true
+    while(path.length > 1){
+      val n1 = path.head; val n2 = path.tail.head; path = path.tail
+      if(inX(n1)){ assert(inY(n2) && !between(n1)(n2)); between(n1)(n2) = true }
+      else{ assert(inX(n2) && between(n2)(n1)); between(n2)(n1) = false }
+    }
+    val n = path.head; assert(inY(n)); toEnds(n) = true;
   }
 
   /** Run the Ford-Fulkerson algorithm.
     * @return true if a complete matching is found.  Also return the maximal 
     * matching found (complete or not). */
   def apply(): (Boolean, Array[Int]) = {
-    val between = Array.ofDim[Boolean](N,N); val toEnds = Array.ofDim[Boolean](N)
     var done = false; var flow = 0
-    while(!done){
-      var path = augment(between, toEnds)
-      if(path != null){
-        // println(s"Augmenting with $path")
-        // Augment the flow based on path
-        val start = path.head; assert(inX(start) && !toEnds(start))
-        toEnds(start) = true
-        while(path.length > 1){
-          val n1 = path.head; val n2 = path.tail.head; path = path.tail
-          if(inX(n1)){
-            assert(inY(n2) && !between(n1)(n2)); between(n1)(n2) = true
-          }
-          else{ assert(inX(n2) && between(n2)(n1)); between(n2)(n1) = false }
-        }
-        val n = path.head; assert(inY(n)); toEnds(n) = true; flow += 1
-      }
-      else done = true // failed to augment
+    for(x <- X){ // IMPROVE
+      val path = findPath(x)
+      if(path != null){ augment(path); flow += 1 }
     }
-    // println(s"flow = $flow")
-    // The node with which each node is matched. */
+    // Build the matching
     val matching = Array.fill(N)(-1)
-    for(i <- X; j <- Y) if(between(i)(j)){ 
-      assert(toEnds(i) && toEnds(j)) // ; print(s"${(i,j)} ")
-      matching(i) = j; matching(j) = i
+    for(i <- X; j <- edges(i)) if(between(i)(j)){ 
+      assert(toEnds(i) && toEnds(j)); matching(i) = j; matching(j) = i
     }
-    // println
     (2*flow == N, matching) // Has this covered all the X nodes? 
   }
 

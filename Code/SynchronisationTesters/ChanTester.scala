@@ -4,9 +4,10 @@ package synchronisationTester
 import scala.util.Random
 
 import synchronisationTesting.{HistoryLog,ThreadUtil,BinaryStatelessTester}
-
 import synchronisationObject.{
   Chan, FaultyChan, DeadlockingChan, FaultyChan2, WrappedSCLChan, SyncChan}
+import ox.gavin.profiling.{SamplingProfiler,ProfilerSummaryTree}
+import scala.collection.mutable.ArrayBuffer
 
 /** A testing file. */
 object ChanTester extends Tester{
@@ -83,6 +84,7 @@ object ChanTester extends Tester{
   def main(args: Array[String]) = {
     // Parse arguments
     var reps = 5000; var i = 0; var timing = false; var expectTrueTest = false
+    var profiling = false; var interval = 50
     while(i < args.length) args(i) match{
       case "-p" => p = args(i+1).toInt; i += 2
       case "--iters" => iters = args(i+1).toInt; i += 2
@@ -98,12 +100,28 @@ object ChanTester extends Tester{
       case "--progressCheck" => 
         progressCheck = true; timeout = args(i+1).toInt; i += 2
       case "--expectTrue" => expectTrueTest = true; i += 1 
+      case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
  
     assert(p%2 == 0 || progressCheck)
 
     if(expectTrueTest) expectTrue(reps)
+    else if(profiling){
+      def filter(frame: StackTraceElement) : Boolean =
+        SamplingProfiler.defaultFilter(frame) &&
+          !frame.getClassName.contains("jdk.internal")
+      def printer(data: ArrayBuffer[SamplingProfiler.StackTrace]) = {
+        // SamplingProfiler.print(filter = filter, length = 20)(data)+
+        // "\n"+
+        SamplingProfiler.printTree(
+          filter = filter, expand = ProfilerSummaryTree.expandToThreshold(0.1)
+        )(data)
+      }
+      val profiler = new SamplingProfiler(interval = interval, print = printer)
+      profiler{ runTests(reps, timing) }
+    }
     else runTests(reps, timing)
+    ()
   }
 }
