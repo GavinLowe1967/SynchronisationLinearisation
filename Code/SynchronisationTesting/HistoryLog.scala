@@ -38,6 +38,9 @@ object HistoryLog{
     /** Place holder for the operation index of this event within the log. */
     var opIndex = -1
 
+    /** Is this a returnEvent? */
+    val isReturn : Boolean
+
     /** String representing opIndex with padding.  This is intended for values of
       * opIndex less than 1000. */
     protected def opIndexString = s"$opIndex:"+" "*(3-opIndex.toString.length)
@@ -54,6 +57,8 @@ object HistoryLog{
     /** The corresponding return event. */
     var ret: ReturnEvent[Op,A] = null
 
+    val isReturn = false
+
     override def toString = s"$opIndexString Call of $op" // Thread $t calls $op"
   }
 
@@ -62,6 +67,8 @@ object HistoryLog{
     * @param t the identity of the thread.
     * @param result the result returned. */
   case class ReturnEvent[Op,A](t: Int, op: Op, result: A) extends Event{
+    val isReturn = true
+
     override def toString = s"$opIndexString Return of $result from $op"
     // Thread $t returns $result from $op"
   }

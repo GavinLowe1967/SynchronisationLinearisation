@@ -1,5 +1,7 @@
 package synchronisationTesting
 
+import scala.collection.mutable.ArrayBuffer
+
 /** A tester for synchronisation linearisation in the case of binary
   * synchronisations with a stateless synchronisation object.
   * @tparam Op the type representing operations on the synchronisation object.
@@ -23,7 +25,8 @@ class BinaryStatelessTester[Op](
     * returned results consistent with matching.  If some invocation can
     * synchronise with no other, or if some pending invocations should have
     * synchronised, then gives an error message and returns null. */
-  private def findMatches(events: Array[Event])
+/*
+  private def findMatchesX(events: Array[Event])
       : (Array[Boolean], Array[List[Int]]) = {
     val (calls, pending) = getCalls(events) // in Tester
     val numInvs = calls.length 
@@ -54,6 +57,64 @@ class BinaryStatelessTester[Op](
         println(); println(events.mkString("\n"))
         println(s"Pending invocations "+pending(i).opIndex+" and "+
           pending(j).opIndex+" should have synchronised.")
+        null
+      case null =>  (isOp1, syncs)
+    }
+  }
+ */
+  private def findMatches(events: Array[Event])
+      : (Array[Boolean], Array[List[Int]]) = {
+    val (calls, pendingAtEnd) = getCalls(events) // in Tester
+    val numInvs = calls.length
+    // Calls with which each call could synchronise; indexed as in calls
+    val syncs = Array.fill(numInvs)(List[Int]())
+    // Bitmaps showing whether each of calls is the first or second operation.
+    val isOp1, isOp2 = new Array[Boolean](numInvs)
+    // We traverse events, to identify possible synchronisations.  pending
+    // stores CallEvents for invocations that are pending at this point
+    var pending = List[CallEvent[Op,_]]()
+    for(j <- 0 until events.length) events(j) match{
+      case ce: CallEvent[Op,Any] @unchecked  =>
+        val i = ce.opIndex
+        if(i >= 0){
+          // Find synchronisations between ce and pending invocations
+          for(ce1 <- pending){
+            val i1 = ce1.opIndex
+            if(canSync0(ce, ce1)){
+              syncs(i) ::= i1; syncs(i1) ::= i; isOp1(i) = true; isOp2(i1) = true
+            }
+            else if(canSync0(ce1, ce)){
+              syncs(i) ::= i1; syncs(i1) ::= i; isOp2(i) = true; isOp1(i1) = true
+            }
+          }
+          pending ::= ce
+        }
+        // else this op is in pendingAtEnd
+
+      case re: ReturnEvent[Op,_] @unchecked => 
+        // Remove the corresponding CallEvent from pending
+        val i = re.opIndex; assert(i >= 0)
+        val (before, _::after) = pending.span(_.opIndex != i)
+        pending = before ++ after
+        // Check it synchronised, and has a unique operation type
+        if(!(isOp1(i) ^ isOp2(i))){
+          assert(!isOp1(i) && !isOp2(i),
+            "Requirements of tester not satisfied: there do not appear to be "+
+              "two distinct operations.")
+          println(); println(events.mkString("\n"))
+          println(s"Invocation $i does not synchronise with any other "+
+            "completed operation.")
+          return null
+        }
+    } // end of for(...) ... match
+    assert(pending.isEmpty)
+
+    // Test if any two pending invocations could synchronise
+    canAnyPendingSync(pendingAtEnd) match{ // in BinaryTester
+      case (i,j) => 
+        println(); println(events.mkString("\n"))
+        println(s"Pending invocations "+pendingAtEnd(i).opIndex+" and "+
+          pendingAtEnd(j).opIndex+" should have synchronised.")
         null
       case null =>  (isOp1, syncs)
     }

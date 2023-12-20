@@ -14,13 +14,19 @@ class BinaryTester[Op](
 
   import HistoryLog.{Event,CallEvent,ReturnEvent} 
 
+  /** Can ce1 and ce2 synchronise on the assumption that they overlap? */
+  @inline protected 
+  def canSync0(ce1: CallEvent[Op,_], ce2: CallEvent[Op,_]): Boolean = {
+    matching.isDefinedAt(ce1.op, ce2.op) &&
+    (try{ (ce1.ret.result, ce2.ret.result) == matching(ce1.op, ce2.op) }
+     catch{ case _: IllegalArgumentException => false })
+  }
+
   /** Can the invocations corresponding to ce1 and ce2 synchronise? */
   protected def canSync(ce1: CallEvent[Op,_], ce2: CallEvent[Op,_]): Boolean = {
     // Each is called before the other returns
     ce1.index < ce2.ret.index && ce2.index < ce1.ret.index &&
-    matching.isDefinedAt(ce1.op, ce2.op) &&
-    (try{ (ce1.ret.result, ce2.ret.result) == matching(ce1.op, ce2.op) }
-     catch{ case _: IllegalArgumentException => false })
+    canSync0(ce1, ce2)
   }
 
   /** Could the pending invocations corresponding to ce1 and ce2 have
