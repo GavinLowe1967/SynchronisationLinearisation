@@ -6,6 +6,8 @@ import synchronisationTesting.{TwoStepLinSpec}
 import synchronisationObject.{
   Chan, FaultyChan, DeadlockingChan, FaultyChan2, WrappedSCLChan, SyncChan}
 import TwoStepLinSpec.log2
+import ox.gavin.profiling.{SamplingProfiler,ProfilerSummaryTree}
+import scala.collection.mutable.ArrayBuffer
 
 /** A testing file. */
 object ChanTwoStepTester{
@@ -95,6 +97,7 @@ object ChanTwoStepTester{
   def main(args: Array[String]) = {
     // Parse arguments
     var reps = 5000; var i = 0
+    var profiling = false; var interval = 50
     while(i < args.length) args(i) match{
       case "-p" => numThreads = args(i+1).toInt; i += 2
       case "--iters" => iters = args(i+1).toInt; i += 2
@@ -107,12 +110,33 @@ object ChanTwoStepTester{
       case "--faulty2" => faulty2 = true; i += 1
       case "--wrapped" => wrapped = true; i += 1
 
+      case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
+
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
     assert(numThreads%2 == 0)
 
     val start = java.lang.System.nanoTime
-    for(i <- 0 until reps){ doTest; if(i%100 == 0) print(".") }
+    def doTests = for(i <- 0 until reps){ doTest; if(i%100 == 0) print(".") }
+    if(profiling){
+      def filter(frame: StackTraceElement) : Boolean = {
+        val c = frame.getClassName;
+        !c.startsWith("scala.") && !c.startsWith("java.") && 
+        !c.startsWith("ox.gavin") &&
+        !frame.getClassName.contains("jdk.internal") && 
+        SamplingProfiler.notFunction(frame)
+      }
+      def printer(data: ArrayBuffer[SamplingProfiler.StackTrace]) = {
+        // SamplingProfiler.print(filter = filter, length = 20)(data)+
+        // "\n"+
+        SamplingProfiler.printTree(
+          filter = filter, expand = ProfilerSummaryTree.expandToThreshold(0.1)
+        )(data)
+      }
+      val profiler = new SamplingProfiler(interval = interval, print = printer)
+      profiler{ doTests }
+    }
+    else doTests
     val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
     println(); println(s"$duration ms")
   }

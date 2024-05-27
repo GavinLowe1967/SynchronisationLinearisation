@@ -33,7 +33,7 @@ $(EXDIR)/TimeoutChannelTester.class $(EXDIR)/TimeoutExchangerTester.class
 
 NON_BINARY_STATEFUL_TESTERS = $(EXDIR)/ABCCounterTester.class			\
 $(EXDIR)/BarrierCounterTester.class $(EXDIR)/TerminatingQueueTester.class	\
-$(EXDIR)/CloseableChanTester.class
+$(EXDIR)/CloseableChanTester.class $(EXDIR)/ResignableBarrierTester.class
 
 TESTERSX = $(BINARY_HETERO_TESTERS) $(BINARY_STATEFUL_TESTERS)			\
 $(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS) $(NON_BINARY_STATEFUL_TESTERS)	\
@@ -45,7 +45,7 @@ EXPERIMENTS = $(EXPDIR)/Experiment.class $(EXPDIR)/ParameterExperiment.class	\
 $(EXPDIR)/BugFinderExperiment.class $(EXPDIR)/BugParametersExperiment.class	\
 $(EXPDIR)/ProgressExperiment.class
 
-all:	$(TESTERS) $(EXPERIMENTS)
+all:	$(TESTERS) $(EXPERIMENTS) $(OBDIR)/ResignableBarrier.class
 
 clean:
 	rm $(DIR)/*.class $(EXDIR)/*.class $(OBDIR)/*.class; fsc -shutdown

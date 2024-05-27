@@ -64,13 +64,15 @@ class BinaryStatelessTester[Op](
  */
   private def findMatches(events: Array[Event])
       : (Array[Boolean], Array[List[Int]]) = {
+    // Call events of returned, non-returned invocations
     val (calls, pendingAtEnd) = getCalls(events) // in Tester
+    // Note: It might be better to combine the above with the traversal below. 
     val numInvs = calls.length
     // Calls with which each call could synchronise; indexed as in calls
     val syncs = Array.fill(numInvs)(List[Int]())
     // Bitmaps showing whether each of calls is the first or second operation.
     val isOp1, isOp2 = new Array[Boolean](numInvs)
-    // We traverse events, to identify possible synchronisations.  pending
+    // We traverse events, to identify possible synchronisations.  `pending`
     // stores CallEvents for invocations that are pending at this point
     var pending = List[CallEvent[Op,_]]()
     for(j <- 0 until events.length) events(j) match{

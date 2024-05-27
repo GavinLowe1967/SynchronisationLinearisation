@@ -11,7 +11,7 @@ import scala.collection.mutable.ArrayBuffer
   * @param worker definition of a worker on the synchronisation object,
   *  parameterised by its identity and the log it will write to.
   * @param p the number of threads to run.
-  * @param arities the list if arities of synchronisations. 
+  * @param arities the list of arities of synchronisations. 
   * @param specMatching a description of the results that should be given by a 
   *  particular list of operations synchronising and the corresponding state
   *  of the specification object.
