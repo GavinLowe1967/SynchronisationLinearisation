@@ -16,8 +16,9 @@ trait ResignableBarrierT[T]{
 
 // ==================================================================
 
-/** An implementation based on a JVM monitor. */
-class ResignableBarrier[T] extends ResignableBarrierT[T]{
+/** An implementation based on a JVM monitor. 
+  * @param faulty if true, use a faulty implementation*/
+class ResignableBarrier[T](faulty: Boolean) extends ResignableBarrierT[T]{
   /** Threads currently enrolled in the barrier. */
   private var current = new scala.collection.mutable.HashSet[T]
 
@@ -33,15 +34,13 @@ class ResignableBarrier[T] extends ResignableBarrierT[T]{
 
   /** Enrol with the barrier. */
   def enrol(id: T) = synchronized{
-    // println(s"enrol($id)")
-    while(leaving) wait() // wait for current sync to finish
+    // while(leaving) wait() // wait for current sync to finish
     val added = current.add(id); assert(added); currentCount += 1
   }
 
   /** Resign from the barrier. */
   def resign(id: T) = synchronized{
-    // println(s"resign($id)")
-    while(leaving) wait() // wait for current sync to finish
+    //while(leaving) wait() // wait for current sync to finish
     val removed = current.remove(id); assert(removed); currentCount -= 1
     if(count == currentCount && count > 0){ leaving = true; notifyAll() }
   }
@@ -49,7 +48,9 @@ class ResignableBarrier[T] extends ResignableBarrierT[T]{
   /** Perform a barrier synchronisation. */
   def sync(id: T) = synchronized{
     assert(current.contains(id))
-    while(leaving) wait() // Wait for previous round to finish
+    if(!faulty) while(leaving) wait() // Wait for previous round to finish
+    // Note: the faulty version will not wait above, and so might incorrectly 
+    // return immediately
     if(currentCount > 1){ // if currentCount == 1, can return immediately
       count += 1
       if(count == currentCount){ leaving = true; count -= 1; notifyAll() }
@@ -62,6 +63,5 @@ class ResignableBarrier[T] extends ResignableBarrierT[T]{
       }
     }
   }
-
 }
 

@@ -3,7 +3,6 @@ package synchronisationTester
 import scala.util.Random
 import synchronisationTesting.{HistoryLog,StatefulTester}
 import synchronisationObject.{ResignableBarrierT, ResignableBarrier}
-
 import scala.collection.immutable.HashSet
 
 /** A tester for ResignableBarriers. */
@@ -22,7 +21,11 @@ object ResignableBarrierTester{
   case class Resign(id: Int) extends Op
   case class Sync(id: Int) extends Op
 
-  /** Does `ops` represent a suffix of a possible synchronisation? */
+  /* A valid barrier synchronisation will be represented by a list of Sync
+   * objects in increasing order of `id`s. */
+
+  /** Does `ops` represent a suffix of a possible synchronisation (including the
+    * unary operations)? */
   def suffixMatching(ops: List[Op]) =
     ops.length <= 1 || suffixMatching1(ops, 0)
       
@@ -38,20 +41,22 @@ object ResignableBarrierTester{
   /** The specification class.
     * @param enrolled the set of threads currently enrolled.  */
   case class Spec(enrolled: Enrolled){
+    /** The effect of an enrol invocation. */
     def enrol(id: Int) = { 
       assert(!enrolled.contains(id)); (new Spec(enrolled + id), List(()))
     }
 
+    /** The effect of a resign invocation. */
     def resign(id: Int) = {
       assert(enrolled.contains(id)); (new Spec(enrolled - id), List(()))
     }
 
-    /** The list of Sync objects that would correspond to a synchronisation in 
-      * the current state. */
+    /** The list of Sync objects that would correspond to a barrier
+      * synchronisation in the current state. */
     def getSyncs: List[Sync] = enrolled.toList.sorted.map(Sync)
 
-    /** Each of the n threads gets the value of counter; the counter is
-      * incremented. */
+    /** The effect of a barrier synchronisation.  Pre: syncs = getSyncs.  Note: 
+      * we could omit the `syncs` parameter.  */
     def sync(syncs: List[Op]) = {
       val n = enrolled.size; assert(syncs.length == n)
       (this, List.fill(n)(()))
@@ -65,14 +70,18 @@ object ResignableBarrierTester{
       case List(Enrol(id)) => spec.enrol(id)
       case List(Resign(id)) => spec.resign(id)
       case syncs if syncs == spec.getSyncs => spec.sync(syncs)
+        // Note: the above "if" clause tests the precondition for this being a
+        // valid barrier synchronisation.
     }
   }
 
   /** Number of iterations per worker. */
   var iters = 10
 
+  /** The probability of an enrolled worker choosing to call `sync`. */
   var syncProb = 0.7
 
+  /** A worker. */
   def worker(barrier: Barrier)(me: Int, log: HistoryLog[Op]) = {
     var enrolled = false
     for(i <- 0 until iters){
@@ -89,10 +98,11 @@ object ResignableBarrierTester{
   var p = 4 // # workers
   var verbose = false
   var doASAP = false
+  var faulty = false
 
   /** Do a single test. */
   def doTest() = {
-    val barrier = new ResignableBarrier[Int]
+    val barrier = new ResignableBarrier[Int](faulty)
     val spec = new Spec(new Enrolled)
     val tester = new StatefulTester[Op,Spec](
       worker(barrier) _, p, (1 to p).toList, matching _, suffixMatching _,
@@ -101,11 +111,18 @@ object ResignableBarrierTester{
   }
 
   def main(args: Array[String]) = {
-    val reps = 10000
+    var reps = 10000; var i = 0
+    while(i < args.length) args(i) match{
+      case "-p" => p = args(i+1).toInt; i += 2
+      case "--reps" => reps = args(i+1).toInt; i += 2
+      case "--iters" => iters = args(i+1).toInt; i += 2
+      case "--syncProb" => syncProb = args(i+1).toDouble; i += 2
+      case "--faulty" => faulty = true; i += 1 
+    }
 
     for(i <- 0 until reps){
       doTest()
-      if(i%100 == 0) print(".")
+      if(i%500 == 0){ print("."); if(i%10000 == 0) print(i) }
     }
     println()
   }

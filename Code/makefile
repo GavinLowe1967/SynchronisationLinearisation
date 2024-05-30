@@ -45,7 +45,7 @@ EXPERIMENTS = $(EXPDIR)/Experiment.class $(EXPDIR)/ParameterExperiment.class	\
 $(EXPDIR)/BugFinderExperiment.class $(EXPDIR)/BugParametersExperiment.class	\
 $(EXPDIR)/ProgressExperiment.class
 
-all:	$(TESTERS) $(EXPERIMENTS) $(OBDIR)/ResignableBarrier.class
+all:	$(TESTERS) $(EXPERIMENTS)
 
 clean:
 	rm $(DIR)/*.class $(EXDIR)/*.class $(OBDIR)/*.class; fsc -shutdown
@@ -110,6 +110,8 @@ $(EXDIR)/ABCTester.class: $(OBDIR)/ABC.class
 
 $(EXDIR)/BarrierTester.class:  $(OBDIR)/Barrier.class
 
+$(EXDIR)/ResignableBarrierTester.class: $(OBDIR)/ResignableBarrier.class
+
 $(EXDIR)/TimeoutChannelTester.class: $(OBDIR)/TimeoutChannel.class
 
 $(EXDIR)/TimeoutExchangerTester.class: $(OBDIR)/TimeoutExchanger.class
@@ -125,6 +127,7 @@ $(EXDIR)/BarrierCounterTester.class: $(OBDIR)/BarrierCounter.class
 $(EXDIR)/TerminatingQueueTester.class: $(OBDIR)/TerminatingQueue.class
 
 $(EXDIR)/CloseableChanTester.class: $(OBDIR)/CloseableChan.class
+
 
 # Recipes for compilation
 

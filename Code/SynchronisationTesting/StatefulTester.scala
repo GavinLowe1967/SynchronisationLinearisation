@@ -71,8 +71,8 @@ class StatefulTester[Op,S](
     es.nonEmpty && ((es.head eq e) || contains(es.tail, e))
 
   /** Test if the invocations represented by es can synchronise given state
-    * `spec` of the specification.  Optionally return the resulting state of
-    * the specification. */
+    * `spec` of the specification.  `ops` is the `Op`s associated with `es`.
+    * Optionally return the resulting state of the specification. */
   private def canSync(spec: S, es: List[CallEvent1], ops: List[Op])
       : Option[S] = {
     //val ops = es.map(_.op)
