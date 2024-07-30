@@ -6,7 +6,7 @@ package synchronisationTesting
   * parameterised by its identity and the log it will write to.
   * @matching a PartialFunction describing the results that should be given by
   * a particular pair of operations synchronising. */
-class BinaryTester[Op](
+abstract class BinaryTester[Op](
   worker: (Int, HistoryLog[Op]) => Unit,
   p: Int,
   matching: PartialFunction[(Op,Op), (Any,Any)])

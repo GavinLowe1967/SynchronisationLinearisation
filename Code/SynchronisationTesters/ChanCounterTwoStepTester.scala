@@ -9,12 +9,12 @@ import synchronisationObject.{
 import TwoStepLinSpec.{log2,SyncSpecObject}
 
 /** A testing file. */
-object ChanCounterTwoStepTester{
+object ChanCounterTwoStepTester extends Tester{
   /** Number of worker threads to run. */
   var numThreads = 4
 
   /** Number of iterations per worker thread. */
-  var iters = 20
+  // var iters = 20
 
   /** The maximum value sent.  A larger value will make it easier to test
     * whether a matching exists.  And the implementation is data independent,
@@ -87,7 +87,7 @@ object ChanCounterTwoStepTester{
   private var reversed = false
 
   /** Do a single test. */
-  def doTest = {
+  def doTest: Boolean = {
     val c: C = 
       if(faulty) new FaultyChanCounter[Int]
       else if(deadlock) new DeadlockingChanCounter[Int]
@@ -98,26 +98,27 @@ object ChanCounterTwoStepTester{
       val specObj = new SyncSpec
       val spec = TwoStepLinSpec[Int,Unit,Int,Int](numThreads, specObj)
       val tester = LinearizabilityTester[Spec,C](spec, c, numThreads, worker _)
-      if(tester() <= 0) sys.exit()
+      tester() > 0 // if(tester() <= 0) sys.exit()
     }
     else{
       // def syncR(u: Unit, x: Int) = (x, ())
       val specObj = new SyncSpecR
       val spec = TwoStepLinSpec[Unit,Int,Int,Int](numThreads, specObj)
       val tester = LinearizabilityTester[SpecR,C](spec, c, numThreads, workerR _)
-      if(tester() <= 0) sys.exit()
+      tester() > 0 // if(tester() <= 0) sys.exit()
     }
   }
 
   def main(args: Array[String]) = {
     // Parse arguments
-    var reps = 5000; var i = 0
+    var reps = 5000; var i = 0; var timing = false; 
     while(i < args.length) args(i) match{
       case "-p" => numThreads = args(i+1).toInt; i += 2
       case "--iters" => iters = args(i+1).toInt; i += 2
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--MaxVal" => MaxVal = args(i+1).toInt; i += 2
       case "--reversed" => reversed = true; i += 1
+      case "--timing" => timing = true; i += 1
 
       case "--faulty" => faulty = true; i += 1
       case "--deadlock" => deadlock = true; i += 1
@@ -128,9 +129,11 @@ object ChanCounterTwoStepTester{
     }
     assert(numThreads%2 == 0)
 
-    val start = java.lang.System.nanoTime
-    for(i <- 0 until reps){ doTest; if(i%100 == 0) print(".") }
-    val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
-    println(); println(s"$duration ms")
+    runTests(reps, timing)
+
+    // val start = java.lang.System.nanoTime
+    // for(i <- 0 until reps){ doTest; if(i%100 == 0) print(".") }
+    // val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
+    // println(); println(s"$duration ms")
   }
 }

@@ -7,8 +7,8 @@ import scala.collection.mutable.ArrayBuffer
   * @tparam Op the type representing operations on the synchronisation object.
   * @param worker definition of a worker on the synchronisation object,
   * parameterised by its identity and the log it will write to.
-  * @matching a PartialFunction describing the results that should be given by
-  * a particular pair of operations synchronising. */
+  * @param matching a PartialFunction describing the results that should be
+  * given by a particular pair of operations synchronising. */
 class BinaryStatelessTester[Op](
   worker: (Int, HistoryLog[Op]) => Unit,
   p: Int,
@@ -66,7 +66,13 @@ class BinaryStatelessTester[Op](
       : (Array[Boolean], Array[List[Int]]) = {
     // Call events of returned, non-returned invocations
     val (calls, pendingAtEnd) = getCalls(events) // in Tester
-    // Note: It might be better to combine the above with the traversal below. 
+    // Note: It might be better to combine the above with the traversal below.
+    // println(events.map(e => 
+    //   e.toString+" "+
+    //     (e match{ case ce: CallEvent[Op,Any]@unchecked => ce.ret; case _ => })+
+    //     " "+e.opIndex
+    // ).mkString("\n"))
+    // println("pendingAtEnd = \n"+pendingAtEnd.mkString("\n")) 
     val numInvs = calls.length
     // Calls with which each call could synchronise; indexed as in calls
     val syncs = Array.fill(numInvs)(List[Int]())
@@ -78,7 +84,7 @@ class BinaryStatelessTester[Op](
     for(j <- 0 until events.length) events(j) match{
       case ce: CallEvent[Op,Any] @unchecked  =>
         val i = ce.opIndex
-        if(i >= 0){
+        if(/*i >= 0*/ ce.ret != null){
           // Find synchronisations between ce and pending invocations
           for(ce1 <- pending){
             val i1 = ce1.opIndex
@@ -91,7 +97,7 @@ class BinaryStatelessTester[Op](
           }
           pending ::= ce
         }
-        // else this op is in pendingAtEnd
+        // else ce.ret == null, and this op is in pendingAtEnd
 
       case re: ReturnEvent[Op,_] @unchecked => 
         // Remove the corresponding CallEvent from pending
@@ -109,7 +115,8 @@ class BinaryStatelessTester[Op](
           return null
         }
     } // end of for(...) ... match
-    assert(pending.isEmpty)
+    assert(pending.isEmpty, 
+      "\n"+events.takeWhile(_ != null).map(e => e.toString+" "+e.opIndex).mkString("\n"))
 
     // Test if any two pending invocations could synchronise
     canAnyPendingSync(pendingAtEnd) match{ // in BinaryTester
@@ -156,7 +163,8 @@ class BinaryStatelessTester[Op](
     * linearisable. 
     * @param delay if positive, the amount of time after which the testing 
     * system should be interrupted. */
-  def apply(delay: Int = -1): Boolean = {
+  def apply(delay: Int = -1): Boolean = { 
+    // println(delay)
     if(delay > 0){
       val (deadlock, events) = getLogDetectDeadlock(delay) // From Tester
       checkLog(events)

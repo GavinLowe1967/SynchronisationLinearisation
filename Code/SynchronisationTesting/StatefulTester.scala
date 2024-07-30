@@ -24,7 +24,7 @@ class StatefulTester[Op,S](
   worker: (Int, HistoryLog[Op]) => Unit,
   p: Int, arities: List[Int],
   specMatching: S => PartialFunction[List[Op], (S,List[Any])],
-  suffixMatching: List[Op] => Boolean,
+  suffixMatching: List[Op] => Boolean = (es: List[Op]) => true,
   spec0: S, doASAP: Boolean = false, verbose: Boolean = false)
     extends Tester[Op](worker, p){
 

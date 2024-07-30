@@ -17,6 +17,7 @@ Two families        & 2     & Y         & Y \\
 One family          & 2     & Y         & N \\
 ABC                 & 3     & N         & Y \\
 Barrier             & $n$   & N         & N \\
+Enrollable barrier  & $1\mathord{..} n$, 1 & Y & N \\
 Timeout channel     & 2, 1  & N         & Y \\
 Timeout exchanger   & 2, 1  & N         & N \\
 Closeable channel   & 2, 1  & Y         & Y \\
@@ -36,22 +37,34 @@ Terminating queue   & 1, $n$ & Y        & N
 We consider synchronisation objects implementing a number of interfaces,
 summarised in Figure~\ref{fig:examples}.  Most of the interfaces were
 described in earlier sections (namely synchronous channel, filter channel,
-exchanger, barrier, timeout channel, closable channel, terminating queue).
+exchanger, barrier, timeout channel, closable channel, enrollable barrier, and
+terminating queue).
+%
 The \emph{men and women} problem involves two families of threads, known as
 men and women: each thread wants to pair off with a thread of the other type;
 each passes in its own identity, and expects to receive back the identity of
-the thread with which it has paired.  In the \emph{two families} problem,
+the thread with which it has paired.  
+%
+In the \emph{two families} problem,
 there are two families of threads, with $n$~threads of each family; each
 thread calls an operation~$n$ times, and each invocation should synchronise
 with a thread of the opposite family, a different thread each time.  In the
 \emph{one family} problem, there are $n$~threads, each of which calls an
 operation $n-1$~times, and each time should synchronise with a different
-thread.  The \emph{ABC} problem can be thought of as a ternary version of the
-men and women problem: there are three types of threads, A, B and C; each
-synchronisation involves one thread of each type.  Finally, the \emph{timeout
-  exchanger} is a timed version of the exchanger: if a thread fails to
-exchange data with another thread, it can timeout and return an appropriate
-result.
+thread.  
+%
+The \emph{ABC} problem can be thought of as a ternary version of the men and
+women problem: there are three types of threads, A, B and C; each
+synchronisation involves one thread of each type.  
+%
+%% The \emph{enrollable barrier} (based on ~\cite{alting-barrier}) is a barrier
+%% that allows threads to enrol and resign (via unary operations); each barrier
+%% synchronisation is between all threads that are currently enrolled; thus the
+%% barrier has a state, namely the currently enrolled threads. 
+%
+Finally, the \emph{timeout exchanger} is a timed version of the exchanger: if
+a thread fails to exchange data with another thread, it can timeout and return
+an appropriate result.
 
 %% For each interface, we have implemented a tester, using the appropriate
 %% algorithm from earlier sections.  When considering synchronisation
@@ -90,6 +103,12 @@ Each observation was run as a separate operating system process, to ensure
 independence.  The number of observations is chosen so as to obtain a
 reasonably small confidential interval, but avoiding excessively long
 experiments.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\framebox{TO DO}  Experiments comparing two-step and direct algorithms.  
+\verb!scala -cp .:/home/gavin/Scala/Util experiments.TwoStepExperiment --samples 10!
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

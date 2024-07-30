@@ -1,0 +1,184 @@
+\section{Example input scripts}
+\label{app:examples}
+
+In this appendix we give example input scripts referred to in the body of the
+manual.  
+
+
+\begin{figure}
+\begin{scala}
+object ExchangerTester extends Tester{
+  /** Representation of operations within the log. */
+  case class Exchange(x: Int)
+
+  /** Specification object. */
+  object Spec{
+    def sync(x: Int, y: Int) = (y, x)
+  }
+
+  /** Mapping showing how synchronisations of concrete operations correspond 
+    * to operations of the specification object. */
+  def matching: PartialFunction[(Exchange,Exchange), (Any,Any)] = {
+    case (Exchange(x), Exchange(y)) => Spec.sync(x, y) 
+  }
+
+  /** A worker.  Each worker performs a single invocation, to avoid
+    * deadlocks.  */
+  def worker(exchanger: ExchangerT[Int])(me: Int, log: HistoryLog[Exchange]) = {
+    val x = Random.nextInt(100)
+    log(me, exchanger.exchange(x), Exchange(x))
+  }
+
+  /** Do a single test. */
+  def doTest = {
+    val exchanger: ExchangerT[Int] = new Exchanger[Int]
+    val tester = new HomogeneousBinaryStatelessTester[Exchange](
+      worker(exchanger), 20, matching)
+    tester()
+  }
+
+  def main(args: Array[String]): Unit = runTests(5000)
+}
+\end{scala}
+\caption{A testing script for an exchanger, illustrating the {\scalashape
+    HomogeneousBinaryStatelessTester}.\label{fig:homo-binary}} 
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}
+\begin{scala}
+object ABCTester extends Tester{
+  // Representation of operations within the log
+  trait Op 
+  case class SyncA(id: Int) extends Op
+  case class SyncB(id: Int) extends Op
+  case class SyncC(id: Int) extends Op
+
+  // The result type of an invocation.
+  type IntPair = (Int,Int)
+
+  /** The specification class. */
+  object Spec{
+    // Each of a, b, c get the identities of the other two
+    def sync(a: Int, b: Int, c: Int) = List((b,c), (a,c), (a,b))
+  }
+
+  /** Mapping showing how synchronisations of concrete operations correspond 
+    * to operations of the specification object. */
+  def matching: PartialFunction[List[Op], List[IntPair]] = {
+    case List(SyncA(a), SyncB(b), SyncC(c)) => Spec.sync(a, b, c) 
+  }
+
+  /** A worker with identity me. */
+  def worker(abc: ABCT[Int,Int,Int])(me: Int, log: HistoryLog[Op]) = {
+    for(i <- 0 until 20){
+      if(me%3 == 0) log(me, abc.syncA(me), SyncA(me)) 
+      else if(me%3 == 1) log(me, abc.syncB(me), SyncB(me)) 
+      else log(me, abc.syncC(me), SyncC(me))
+    }
+  }
+
+  def doTest = {
+    val abc: ABCT[Int,Int,Int] = new ABC[Int,Int,Int]
+    val tester = new StatelessTester[Op](worker(abc), 6, List(3), matching)
+    tester()
+  }
+
+  def main(args: Array[String]) = runTests(1000)
+}
+\end{scala}
+\caption{A testing script for a the ABC problem, illustrating the {\scalashape
+    Stateless\-Tester}.\label{fig:ABC}} 
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{figure}
+\begin{scala}
+object TimeoutChannelTester extends Tester{
+  /** Representation of an operation in the log. */
+  trait Op
+  case class Send(x: Int) extends Op
+  case object Receive extends Op
+
+  /** Mapping showing how synchronisations of concrete operations correspond 
+    * to operations of the specification object.   */
+  def matching: PartialFunction[List[Op], List[Any]] = {
+    case List(Send(x)) => List(false)
+    case List(Receive) => List(None)
+    case List(Send(x), Receive) => List(true, Some(x))
+  }
+
+  /** A worker. */
+  def worker(chan: TimeoutChannelT[Int])(me: Int, log: HistoryLog[Op]) = {
+    for(i <- 0 until iters){
+      // Delay to ensure a mix of successul and unsuccessful invocations.
+      Thread.sleep(Random.nextInt(1))
+      if(Random.nextInt(2) == 0){
+        val x = Random.nextInt(20)
+        log(me, chan.sendWithin(x, 1+Random.nextInt(1)), Send(x))
+      }
+      else // receive
+        log(me, chan.receiveWithin(1+Random.nextInt(1), Receive)
+    }
+  }
+
+  /** Run a single test. */
+  def doTest = {
+    val chan: TimeoutChannelT[Int] = new TimeoutChannel[Int]
+    val tester = new StatelessTester[Op](worker(chan), 4, List(1,2), matching)
+    tester()
+  }
+
+  def main(args: Array[String]): Unit = runTests(1000) 
+}
+\end{scala}
+\caption{A testing script for a timeout channel, illustrating the {\scalashape
+    Stateless\-Tester}.\label{fig:timeout-chan}} 
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}
+\begin{scala}
+object BarrierTester extends Tester{
+  /** The number of threads involved in each synchronisation. */
+  var n = 4
+  
+  /** Representation of an operation in the log. */
+  case class Sync(id: Int)
+
+  /** Is syncs sorted by id's? */
+  def isSorted(syncs: List[Sync]): Boolean = 
+    syncs.length <= 1 || syncs(0).id < syncs(1).id && isSorted(syncs.tail)
+
+  /** Mapping showing how synchronisations of concrete operations correspond 
+    * to operations of the specification object. Any n invocations can
+    * synchronise, and all should receive the unit value.  We require the id's to  
+    * be in increasing order, to reduce the number of cases by a factor of n!. */
+  def matching: PartialFunction[List[Sync], List[Unit]] = {
+    case syncs if syncs.length == n && isSorted(syncs) => List.fill(n)(())
+  }
+
+  /** A worker, which calls barrier.sync. */
+  def worker(barrier: BarrierT)(me: Int, log: HistoryLog[Sync]) = {
+    for(i <- 0 until 20) log(me, barrier.sync(me), Sync(me))
+  }
+
+  /** Run a single test. */
+  def doTest = {
+    val barrier: BarrierT[Int] = new Barrier(n) 
+    val tester = new StatelessTester[Sync](
+      worker(barrier), n, List(n), matching, isSorted, false)
+    tester()
+  }
+
+  def main(args: Array[String]) = runTests(1000)
+}
+\end{scala}
+\caption{A testing script for a barrier synchronisation object, illustrating
+  the {\scalashape Stateless\-Tester}.\label{fig:barrier}}
+\end{figure}

@@ -98,15 +98,15 @@ object CloseableChanTester extends Tester{
     if(progressCheck){ 
       val tester =
         new StatefulTester[Op,Boolean](
-          worker1(chan) _, p, List(1,2), matching _, suffixMatching _, false,
+          worker1(chan), p, List(1,2), matching, suffixMatching, false,
           doASAP, verbose)
       tester(timeout)
     }
     else{
       val tester =
         new StatefulTester[Op,Boolean](
-          worker(chan) _, p, List(1,2), matching _, suffixMatching _, false,
-          doASAP, verbose)
+          worker(chan), p, List(1,2), matching, // suffixMatching, 
+          spec0 = false, doASAP = doASAP, verbose = verbose)
       tester()
     }
   }
@@ -114,7 +114,7 @@ object CloseableChanTester extends Tester{
   def main(args: Array[String]) = {
     // Parse arguments
     var reps = 1000; var i = 0; var interval = 50; var profiling = false
-    var timing = false; var countReps = false
+    var timing = false; // var countReps = false
     while(i < args.length) args(i) match{
       case "-p" => p = args(i+1).toInt; i += 2
       case "--verbose" => verbose = true; i += 1
@@ -132,7 +132,7 @@ object CloseableChanTester extends Tester{
         progressCheck = true; timeout = args(i+1).toInt; i += 2
 
       case "--timing" => timing = true; i += 1
-      case "--countReps" => countReps = true; i += 1
+      // case "--countReps" => countReps = true; i += 1
 
       case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
       case arg => println(s"Illegal argument: $arg"); sys.exit()
@@ -151,9 +151,8 @@ object CloseableChanTester extends Tester{
         )(data)
       }
       val profiler = new SamplingProfiler(interval = interval, print = printer)
-      profiler{ runTests(reps, timing, countReps) }
+      profiler{ runTests(reps, timing /*, countReps*/) }; ()
     }
-    else runTests(reps, timing, countReps)
-    () 
+    else runTests(reps, timing /*, countReps*/ )
   }
 }

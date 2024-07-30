@@ -1,0 +1,261 @@
+
+\begin{figure}
+\begin{scala}
+object OneFamilyTester extends Tester{
+  /** Number of threads to run. */
+  var n = 5
+
+  /** Representation of operations within the log. */
+  case class Sync(id: Int)
+
+  type BitMap = Array[Array[Boolean]]
+
+  /** The specification class.  bitMap shows which threads have already
+    * synchronised. */
+  class Spec(val bitMap: BitMap = Array.ofDim[Boolean](n,n)){
+    def sync(a: Int, b: Int): (Spec, (Int, Int)) = {  
+      // These two must not have sync'ed before
+      require(!bitMap(a)(b) && !bitMap(b)(a))
+      val newBitMap = bitMap.map(_.clone)      // Create updated bitmap.
+      newBitMap(a)(b) = true; newBitMap(b)(a) = true
+      (new Spec(newBitMap), (b,a)) 
+    }
+
+    override def equals(that: Any) = that match{
+      case s: Spec => 
+        (0 until n).forall(a => bitMap(a).sameElements(s.bitMap(a)))
+    }
+
+    override def hashCode = {
+      var h = 0
+      for(a <- 0 until n; b <- 0 until n){ 
+        h = h << 1; if(bitMap(a)(b)) h += 1 
+      }
+      h
+    }
+  } // end of Spec
+
+  // ...
+}
+\end{scala}
+\caption{A testing script for a the one family problem, illustrating the
+  {\scalashape Binary\-Stateful\-Tester} (part~1).\label{fig:one-family-1}}
+\end{figure}
+
+%%%%%
+
+\begin{figure}
+\begin{scala}
+  /** Mapping showing how synchronisations of concrete operations correspond 
+    * to operations of the specification object. */
+  def matching(spec: Spec): PartialFunction[(Sync,Sync), (Spec,(Any,Any))] = {
+    case (Sync(a), Sync(b)) => spec.sync(a, b) 
+  }
+
+  /** A worker.  */
+  def worker(of: OneFamilyT)(me: Int, log: HistoryLog[Sync]) = {
+    for(_ <- 0 until n-1) log(me, of.sync(me), Sync(me))
+  }
+
+  /** Do a single test. */
+  def doTest = {
+    val of: OneFamilyT = new OneFamily(n); val spec = new Spec()
+    val bst = new BinaryStatefulTester[Sync,Spec](
+      worker(of), n, matching, spec, true)
+    bst()
+    }
+  }
+
+  def main(args: Array[String]) = runTests(5000)
+}
+\end{scala}
+\caption{A testing script for a the one-family problem, illustrating the
+  {\scalashape Binary\-Stateful\-Tester} (part~2).\label{fig:one-family-2}}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+\begin{scala}
+object CloseableChanTester extends Tester{
+  /** Representation of an operation in the log. */
+  trait Op
+  case class Send(x: Int) extends Op
+  case object Receive extends Op
+  case object Close extends Op
+
+  /** Try to send x on chan, catching a ClosedException.  Return true if
+    * successful. */ 
+  @inline private def trySend(chan: CloseableChan[Int], x: Int): Boolean = 
+    try{ chan!x; true } catch { case _: ClosedException => false }
+
+  /** Try to receive on chan, catching a ClosedException.  Optionally return the
+    * value received. */ 
+  @inline private def tryReceive(chan: CloseableChan[Int]): Option[Int] = 
+    try{ Some(chan?()) } catch { case _: ClosedException => None }
+
+  /** Mapping showing how synchronisations of concrete operations correspond 
+    * to operations of the specification object.  Here the specification object
+    * is simply a Boolean, indicating whether the channel is closed.  */
+  def matching(closed: Boolean): PartialFunction[List[Op], (Boolean, List[Any])] = {
+    case List(Send(x), Receive) if !closed => (closed, List(true, Some(x)))
+    case List(Send(x)) if closed => (closed, List(false))
+    case List(Receive) if closed => (closed, List(None))
+    case List(Close) => (true, List(()))
+  }
+
+  // ...
+}
+\end{scala}
+\caption{A testing script for a closeable channel, illustrating the {\scalashape
+    Stateful\-Tester} (part~1).\label{fig:closable-chan-1}} 
+\end{figure}
+
+%%%%%
+
+\begin{figure}
+\begin{scala}
+  /** A worker.  Workers close the channel with probability 0.05;
+    * otherwise, workers with an even identity send; workers with an odd
+    * identity receive.  */
+  def worker(chan: CloseableChan[Int])(me: Int, log: HistoryLog[Op]) = {
+    for(i <- 0 until iters){
+      if(Random.nextFloat() < 0.05) log(me, chan.close, Close)
+      else if(me%2 == 0){
+        val x = Random.nextInt(MaxVal); log(me, trySend(chan, x), Send(x))
+      }
+      else log(me, tryReceive(chan), Receive)
+    }
+  }    
+
+  /** Run a single test. */
+  def doTest = {
+    val chan: CloseableChan[Int] = new CloseableSyncChan[Int]
+    val tester = new StatefulTester[Op,Boolean](
+      worker(chan), 4, List(1,2), matching, spec0 = true, doASAP = false)
+    tester()
+  }
+
+  def main(args: Array[String]) = runTests(5000)
+\end{scala}
+\caption{A testing script for a closeable channel, illustrating the {\scalashape
+    Stateful\-Tester} (part~2).\label{fig:closable-chan-2}} 
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}
+\begin{scala}
+object ResignableBarrierTester{
+  /** The type of barriers. */
+  type Barrier = ResignableBarrierT[Int]
+
+  /** Operations. */
+  abstract class Op
+  case class Enrol(id: Int) extends Op
+  case class Resign(id: Int) extends Op
+  case class Sync(id: Int) extends Op
+
+  /** Type of the set of threads currently enrolled. */
+  type Enrolled = HashSet[Int]
+
+  /** The specification class.
+    * @param enrolled the set of threads currently enrolled.  */
+  case class Spec(enrolled: Enrolled){
+    /** The effect of an enrol invocation. */
+    def enrol(id: Int) = { 
+      assert(!enrolled.contains(id)); (new Spec(enrolled + id), List(()))
+    }
+
+    /** The effect of a resign invocation. */
+    def resign(id: Int) = {
+      assert(enrolled.contains(id)); (new Spec(enrolled - id), List(()))
+    }
+
+    /** The list of Sync objects that would correspond to a barrier
+      * synchronisation in the current state. */
+    def getSyncs: List[Sync] = enrolled.toList.sorted.map(Sync)
+
+    /** The effect of a barrier synchronisation.  Pre: syncs = getSyncs.  */
+    def sync(syncs: List[Op]) = {
+      val n = enrolled.size; assert(syncs.length == n)
+      (this, List.fill(n)(()))
+    }
+  } // end of Spec
+
+  ...
+}
+\end{scala}
+\caption{A testing script for a resignable barrier, illustrating the
+  {\scalashape Stateful\-Tester} (part~1).  \label{fig:resignable-barrier-1}}
+\end{figure}
+
+%%%%%%%%%%
+
+\begin{figure}
+\begin{scala}
+  /** Partial function showing how a list of invocations can synchronise, and
+    * returning the expected next state and list of return values. */ 
+  def matching(spec: Spec): PartialFunction[List[Op], (Spec, List[Unit])] = {
+    ops => ops match{
+      case List(Enrol(id)) => spec.enrol(id)
+      case List(Resign(id)) => spec.resign(id)
+      case syncs if syncs == spec.getSyncs => spec.sync(syncs)
+        // Note: the above "if" clause tests the precondition for this being a
+        // valid barrier synchronisation.
+    }
+  }
+
+  /** Does `ops` represent a suffix of a possible synchronisation (including the
+    * unary operations)? */
+  def suffixMatching(ops: List[Op]) = ops.length <= 1 || suffixMatching1(ops, 0)
+      
+  /** Is ops a list of Sync values, with increasing values of id, all at least
+    * n? */
+  def suffixMatching1(ops: List[Op], n: Int): Boolean = 
+    if(ops.isEmpty) true
+    else ops.head match{
+      case Sync(m) if m >= n => suffixMatching1(ops.tail, m+1)
+      case _ => false
+    }
+
+  /** A worker. */
+  def worker(barrier: Barrier)(me: Int, log: HistoryLog[Op]) = {
+    var enrolled = false
+    for(i <- 0 until 10){
+      if(enrolled){
+        if(Random.nextFloat() < 0.7) log(me, barrier.sync(me), Sync(me))
+        else{ log(me, barrier.resign(me), Resign(me)); enrolled = false }
+      }
+      else{ log(me, barrier.enrol(me), Enrol(me)); enrolled = true }
+    }
+    // Resign at the end, to avoid deadlocks
+    if(enrolled) log(me, barrier.resign(me), Resign(me))
+  }
+\end{scala}
+\caption{A testing script for a resignable barrier, illustrating the
+  {\scalashape Stateful\-Tester} (part~2).  \label{fig:resignable-barrier-2}}
+\end{figure}
+
+
+%%%%%%%%%%
+
+\begin{figure}
+\begin{scala}
+  var p = 4 // # workers
+
+  /** Do a single test. */
+  def doTest() = {
+    val barrier = new ResignableBarrier[Int](faulty)
+    val spec = new Spec(new Enrolled)
+    val tester = new StatefulTester[Op,Spec](
+      worker(barrier), p, (1 to p).toList, matching, suffixMatching,
+      spec, false)
+    if(!tester()) sys.exit()
+  }
+
+  def main(args: Array[String]) = runTests(10000)
+}
+\end{scala}
+\caption{A testing script for a resignable barrier, illustrating the
+  {\scalashape Stateful\-Tester} (part~3).  \label{fig:resignable-barrier-3}}
+\end{figure}

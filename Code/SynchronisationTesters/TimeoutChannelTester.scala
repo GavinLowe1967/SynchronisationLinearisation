@@ -65,8 +65,8 @@ object TimeoutChannelTester extends Tester{
   def doTest = {
     val chan: TimeoutChannelT[Int] = 
       if(faulty) new FaultyTimeoutChannel[Int] else new TimeoutChannel[Int]
-    val tester = 
-      new StatelessTester[Op](worker(chan) _, p, List(1,2), matching, verbose)
+    val tester = new StatelessTester[Op](
+      worker(chan), p, List(1,2), matching, verbose = verbose)
     // Following might or might not involve timeouts: default is timeout = -1
     tester(timeout)
     // if(!tester(timeout)) sys.exit()

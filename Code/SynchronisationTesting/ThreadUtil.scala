@@ -54,7 +54,7 @@ object ThreadUtil{
       // I think the following (or similar) is necessary as a memory fence, to
       // ensure the logs of interrupted threads are available to this main
       // thread.
-      threads.foreach(_.join)     // while(done.get < p){ }
+      threads.foreach(_.join)   
       true
     }
     else false 

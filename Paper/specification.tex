@@ -4,8 +4,10 @@
 In this section we describe how synchronisations can be formally specified.
 For ease of exposition, we start by considering \emph{heterogeneous binary}
 synchronisation in this section, i.e.~where every synchronisation is between
-\emph{two} invocations of \emph{different} operations.  We generalise at the
-end of this section.
+\emph{two} invocations of \emph{different} operations.  We allow stateful
+synchronisation objects (which includes stateless objects as  degenerative
+cases).  We generalise later in this section.
+
 
 We assume that the synchronisation object has two operations, each of which
 has a single parameter, with signatures as follows.
@@ -19,7 +21,7 @@ def op£\s2£(x£\s2£: A£\s2£): B£\s2£
 operation that takes a $k$-tuple as its parameter.  We identify a 0-tuple with
 the unit value, but will sometimes omit that value in examples.)
 %
-In addition, the synchronisation object might have some state, |state: S|.
+In addition, the synchronisation object might have some state.
 Each invocation of~|op|\s1 must synchronise with an invocation of~|op|\s2, and
 vice versa.  The result of each invocation may depend on the two parameters
 |x|$_1$ and |x|$_2$ and the current state.  In addition, the state may be
@@ -28,8 +30,22 @@ happening atomically at some point within the duration of both operation
 invocations (which implies that the invocations must overlap): we refer to this
 point as the \emph{synchronisation point}.
 
-Each synchronisation object can be specified using a \emph{synchronisation
-  specification object} with the following signature.
+Synchronisation linearisation is defined in terms of a \emph{synchronisation
+  specification object}: we define these specification objects in the next
+subsection.  In Section~\ref{sec:specification-linearisability}, we review the
+notion of linearisation, on which synchronisation linearisation is based.  We
+then define synchronisation linearisation, for binary heterogeneous
+synchronisation objects, in Section~\ref{sec:sync-lin}.  We generalise to
+other classes of synchronisation objects in
+Section~\ref{ssec:spec-variations}.  We present our progress property,
+synchronisation progressibility, in Section~\ref{sec:progress}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Synchronisation specification objects}
+
+Each synchronisation object, with a signature as above, can be specified using
+a \emph{synchronisation specification object} with the following signature.
 %
 \begin{scala}
 class Spec{
@@ -41,8 +57,8 @@ The idea is that if two invocations |op|\s1|(x|\s1|)| and |op|\s2|(x|\s2|)|
 synchronise, then the results |y|\s1 and |y|\s2 of the invocations are such
 that $\sm{sync}(\sm x_1, \sm x_2)$ could return the pair |(y|\s1|, y|\s2|)|.
 (We allow |sync| to be nondeterministic; but in all our examples it will be
-deterministic.)  The specification object might have some private state that
-is accessed and updated within~|sync|.  Note that invocations of |sync| occur
+deterministic.)  The specification object might have private state, which can
+be accessed and updated within~|sync|.  Note that invocations of |sync| occur
 \emph{sequentially}.
 
 We formalise below what it means for a synchronisation object to satisfy the
@@ -100,8 +116,8 @@ class FilterChan[A]{
 \end{scala}
 %
 Here the |receive| operation is passed a predicate~|p| describing a required
-property of any value received.  This can be specified using a specification
-object with operation
+property of any value received.  This can be specified using a stateless
+specification object with operation
 %
 \begin{scala}
 def sync(x: A, p: A => Boolean): (Unit, A) = { require(p(x)); ((), x) }
@@ -123,6 +139,9 @@ class SyncChanCounterSpec[A]{
   }
 }
 \end{scala}
+%
+Each synchronisation increments the counter, and the value is returned to each
+thread. 
 
 %%%%%%%%%%
 
@@ -173,10 +192,7 @@ h & = &
     \end{align}
 \end{eqnarray*}
 %
-This history is illustrated by the timeline in Figure~\ref{fig:lin-timeline}:
-here, time runs from left to right; each horizontal line represents an
-operation invocation, with the left-hand end representing the $\call$ event,
-and the right-hand end representing the $\return$ event. 
+This history is illustrated by the timeline in Figure~\ref{fig:lin-timeline}. 
 
 %%%%%
 
@@ -193,7 +209,10 @@ and the right-hand end representing the $\return$ event.
 \draw (4,-2) \X;
 \end{tikzpicture}
 \end{center}
-\caption{Timeline representing the linearisation example.}
+\caption{Timeline representing the linearisation example.  Time runs from left
+  to right; each horizontal line represents an operation invocation, with the
+  left-hand end representing the $\call$ event, and the right-hand end
+  representing the $\return$ event}
 \label{fig:lin-timeline}
 \scalaMid
 \end{figure}
@@ -267,6 +286,7 @@ linearisable if all of its histories are linearisable.
 %%%%%
 
 \subsection{Synchronisation linearisability}
+\label{sec:sync-lin}
 
 We now adapt the definition of linearisability to synchronisations.  We
 consider a concurrent history of the synchronisation object~$Sync$.  The
@@ -391,4 +411,4 @@ are synchronisation-linearisable.
 
 %% Maybe call this \emph{synchronisation linearisation}. 
 
-\framebox{Is the definition compositional?}  I think so.
+% \framebox{Is the definition compositional?}  I think so.

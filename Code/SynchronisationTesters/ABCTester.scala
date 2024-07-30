@@ -36,6 +36,16 @@ object ABCTester extends Tester{
     case List(SyncA(a), SyncB(b), SyncC(c)) => Spec.sync(a, b, c) 
   }
 
+  /** Is ops a suffix of a possible synchronisation?  Including this seems to
+    * make very little difference. */
+  def suffixMatching(ops: List[Op]) = ops match{
+    case List() => true
+    case List(SyncC(_)) => true
+    case List(SyncB(_), SyncC(_)) => true
+    case List(SyncA(_), SyncB(_), SyncC(_)) => true
+    case _ => true
+  }
+
   /** A worker with identity me. */
   def worker(abc: ABCT[Int,Int,Int])(me: Int, log: HistoryLog[Op]) = {
     for(i <- 0 until iters){
@@ -68,7 +78,8 @@ object ABCTester extends Tester{
       tester(timeout) // if(!tester(timeout)) sys.exit()
     }
     else{
-      val tester = new StatelessTester[Op](worker(abc) _, p, List(3), matching)
+      val tester = new StatelessTester[Op](
+        worker(abc), p, List(3), matching /*, suffixMatching */)
       tester() // if(!tester()) sys.exit()
     }
   }
@@ -76,7 +87,7 @@ object ABCTester extends Tester{
   def main(args: Array[String]) = {
     // Parse arguments
     var reps = 1000; var i = 0; var interval = 50; var profiling = false
-    var timing = false; var countReps = false
+    var timing = false; // var countReps = false
     while(i < args.length) args(i) match{
       case "-p" => p = args(i+1).toInt; i += 2
       case "--iters" => iters = args(i+1).toInt; i += 2
@@ -89,7 +100,7 @@ object ABCTester extends Tester{
         progressCheck = true; timeout = args(i+1).toInt; i += 2
 
       case "--timing" => timing = true; i += 1
-      case "--countReps" => countReps = true; i += 1
+      // case "--countReps" => countReps = true; i += 1
       case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
@@ -108,9 +119,9 @@ object ABCTester extends Tester{
         )(data)
       }
       val profiler = new SamplingProfiler(interval = interval, print = printer)
-      profiler{ runTests(reps, timing, countReps) }
+      profiler{ runTests(reps, timing /*, countReps*/) }
     }
-    else  runTests(reps, timing, countReps)
+    else  runTests(reps, timing /*, countReps*/ )
     ()
   }
 

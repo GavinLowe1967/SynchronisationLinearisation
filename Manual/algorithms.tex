@@ -1,0 +1,147 @@
+\section{Other algorithms}
+
+Above, we considered the class |BinaryStatelessTester| for testing binary
+heterogeneous stateless synchronisation objects.  In this section, we describe
+classes that encapsulate other testing algorithms.  
+
+All example scripts referred to in this section can be found in
+Appendix~\ref{app:examples}.  Each script tests only for synchronisation
+linearisation, but can be adapted to test for progressibility by passing a
+positive integer to the |apply| method, as for the synchronous channel tester
+in the previous section.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Stateless testers}
+
+The class |HomogeneousBinaryStatelessTester| is for testing binary homogeneous
+stateless synchronisation objects.  Its signature is in
+Figure~\ref{fig:stateless-testers}: it takes the same parameters as in the
+heterogeneous case; and likewise the |apply| function takes the same optional
+parameter.
+
+%%%%%%%%%%
+
+\begin{figure}
+\begin{scala}
+/** Testing algorithm for binary heterogeneous stateless synchronisation
+  * objects. */
+class BinaryStatelessTester[Op](
+    worker: (Int, HistoryLog[Op]) => Unit,
+    p: Int,
+    matching: PartialFunction[(Op,Op), (Any,Any)]
+){
+  def apply(delay: Int = -1): Boolean
+}
+
+/** Testing algorithm for binary homogeneous stateless synchronisation
+  * objects. */
+class HomogeneousBinaryStatelessTester[Op](
+    worker: (Int, HistoryLog[Op]) => Unit,
+    p: Int,
+    matching: PartialFunction[(Op,Op), (Any,Any)]
+){
+  def apply(delay: Int = -1): Boolean
+}
+
+/** Testing algorithm for general binary stateless synchronisation objects. */
+class StatelessTester[Op](  
+    worker: (Int, HistoryLog[Op]) => Unit,
+    p: Int, 
+    arities: List[Int],
+    matching: PartialFunction[List[Op], List[Any]],
+    suffixMatching: List[Op] => Boolean = (es: List[Op]) => true
+){
+  def apply(delay: Int = -1): Boolean
+}
+\end{scala}
+\caption{Signatures for the stateless testers.\label{fig:stateless-testers}}
+\end{figure}
+
+%%%%%%%%%%
+
+Figure~\ref{fig:homo-binary} gives an example for this class, giving a testing
+script for an exchanger.  Threads call the method |exchange| on the exchanger,
+passing in a value; this call should synchronise with another call, and both
+thread should receive the other's value.  
+
+Most parts of the script are straightforward, and similar to the script for
+the synchronous channel.  One point to note about this script is that each
+worker thread performs a \emph{single} invocation: otherwise it is possible
+for the system to deadlock if one thread has two remaining invocations, but
+all the others have terminated.
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The class |StatelessTester| can test arbitrary stateless synchronisation
+testers.  Its signature is in Figure~\ref{fig:stateless-testers}.
+%% %
+%% \begin{scala}
+%% class StatelessTester[Op](  
+%%   worker: (Int, HistoryLog[Op]) => Unit,
+%%   p: Int, 
+%%   arities: List[Int],
+%%   matching: PartialFunction[List[Op], List[Any]],
+%%   suffixMatching: List[Op] => Boolean = (es: List[Op]) => true)
+%% {
+%%   def apply(delay: Int = -1): Boolean
+%% }
+%% \end{scala}
+%
+The parameters |Op|, |worker| and~|p| are as for the binary testers.  The
+parameter |arities| is a list of all possible arities of synchronisations.
+The parameter, |matching| is much like in the binary case, except its domain
+is all \emph{lists} of operations that might synchronise, and it returns a
+corresponding \emph{list} of expected results.  Finally, the optional
+parameter |suffixMatching| is a function that should return |true| when its
+argument is a suffix of a possible synchronisation (with default value that
+always returns |true|); we explain below how this can be useful in
+optimisations.
+
+%%%%%
+
+Figure~\ref{fig:ABC} gives an example, giving a testing script for the ABC
+problem.  Here, the synchronisation object provides three operations,
+|syncA(a: A)|, |syncB(b: B)|, and |syncC(c: C)|.  Each synchronisation should
+be between three invocations, one of each operation, with each invocation
+returning the parameters of the other two invocations.
+
+Most aspects of the tester are straightforward.  Here the tester runs 6
+threads (the number must be a multiple of~3 to avoid deadlocks), with two for
+each operation.  Each synchronisation involves 3~invocations.
+
+%%%%%
+
+Figure~\ref{fig:timeout-chan} gives another example, for a timeout channel.
+This example also illustrates how to specify mixed modes of synchronisation: a
+|send(x)| may fail to synchronise, so timeout and return |false|; a |receive|
+may fail to synchronise, so timeout and return |None|; or a |send(x)| and
+|receive| may synchronise and return |true| and |Some(x)|, respectively.  Thus
+synchronisations may have arities~1 or~2, as captured by the parameter
+|List(1,2)| of the |StatelessTester| constructor.
+
+%%%%%%%%%%
+
+Figure~\ref{fig:barrier}  gives an example of a
+tester for a barrier synchronisation object.  Each such object is used by some
+number~|n| of threads, each of which calls an operation~|sync|: no call to
+|sync| should return until all~|n| threads have called it, so this
+synchronises all |n|~threads.
+
+Most aspects of the script are straightforward.  A synchronisation will be
+represented by a list of |n| |Sync| objects, one for each worker.  However,
+with a naive approach, each such synchronisation could be represented in
+$\sm{n}!$ different ways, giving an increase in the complexity of checking.
+We therefore make the decision that we will require each such list to be in
+sorted order of the workers' identities (as tested by the recursive |isSorted|
+function), so as to reduce the number of cases considered. 
+
+We also supply an argument for the optional parameter |suffixMatching| of the
+|StatelessTester| constructor.  Recall that this parameter tests whether its
+argument is a suffix of a possible synchronisation, so we can use the
+|isSorted| function.  Internally to the |StatelessTester|, this reduces the
+number of lists of operations built as possible synchronisations.  When run
+with six worker threads, the use of this parameter reduces the running time of
+the tester by a factor if over 20, although the speed-up is less with fewer
+workers. 
+

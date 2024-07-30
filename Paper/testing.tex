@@ -123,24 +123,26 @@ returns.  We show that the approximation serves our purposes.
 %% calls and returns on the synchronisation object.
 
 Consider a history~$h$ of the synchronisation object, and suppose, for the
-moment, there are no delays in logging, i.e.~the $\call.\op_1$ and
-$\call.\op_2$ events happen immediately before the actual calls, and the
-$\call.\overline\op_1$ and $\return.\overline\op_1$ events happen immediately
-after the return of $\op_1$, in each case with no intervening events.  Then
-the log history is linearisable with respect to |TwoStepLinSpec| if and only
-if the history~$h$ is two-step linearisable with respect to |TwoStepLinSpec|.
-But Proposition~\ref{prop:two-step-lin} then shows that this holds if and only
-if $h$ is synchronisation linearisable.  In particular, this shows that errors
-are detected providing the logging is fast enough.
+moment, there are no delays in logging, i.e.:\ (1)~the $\call.\op_1$ and
+$\call.\op_2$ events happen immediately before the actual calls; (2)~the
+$\return.\op_2$ events happen immediately after the return of~$\op_2$; and
+(3)~the $\call.\overline\op_1$ and $\return.\overline\op_1$ events happen
+immediately after the return of $\op_1$ --- in each case with no intervening
+events.  Then the log history is linearisable with respect to |TwoStepLinSpec|
+if and only if the history~$h$ is two-step linearisable with respect to
+|TwoStepLinSpec|.  But Proposition~\ref{prop:two-step-lin} then shows that
+this holds if and only if $h$ is synchronisation linearisable.  In particular,
+this shows that errors are detected providing the logging is fast enough.
 
 We now show that delays in logging do not introduce false errors.  Consider a
-history~$h$ that is synchronisation linearisable, and the corresponding log
-history~$h_l$.  Now build a history~$h'$ so that each operation is extended so
-that: (1)~each call of~$\op_1$ or~$\op_2$ is immediately before the
-$\call.\op_1$ or $\call.\op_2$ event in~$h_l$; (2)~each return of~$\op_1$ is
-immediately after the $\return.\overline\op_1$ event in~$h_l$; and (3)~each
-return of~$\op_2$ is immediately after the $\return.\op_2$ event in~$h_l$.
-This construction is illustrated below.
+history~$h$ that is synchronisation linearisable, and consider the
+corresponding log history~$h_l$.  Now build a history~$h'$ so that each
+operation is extended so that: (1)~each call of~$\op_1$ or~$\op_2$ is
+immediately before the $\call.\op_1$ or $\call.\op_2$ event in~$h_l$; (2)~each
+return of~$\op_1$ is immediately after the $\return.\overline\op_1$ event
+in~$h_l$; and (3)~each return of~$\op_2$ is immediately after the
+$\return.\op_2$ event in~$h_l$.  This construction is illustrated below for
+the two types of operation.
 %
 \begin{center}
 \begin{tikzpicture}[xscale = 1.0, yscale = 1.0]
@@ -168,6 +170,7 @@ then Proposition~\ref{prop:two-step-lin} implies that $h'$ is two-step
 linearisable with respect to |TwoStepLinSpec|.  Hence $h_l$ is linearisable
 with respect to |TwoStepLinSpec|, by construction.
 
+This approach generalises to non-binary synchronisations, and to homogeneous
+synchronisations, as in Section~\ref{ssec:relating-variations}.
 
-
-\framebox{Generalisations}
+%\framebox{Generalisations}

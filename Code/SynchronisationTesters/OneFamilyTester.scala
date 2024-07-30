@@ -51,7 +51,8 @@ object OneFamilyTester extends Tester{
   /** Mapping showing how synchronisations of concrete operations correspond to
     * operations of the specification object. */
   def matching(spec: Spec): PartialFunction[(Sync,Sync), (Spec,(Any,Any))] = {
-    case (Sync(a), Sync(b)) => spec.sync(a, b) 
+    case (Sync(a), Sync(b)) /* if !spec.bitMap(a)(b) && !spec.bitMap(b)(a) */ => 
+      spec.sync(a, b)
   }
 
   /** A worker.  */

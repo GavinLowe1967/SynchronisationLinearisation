@@ -5,11 +5,11 @@ In this section we describe the relationship between synchronisation
 linearisation and standard linearisation.
 
 It is clear that synchronisation linearisation is equivalent to standard
-linearisation in the (rather trivial) case that no operations synchronise, so
-each operation of the synchronisation specification object corresponds to a
-single operation of the concurrent object.  Put another way: standard
-linearisation is an instance of synchronisation linearisation with just unary
-synchronisations.
+linearisation in the (rather trivial) case that no operations actually
+synchronise, so each operation of the synchronisation specification object
+corresponds to a single operation of the concurrent object.  Put another way:
+standard linearisation is an instance of synchronisation linearisation with
+just unary synchronisations.
 
 %% Below, we show that the two notions
 %% are different: synchronisation linearisation cannot, in general, be captured
@@ -21,9 +21,9 @@ synchronisations.
 However, linearisability and synchronisation linearisability are not
 equivalent in general: we show that, given a synchronisation linearisability
 specification object |SyncSpec|, it is not always possible to find a
-linearisability specification |Spec| such that for every history~$h$,\, $h$ is
-synchronisation linearisable with respect to |SyncSpec| if and only if $h$ is
-linearisable with respect to |Spec|.
+linearisability specification |Spec| such that for every concurrent
+history~$h$,\, $h$ is synchronisation linearisable with respect to |SyncSpec|
+if and only if $h$ is linearisable with respect to |Spec|.
 
 For example, consider the example of a synchronous channel from
 Section~\ref{sec:spec}, where synchronisation linearisation is captured by
@@ -32,8 +32,8 @@ captured by linearisation with respect to linearisability
 specification~|Spec|.  Consider the history
 \begin{eqnarray*}
 h & = & \seq{ 
-  \call.\send^1(3), \call.\receive^2(), 
-  \return.\send^1\::(), \return.\receive^2()\::3 }.
+  \call.\send^1(3),\, \call.\receive^2(),\, 
+  \return.\send^1\::(),\, \return.\receive^2()\::3 }.
 \end{eqnarray*}
 %
 This is synchronisation linearisable with respect to |SyncChanSpec|.  By the
@@ -42,15 +42,15 @@ be a legal history~$h_s$ of~|Spec| such that $h$ and~$h_s$ are compatible.
 Without loss of generality, suppose the |send| in~$h_s$ occurs before
 the~|receive|, i.e.
 \begin{eqnarray*}
-h_s & = & \seq{ \send^1(3)\::(), \receive^2()\::3 }.
+h_s & = & \seq{ \send^1(3)\::(),\, \receive^2()\::3 }.
 \end{eqnarray*}
 %
 But the history
 %
 \begin{eqnarray*}
 h' & = & \seq{ 
-  \call.\send^1(3), \return.\send^1\::(), 
-  \call.\receive^2(), \return.\receive^2()\::3 }
+  \call.\send^1(3),\, \return.\send^1\::(),\, 
+  \call.\receive^2(),\, \return.\receive^2()\::3 }
 \end{eqnarray*}
 %
 is also compatible with~$h_s$, so $h'$ is linearisable with respect to~|Spec|.
@@ -94,10 +94,10 @@ class TwoStepLinSpec{
 \end{scala}
 %
 The idea is that the operation |op|\s1 on |SyncObj| will be linearised by the
-composition of the two operations |op|\s1 and $\overline{\sm{op}}_1$; but
-operation |op|\s2 on |SyncObj| will be linearised by just the operation
-|op|\s2 of the specification object, as before.  We call such an object a
-\emph{two-step linearisability specification object}.
+composition of the two operations |op|\s1 and $\overline{\sm{op}}_1$ of
+|TwoStepLinSpec|; but operation |op|\s2 on |SyncObj| will be linearised by
+just the operation |op|\s2 of |TwoStepLinSpec|, as before.  We call such an
+object a \emph{two-step linearisability specification object}.
 
 We define a legal history~$h_s$ of such a two-step specification object much
 as in Section~\ref{sec:specification-linearisability}, with the addition that
@@ -376,7 +376,7 @@ object for a synchronous channel.
 \begin{scala}
 object SyncChanTwoStepLinSpec{
   private var state = 0           // Takes values 0, 1, cyclically 
-  private var threadID = -1    // Current thread ID when state = 1
+  private var threadID = -1    // Current sender's thread ID when state = 1
   private val canReturn =       // which senders can return?
     new Array[Boolean](NumThreads) 
   private var value: A = _      // The current value being sent

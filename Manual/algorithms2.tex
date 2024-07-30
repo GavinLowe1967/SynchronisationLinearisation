@@ -1,0 +1,216 @@
+\subsection{Stateful testers}
+
+We now consider stateful testers.  
+
+The algorithm for testing binary stateful synchronisation objects is
+encapsulated in the class |BinaryStatefulTester| whose signature is in
+Figure~\ref{fig:stateful-testers}.  The parameters are as follows.
+%
+\begin{itemize}
+\item The type parameter |Op| is the representation of operation invocations
+  in the log, as before.
+
+\item The type parameter |S| is the type of synchronisation specification
+  objects, giving an abtract representation of the synchronisation object.
+  Such objects should be \emph{immutable}; they should have a suitable
+  definition for equality (|equals|) and a compatible |hashCode|.
+
+\item The parameter |worker| defines a worker that operates on the
+  synchronisation object, as before.
+
+\item The parameter~|p| gives the number of threads to run, as before.
+
+\item The parameter |specMatching| captures the specification.  This function
+  takes a parameter~|s| corresponding to the state of the specification
+  object.  Then |specMatching(s)| is a partial function defining what
+  synchronisations are allowed given the state~|s| for the specification
+  object.  Its domain, as before, is the pairs of invocations that may
+  synchronise; the function returns the resulting state of the specification
+  object, and the results to be returned by the two invocations.
+
+\item The parameter |spec0| is the initial state of the specification object.
+
+\item The optional parameter |doASAP| specifies whether the ASAP partial order
+  reduction should be employed.  Experience suggests that this is normally
+  beneficial. 
+\end{itemize}
+
+%%%%%%%%%%
+
+\begin{figure}
+\begin{scala}
+class BinaryStatefulTester[Op,S](
+  worker: (Int, HistoryLog[Op]) => Unit,
+  p: Int,
+  specMatching: S => PartialFunction[(Op,Op), (S,(Any,Any))],
+  spec0: S,
+  doASAP: Boolean = false
+){
+  def apply(delay: Int = -1): Boolean
+}
+
+class StatefulTester[Op,S](
+  worker: (Int, HistoryLog[Op]) => Unit,
+  p: Int, 
+  arities: List[Int],
+  matching: S => PartialFunction[List[Op], (S,List[Any])],
+  suffixMatching: List[Op] => Boolean = (es: List[Op]) => true,
+  spec0: S, 
+  doASAP: Boolean = false
+){
+  def apply(delay: Int = -1): Boolean
+}
+\end{scala}
+\caption{Signatures for the stateful testers.\label{fig:stateful-testers}}
+\end{figure}
+
+%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%
+
+Figures~\ref{fig:one-family-1} and~\ref{fig:one-family-2} give an example, for
+the one-family problem.  Here, |n| threads, with identities $\upto0{\sm{n}}$,
+each call a method~|sync| at most $\sm{n}-1$ times, passing in its own
+identity.  Each such invocation should synchronise with another invocation,
+and return the identity of the other thread; however, each pair of threads
+should synchronise together at most once.  Hence the synchronistion object is
+stateful: abstractly, its state is the set of pairs of threads that have
+synchronised so far.
+
+The specification object |Spec(bitMap)| captures this state using the
+bitmap~|bitMap|; for each pair of threads~|a| and |b|,\, |bitMap(a)(b)| is
+true if they have already synchronised.  The operation |sync(a, b)| specifies
+the result of a synchronisation between threads~|a| and~|b|.  This is allowed
+only if |a| and |b| have not already synchronised, as captured by the
+|requires| check; if this check fails, the testing framework catches the
+resulting |Illegal|\-|Argument|\-|Exception|, but does not allow the
+synchronisation to be linearised in this state.  If the synchronisation is
+allowed, it creates a new bitmap recording the synchronisation, and returns a
+corresponding new specification object, together with the correct results for
+the two invocations.  Recall that the specification object must be immutable:
+hence we create a new specification object rather than simply updating the
+current one.  Recall also that the specification object must have appropriate
+definitions of equality and hash code: we define equality as value equality
+over the bitmaps, and the hash code based directly on the content of the
+bitmap.
+
+The |matching| function defines that two invocations may synchronise as
+captured by the |sync| method on the current specification object.   
+We could have captured the precondition of the synchronisation being allowed
+within |matching|, and dispensed with the |requires| check, as follows:
+%
+\begin{scala}
+  def matching(spec: Spec): PartialFunction[(Sync,Sync), (Spec,(Any,Any))] = {
+    case (Sync(a), Sync(b)) if !spec.bitMap(a)(b) && !spec.bitMap(b)(a) => 
+      spec.sync(a, b) 
+  }
+\end{scala}
+
+Most of the rest of the definitions are straightforard.  In the construction
+of the |BinaryStatefulTester|, we start with a specification object whose
+bitmap records no previous synchronisations.  We choose to employ the ASAP
+partial order reduction.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Testing for general stateful synchronisation objects is encapsulated in the
+class |StatefulTester|, described in Figure~\ref{fig:stateful-testers}.
+The type parameters and most of the parameters are as for
+|Binary|\-|Stateful|\-|Tester|.  The type of |matching| is adapted to capture
+that a \emph{list} of invocations synchronise, as in |StatelessTester|; and
+the parameter |arities| records the list of arities of synchronisations, again
+as in |StatelessTester|.  The optional parameter |suffixMatching| should give
+true if its argument is a non-empty suffix of a list of invocations that could
+synchronise; this can be useful to optimise testers, as we describe later.
+
+%%%%%%%%%%
+
+As an example, a tester for a closeable channel is given in
+Figures~\ref{fig:closable-chan-1} and~\ref{fig:closable-chan-2}.  A closeable
+channel has an operation |close| to close the channel.  An attempt to send or
+receive after the channel has been closed should fail, and throw a
+|ClosedException|.  The closeable channel mixes binary and unary
+synchronisations, so we cannot use |BinaryStatefulTester| here.
+
+The testing algorithm cannot deal directly with the exceptions, so instead we
+build wrappers round the operations, to map the results to proper values: the
+function |trySend| maps the result of a send to a boolean, with |true|
+representing success, and |false| representing failure; the function
+|tryReceive| maps the result of a receive to an |Option| value, with |Some(x)|
+representing the receipt of~|x|, and |None| representing a failure.
+
+The channel has two states, open and closed.  We represent this state using a
+boolean, with |true| representing that the channel has been closed.  The
+function |matching| then specifies allowed synchronisations: a send and
+receive can synchronise in the normal way if the channel is not closed (and
+the channel remains not closed); a send or receive can fail if the channel is
+closed (and the channel remains closed); and a close operation can always
+succeed (even if the channel is already closed), and subsequently the channel
+is closed.
+
+%%%%%%%%%%
+
+
+  %% /** Does ops represent a suffix of a possible synchronisation? */
+  %% def suffixMatching(ops: List[Op]) = 
+  %%   ops.length == 1 || 
+  %%     (ops match{ case(List(Send(_), Receive)) => true; case _ => false })
+%%%%%%%%%%
+
+The definition of a worker is straightforward.  On each iteration, a worker
+closes the channel with probability~$0.05$.  Otherwise, workers act much as
+for a standard channel, but we use the functions |trySend| and |tryReceive| as
+above.
+
+We use the default value for |suffixMatching|, which treats all lists as being
+a possible suffix.  We choose not to use the ASAP optimisation here, since it
+seems not to help.  The rest of the definitions are then straightforward.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+As another example, a testing script for a resignable barrier is in
+Figures~\ref{fig:resignable-barrier-1}--\ref{fig:resignable-barrier-3}.
+Recall that this is like a normal barrier, except workers may enrol or resign
+from the barrier, and each barrier synchronisation is between the workers
+currently enrolled.  
+
+
+%%%%%%%%%%
+
+%%%%%%%%%%
+
+The synchronisation specification object |Spec| is parameterised by the
+(immutable) set |enrolled| of identities of threads currently enrolled.  The
+methods |enrol| and |resign| on |Spec| correspond to the operations with the
+same names on the barriers; each definition is straightforward; the assertions
+are just sanity checks, that the workers have satisfied the specification.
+
+We represent a barrier synchronisation by a list of |Sync| objects.  As a
+state-space reduction strategy, we require this list to be ordered by the
+workers' identities.  The helper method |getSyncs| returns the list that would
+correspond to a correct barrier synchronisation in the current state.  The
+|sync| method assumes such a correct synchronisation, and gives the expected
+results. 
+
+Note that equality over |Spec| objects corresponds to value equality over
+|enrolled| parameters, as required.  
+
+The |matching| method is then straightforward. 
+
+The |suffixMatching| function tests whether its argument is a possible suffix
+of a correct synchronisation, i.e.~it is ordered by the workers' identities.
+Using this function allows the underlying algorithm to avoid building
+unordered lists, and leads to a fairly large speed-up, particularly for larger
+numbers of threads 
+
+
+|worker|
+
+........................
+
+Enrolled workers attempt sync with probability $0.7$. 
+
+ASAP seems slower

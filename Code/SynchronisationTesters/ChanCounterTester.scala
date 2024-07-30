@@ -8,12 +8,12 @@ import synchronisationObject.{
   DeadlockingChanCounter}
 
 /** A testing file for a synchronous channel with a sequence counter. */
-object ChanCounterTester{
+object ChanCounterTester extends Tester{
   /** Number of worker threads to run. */
-  var p = 4
+  //var p = 4
 
   /** Number of iterations per worker thread. */
-  var iters = 20
+  //var iters = 20
 
   /** The maximum value sent.  A larger value will make it easier to test
     * whether a matching exists.  And the implementation is data independent,
@@ -22,7 +22,7 @@ object ChanCounterTester{
   var MaxVal = 100
 
   /** Do we check the progress condition? */
-  var progressCheck = false
+  //var progressCheck = false
 
   /** The timeout time with the progress check. */
   var timeout = -1
@@ -78,7 +78,7 @@ object ChanCounterTester{
   /* The default is ChanCounter */
 
   /** Do a single test. */
-  def doTest = {
+  def doTest: Boolean = {
     val c: ChanCounterT[Int] = 
       if(faulty) new FaultyChanCounter[Int] 
       else if(deadlock) new DeadlockingChanCounter[Int]
@@ -89,23 +89,24 @@ object ChanCounterTester{
     if(progressCheck){
       val bst = 
         new BinaryStatefulTester[Op,Spec](worker1(c), p, matching, spec, doASAP)
-      if(!bst(timeout)) sys.exit()
+      bst(timeout) // if(!bst(timeout)) sys.exit()
     }
     else{
       val bst = 
         new BinaryStatefulTester[Op,Spec](worker(c), p, matching, spec, doASAP)
-      if(!bst()) sys.exit()
+      bst() // if(!bst()) sys.exit()
     }
   }
 
   def main(args: Array[String]) = {
     // Parse arguments
-    var reps = 5000; var i = 0
+    var reps = 5000; var i = 0; var timing = false; 
     while(i < args.length) args(i) match{
       case "-p" => p = args(i+1).toInt; i += 2
       case "--iters" => iters = args(i+1).toInt; i += 2
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--MaxVal" => MaxVal = args(i+1).toInt; i += 2
+      case "--timing" => timing = true; i += 1
 
       case "--faulty" => faulty = true; i += 1
       case "--deadlock" => deadlock = true; i += 1
@@ -120,11 +121,12 @@ object ChanCounterTester{
     }
     assert(p%2 == 0 || progressCheck)
 
-    val start = java.lang.System.nanoTime
-    for(i <- 0 until reps){ 
-      doTest; if(i%100 == 0 || progressCheck && i%10 == 0) print(".") 
-    }
-    val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
-    println(); println(s"$duration ms")
+    // val start = java.lang.System.nanoTime
+    runTests(reps, timing)
+    // for(i <- 0 until reps){ 
+    //   doTest; if(i%100 == 0 || progressCheck && i%10 == 0) print(".") 
+    // }
+    // val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
+    // println(); println(s"$duration ms")
   }
 }

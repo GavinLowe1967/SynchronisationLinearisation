@@ -49,6 +49,18 @@ object BarrierTester extends Tester{
     }
   }
 
+  // /** Is ops a suffix of a possible synchronisation?  I.e. in increasing order
+  //   * of id fields? */
+  // def suffixMatching(ops: List[Sync]) : Boolean = 
+  //   if(ops.isEmpty) true
+  //   else{
+  //     var n = ops.head.id; var ops1 = ops.tail
+  //     while(ops1.nonEmpty && n < ops1.head.id){
+  //       n = ops1.head.id; ops1 = ops1.tail
+  //     }
+  //     ops1.isEmpty
+  //   }
+
   var faulty = false; var faulty2 = false; 
   var faulty3 = false; var version2 = false
 
@@ -65,13 +77,13 @@ object BarrierTester extends Tester{
         new Barrier(n) 
       }
     if(progressCheck){
-      val tester = 
-        new StatelessTester[Sync](worker(barrier) _, p, List(n), matching, false)
+      val tester = new StatelessTester[Sync](
+        worker(barrier), p, List(n), matching, isSorted, verbose = false)
       tester(timeout) // if(!tester(timeout)) sys.exit()
     }
     else{
-      val tester =
-        new StatelessTester[Sync](worker(barrier) _, p, List(n), matching, false)
+      val tester = new StatelessTester[Sync](
+        worker(barrier), p, List(n), matching, isSorted, verbose = false)
       tester() // if(!tester()) sys.exit()
     }
   }

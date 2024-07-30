@@ -36,11 +36,13 @@ earlier: in the interleaving of the complete history of the synchronisation
 history and the history of the specification object, each $\sm{sync}^{i_1,
   \ldots, i_k}(x_1, \ldots, x_k)\:: (y_1, \ldots, y_k)$ occurs between
 $\call.\op_1^{i_j}(x_j)$ and $\return.\op_j^{i_j}\::y_j$ for each $j = 1,
-\ldots, k$.  Note that the parameters of the $k$ invocations could be passed
-to $\sm{sync}$ in $k!$ different orders (although in this case, if |f| is
-associative and commutative, the order makes no difference). 
-The definition of synchronisation-linearisability follows in the obvious
-way. 
+\ldots, k$.  The definition of synchronisation-linearisability follows in the
+obvious way.
+
+Note that if several of the $\op_j$ are the same operation, there is a choice
+as to the order in which their parameters are passed to |sync|.  (However, in
+the case of the combining barrier, if |f| is associative and commutative, the
+order makes no difference.)
 
 It is also straightforward to adapt the definitions to deal with multiple
 modes of synchronisation: the specification object has a different operation
@@ -50,9 +52,9 @@ synchronisation.  The corresponding specification object would be:
 %
 \begin{scala}
 class TimeoutChannelSpec[A]{
-  def sync£\s s£(x: A) = false
-  def sync£\s r£(u: Unit) = None
-  def sync£\s{s,r}£(x: A, u: Unit) = (true, Some(x))
+  def sync£\s s£(x: A) = false       // send times out
+  def sync£\s r£(u: Unit) = None  // receive times out
+  def sync£\s{s,r}£(x: A, u: Unit) = (true, Some(x))  // synchronisation
 }
 \end{scala}
 %
@@ -68,7 +70,7 @@ a close operation.
 %
 \begin{scala}
 class ClosableChannelSpec[A]{
-  private var isClosed = false
+  private var isClosed = false  // is the channel closed? 
   def close(u: Unit) = { isClosed = true; () }
   def sync(x: A, u: Unit) = { require(!isClosed); ((), x)
   def sendFail(x: A) = { require(isClosed); throw new Closed }
@@ -83,12 +85,14 @@ corresponding to |sendFail| and |receiveFail|.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Specifying progress}
+\label{sec:progress}
 
 We now consider a progress condition for synchronisation objects.  
 
 We assume that each pending invocation is scheduled infinitely often, unless
-it is blocked (for example, trying to obtain a lock).  Under this assumption,
-our progress condition can be stated informally as:
+it is blocked (for example, trying to obtain a lock); in other words, the
+scheduler is fair to each invocation.  Under this assumption, our progress
+condition can be stated informally as:
 %
 \begin{itemize}
 \item If a set of pending invocations can synchronise, then some such set
@@ -123,8 +127,8 @@ lock-free.
 By contrast, our assumption, that each unblocked pending invocation is
 scheduled infinitely often, reflects that modern schedulers \emph{are} fair,
 and do not starve any single invocation.  For example, if an invocation holds
-a lock, and is not in a potentially unbounded loop (or permanently blocked
-trying to obtain a second lock), then it will be scheduled sufficiently often,
+a lock, and is not in a potentially unbounded loop or permanently blocked
+trying to obtain a second lock, then it will be scheduled sufficiently often,
 and so will eventually release the lock.  Thus our progress condition can be
 satisfied by an implementation that uses locks.  However, our assumption does
 allow invocations to be scheduled in an unfortunate order (as long as each is
@@ -171,6 +175,7 @@ The following definition describes the circumstances under which it is
 acceptable for an object to block, and so does not eventually return.
 %
 \begin{definition}
+\label{def:may-block}
 Let $Sync$ be a synchronisation object that is synchronisation-linearisable
 with respect to specification object $Spec$.  Let $h$ be a history of~$Sync$.
 We say that $Sync$ \emph{may block} after~$h$ if there is a legal
@@ -198,13 +203,16 @@ We give two examples, both for a synchronous channel.
 %
 \begin{example}
 Consider $h = \seq{ \call.\send^1(3), \call.\receive^2(),
-  \return.\receive^2\::3 }$.  There is no history~$h_s$ of~$Spec$ such that
-$complete(h) = \seq{\call.\receive^2(),\linebreak[1] \return.\receive^2\::3
-}$ and~$h_s$ are compatible.  
+  \return.\receive^2\::3 }$.  Note that $h$ has a pending invocation, and
+$complete(h) = \seq{\call.\receive^2(),\linebreak[1] \return.\receive^2\::3}$.
+It is clear that there is no history~$h_s$ of~$Spec$ such that $complete(h)$
+and~$h_s$ are compatible, because $complete(h)$ is missing the |send| invocation.
 %% (However, the extension $h' = h \cat \seq{ \return.\send^1 \:: () }$ is
 %%   compatible with $h_s = \seq{\sync^{1,2}(3,())\::((),3) }$).
-Informally, the channel may not block after~$h$ because a synchronisation has
-occurred, and so there is a pending return of the send invocation.
+%
+Definition~\ref{def:may-block} says that the channel may not block after~$h$.
+Informally, a synchronisation has occurred, and so the pending return of the
+|send| invocation should occur.
 \end{example}
 
 \begin{example}
@@ -213,8 +221,9 @@ $complete(h) = \seq{}$ is compatible with the history $h_s = \seq{}$ of $Spec$
 (and no other). But the extension $h' = h \cat
 \seq{\return.\send^1\::(),\linebreak[1] \return.\receive^2\::3}$ is compatible
 with the extension $h_s' = \linebreak[1] \seq{\sync^{1,2}(3,()) \:: ((),3)}$
-of~$h_s$.  Hence the channel may not block after~$h$.  Informally, the two
-pending invocations can synchronise and then return. 
+of~$h_s$.  Hence Definition~\ref{def:may-block} says that the channel may not
+block after~$h$.  Informally, the two pending invocations can synchronise and
+then return.
 \end{example}
 
 We now give an example where blocking is allowed.
@@ -239,9 +248,9 @@ and no history of $Spec$ is compatible with~$complete(h') = h'$.
 \begin{definition}
 Let $Sync$ be a synchronisation object that is synchronisation-linearisable
 with respect to specification object $Spec$.  We say that $Sync$ is
-\emph{progressable} if for every history~$h$, if it is not the case that
-$Sync$ may block after~$h$, then, for every state reached after~$h$,\, $Sync$
-eventually returns.
+\emph{synchronisation-progressable} if for every history~$h$, if it is not the
+case that $Sync$ may block after~$h$, then, for every state reached
+after~$h$,\, $Sync$ eventually returns.
 \end{definition}
 
 %% \framebox{Relate testing to progress.}

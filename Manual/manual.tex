@@ -1,0 +1,81 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{scalalistings}
+\scalaMid
+
+\title{Testing Synchronisation Objects: User Manual}
+\author{Gavin Lowe}
+ 
+\sloppy
+\def\topfraction{0.8}
+\renewcommand{\floatpagefraction}{0.75}
+
+\def\upto#1#2{{[#1\mathbin{..}#2)}} 
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+This user manual describes a package for testing synchronisation objects.  It
+should be read in conjunction with the paper \emph{Understanding
+  Synchronisation}~\cite{sync}.  
+
+worker threads
+logging.
+
+pragmatics -- shortish runs
+
+assume familiarity with Scala
+
+install, using.
+
+\framebox{Overview, roadmap}
+
+Possible order:
+Example script;
+
+Interpreting errors.
+
+Variations: 
+Progress
+Different testing algorithms -- after progress; 
+Stateful; 
+Progress checks
+
+
+Interpreting errors;
+Fine details? ; 
+Tactics (params in Tester).  Avoid deadlocks -- single invocation. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{example}
+\input{algorithms} % other algorithms
+\input{algorithms2}
+
+\subsection{Interpreting errors}
+
+We now discuss how to interpret the output from a tester when an error is
+found\footnote{An error like this \texttt{scala synchronisationTester.ChanTester --faulty --iters 2 -p 2}}
+
+\begin{verbatim}
+0:   Call of Send(2)
+0:   Return of () from Send(2)
+1:   Call of Receive
+2:   Call of Send(61)
+1:   Return of 2 from Receive
+2:   Return of () from Send(61)
+3:   Call of Receive
+3:   Return of 61 from Receive
+Invocation 0 does not synchronise with any other 
+completed operation.
+\end{verbatim}
+
+\appendix
+
+\input{scripts}
+\input{scripts2}
+
+\end{document}

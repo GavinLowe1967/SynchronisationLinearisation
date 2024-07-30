@@ -6,8 +6,9 @@ import scala.collection.mutable.ArrayBuffer
 /** Base class of all testers.
   * @tparam Op the type representing operations on the synchronisation object.
   * @param worker definition of a worker on the synchronisation object,
-  * parameterised by its identity and the log it will write to. */
-class Tester[Op](worker: (Int, HistoryLog[Op]) => Unit, p: Int){
+  * parameterised by its identity and the log it will write to. 
+  * @param p the number of threads to run. */
+abstract class Tester[Op](worker: (Int, HistoryLog[Op]) => Unit, p: Int){
 
   /** The CallEvents used here. */
   type CallEvent1 = CallEvent[Op,_]
@@ -89,6 +90,10 @@ class Tester[Op](worker: (Int, HistoryLog[Op]) => Unit, p: Int){
     result
   }
   
+  /** Run the tester.  Return true if successful.
+    * @param delay if positive, run a progress check, with a timeout time of 
+    * `delay` ms. */
+  def apply(delay: Int = -1): Boolean
 
 }
 
@@ -176,6 +181,4 @@ object Tester{
 
     false
   }
-
-
 }

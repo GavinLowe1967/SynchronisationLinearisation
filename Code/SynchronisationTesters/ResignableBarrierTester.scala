@@ -6,7 +6,7 @@ import synchronisationObject.{ResignableBarrierT, ResignableBarrier}
 import scala.collection.immutable.HashSet
 
 /** A tester for ResignableBarriers. */
-object ResignableBarrierTester{
+object ResignableBarrierTester extends Tester{
   // We will use non-negative Ints to represent thread identities.
 
   /** The type of barriers. */
@@ -61,6 +61,8 @@ object ResignableBarrierTester{
       val n = enrolled.size; assert(syncs.length == n)
       (this, List.fill(n)(()))
     }
+
+    // Note: equality corresponds to value equality over `enrolled` sets.
   } // end of Spec
 
   /** Partial function showing how a list of invocations can synchronise, and
@@ -76,7 +78,7 @@ object ResignableBarrierTester{
   }
 
   /** Number of iterations per worker. */
-  var iters = 10
+  //var iters = 10
 
   /** The probability of an enrolled worker choosing to call `sync`. */
   var syncProb = 0.7
@@ -95,19 +97,21 @@ object ResignableBarrierTester{
     if(enrolled) log(me, barrier.resign(me), Resign(me))
   }
 
-  var p = 4 // # workers
+  // override var 
+  p = 4 // # workers
   var verbose = false
   var doASAP = false
   var faulty = false
 
   /** Do a single test. */
-  def doTest() = {
+  def doTest = {
     val barrier = new ResignableBarrier[Int](faulty)
-    val spec = new Spec(new Enrolled)
+    val spec0 = new Spec(new Enrolled)
     val tester = new StatefulTester[Op,Spec](
-      worker(barrier) _, p, (1 to p).toList, matching _, suffixMatching _,
-      spec, doASAP, verbose)
-    if(!tester()) sys.exit()
+      worker(barrier), p, (1 to p).toList, matching, suffixMatching,
+      spec0 = spec0, doASAP = doASAP, verbose = verbose)
+    tester()
+    // if(!tester()) sys.exit()
   }
 
   def main(args: Array[String]) = {
@@ -118,13 +122,15 @@ object ResignableBarrierTester{
       case "--iters" => iters = args(i+1).toInt; i += 2
       case "--syncProb" => syncProb = args(i+1).toDouble; i += 2
       case "--faulty" => faulty = true; i += 1 
+      case "--doASAP" => doASAP = true; i += 1
     }
 
-    for(i <- 0 until reps){
-      doTest()
-      if(i%500 == 0){ print("."); if(i%10000 == 0) print(i) }
-    }
-    println()
+    runTests(reps)
+    // for(i <- 0 until reps){
+    //   doTest()
+    //   if(i%500 == 0){ print("."); if(i%10000 == 0) print(i) }
+    // }
+    // println()
   }
 
 }

@@ -43,7 +43,7 @@ TESTERS = $(EXDIR)/Tester.class $(TESTERSX)
 
 EXPERIMENTS = $(EXPDIR)/Experiment.class $(EXPDIR)/ParameterExperiment.class	\
 $(EXPDIR)/BugFinderExperiment.class $(EXPDIR)/BugParametersExperiment.class	\
-$(EXPDIR)/ProgressExperiment.class
+$(EXPDIR)/ProgressExperiment.class $(EXPDIR)/TwoStepExperiment.class
 
 all:	$(TESTERS) $(EXPERIMENTS)
 

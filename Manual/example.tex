@@ -1,0 +1,260 @@
+
+\section{An example script}
+
+We introduce the technique of writing testing scripts via a simple example.
+Consider a class |SyncChan| that implements a synchronous channel, extending a
+trait~|Chan|, defined as follows.
+%
+\begin{scala}
+trait Chan[A]{
+  def !(x: A): Unit
+  def ?(u:Unit): A
+}
+
+class SyncChan[A] extends Chan[A]{ ... }
+\end{scala}
+%
+The intention is that an invocation |!x| sends the value~|x|, and syncronises
+with an invocation |?()|, which should return~|x|.
+
+%%%%%
+
+\begin{figure}
+\begin{scala}
+object ChanTester{
+  // Representation of operations within the log
+  trait Op
+  case class Send(x: Int) extends Op
+  case object Receive extends Op
+
+  /** A worker.  An even number of these workers should not produce a
+    * deadlock. */
+  def worker(c: Chan[Int])(me: Int, log: HistoryLog[Op]) = {
+    for(i <- 0 until 20)
+      if(me%2 == 0) log(me, c?(), Receive)
+      else{ val x = Random.nextInt(100); log(me, c!x, Send(x)) }
+  }
+
+  /** The specification class. */
+  object Spec{
+    def sync(x: Int, u: Unit) = ((), x)
+  } 
+
+  /** Mapping showing how synchronisations of concrete operations correspond
+    * to operations of the specification object. */
+  def matching: PartialFunction[(Op,Op), (Any,Any)] = {
+    case (Send(x), Receive) => Spec.sync(x, ()) 
+  }
+
+  /** Do a single test.  Return true if it passes. */
+  def doTest: Boolean = {
+    val c: Chan[Int] = new SyncChan[Int]
+    val bst = new BinaryStatelessTester[Op](worker(c), 4, matching)
+    bst()
+  }
+
+  def runTests(reps: Int) = {
+    var i = 0; while(i < reps && doTest) i += 1
+  }
+
+  def main(args: Array[String]) = runTests(5000)
+}
+\end{scala}
+\caption{An example testing script.\label{fig:script}}
+\end{figure}
+
+%%%%%
+
+Figure~\ref{fig:script} gives a stripped-down script for testing objects of
+this class for synchronisation linearisation.  (The full script allows several
+different classes that implement |Chan| to be tested, and replaces the numeric
+constants in the script with variables that can be set on the command line;
+the same is true of later example scripts.)
+
+%% The |ChanTester| object extends a trait |Tester|, outlined in
+%% Figure~\ref{fig:tester}.  Thus each testing object based on |Tester| must
+%% define a function |doTest| that performs a single test, returning |true| if
+%% the test passes.  The |Tester| trait then provides a function |runTests| that
+%% executes |doTest| a given number of times, or until a test fails.
+
+%%%%%%%%%%
+
+%% \begin{figure}
+%% \begin{scala}
+%% /** Base class for testers, combining common code. */
+%% trait Tester{
+%%   /** Do a single test.  Return true if it passes.  Defined in subclasses.  */
+%%   def doTest: Boolean
+
+%%   /** Run `reps` tests.
+%%     * @param timing are we doing timing experiments?
+%%     * @param countReps are we doing an experiment counting the number of 
+%%     * repetitions?  */
+%%   def runTests(reps: Int, timing: Boolean = false, countReps: Boolean = false) = ...
+%% }
+%% \end{scala}
+%% \caption{The {\scalashape Tester} trait.\label{fig:tester}}
+%% \end{figure}
+
+  %% /** Number of worker threads to run. */
+  %% var p = 4
+
+  %% /** Number of iterations per worker thread. */
+  %% var iters = 20
+
+  %% /** Do we check the progress condition? */
+  %% var progressCheck = false
+
+%%%%%%%%%%
+
+%Going back to the |ChanTester| object, 
+
+The trait |Op| gives a representation of operations.  The subclasses have
+obvious meanings.  Objects of these subclasses are stored in the log, and so
+correctness is defined in terms of them.
+
+Each worker thread that performs invocations on a channel~|c| is defined by
+the function |worker(c)|.  This function takes as parameters the identity~|me|
+of the worker, and a log object~|log|.  Here, in order to avoid deadlocks, we
+run an even number of workers, where workers with an even identity perform
+receives, and workers with an odd identity perform sends, with 20~invocations
+in each case.  The code |log(me, c?(), Receive)| (a call of the |apply|
+operation on the |log| object) performs a receive.  The three parameters are:
+the identity of the thread; the invocation to be performed on the channel; and
+the representation of the invocation to be used in the log.  This logs the
+call of the invocation, performs the invocation on the channel, and logs the
+return together with the result of the invocation (i.e.~the value received).
+Similarly, each worker with an odd identity sends a random value~|x|, with
+suitable logging, via the code |log(me, c!x, Send(x)|.
+
+The specification of the channel is captured by the combination of the
+synchronisation specification object |Spec| and the partial
+function~|matching|.  The latter captures that invocations represented in the
+log by |Send(x)| and |Receive| can synchronise together, and the values each
+returns are given by |Spec.sync(x, ()) = ((), x)|; i.e.~the send should return
+the unit value~|()|, and the receive should return~|x|.  More generally, the
+domain of the |matching| function represents all pairs of invocations that can
+synchronise.  (Alternatively, we could dispense with |Spec|, and inline its
+|sync| method; however, it can be more convenient to have an explicit
+synchronisation specification object, particularly in the case of stateful
+objects.)
+
+The function |doTest| performs a single test, and returns a boolean indicating
+if the resulting history is synchronisation linearisable.  It creates a
+particular |SyncChan| object~|c| to be tested.  The class
+|BinaryStatelessTester| encapsulates an algorithm for testing a binary
+heterogeneous stateless synchronisation object, such as these channels.  The
+constructor takes: a type parameter corresponding to the log representation of
+invocations (here |Op|); a function representing a single worker (here
+|worker(c)|); the number of workers to run (here~|4|); and the partial
+function that specifies the synchronisations (here~|matching|).  The |doTest|
+function creates a tester object~|bst|.  The code |bst()| (a call to the
+|apply| method of~|bst|) then runs the worker threads, and tests whether the
+resulting log is synchronisation linearisable; the result of that call is also
+the result of~|doTest|.
+
+The |runTests(reps)| executes |doTest| at most |reps| times, or until it finds
+an erroneous history.  Finally, the |main| method uses the |runTests| method
+to perform 5000 tests.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Pragmatics}
+
+When running a tester, it is useful to see some indication that it is making
+progress, and in particular that the threads working on the synchronisation
+object have not deadlocked.  One way is to print something on the screen
+occasionally, say printing a dot every 100 tests.
+
+The trait |synchronisationTester.Tester| in the distribution, outlined below,
+encapsulates some boiler-plate code often used in testers.
+%
+\begin{scala}
+trait Tester{
+  /** Number of worker threads to run. */
+  var p = 4
+
+  /** Number of iterations per worker thread. */
+  var iters = 20
+
+  /** Do we check the progress condition? */
+  var progressCheck = false
+
+  /** Do a single test.  Return true if it passes.  Defined in subclasses.  */
+  def doTest: Boolean
+
+  /** Run `reps` tests.
+    * @param timing are we doing timing experiments? */
+  def runTests(reps: Int, timing: Boolean = false) = { ... }
+}
+\end{scala}
+%
+Objects that extend |Tester| must provide the |doTest| method, but can inherit
+the |runTest| method, which executes |doTest| a set number of times or until
+an error is found.  Thus we could have extended |Tester| in
+Figure~\ref{fig:script}, and avoided defining~|runTests|.  The |runTests|
+method also prints dots to show progress, as described above, by default, one
+dot every 100 runs (if the |progressCheck| flag is set, it prints a dot after
+every test; this is intended for use with progress checks, described below,
+which tend to be slower). 
+
+In addition, the |doTest| method prints the time taken, in milliseconds.  If
+the optional |timing| parameter is set, the time is printed in nanoseconds;
+this is intended for use in timing experiments.
+
+It is useful to allow various parameters of tests to be set on the command
+line, such as: the number of worker threads to use in each test; the number of
+iterations to be performed by each worker in each test; the number of tests to
+perform; and the maximum value to use for a data value (such as the value sent
+in Figure~\ref{fig:script}).  The variables |p| and |iters| in |Tester| are
+intended to be used for the first two of these.
+
+%%%%%%%%%%
+
+\subsection{Progress checks}
+
+In order to check for synchronisation progressibility (in addition to
+synchronisation linearisation), it is necessary to pass a positive integer
+value to the apply function of~|bst|, representing a timeout time, in
+milliseconds.  For example
+%
+\begin{scala}
+  bst(100)
+\end{scala}
+%
+This will run threads, but interrupt them after the specified time, in
+milliseconds, if they have not all terminated.  It then tests the resulting
+log for synchronisation progressibility, i.e.~checking that no pending
+invocations failed to return when they could have done.
+
+Each of the other testing algorithms, described later, also has an |apply|
+function that takes an optional integer argument, with the same meaning. 
+
+It is necessary to choose a timeout time that is large enough to ensure that
+any threads that can still run have time to do so, i.e.~to avoid interrupting
+threads that were about to return, which would lead to a false failure of
+progressibility being reported.  Conversely, too large a timeout time will
+make the testing take longer.  Our experience is that a time of 100ms is
+suitable on most synchronisation objects.
+
+When checking for progressibility, it is no longer necessary to design the
+threads to avoid deadlocks.  Indeed, it is sensible to allow the possibility
+of deadlocks, in order to provide greater test coverage.  A sensible approach
+is to arrange for workers to pick invocations at random, for example:
+%
+\begin{scala}
+  def worker(c: Chan[Int])(me: Int, log: HistoryLog[Op]) = {
+    for(i <- 0 until 20)
+      if(Random.nextInt(2) == 0) log(me, c?(), Receive)
+      else{ val x = Random.nextInt(100); log(me, c!x, Send(x)) }
+  }
+\end{scala}
+
+The interruption is done by calling the |interrupt| method of the |Thread|
+class on each worker, expecting each to throw an |InterruptedException|.
+Most, but not all, concurrency primitives will react to the |interrupt| method
+as required.  In some cases, it will be necessary to build in an additional
+mechanism to deal with the interruption.   
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,9 +1,20 @@
 package synchronisationTesting
 
+
+/** A generic stateless tester.
+  * @tparam Op the type representing operations on the synchronisation object.
+  * @param worker definition of a worker on the synchronisation object,
+  * parameterised by its identity and the log it will write to. 
+  * @param p the number of threads to run.
+  * @param arities a list of all possible arities for synchronisations.
+  * @param matching a PartialFunction describing the results that should be
+  * given by a particular pair of operations synchronising. 
+  */
 class StatelessTester[Op](  
   worker: (Int, HistoryLog[Op]) => Unit,
   p: Int, arities: List[Int],
   matching: PartialFunction[List[Op], List[Any]],
+  suffixMatching: List[Op] => Boolean = (es: List[Op]) => true,
   verbose: Boolean = false)
     extends Tester[Op](worker, p){
 
@@ -59,11 +70,13 @@ class StatelessTester[Op](
           val e = calls(i); i += 1
           // test if we're not beyond the end of es
           if(e.index < end){
-            // Test if es contains an event for e's thread
-            var es1 = es
-            while(es1.nonEmpty && es1.head.t != e.t) es1 = es1.tail
-            if(es1.isEmpty && e.ret.index > start)
-              result(arity) ::= (e::es, start max e.index, end min e.ret.index)
+            if(e.ret.index > start && suffixMatching(e.op::es.map(_.op))){
+              // Test if es contains an event for e's thread
+              var es1 = es
+              while(es1.nonEmpty && es1.head.t != e.t) es1 = es1.tail
+              if(es1.isEmpty /* && e.ret.index > start*/)
+                result(arity) ::= (e::es, start max e.index, end min e.ret.index)
+            }
           }
           else done = true // all later elements of calls also beyond end
         }

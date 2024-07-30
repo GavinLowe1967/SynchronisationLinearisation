@@ -18,11 +18,11 @@ When testing for progress, we remove the requirement on the tester to ensure
 that all invocations can synchronise.  Indeed, in some cases, in order to find
 failures of progress, it is necessary that not all invocations can
 synchronise: we have examples of incorrect synchronisation objects where (for
-example) if there are two invocations of $\op_1$ and one of~$\op_2$, then
-\emph{neither} invocation of~$\op_1$ returns, signifying the failure of
-progressability; but if there were a second invocation of~$\op_2$, it would
-unblock both invocations of~$\op_1$, so all invocations would return, and the
-failure of progressability would be missed.
+example) if there are two invocations of $\op_1$ and one of~$\op_2$, then it's
+possible that \emph{neither} invocation of~$\op_1$ returns, signifying the
+failure of progressability; but if there were a second invocation of~$\op_2$,
+it would unblock both invocations of~$\op_1$, so all invocations would return,
+and the failure of progressability would be missed.
 
 Instead, we run threads performing operations, typically chosen at random; and
 after a suitable duration, we interrupt any threads that have not yet
@@ -36,8 +36,8 @@ significantly increase the time that a given number of runs will take.
 
 
 In the remainder of this section we consider algorithms for determining if the
-resulting log history is synchronisation linearisable, and whether it also
-satisfies progressability.  In Section~\ref{sec:algorithm-dfs} we present a
+resulting log history is synchronisation linearisable, and whether it is
+synchronisation progressable.  In Section~\ref{sec:algorithm-dfs} we present a
 general algorithm for this problem, based on depth-first search.  We then
 consider the complexity of this problem.  We show, in
 Section~\ref{sec:NP-complete}, that, in the case of a stateful synchronisation
@@ -96,8 +96,7 @@ From such a configuration, there are edges to configurations as follows:
 \item[\edgeFont{Synchronisation}.] If some set of invocations in $pending$ can
   synchronise, giving results compatible with~$spec$, then there is an edge to
   a configuration where the synchronising invocations are moved into
-  $linearised$, and the specification object is updated corresponding to the
-  synchronisation;
+  $linearised$, and $spec$ is updated corresponding to the synchronisation;
 
 \item[\edgeFont{Call}.] If the next event in the log is a $\call$ event, then
   there is an edge where that event is added to $pending$, and $i$ is
@@ -124,7 +123,7 @@ standard algorithm.  Our implementation uses depth-first search.
 
 It is straightforward to adapt the search algorithm to also test for progress.
 We change the definition of a target configuration to have $i$ at the end of
-the log, $linearised$ empty, and such that no set of invocations in pending
+the log, $linearised$ empty, and such that no set of invocations in $pending$
 can synchronise.  
 
 %% It is enough to change configurations as follows, following the definition of
@@ -162,13 +161,13 @@ either: (1)~directly after the $\call$ event of one of the corresponding
 invocations from~$h$; or (2)~directly after another event from~$h_s$.
 \end{definition}
 %
+The following lemma shows that it suffices to consider ASAP interleavings.
+%
 \begin{lemma}
 Let $h$ be a complete history of a synchronisation object, and let~$h_s$ be a
 legal history of the corresponding specification object.  If $h$ and~$h_s$ are
 synchronisation-compatible, then there is an ASAP interleaving of them.
 \end{lemma}
-%
-The following lemma shows that it suffices to consider ASAP interleavings.
 %
 \begin{proof}
 Consider an interleaving of~$h$ and~$h_s$, as required for synchronisation
@@ -192,7 +191,7 @@ Our approach, then, is to trim the search graph by removing
 linearisation: after a \edgeFont{call} edge, we attempt to linearise a
 synchronisation corresponding to that call, and then, if successful, to
 linearise an arbitrary sequence of other synchronisations; but we do not
-otherwise allow linearisations.
+otherwise allow synchronisations.
 
 Our experience is that this tactic is moderately successful.  In some cases,
 it can reduce the total time to check histories by over~30\%;
@@ -236,19 +235,18 @@ Consider the problem of testing whether a given concurrent history is
 synchronisation linearisable with respect to a given synchronisation
 specification object.  We show that this problem is NP-complete in general.
 
-
 We make use of a result from~\cite{gibbons-korach} concerning the complexity
 of the corresponding problem for linearisability.  Let |Variable| be a
-linearisability specification object corresponding to a variable with |get|
-and |set| operations.  Then the problem of deciding whether a given concurrent
-history is linearisable with respect to |Variable| is NP-complete.
+linearisability specification object corresponding to an integer variable with
+|get| and |set| operations.  Then the problem of deciding whether a given
+concurrent history is linearisable with respect to |Variable| is NP-complete.
 
 Since standard linearisation is a special case of synchronisation
 linearisation (in the trivial case of no synchronisations), this immediately
 implies that deciding synchronisation linearisation is NP-complete.  However,
 even if we restrict to the non-trivial case of binary synchronisations, the
 result still holds.
-
+%
 We consider concurrent synchronisation histories on an object with the
 following signature, which mimics the behaviour of a variable but via
 synchronisations. 
@@ -268,16 +266,16 @@ object.
 %
 \begin{scala}
 object VariableSyncSpec{
-  private var state = 0
+  private var state = 0   // the value of the variable
   def sync((op, x): (String, Int), u: Unit): (Int, Unit) = 
     if(op == "get") (state, ()) else{ state = x; (-1, ()) }
 }
 \end{scala}
 
 
-Let |ConcVariable| be a concurrent object that represents a variable.  Given a
-history~$h$ of |ConcVariable|, we build a history~$h'$
-of |VariableSync| as follows.  We replace every call or return of |get(x)| by
+Let |ConcVariable| be a concurrent object that represents an integer variable.
+Given a history~$h$ of |ConcVariable|, we build a history~$h'$ of
+|VariableSync| as follows.  We replace every call or return of |get(x)| by
 (respectively) a call or return of |op|\s1|("get", x)|; and we do similarly
 with |set|s.  If there are $k$ calls of |get| or |set| in total, we prepend
 $k$ calls of |op|\s2, and append $k$ corresponding returns (in any order).
@@ -302,8 +300,10 @@ the homogeneous case in the next subsection.
 So consider a binary heterogeneous synchronisation object, whose specification
 object is stateless.  Note that in this case we do not need to worry about the
 order of synchronisations: if each individual synchronisation is correct, then
-any permutation of them will be synchronisation-linearisable.  Informally, the
-idea is to find matching invocations in the history that could correspond to a
+any permutation will also be correct from the point of view of the
+specification object; and we can order the synchronisations in a way that is
+compatible with the concurrent history.  Informally, the idea is to find
+matching invocations in the concurrent history that could correspond to a
 particular synchronisation; we therefore reduce the problem to that of finding
 a matching in a graph.
 
@@ -318,14 +318,14 @@ invocations if they are compatible.  A synchronisation linearisation then
 corresponds to a total matching of this graph: given a total matching, we
 build a synchronisation-compatible history of the synchronisation
 specification object by including events
-$\sync^{i_1,i_2}(x_1,x_2)\::(y_1,y_2)$ (in an arbitrary order) whenever there
-is an edge between $\op_1^{i_1}(x_1)\::y_1$ and $\op_2^{i_2}(x_2)\::y_2$ in
-the matching; and conversely, each synchronisation-compatible history
+$\sync^{i_1,i_2}(x_1,x_2)\::(y_1,y_2)$ (in an appropriate order) whenever
+there is an edge between $\op_1^{i_1}(x_1)\::y_1$ and $\op_2^{i_2}(x_2)\::y_2$
+in the matching; and conversely, each synchronisation-compatible history
 corresponds to a total matching.
 
 Thus we have reduced the problem to that of deciding whether a total matching
-exits, for which standard algorithms exist.  We use the Ford-Fulkerson method,
-which runs in time $O(n^2)$.
+exits, for which standard algorithms exist.  We use the Ford-Fulkerson
+method~\cite{ford-fulkerson}, which runs in time $O(n^2)$.
 
 It is straightforward to extend this to a mix of binary and unary
 synchronisations, again with a stateless specification object: the invocations
@@ -344,8 +344,9 @@ We now consider the case of binary \emph{homogeneous} synchronisations with a
 stateless specification object.  This case is almost identical to the case
 with heterogeneous synchronisations, except the graph produced is not
 necessarily bipartite.  Thus we have reduced the problem to that of finding a
-maximum matching in a general graph, which can be solved using, for example,
-the blossom algorithm~\cite{edmonds_1965}, which runs in time $O(n^4)$.
+maximum matching in a general graph.  This problem can be solved using, for
+example, the blossom algorithm~\cite{edmonds_1965}, which runs in time
+$O(n^4)$.
   
 % Can also be done in time $O(n^{2.5})$.
 %\verb!https://en.wikipedia.org/wiki/Maximum_cardinality_matching!
@@ -408,10 +409,11 @@ The history~$h$ starts with calls of |op|$_1(x)$ for each $x \in X$,
 order); and then continues with returns of the same invocations (in any
 order).  It is clear that any synchronisation linearisation corresponds to a
 complete matching, i.e.~the invocations that synchronise correspond to the
-complete matching~$U$.
+complete matching~$U$.  Hence finding a synchronisation linearisation is
+NP-complete. 
 
-Our implementation uses a depth-first search to find a matching, very much
-like in the binary homogeneous case. 
+Our implementation for these cases uses a depth-first search to find a
+matching, very much like in the binary homogeneous case.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -420,12 +422,89 @@ like in the binary homogeneous case.
 We have implemented a testing framework (in Scala), based on the above
 algorithms, and used it to implement testers for particular synchronisation
 objects\footnote{The implementation is available from ???.}.  We consider the
-framework to be straightforward to use: defining a tester for a new
-synchronisation object takes just a few minutes.  The analyst needs to define
-threads that repeatedly call operations on the object, and log the calls and
-returns.  In addition, the analyst needs to specify correct synchronisations,
-in a way equivalent to the specification objects we used earlier: in the
-stateless case, this is defined by a partial function that, given a tuple of
-operations that can synchronise, returns a tuple giving the result of each; in
-the stateful case, the partial function also takes the state as an argument,
-and returns a tuple including the new state.
+framework to be straightforward to use: most of the boilerplate code is
+encapsulated within the framework; defining a tester for a new synchronisation
+object takes just a few minutes.
+
+%% The analyst needs to define
+%% threads that repeatedly call operations on the object, and log the calls and
+%% returns.  In addition, the analyst needs to specify correct synchronisations,
+%% in a way equivalent to the specification objects we used earlier: in the
+%% stateless case, this is defined by a partial function that, given a tuple of
+%% operations that can synchronise, returns a tuple giving the result of each; in
+%% the stateful case, the partial function also takes the state as an argument,
+%% and returns a tuple including the new state.
+
+Figure~\ref{fig:ChanTester} gives a stripped-down tester for a synchronous
+channel.  (The full version can be used to test a number of implementations
+with the same interface, and replaces the numeric constants by parameters that
+can be set on the command line.)
+
+%%%%%
+
+\begin{figure}
+\begin{scala}
+object ChanTester extends Tester{
+  trait Op   // Representation of operations within the log
+  case class Send(x: Int) extends Op
+  case object Receive extends Op
+
+  def worker(c: SyncChan[Int])(me: Int, log: HistoryLog[Op]) = 
+    for(i <- 0 until 20)
+      if(me%2 == 0) log(me, c.receive(), Receive)
+      else{ val x = Random.nextInt(100); log(me, c.send(x), Send(x)) }
+
+  object SyncChanSpec{
+    def sync(x: Int, u: Unit) = ((), x)    
+  }
+
+  def matching: PartialFunction[(Op,Op), (Any,Any)] = {
+    case (Send(x), Receive) => SyncChanSpec.sync(x, ()) // = ((), x)
+  }
+
+  /** Do a single test.  Return true if it passes. */
+  def doTest(): Boolean = {
+    val c = new SyncChan[Int]
+    new BinaryStatelessTester[Op](worker(c), 8, matching)()
+  }
+
+  def main(args: Array[String]) = {
+    var i = 0; while(i < 5000 && doTest()) i += 1
+  }
+}
+\end{scala}
+\caption{A simple tester for a synchronous channel. \label{fig:ChanTester}}
+\end{figure}
+
+%%%%%%%%%%
+
+The |worker| function defines a worker thread that performs operations on the
+channel~|c|.  The function also takes parameters representing the thread's
+identity and a log object.  Here, each worker with an even identity performs
+20 |receive| invocations: the call |log(me, c.receive(), Receive)| logs the
+call, performs the |receive|, and then logs the return.  Similarly, each
+worker with an odd identity performs 20 |send| invocations of random values.
+This definition is designed so that an even number of workers with contiguous
+identities will not deadlock. 
+
+|SyncChanSpec| is the synchronisation specification object from earlier.  The
+way invocations synchronise is captured by |matching|.  This is a partial
+function whose domain defines which operation invocations can synchronise
+together, and, in that case, the value each should return: here |send(x)| and
+|receive| can synchronise, giving a result as defined bu the synchronisation
+specification object.  (Alternatively, the call to |SyncChanSpec.sync| can be
+in-lined.)
+
+The function |doTest| performs a single test.  This uses a
+|BinaryStatelessTester| object from the testing framework, which encapsulates
+the search from Section~{sec:binary-heterogeneous}.  Here, the tester runs 8
+|worker| threads, and tests the resulting history against |matching|.  If a
+non-synchronisation-linearisable history is recorded, it displays this for the
+user.  The |main| function runs |doTest| either 5000 times or until an error
+is found.  The tester can be adapted to test for synchronisation
+progressibility by passing a timeout duration to the |BinaryStatelessTester|.
+
+Other classes of testers are similar.  In the case of a stateful
+specification, the |matching| function takes the specification object as a
+parameter, and also returns the new value of the specification object.
+
