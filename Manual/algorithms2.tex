@@ -1,19 +1,21 @@
 \subsection{Stateful testers}
 
-We now consider stateful testers.  
+We now consider stateful testers.  The classes that encapsulate testing
+algorithms are described in Figure~\ref{fig:stateful-testers}
 
 The algorithm for testing binary stateful synchronisation objects is
-encapsulated in the class |BinaryStatefulTester| whose signature is in
-Figure~\ref{fig:stateful-testers}.  The parameters are as follows.
+encapsulated in the class |BinaryStatefulTester|.  The parameters are as
+follows.
 %
 \begin{itemize}
 \item The type parameter |Op| is the representation of operation invocations
   in the log, as before.
 
 \item The type parameter |S| is the type of synchronisation specification
-  objects, giving an abtract representation of the synchronisation object.
-  Such objects should be \emph{immutable}; they should have a suitable
-  definition for equality (|equals|) and a compatible |hashCode|.
+  objects, giving an abtract representation of the state of the
+  synchronisation object.  Such specification objects should be
+  \emph{immutable}; they should have a suitable definition for equality
+  (|equals|) and a compatible |hashCode|.
 
 \item The parameter |worker| defines a worker that operates on the
   synchronisation object, as before.
@@ -23,16 +25,16 @@ Figure~\ref{fig:stateful-testers}.  The parameters are as follows.
 \item The parameter |specMatching| captures the specification.  This function
   takes a parameter~|s| corresponding to the state of the specification
   object.  Then |specMatching(s)| is a partial function defining what
-  synchronisations are allowed given the state~|s| for the specification
-  object.  Its domain, as before, is the pairs of invocations that may
-  synchronise; the function returns the resulting state of the specification
-  object, and the results to be returned by the two invocations.
+  synchronisations are allowed given the state~|s|.  Its domain, as before, is
+  the pairs of invocations that may synchronise; the function returns the
+  resulting state of the specification object, and the results to be returned
+  by the two invocations.
 
 \item The parameter |spec0| is the initial state of the specification object.
 
 \item The optional parameter |doASAP| specifies whether the ASAP partial order
-  reduction should be employed.  Experience suggests that this is normally
-  beneficial. 
+  reduction~\cite{sync} should be employed.  Experience suggests that this is
+  normally beneficial.
 \end{itemize}
 
 %%%%%%%%%%
@@ -97,9 +99,9 @@ over the bitmaps, and the hash code based directly on the content of the
 bitmap.
 
 The |matching| function defines that two invocations may synchronise as
-captured by the |sync| method on the current specification object.   
-We could have captured the precondition of the synchronisation being allowed
-within |matching|, and dispensed with the |requires| check, as follows:
+captured by the |sync| method on the current specification object.  We could
+have captured the precondition of the synchronisation within |matching|, and
+dispensed with the |requires| check in |Spec.sync|, as follows:
 %
 \begin{scala}
   def matching(spec: Spec): PartialFunction[(Sync,Sync), (Spec,(Any,Any))] = {
@@ -115,15 +117,19 @@ partial order reduction.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Testing for general stateful synchronisation objects is encapsulated in the
-class |StatefulTester|, described in Figure~\ref{fig:stateful-testers}.
-The type parameters and most of the parameters are as for
-|Binary|\-|Stateful|\-|Tester|.  The type of |matching| is adapted to capture
-that a \emph{list} of invocations synchronise, as in |StatelessTester|; and
-the parameter |arities| records the list of arities of synchronisations, again
-as in |StatelessTester|.  The optional parameter |suffixMatching| should give
-true if its argument is a non-empty suffix of a list of invocations that could
-synchronise; this can be useful to optimise testers, as we describe later.
+
+The class |StatefulTester| encapsulates the algorithm for testing general
+stateful synchronisation objects; it is described in
+Figure~\ref{fig:stateful-testers}.  The type parameters and most of the
+parameters are as for |Binary|\-|Stateful|\-|Tester|.  The type of |matching|
+is adapted to capture that a \emph{list} of invocations synchronise, as in
+|StatelessTester|; and the parameters |arities| and |suffixMatching| are as in
+|StatelessTester|.
+
+%% records the list of arities of synchronisations, again
+%% as in |StatelessTester|.  The optional parameter |suffixMatching| should give
+%% true if its argument is a non-empty suffix of a list of invocations that could
+%% synchronise; this can be useful to optimise testers, as we describe later.
 
 %%%%%%%%%%
 
@@ -150,15 +156,6 @@ closed (and the channel remains closed); and a close operation can always
 succeed (even if the channel is already closed), and subsequently the channel
 is closed.
 
-%%%%%%%%%%
-
-
-  %% /** Does ops represent a suffix of a possible synchronisation? */
-  %% def suffixMatching(ops: List[Op]) = 
-  %%   ops.length == 1 || 
-  %%     (ops match{ case(List(Send(_), Receive)) => true; case _ => false })
-%%%%%%%%%%
-
 The definition of a worker is straightforward.  On each iteration, a worker
 closes the channel with probability~$0.05$.  Otherwise, workers act much as
 for a standard channel, but we use the functions |trySend| and |tryReceive| as
@@ -172,21 +169,17 @@ seems not to help.  The rest of the definitions are then straightforward.
 
 
 As another example, a testing script for a resignable barrier is in
-Figures~\ref{fig:resignable-barrier-1}--\ref{fig:resignable-barrier-3}.
-Recall that this is like a normal barrier, except workers may enrol or resign
-from the barrier, and each barrier synchronisation is between the workers
-currently enrolled.  
-
-
-%%%%%%%%%%
-
-%%%%%%%%%%
+Figures~\ref{fig:resignable-barrier-1}--\ref{fig:resignable-barrier-3}.  A
+resignable barrier is like a normal barrier, except workers may enrol or
+resign from the barrier, and each barrier synchronisation is between the
+workers currently enrolled.
 
 The synchronisation specification object |Spec| is parameterised by the
 (immutable) set |enrolled| of identities of threads currently enrolled.  The
 methods |enrol| and |resign| on |Spec| correspond to the operations with the
 same names on the barriers; each definition is straightforward; the assertions
-are just sanity checks, that the workers have satisfied the specification.
+are just sanity checks, that the workers have satisfied the preconditions of
+these operations.
 
 We represent a barrier synchronisation by a list of |Sync| objects.  As a
 state-space reduction strategy, we require this list to be ordered by the
@@ -206,11 +199,12 @@ Using this function allows the underlying algorithm to avoid building
 unordered lists, and leads to a fairly large speed-up, particularly for larger
 numbers of threads 
 
+The definition of a worker is straightforward: if a worker is enrolled, it
+attempts to synchronise with probability~$0.7$, and otherwise resigns; if a
+worker is not enrolled, it does so.  
 
-|worker|
+The rest of the definitions are straightforward.  Note that if there are |p|
+workers, the arity of a synchronisation can be anything between~1 and~|p|.  We
+do not use the ASAP reduction strategy in this case, as it turns out to make
+checks slightly slower. 
 
-........................
-
-Enrolled workers attempt sync with probability $0.7$. 
-
-ASAP seems slower

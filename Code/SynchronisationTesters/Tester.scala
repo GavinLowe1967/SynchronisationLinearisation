@@ -14,6 +14,9 @@ trait Tester{
   /** Do we check the progress condition? */
   var progressCheck = false
 
+  /** Number of runs for each dot printed. */
+  def runsPerDot = if(progressCheck) 1 else 100
+
   /** Run `reps` tests.
     * @param timing are we doing timing experiments? */
   def runTests(reps: Int, timing: Boolean = false): Unit
@@ -21,7 +24,7 @@ trait Tester{
   = {
     val start = java.lang.System.nanoTime; var i = 0
     while(i < reps && doTest){ 
-      i += 1; if(i%100 == 0 || progressCheck) print(".")
+      i += 1; if(i%runsPerDot == 0 /* || progressCheck*/) print(".")
       // if(timing && i%100 == 0) println(".")
     }
     if(timing){
@@ -39,7 +42,7 @@ trait Tester{
   def expectTrue(reps: Int) = {
     var i = 0
     while(i < reps && doTest){ 
-      i += 1; if(i%100 == 0 || progressCheck) print(".")
+      i += 1; if(i%runsPerDot == 0 /*|| progressCheck*/) print(".")
     }
     println()
     if(i == reps) println(1) else println(Int.MaxValue)

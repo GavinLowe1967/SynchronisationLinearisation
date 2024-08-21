@@ -1,0 +1,230 @@
+\section{Interpreting errors}
+\label{sec:errors}
+
+If a tester finds that its synchronisation object does not meet the
+specification, it outputs a counterexample history, together with some
+explanation.  We discuss how to interpret that output.  We present a number of
+examples.  While none of the error histories immediately reveals the bug in
+the code, each does give a useful clue to the source of the error.
+
+
+%%% scala synchronisationTester.ChanTester --faulty --iters 1 -p 2
+Below is the output from a tester run on an incorrect implementation of a
+synchronous channel. 
+%
+\begin{errorHistory}
+\begin{verbatim}
+0:   Call of Send(3)
+0:   Return of () from Send(3)
+1:   Call of Receive
+1:   Return of 3 from Receive
+Invocation 0 does not synchronise with any other completed operation.
+\end{verbatim}
+\end{errorHistory}
+%
+The left-hand column gives an invocation number to each invocation, and
+identifies corresponding calls and returns.  The problem displayed by this
+history is that invocation~0 returns immediately, and so does not synchronise
+with a corresponding receive.
+
+%%%%%%%%%%
+
+The history below is for a faulty implementation of an exchanger.
+%
+\begin{errorHistory}
+\begin{verbatim}
+0:   Call of Exchange(93)
+1:   Call of Exchange(88)
+2:   Call of Exchange(54)
+3:   Call of Exchange(83)
+2:   Return of 88 from Exchange(54)
+0:   Return of 54 from Exchange(93)
+1:   Return of 54 from Exchange(88)
+3:   Return of 93 from Exchange(83)
+Invocation 0 does not synchronise with any other operation.
+\end{verbatim}
+\end{errorHistory}
+%
+Here, invocations~1 and~2 have correctly exchanged.  However, invocation~0 has
+not correctly exchanged with any other invocation: it returns~54, which is the
+parameter of invocation~2; but invocation~2 does not return invocation~0's
+parameter~93.  This error reveals that there is interference between the
+different exchanges. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% scala synchronisationTester.ABCTester --faulty -p 6 --iters 2 --reps 10000
+\begin{figure}
+%\begin{samepage}
+\errorsize
+\begin{verbatim}
+0:   Call of SyncA(0)
+1:   Call of SyncB(1)
+2:   Call of SyncC(2)
+0:   Return of (1,2) from SyncA(0)
+3:   Call of SyncA(0)
+1:   Return of (0,2) from SyncB(1)
+4:   Call of SyncB(1)
+5:   Call of SyncB(4)
+6:   Call of SyncA(3)
+2:   Return of (0,1) from SyncC(2)
+7:   Call of SyncC(2)
+4:   Return of (0,2) from SyncB(1)
+7:   Return of (0,1) from SyncC(2)
+8:   Call of SyncC(5)
+6:   Return of (4,5) from SyncA(3)
+9:   Call of SyncA(3)
+5:   Return of (3,5) from SyncB(4)
+10:  Call of SyncB(4)
+8:   Return of (3,4) from SyncC(5)
+11:  Call of SyncC(5)
+3:   Return of (4,5) from SyncA(0)
+9:   Return of (4,5) from SyncA(3)
+10:  Return of (3,5) from SyncB(4)
+11:  Return of (3,4) from SyncC(5)
+No candidate synchronisation for invocations 3, 4, 7.
+Possible synchronisations:
+0: (0, 1, 2)
+1: (0, 1, 2)
+2: (0, 1, 2)
+3: 
+4: 
+5: (6, 5, 8), (9, 5, 8)
+6: (6, 5, 8)
+7: 
+8: (9, 10, 8), (6, 5, 8), (9, 5, 8)
+9: (9, 10, 8), (9, 5, 8), (9, 10, 11)
+10: (9, 10, 8), (9, 10, 11)
+11: (9, 10, 11)
+\end{verbatim}
+%\end{samepage}
+\caption{An erroneous history for a faulty implementation of the ABC
+  problem.  \label{fig:ABC-error}} 
+\end{figure}
+
+%%%%%
+
+A longer example, for the ABC problem, is in Figure~\ref{fig:ABC-error}.  The
+bottom part of the figure shows possible synchronisations for the different
+invocations considered in isolation, i.e.~where the three invocations overlap
+and return consistent results.  For example, invocation~0 could only have
+synchronised with invocations~1 and 2; but invocation~5 might have
+synchronised with invocations~6 and~8, or invocations~9 and~8.
+
+The error is that there is no possible synchronisation for invocations~3, 4
+and~7.  Invocation 3 --- |syncA(0)|, returning |(4,5)| --- did not synchronise
+with any other thread: no |syncB(4)| returned~|(0,5)|, and no |syncC(5)|
+returned~|(0,4)|.  Likewise invocations~4 and~7 --- |syncB(1)| returning
+|(0,2)|, and |syncC(2)| returning |(0,1)|, respectively --- did not
+synchronise with any A-thread (although those two invocations were consistent
+with each other): no overlapping |syncA(0)| returned~|(1,2)|.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% scala synchronisationTester.CloseableChanTester --faulty --iters 1
+%%% Failed
+
+The erroneous history below is for an incorrect closeable channel.  
+%
+\begin{errorHistory}
+\begin{verbatim}
+0:   Call of Send(4)               
+1:   Call of Close                 
+2:   Call of Receive               
+3:   Call of Receive               
+1:   Return of () from Close       :  unary; linearisation index 0
+2:   Return of None from Receive   :  unary; linearisation index 1
+3:   Return of Some(4) from Receive:  unmatched
+0:   Return of false from Send(4)  :  unary; linearisation index 2
+\end{verbatim}
+\end{errorHistory}
+%
+This is a stateful object, and so the order of synchronisations is important.
+The linearisation indexes on the right give a possible order for the
+successful synchronisations (in this case, each happens to be a unary
+synchronisation).  These linearisation indexes give a maximal prefix of a
+linearisation.
+
+The problem displayed by this history is that invocation~3 --- a receive
+successfully returning~4 --- cannot be matched with a corresponding send.  In
+particular, invocation~0 --- a send of~4 --- found the channel closed and so
+failed.  The problem is that the receive returned and then the close took
+effect, and the send reacted to this closure rather than detecting that its
+value had been received before the closure.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}
+\errorsize
+\begin{verbatim}
+0:   Call of Sync(0)         
+1:   Call of Sync(1)         
+0:   Return of 1 from Sync(0):  matched with 1; linearisation index 0
+2:   Call of Sync(0)         
+1:   Return of 0 from Sync(1):  matched with 0; linearisation index 0
+3:   Call of Sync(1)         
+4:   Call of Sync(2)         
+4:   Return of 0 from Sync(2):  matched with 2; linearisation index 1
+5:   Call of Sync(2)         
+6:   Call of Sync(3)         
+2:   Return of 2 from Sync(0):  matched with 4; linearisation index 1
+7:   Call of Sync(0)         
+5:   Return of 1 from Sync(2):  matched with 3; linearisation index 2
+8:   Call of Sync(2)         
+3:   Return of 2 from Sync(1):  matched with 5; linearisation index 2
+9:   Call of Sync(1)         
+6:   Return of 1 from Sync(3):  matched with 9; linearisation index 3
+10:  Call of Sync(3)         
+9:   Return of 3 from Sync(1):  matched with 6; linearisation index 3
+10:  Return of 2 from Sync(3):  unmatched
+11:  Call of Sync(3)         
+7:   Return of 3 from Sync(0):  unmatched
+11:  Return of 0 from Sync(3):  unmatched
+8:   Return of 0 from Sync(2):  unmatched
+\end{verbatim}
+%% 0:   Call of Sync(0)         
+%% 1:   Call of Sync(1)         
+%% 0:   Return of 1 from Sync(0):  matched with 1; linearisation index 0
+%% 2:   Call of Sync(0)         
+%% 1:   Return of 0 from Sync(1):  matched with 0; linearisation index 0
+%% 3:   Call of Sync(1)         
+%% 4:   Call of Sync(2)         
+%% 4:   Return of 0 from Sync(2):  matched with 2; linearisation index 1
+%% 5:   Call of Sync(2)         
+%% 2:   Return of 2 from Sync(0):  matched with 4; linearisation index 1
+%% 6:   Call of Sync(0)         
+%% 5:   Return of 1 from Sync(2):  unmatched
+%% 7:   Call of Sync(2)         
+%% 8:   Call of Sync(3)         
+%% 3:   Return of 3 from Sync(1):  unmatched
+%% 9:   Call of Sync(1)         
+%% 8:   Return of 0 from Sync(3):  unmatched
+%% 10:  Call of Sync(3)         
+%% 6:   Return of 3 from Sync(0):  unmatched
+%% 10:  Return of 1 from Sync(3):  unmatched
+%% 11:  Call of Sync(3)         
+%% 9:   Return of 3 from Sync(1):  unmatched
+%% 11:  Return of 2 from Sync(3):  unmatched
+%% 7:   Return of 3 from Sync(2):  unmatched
+\caption{An erroneous history for a faulty implementation of the one-family
+  problem.  \label{fig:one-family-error}}
+\end{figure}
+
+%%%%%
+
+Figure~\ref{fig:one-family-error} gives an example error for the one-family
+problem.  Here, in order: invocations~0 and~1 synchronise; invocations~2 and~4
+synchronise; invocations~3 and~5 synchronise; then invocations~9 and~6
+synchronise.  But then the return of~2 from |Sync(3)| is erroneous, because
+the concurrent call of |Sync(2)| (invocation~8) does not return~3.
+
+%% This is a stateful object, so the order of synchronisations matters.  The
+%% linearisation indexes on the right give a possible order for the successful
+%% synchronisations.  These linearisation indexes give a maximal prefix of a
+%% linearisation.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\framebox{Progressibility}

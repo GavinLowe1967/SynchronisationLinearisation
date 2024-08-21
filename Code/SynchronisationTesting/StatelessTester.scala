@@ -115,7 +115,8 @@ class StatelessTester[Op](
       println(events.mkString("\n"))
       println(s"No candidate synchronisation for invocations "+
         nonSyncs.mkString(", ")+".\nPossible synchronisations:")
-      for(i <- 0 until matches.length) println(s"$i: "+matches(i))
+      showMatches(matches)
+      // for(i <- 0 until matches.length) println(s"$i: "+matches(i))
       return null
     }
 
@@ -178,6 +179,10 @@ class StatelessTester[Op](
     }
   }
 
+  private def showMatches(matches: Array[List[List[Int]]]) = 
+    for(i <- 0 until matches.length)
+      println(s"$i: "+matches(i).map(_.mkString("(", ", ", ")")).mkString(", "))
+
   /** Test whether events represents a valid history. */
   private def checkLog(events: Array[Event]): Boolean = {
     val matches = findMatches(events)
@@ -187,9 +192,11 @@ class StatelessTester[Op](
       val result = search1((0 until matches.length).toList, matches)
       if(verbose) println(result)
       if(result == null){
-        println(events.mkString("\n"))
+        println("\n"+events.mkString("\n"))
         println("No matching possible.  Possible synchronisations:")
-        for(i <- 0 until matches.length) println(s"$i: "+matches(i))
+        showMatches(matches)
+        // for(i <- 0 until matches.length) 
+        //   println(s"$i: "+matches(i).mkString(", "))
         false
       }
       else true

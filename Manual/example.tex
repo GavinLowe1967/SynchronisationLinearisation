@@ -1,8 +1,8 @@
-
 \section{An example script}
+\label{sec:example}
 
-We introduce the technique of writing testing scripts via a simple example.
-Consider a class |SyncChan| that implements a synchronous channel, extending a
+We outline how to write a testing script via a simple example.  Consider a
+class |SyncChan| that implements a synchronous channel, extending a
 trait~|Chan|, defined as follows.
 %
 \begin{scala}
@@ -109,21 +109,23 @@ the same is true of later example scripts.)
 
 %Going back to the |ChanTester| object, 
 
-The trait |Op| gives a representation of operations.  The subclasses have
-obvious meanings.  Objects of these subclasses are stored in the log, and so
-correctness is defined in terms of them.
+The trait |Op| gives a representation of operation invocations.  The
+subclasses have obvious meanings.  Objects of these subclasses are stored in
+the log, and so correctness is defined in terms of them.
 
 Each worker thread that performs invocations on a channel~|c| is defined by
 the function |worker(c)|.  This function takes as parameters the identity~|me|
 of the worker, and a log object~|log|.  Here, in order to avoid deadlocks, we
 run an even number of workers, where workers with an even identity perform
-receives, and workers with an odd identity perform sends, with 20~invocations
-in each case.  The code |log(me, c?(), Receive)| (a call of the |apply|
-operation on the |log| object) performs a receive.  The three parameters are:
-the identity of the thread; the invocation to be performed on the channel; and
-the representation of the invocation to be used in the log.  This logs the
-call of the invocation, performs the invocation on the channel, and logs the
-return together with the result of the invocation (i.e.~the value received).
+receives, and workers with an odd identity perform sends.  Each worker
+performs 20~invocations.  
+
+The code |log(me, c?(), Receive)| (a call of the |apply| operation on the
+|log| object) performs a receive.  The three parameters are: the identity of
+the thread; the invocation to be performed on the channel; and the
+representation of the invocation to be used in the log.  This logs the call of
+the invocation, performs the invocation on the channel, and logs the return
+together with the result of the invocation (i.e.~the value received).
 Similarly, each worker with an odd identity sends a random value~|x|, with
 suitable logging, via the code |log(me, c!x, Send(x)|.
 
@@ -143,32 +145,32 @@ The function |doTest| performs a single test, and returns a boolean indicating
 if the resulting history is synchronisation linearisable.  It creates a
 particular |SyncChan| object~|c| to be tested.  The class
 |BinaryStatelessTester| encapsulates an algorithm for testing a binary
-heterogeneous stateless synchronisation object, such as these channels.  The
-constructor takes: a type parameter corresponding to the log representation of
-invocations (here |Op|); a function representing a single worker (here
-|worker(c)|); the number of workers to run (here~|4|); and the partial
-function that specifies the synchronisations (here~|matching|).  The |doTest|
-function creates a tester object~|bst|.  The code |bst()| (a call to the
-|apply| method of~|bst|) then runs the worker threads, and tests whether the
-resulting log is synchronisation linearisable; the result of that call is also
-the result of~|doTest|.
+heterogeneous stateless synchronisation object, such as a synchronous channel.
+The constructor takes: a~type parameter corresponding to the log
+representation of invocations (here~|Op|); a~function representing a single
+worker (here |worker(c)|); the number of workers to run (here~|4|); and the
+partial function that specifies the synchronisations (here~|matching|).  The
+|doTest| function creates a tester object~|bst|.  The code |bst()| (a call to
+the |apply| method of~|bst|) then runs the worker threads, and tests whether
+the resulting log is synchronisation linearisable; the result of that call is
+also the result of~|doTest|.
 
-The |runTests(reps)| executes |doTest| at most |reps| times, or until it finds
-an erroneous history.  Finally, the |main| method uses the |runTests| method
-to perform 5000 tests.
+The code |runTests(reps)| executes |doTest| at most |reps| times, or until it
+finds an erroneous history.  Finally, the |main| method uses the |runTests|
+method to perform 5000 tests.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Pragmatics}
+\subsection{Using the {\scalashape Tester} interface}
 
-When running a tester, it is useful to see some indication that it is making
-progress, and in particular that the threads working on the synchronisation
-object have not deadlocked.  One way is to print something on the screen
-occasionally, say printing a dot every 100 tests.
+%% When running a tester, it is useful to see some indication that it is making
+%% progress, and in particular that the threads working on the synchronisation
+%% object have not deadlocked.  One way is to print something on the screen
+%% occasionally, say printing a dot every 100 tests.
 
-The trait |synchronisationTester.Tester| in the distribution, outlined below,
-encapsulates some boiler-plate code often used in testers.
-%
+%%%%%
+
+\begin{figure}
 \begin{scala}
 trait Tester{
   /** Number of worker threads to run. */
@@ -180,6 +182,9 @@ trait Tester{
   /** Do we check the progress condition? */
   var progressCheck = false
 
+  /** Number of runs for each dot printed. */
+  def runsPerDot = if(progressCheck) 1 else 100
+
   /** Do a single test.  Return true if it passes.  Defined in subclasses.  */
   def doTest: Boolean
 
@@ -188,15 +193,25 @@ trait Tester{
   def runTests(reps: Int, timing: Boolean = false) = { ... }
 }
 \end{scala}
-%
-Objects that extend |Tester| must provide the |doTest| method, but can inherit
-the |runTest| method, which executes |doTest| a set number of times or until
-an error is found.  Thus we could have extended |Tester| in
-Figure~\ref{fig:script}, and avoided defining~|runTests|.  The |runTests|
-method also prints dots to show progress, as described above, by default, one
-dot every 100 runs (if the |progressCheck| flag is set, it prints a dot after
-every test; this is intended for use with progress checks, described below,
-which tend to be slower). 
+\caption{The {\scalashape Tester} interface.  \label{fig:tester}}
+\end{figure}
+
+%%%%%
+
+The trait |synchronisationTester.Tester| in the distribution, outlined in
+Figure~\ref{fig:tester}, encapsulates some boiler-plate code often used in
+testers.  Objects that extend |Tester| must provide the |doTest| method, but
+can inherit the |runTest| method, which executes |doTest| a set number of
+times or until an error is found.  Thus we could have extended |Tester| in
+Figure~\ref{fig:script}, and avoided defining~|runTests|.
+
+The |runTests| method also prints dots on the screen to show progress.  This
+can be useful to be sure that the threads working on the synchronisation
+object have not deadlocked.  By default, |runTests| prints one dot every 100
+runs, or, if the |progressCheck| flag is set, it prints a dot after every test
+(this flag is intended for use with progress checks, described in
+Section~\ref{sec:progress}, which tend to be slower); however, the frequency
+of dots can be adjusted by overriding |runsPerDot|.
 
 In addition, the |doTest| method prints the time taken, in milliseconds.  If
 the optional |timing| parameter is set, the time is printed in nanoseconds;
@@ -212,6 +227,7 @@ intended to be used for the first two of these.
 %%%%%%%%%%
 
 \subsection{Progress checks}
+\label{sec:progress}
 
 In order to check for synchronisation progressibility (in addition to
 synchronisation linearisation), it is necessary to pass a positive integer

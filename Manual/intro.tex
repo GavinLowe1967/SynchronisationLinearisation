@@ -1,0 +1,104 @@
+
+\section{Introduction}
+
+This manual describes a package for testing synchronisation objects.  The
+package uses the Scala programming language~\cite{programming-in-Scala}.  We
+briefly describe the purpose of such synchronisation objects, and appropriate
+correctness conditions.  For full details, see~\cite{sync}.  
+
+A \emph{synchronisation object} allows synchronisations between two or more
+threads.  The most common form of synchronisation object is a synchronous
+channel.  Here, threads call operations to send or receive data.  Each
+invocation should overlap in time with an invocation of the opposite sort, and
+the receive operation should return the value sent by the send operation.
+
+More generally, a synchronisation involves some number of invocations that
+overlap in time and that (normally) exchange data.  The specification for the
+object describes what synchronisations are allowed (i.e.~which operations
+synchronise with which others), and the values each should return. 
+
+We use the term \emph{binary synchronisation} for a synchronisation between
+two invocations; and we use the term \emph{binary synchronisation object} for
+a synchronisation object all of whose synchronisations are binary. 
+
+Synchronisations in a synchronous channel are between two \emph{different}
+operations, sending and receiving; we call such synchronisations
+\emph{heterogeneous}.  By contrast, some synchronisations involve two
+invocations of the \emph{same} operation; we call such synchronisations
+\emph{homogeneous}.  For example, an exchanger object has a single operation,
+|exchange|, taking a single parameter; two invocations of this operation
+should synchronise, and each should return the other's parameter, so the two
+threads exchange data values.
+
+Some synchronisations are between more than two threads.  We use the term
+\emph{arity} for the number of threads involved in a synchronisation.  For
+example, a barrier synchronisation object allows synchronisations between
+|n|~threads, where |n| is a parameter of the object's constructor; so these
+synchronisations have arity~|n|.  
+
+Further, we can consider an invocation that synchronises with no other
+invocation as a \emph{unary} synchronisation (arity~1).  Some operations might
+have mixed modes of synchronisations, maybe with different arities; for
+example, a channel with a timeout might perform a successful binary
+synchronisation, or might fail to synchronise with another thread and timeout,
+and so have a unary synchronisation.
+
+Synchronisation objects may maintain some state between one synchronisation
+and another.  For example, a closeable channel is like a synchronous channel,
+except it can be closed, after which any attempt to send or receive will fail;
+hence it has two states, open and closed.  As another example, a resignable
+barrier is like a normal barrier, except threads may enrol and resign from the
+barrier; each synchronisation is between all the currently enrolled threads;
+hence the state of the object is (abstractly) the set of currently enrolled
+threads.  We use the term \emph{stateful} for such synchronisation objects,
+and use the term \emph{stateless} otherwise. 
+
+The standard correctness condition for synchronisation objects is
+\emph{synchronisation linearisation}~\cite{sync}.  This states that the
+synchronisations appear to take place in a one-at-a-time order, with each
+synchronisation happening between the calls and returns of the relevant
+invocations; further, the values returned by each call should match an
+appropriate specification for the object (which might depend on the previous
+synchronisations in the case of a stateful synchronisation object).  This is a
+safety property.
+
+The liveness property \emph{synchronisation progressibility} states, in
+addition, that invocations don't get stuck unnecessarily: if there is a
+possible synchronisation between pending invocations, then some such
+synchronisation should happen; and once a synchronisation has occurred, the
+relevant invocations should return.
+
+%%%%%%%%%%
+
+\subsection{Testing synchronisation objects}
+
+Our approach to testing synchronisation objects is as follows.  We run a
+number of \emph{worker threads}, that invoke operations upon the object,
+logging the calls and returns.  We then run an algorithm over the log history
+to test whether it is synchronisation linearisable and (optionally)
+synchronisation progressible.  Appropriate algorithms are described
+in~\cite{sync}: the testing framework encapsulates these algorithms, and it is
+not necessary for the reader to understand them in order to use the framework.
+However, different algorithms are appropriate in different cases, depending
+on: whether synchronisations are binary or not; in the binary case, whether
+synchronisations are heterogeneous or homogeneous; and whether the
+synchronisation object is stateful or stateless.
+
+In the remainder of this manual, we describe how to use the testing framework
+for carrying out such tests.  In Section~\ref{sec:example}, we present a
+simple input script, describing the technique for binary heterogeneous
+stateless objects: we describe how to test for synchronisation linearisation;
+describe various pragmatics; and then describe how to test for synchronisation
+progressibility.  In Section~\ref{sec:algorithms} we describe how to use the
+other testing algorithms, for homegeneous, non-binary or stateful
+synchronisation objects.   In Section~\ref{sec:errors} we describe how to
+interpret the output produced by a tester when it finds a history that is not
+synchronisation linearisable, or not synchronisation progressibility: the
+tester prints the history together with some explanation.  \framebox{\ldots}
+
+
+We assume familiarity with Scala~\cite{programming-in-Scala} throughout this
+manual.
+
+
+\framebox{Installation and usage}: Appendix?

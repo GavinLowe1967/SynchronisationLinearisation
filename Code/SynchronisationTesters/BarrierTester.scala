@@ -112,6 +112,7 @@ object BarrierTester extends Tester{
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
     // assert(p%n == 0)
+    if(p != n) println("Warning: different values for p and n")
 
     runTests(reps, timing)
   }

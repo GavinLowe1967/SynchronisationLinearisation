@@ -18,7 +18,7 @@ OBDIR = synchronisationObject
 # Directory for experiments
 EXPDIR = experiments
 
-# The different types of testers.
+##### The different types of testers.
 
 BINARY_HETERO_TESTERS = $(EXDIR)/ChanTester.class		\
 $(EXDIR)/FilterChanTester.class $(EXDIR)/MenWomenTester.class 
@@ -35,9 +35,13 @@ NON_BINARY_STATEFUL_TESTERS = $(EXDIR)/ABCCounterTester.class			\
 $(EXDIR)/BarrierCounterTester.class $(EXDIR)/TerminatingQueueTester.class	\
 $(EXDIR)/CloseableChanTester.class $(EXDIR)/ResignableBarrierTester.class
 
+TWO_STEP_TESTERS = $(EXDIR)/ChanTwoStepTester.class				\
+$(EXDIR)/ChanCounterTwoStepTester.class $(EXDIR)/MenWomenTwoStepTester.class	\
+$(EXDIR)/ExchangerTwoStepTester.class $(EXDIR)/ABCTwoStepTester.class
+
 TESTERSX = $(BINARY_HETERO_TESTERS) $(BINARY_STATEFUL_TESTERS)			\
 $(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS) $(NON_BINARY_STATEFUL_TESTERS)	\
-$(EXDIR)/ChanTwoStepTester.class $(EXDIR)/ChanCounterTwoStepTester.class
+$(TWO_STEP_TESTERS)
 
 TESTERS = $(EXDIR)/Tester.class $(TESTERSX)
 
@@ -56,7 +60,7 @@ $(OBDIR)/TwoFamilies.class $(OBDIR)/OneFamily.class $(OBDIR)/ABC.class	\
   $(OBDIR)/ABCCounter.class $(OBDIR)/BarrierCounter.class		\
   $(OBDIR)/FilterChan.class: $(OBDIR)/Semaphore.class
 
-# The testing machinery.
+##### The testing machinery.
 
 $(DIR)/HistoryLog.class: $(DIR)/Log.class
 
@@ -68,6 +72,7 @@ $(DIR)/BinaryStatelessTester.class: $(DIR)/BinaryTester.class $(DIR)/FordFulkers
 
 $(DIR)/HomogeneousBinaryStatelessTester.class: $(DIR)/BinaryTester.class $(DIR)/DFS.class
 
+##### Testers
 
 # Each tester depends upon the testing machinery, and the synchronisation
 # objects it is testing.
@@ -84,9 +89,14 @@ $(EXDIR)/FilterChanTester.class:	$(OBDIR)/FilterChan.class
 
 $(EXDIR)/MenWomenTester.class: $(OBDIR)/MenWomen.class
 
+$(EXDIR)/MenWomenTwoStepTester.class: $(DIR)/TwoStepLinSpec.class 
+
 # Binary stateless homogeneous
 
 $(EXDIR)/ExchangerTester.class: $(OBDIR)/Exchanger.class $(DIR)/HomogeneousBinaryStatelessTester.class
+
+$(EXDIR)/ExchangerTwoStepTester.class: $(OBDIR)/Exchanger.class \
+  $(DIR)/TwoStepHomoLinSpec.class
 
 # Binary stateful
 
@@ -116,6 +126,8 @@ $(EXDIR)/TimeoutChannelTester.class: $(OBDIR)/TimeoutChannel.class
 
 $(EXDIR)/TimeoutExchangerTester.class: $(OBDIR)/TimeoutExchanger.class
 
+$(EXDIR)/ABCTwoStepTester.class: $(OBDIR)/ABC.class $(DIR)/TwoStepLinSpec3.class 
+
 # Non-binary stateful
 
 $(NON_BINARY_STATEFUL_TESTERS): $(DIR)/StatefulTester.class
@@ -129,9 +141,11 @@ $(EXDIR)/TerminatingQueueTester.class: $(OBDIR)/TerminatingQueue.class
 $(EXDIR)/CloseableChanTester.class: $(OBDIR)/CloseableChan.class
 
 
-# Recipes for compilation
+##### Recipes for compilation
 
 FSC = fsc -deprecation -cp $(CP)
+
+# Testing framework.  The two-step approach needs SCL
 
 $(DIR)/StatefulTwoStepLinSpec.class: SynchronisationTesting/StatefulTwoStepLinSpec.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationTesting/StatefulTwoStepLinSpec.scala
@@ -139,8 +153,17 @@ $(DIR)/StatefulTwoStepLinSpec.class: SynchronisationTesting/StatefulTwoStepLinSp
 $(DIR)/TwoStepLinSpec.class: SynchronisationTesting/TwoStepLinSpec.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationTesting/TwoStepLinSpec.scala
 
+
+$(DIR)/TwoStepHomoLinSpec.class: SynchronisationTesting/TwoStepHomoLinSpec.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesting/TwoStepHomoLinSpec.scala
+
+$(DIR)/TwoStepLinSpec3.class: SynchronisationTesting/TwoStepLinSpec3.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesting/TwoStepLinSpec3.scala
+
 $(DIR)/%.class:     SynchronisationTesting/%.scala
 	$(FSC) $<
+
+##### Objects.  Some need SCL
 
 $(OBDIR)/Chan.class: SynchronisationObjects/Chan.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationObjects/Chan.scala
@@ -151,17 +174,29 @@ $(OBDIR)/CloseableChan.class: SynchronisationObjects/CloseableChan.scala
 $(OBDIR)/Barrier.class: SynchronisationObjects/Barrier.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationObjects/Barrier.scala
 
+$(OBDIR)/%.class:     SynchronisationObjects/%.scala
+	$(FSC) $<
+
+##### Testers
+
 $(EXDIR)/ChanTwoStepTester.class: SynchronisationTesters/ChanTwoStepTester.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/ChanTwoStepTester.scala
 
 $(EXDIR)/ChanCounterTwoStepTester.class: SynchronisationTesters/ChanCounterTwoStepTester.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/ChanCounterTwoStepTester.scala
 
+$(EXDIR)/ExchangerTwoStepTester.class: SynchronisationTesters/ExchangerTwoStepTester.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/ExchangerTwoStepTester.scala
+
+$(EXDIR)/MenWomenTwoStepTester.class: SynchronisationTesters/MenWomenTwoStepTester.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/MenWomenTwoStepTester.scala
+
+$(EXDIR)/ABCTwoStepTester.class: SynchronisationTesters/ABCTwoStepTester.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/ABCTwoStepTester.scala
+
 $(EXDIR)/CloseableChanTester.class: SynchronisationTesters/CloseableChanTester.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/CloseableChanTester.scala
 
-$(OBDIR)/%.class:     SynchronisationObjects/%.scala
-	$(FSC) $<
 
 # $(OBDIR)/ChanTester.class: SynchronisationTesters/ChanTester.scala
 # 	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/ChanTester.scala

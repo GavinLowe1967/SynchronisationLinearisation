@@ -31,7 +31,10 @@ object TwoStepExperiment{
   def linFiles = Array[(String,String,String)](
     // ("Synchronous channel", "ChanTester", "ChanTwoStepTester"),
 // FIXME: uncomment
-    ("Counter channel", "ChanCounterTester", "ChanCounterTwoStepTester")
+//    ("Counter channel", "ChanCounterTester", "ChanCounterTwoStepTester"),
+//    ("Exchanger", "ExchangerTester", "ExchangerTwoStepTester")
+//    ("Men and Women", "MenWomenTester", "MenWomenTwoStepTester")
+    ("ABC", "ABCTester", "ABCTwoStepTester")
   )
 
   /** Numbers of iterations to consider. */

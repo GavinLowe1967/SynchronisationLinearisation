@@ -12,7 +12,7 @@ object OneFamilyTester extends Tester{
 
   /** The specification class.  bitMap shows which threads have already
     * synchronised. */
-  class Spec(val bitMap: BitMap = Array.ofDim[Boolean](n,n)){
+  class Spec(val bitMap: BitMap){
     def sync(a: Int, b: Int): (Spec, (Int, Int)) = {  
       // These two must not have sync'ed before
       require(!bitMap(a)(b) && !bitMap(b)(a))
@@ -59,7 +59,8 @@ object OneFamilyTester extends Tester{
 
   /** Do a single test. */
   def doTest = {
-    val of: OneFamilyT = new OneFamily(n); val spec = new Spec()
+    val of: OneFamilyT = new OneFamily(n)
+    val spec = new Spec(Array.ofDim[Boolean](n,n))
     val bst = new BinaryStatefulTester[Sync,Spec](
       worker(of), n, matching, spec, true)
     bst()
@@ -67,7 +68,6 @@ object OneFamilyTester extends Tester{
   }
 
   def main(args: Array[String]) = runTests(5000)
-}
 \end{scala}
 \caption{A testing script for a the one-family problem, illustrating the
   {\scalashape Binary\-Stateful\-Tester} (part~2).\label{fig:one-family-2}}
@@ -248,8 +248,7 @@ object ResignableBarrierTester{
     val barrier = new ResignableBarrier[Int](faulty)
     val spec = new Spec(new Enrolled)
     val tester = new StatefulTester[Op,Spec](
-      worker(barrier), p, (1 to p).toList, matching, suffixMatching,
-      spec, false)
+      worker(barrier), p, (1 to p).toList, matching, suffixMatching, spec, false)
     if(!tester()) sys.exit()
   }
 
