@@ -14,7 +14,7 @@ object TwoStepExperiment{
   // val iters = 6
 
   /** Number of repeats. */
-  var reps = 1000
+  // var reps = 1000
 
   /** Options for most testers. */
   // def opts0 =  s"--reps $reps --iters $iters "
@@ -29,25 +29,27 @@ object TwoStepExperiment{
 
   /** List of: names of example, direct tester, two-step tester. */
   def linFiles = Array[(String,String,String)](
-    // ("Synchronous channel", "ChanTester", "ChanTwoStepTester"),
 // FIXME: uncomment
-//    ("Counter channel", "ChanCounterTester", "ChanCounterTwoStepTester"),
-//    ("Exchanger", "ExchangerTester", "ExchangerTwoStepTester")
-//    ("Men and Women", "MenWomenTester", "MenWomenTwoStepTester")
+    ("Synchronous channel", "ChanTester", "ChanTwoStepTester"),
+    ("Counter channel", "ChanCounterTester", "ChanCounterTwoStepTester"),
+    ("Exchanger", "ExchangerTester", "ExchangerTwoStepTester"),
+    ("Men and Women", "MenWomenTester", "MenWomenTwoStepTester"),
     ("ABC", "ABCTester", "ABCTwoStepTester")
   )
 
   /** Numbers of iterations to consider. */
-  val iterss = Array(2,4,8,16,32)
+  val iterss = Array(4, 16, 64, 256)
+  // val iterss = Array(2,4,8,16,32)
 
   /** Base for number of repetitions: each thread will do this number of
     * iterations in total per observation. */
-  val repsBase = 1024
+  val repsBase = 4096
+  // val repsBase = 1024
 
   val options0 = Array[String](
     "xlabel = Number of iterations per thread",
     "ylabel = Time (ms)",
-    "log basis x=2", "scaled ticks = false"
+    "log basis x=4", "scaled ticks = false"
   )
 
   def doMeasurement() = {

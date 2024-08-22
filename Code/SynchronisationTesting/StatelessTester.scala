@@ -85,7 +85,6 @@ class StatelessTester[Op](
     result
   }
 
-
   /** A representation of a synchronisation: the list of indices of CallEvents
     * for the invocations that synchronise. */
   type SyncIndices = List[Int]
@@ -131,19 +130,19 @@ class StatelessTester[Op](
     matches
   }
 
-  /** Are sync1 and sync2 disjoint? */
-  private def disjoint(sync1: SyncIndices, sync2: SyncIndices) = {
-    //   sync1.forall(i => !sync2.contains(i))
-    // done indicates if an element of sync1 is in sync2
-    var xs = sync1; var done = false
-    while(xs.nonEmpty && !done){
-      // Does sync2 contain x?  If so, set done
-      var ys = sync2; val x = xs.head; xs = xs.tail
-      while(ys.nonEmpty && ys.head != x) ys = ys.tail
-      done = ys.nonEmpty
-    }
-    !done
-  }
+  // /** Are sync1 and sync2 disjoint? */
+  // private def disjoint(sync1: SyncIndices, sync2: SyncIndices) = {
+  //   //   sync1.forall(i => !sync2.contains(i))
+  //   // done indicates if an element of sync1 is in sync2
+  //   var xs = sync1; var done = false
+  //   while(xs.nonEmpty && !done){
+  //     // Does sync2 contain x?  If so, set done
+  //     var ys = sync2; val x = xs.head; xs = xs.tail
+  //     while(ys.nonEmpty && ys.head != x) ys = ys.tail
+  //     done = ys.nonEmpty
+  //   }
+  //   !done
+  // }
 
   /** Seen set.  Each entry gives a set of invocation indices waiting to be
     * linearised.  */
@@ -159,16 +158,37 @@ class StatelessTester[Op](
       : List[SyncIndices] = {
     if(toDo.isEmpty) List()
     else{
-      // Find the invocation with fewest matches
+      val length = matches.length
+      // Find the invocation with fewest matches, and consider all ways of
+      // synchronising it
       val index = toDo.minBy(matches(_).length) 
       for(sync <- matches(index)){
-        // println("Trying to synchronise "+sync)
-        val matches2 = Array.tabulate(matches.length)( i =>
-          if(sync.contains(i)) List[SyncIndices]()
-          else matches(i).filter(sync1 => disjoint(sync,sync1))
-        )
-        val toDo2 = toDo.diff(sync)
-        if(seen.add(toDo2) && toDo2.forall(i => matches2(i).nonEmpty)){
+        // Tabulate sync as a bitmap
+        val syncBM = new Array[Boolean](length); var sync1 = sync
+        while(sync1.nonEmpty){ syncBM(sync1.head) = true; sync1 = sync1.tail }
+        // for(ix <- sync) syncBM(ix) = true
+        // Build possible synchronisations after sync: for each i, none if i
+        // is in sync; otherwise remove synchronisations that include an
+        // element of sync.
+        val matches2 = new Array[List[SyncIndices]](length); var i = 0
+        while(i < length){
+          matches2(i) = 
+            // if(sync.contains(i)) List[SyncIndices]()
+            if(syncBM(i)) List[SyncIndices]() // needed?????
+            //else matches(i).filter(sync1 => disjoint(sync,sync1))
+            // else matches(i).filter(sync1 => disjointBM(syncBM,sync1))
+            else filterDisjoint(syncBM, matches(i))
+          i += 1
+        }
+        // val matches2 = Array.tabulate(matches.length)( i =>
+        //   if(sync.contains(i)) List[SyncIndices]()
+        //   else matches(i).filter(sync1 => disjoint(sync,sync1))
+        // )
+        // toDo2 is invocations still to linearise
+        val toDo2 = removeSynced(syncBM, toDo, matches2)
+        if(toDo2 != null && seen.add(toDo2)){
+        // val toDo2 = toDo.diff(sync)
+        // if(seen.add(toDo2) && toDo2.forall(i => matches2(i).nonEmpty)){
           val rec = search1(toDo2, matches2)
           if(rec != null) return sync::rec
         }
@@ -177,6 +197,45 @@ class StatelessTester[Op](
       //println("backtracking")
       null
     }
+  }
+
+  /** Remove all elements of bm (those in the current synchronisation) from
+    * toDo.  If any remaining element has matches2(i) empty (so cannot be
+    * synchronised) then return null.  Otherwise return the remaining elements
+    * of toDo. */
+  @inline private def removeSynced(
+    bm: Array[Boolean], toDo: List[Int], matches2: Array[List[SyncIndices]])
+      : List[Int] = {
+    if(toDo.isEmpty) toDo
+    else{
+      val i = toDo.head
+      if(bm(i)) removeSynced(bm, toDo.tail, matches2) // current sync
+      else if(matches2(i).isEmpty) null // cannot be sync'ed
+      else{
+        val rec = removeSynced(bm, toDo.tail, matches2)
+        if(rec == null) null else i::rec
+      }
+    }
+  }
+
+  /** Those elements of syncs that are disjoint from the set represented by bm. 
+    * syncs.filter(sync1 => disjointBM(syncBM,sync1)). */
+  @inline private 
+  def filterDisjoint(bm: Array[Boolean], syncs: List[SyncIndices])
+      : List[SyncIndices] = {
+    if(syncs.isEmpty) List[SyncIndices]()
+    else{
+      val sync1 = syncs.head
+      if(disjointBM(bm, sync1)) sync1 :: filterDisjoint(bm, syncs.tail)
+      else filterDisjoint(bm, syncs.tail)
+    }
+  }
+
+  /** Are list (a list of Ints) and bm (a bitmap) disjoint? */
+  @inline private def disjointBM(bm: Array[Boolean], list: SyncIndices) = {
+    var l = list
+    while(l.nonEmpty && !bm(l.head)) l = l.tail
+    l.isEmpty
   }
 
   private def showMatches(matches: Array[List[List[Int]]]) = 
@@ -214,74 +273,3 @@ class StatelessTester[Op](
   }
 
 }
-
-// ================================================================== END
-
-
-/*
-  private def search(matches: Array[List[SyncIndices]]) = {
-    val numInvocs = matches.length
-    // Each entry on the stack represents the list of invocation indices that
-    // have not been fixed, and for each such, the list of SyncIndicess it
-    // could be involved in.
-    type StackEl = (List[Int], Array[List[SyncIndices]])
-    val stack = new scala.collection.mutable.Stack[StackEl]
-    stack.push(((0 until numInvocs).toList, matches))
-    var done = false
-    while(!done && stack.nonEmpty){
-      val (toDo1, matches1) = stack.pop
-      if(toDo1.isEmpty) done = true
-      else{
-        val index = toDo1.head
-        // IMPROVE: the one with fewest matches
-        for(sync <- matches1(index)){
-          println("Trying to synchronise "+sync)
-          val matches2 = Array.tabulate(numInvocs)( i => 
-            if(sync.contains(i)) List[SyncIndices]()
-            else matches1(i).filter(sync1 => disjoint(sync,sync1))
-          )
-          val toDo2 = toDo1.diff(sync)
-          if(toDo2.forall(i => matches2(i).nonEmpty))
-            stack.push((toDo2, matches2))
-          else println("backtracking")
-        }
-      }
-    }
-    println("done")
-  }
- */
-
-/*
-  /** Get all lists of potential synchronisations.  All lists of length up to
-    * arities.max of CallEvents by different threads.
-    * @param calls the CallEvents from the log.  */
-  private def allArgLists(calls: Array[CallEvent1]): Array[List[SyncEs]] = {
-    val len = calls.length
-    // Tabulate which invocations overlap (index of .opIndex values)
-    val overlap = Array.ofDim[Boolean](len, len)
-    for(i <- 0 until len; j <- i+1 until len){
-      overlap(i)(j) = calls(i).index < calls(j).ret.index && 
-        calls(j).index < calls(i).ret.index 
-      overlap(j)(i) = overlap(i)(j)
-    }
-    val maxArity = arities.max
-    val result = new Array[List[SyncEs]](maxArity+1)
-    result(0) = List(List())
-    for(arity <- 1 to maxArity){
-      result(arity) = List()
-      for(es <- result(arity-1); e <- calls){
-        // Check: e isn't the same thread as any element of es; e starts
-        // before each element of es returns; e doesn't return before any
-        // element of es starts
-        var es1 = es
-        while(es1.nonEmpty && overlap(e.opIndex)(es1.head.opIndex)) 
-          es1 = es1.tail
-        if(es1.isEmpty)
-//        if(es.forall(e1 => overlap(e.opIndex)(e1.opIndex)))
-//            e1.t != e.t && e.index < e1.ret.index && e1.index < e.ret.index))
-          result(arity) ::= (e::es)
-      }
-    }
-    result
-  }
- */

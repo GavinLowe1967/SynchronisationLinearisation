@@ -39,11 +39,11 @@ object ABCTester extends Tester{
   /** Is ops a suffix of a possible synchronisation?  Including this seems to
     * make very little difference. */
   def suffixMatching(ops: List[Op]) = ops match{
-    case List() => true
+    //case List() => true
     case List(SyncC(_)) => true
     case List(SyncB(_), SyncC(_)) => true
     case List(SyncA(_), SyncB(_), SyncC(_)) => true
-    case _ => true
+    case _ => false
   }
 
   /** A worker with identity me. */
@@ -79,7 +79,7 @@ object ABCTester extends Tester{
     }
     else{
       val tester = new StatelessTester[Op](
-        worker(abc), p, List(3), matching /*, suffixMatching */)
+        worker(abc), p, List(3), matching, suffixMatching)
       tester() // if(!tester()) sys.exit()
     }
   }
@@ -113,9 +113,9 @@ object ABCTester extends Tester{
           !frame.getClassName.contains("jdk.internal")
       // val printer = 
       def printer(data: ArrayBuffer[SamplingProfiler.StackTrace]) = {
-        SamplingProfiler.print(filter = filter, length = 40)(data)+"\n"+
+        SamplingProfiler.print(filter = filter, length = 30)(data)+"\n"+
         SamplingProfiler.printTree(
-          filter = filter, expand = ProfilerSummaryTree.expandToThreshold(0.1)
+          filter = filter, expand = ProfilerSummaryTree.expandToThreshold(0.4)
         )(data)
       }
       val profiler = new SamplingProfiler(interval = interval, print = printer)
