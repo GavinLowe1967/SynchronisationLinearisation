@@ -34,6 +34,10 @@
 \def\crossAt(#1,#2)#3{%
   \draw(#1,#2) \X; \draw(#1,#2-0.4) node{\footnotesize #3};
 }
+%
+\def\loopAbove(#1)#2{%
+  \draw[->] (#1) .. controls ++(-0.4,+1.8) and ++(0.4,1.8) .. 
+  node[above] {#2} (#1);}
 \scalaMid
 
 \def\topfraction{0.8}
@@ -53,6 +57,7 @@
 \input{specification} % formal definition of synchronisation linearisation
 \input{specification2} % variations, progress.
 \input{relating} % relating synchronisation linearisation and linearisation
+\input{relating2}
 \input{testing} % testing algorithms: standard lin and two-step
 \input{direct}
 \input{examples}

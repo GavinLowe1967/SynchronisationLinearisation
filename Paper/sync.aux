@@ -14,8 +14,8 @@
 \newlabel{fig:sync-timeline}{{2}{10}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Synchronisation linearisability}{10}\protected@file@percent }
 \newlabel{sec:sync-lin}{{2.3}{10}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Variations}{11}\protected@file@percent }
-\newlabel{ssec:spec-variations}{{2.4}{11}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Variations}{12}\protected@file@percent }
+\newlabel{ssec:spec-variations}{{2.4}{12}}
 \citation{herlihy-shavit}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Specifying progress}{13}\protected@file@percent }
 \newlabel{sec:progress}{{2.5}{13}}
@@ -29,53 +29,57 @@
 \newlabel{prop:two-step-lin}{{8}{19}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Generalisations}{21}\protected@file@percent }
 \newlabel{ssec:relating-variations}{{3.3}{21}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Automaton for capturing two-step linearisation for a timeout channel.}}{23}\protected@file@percent }
+\newlabel{fig:two-step-timeout-chan}{{3}{23}}
 \citation{gavin:lin-testing}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Automata for capturing two-step linearisation for a closeable channel.}}{24}\protected@file@percent }
+\newlabel{fig:two-step-closeable-chan}{{4}{24}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Linearisability testing}{24}\protected@file@percent }
+\newlabel{sec:lin-testing}{{4}{24}}
 \citation{gavin:lin-testing}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Linearisability testing}{22}\protected@file@percent }
-\newlabel{sec:lin-testing}{{4}{22}}
 \citation{faulty-pri-queue}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Hacking the linearisablity framework}{23}\protected@file@percent }
-\newlabel{sec:testing-hacking}{{5}{23}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Direct testing of synchronisation linearisation}{25}\protected@file@percent }
-\newlabel{sec:direct}{{6}{25}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}The general case}{26}\protected@file@percent }
-\newlabel{sec:algorithm-dfs}{{6.1}{26}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.1.1}Partial-order reduction}{27}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Hacking the linearisablity framework}{26}\protected@file@percent }
+\newlabel{sec:testing-hacking}{{5}{26}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Direct testing of synchronisation linearisation}{27}\protected@file@percent }
+\newlabel{sec:direct}{{6}{27}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}The general case}{28}\protected@file@percent }
+\newlabel{sec:algorithm-dfs}{{6.1}{28}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.1.1}Partial-order reduction}{29}\protected@file@percent }
 \citation{gibbons-korach}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Complexity}{28}\protected@file@percent }
-\newlabel{sec:NP-complete}{{6.2}{28}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}The binary heterogeneous stateless case}{29}\protected@file@percent }
-\newlabel{sec:binary-heterogeneous}{{6.3}{29}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Complexity}{30}\protected@file@percent }
+\newlabel{sec:NP-complete}{{6.2}{30}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}The binary heterogeneous stateless case}{31}\protected@file@percent }
+\newlabel{sec:binary-heterogeneous}{{6.3}{31}}
 \citation{ford-fulkerson}
 \citation{edmonds_1965}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}The binary homogeneous stateless case}{30}\protected@file@percent }
-\newlabel{sec:binary-homogeneous}{{6.4}{30}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}The binary homogeneous stateless case}{32}\protected@file@percent }
+\newlabel{sec:binary-homogeneous}{{6.4}{32}}
 \citation{Karp1972}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.5}The non-binary stateless case}{31}\protected@file@percent }
-\newlabel{sec:non-binary-stateless}{{6.5}{31}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.6}Implementation}{32}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces A simple tester for a synchronous channel. }}{33}\protected@file@percent }
-\newlabel{fig:ChanTester}{{3}{33}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Experiments}{33}\protected@file@percent }
-\newlabel{sec:experiments}{{7}{33}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Example interfaces of synchronisation objects. }}{34}\protected@file@percent }
-\newlabel{fig:examples}{{4}{34}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Results of tuning experiments for finding errors in implementations of a synchronous channel (left) and the ABC problem (right). $p$\penalty \@M \ denotes the number of threads. }}{36}\protected@file@percent }
-\newlabel{fig:tuning}{{5}{36}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Times (in ms) to find bugs (left), and to run and analyse 240,000 invocations (right). }}{36}\protected@file@percent }
-\newlabel{fig:bug-times}{{6}{36}}
-\newlabel{fig:throughput}{{6}{36}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Progress}{37}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.5}The non-binary stateless case}{33}\protected@file@percent }
+\newlabel{sec:non-binary-stateless}{{6.5}{33}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.6}Implementation}{34}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces A simple tester for a synchronous channel. }}{35}\protected@file@percent }
+\newlabel{fig:ChanTester}{{5}{35}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Experiments}{35}\protected@file@percent }
+\newlabel{sec:experiments}{{7}{35}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Example interfaces of synchronisation objects. }}{36}\protected@file@percent }
+\newlabel{fig:examples}{{6}{36}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Results of tuning experiments for finding errors in implementations of a synchronous channel (left) and the ABC problem (right). $p$\penalty \@M \ denotes the number of threads. }}{38}\protected@file@percent }
+\newlabel{fig:tuning}{{7}{38}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Times (in ms) to find bugs (left), and to run and analyse 240,000 invocations (right). }}{39}\protected@file@percent }
+\newlabel{fig:bug-times}{{8}{39}}
+\newlabel{fig:throughput}{{8}{39}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Progress}{39}\protected@file@percent }
 \bibstyle{alpha}
 \bibdata{sync}
 \bibcite{edmonds_1965}{Edm65}
 \bibcite{ford-fulkerson}{FF56}
 \bibcite{gibbons-korach}{GK97}
 \bibcite{herlihy-shavit}{HS12}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Times (in ms) taken to find errors of progressibility. }}{38}\protected@file@percent }
-\newlabel{fig:progressibility-bugs}{{7}{38}}
-\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusions}{38}\protected@file@percent }
-\newlabel{sec:conc}{{8}{38}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Times (in ms) taken to find errors of progressibility. }}{40}\protected@file@percent }
+\newlabel{fig:progressibility-bugs}{{9}{40}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusions}{40}\protected@file@percent }
+\newlabel{sec:conc}{{8}{40}}
 \bibcite{herlihy-wing}{HW90}
 \bibcite{Karp1972}{Kar72}
 \bibcite{gavin:lin-testing}{Low16}

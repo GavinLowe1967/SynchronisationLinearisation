@@ -84,7 +84,8 @@ The object has some local state, which persists between invocations.  The
 take place.  The values |res|\s1 and |res|\s2 represent the results that
 should be returned by the corresponding invocations of~|op|\s1 and~|op|\s2,
 respectively.  The function |update| describes how the local state should be
-updated. 
+updated.  We assume the specification object is deterministic: |f|$_1$, |f|$_2$
+and |update| are functions. 
 
 For example, consider a synchronous channel with operations
 \begin{scala}
@@ -221,7 +222,8 @@ This history is illustrated by the timeline in Figure~\ref{fig:lin-timeline}.
 
 Linearisability is specified with respect to a specification object~$Spec$,
 with the same operations (and signatures) as the concurrent object in
-question.  A history of the specification object is a sequence of events of
+question. 
+A history of the specification object is a sequence of events of
 the form:
 %
 \begin{itemize}
@@ -232,7 +234,9 @@ the form:
 %
 A history is \emph{legal} if it is consistent with the definition of~$Spec$,
 i.e.~for each invocation, the precondition is satisfied, and the return value
-is as for the definition of the operation in~$Spec$.
+is as for the definition of the operation in~$Spec$.  We assume that the
+specification object is deterministic: after a particular history, there is a
+unique value that can be returned by each invocation.
 
 For example, consider the history
 \begin{eqnarray*}
