@@ -110,23 +110,37 @@ ABCTester.scala (ternary, stateless, heterogeneous)
 
 BarrierTester.scala (n-ary, stateless, homogenous)
 
-TimeoutChannelTester (mixed modes, stateless, heterogeneous)
+TimeoutChannelTester.scala (mixed modes, stateless, heterogeneous)
 
-TimeoutExchangerTester (mixed modes, stateless, homogeneous)
+TimeoutExchangerTester.scala (mixed modes, stateless, homogeneous)
 
-ABCCounterTester (ternary, stateful, heterogeneous)
+ABCCounterTester.scala (ternary, stateful, heterogeneous)
 
-BarrierCounterTester (n-ary, stateful, homogeneous)
+BarrierCounterTester.scala (n-ary, stateful, homogeneous)
 
-TerminatingQueueTester (mixed modes, stateful, heterogeneous)
+TerminatingQueueTester.scala (mixed modes, stateful, heterogeneous)
 
-CloseableChanTester (mixed modes, stateful, heterogeneous)
+CloseableChanTester.scala (mixed modes, stateful, heterogeneous)
 
 Two-step testers:
 
-ChanCounterTwoStepTester
+ChanCounterTwoStepTester.scala
 
-ChanTwoStepTester
+ChanTwoStepTester.scala
+
+ABCTwoStepTester.scala
+
+ExchangerTwoStepTester.scala
+
+MenWomenTwoStepTester.scala
+
+BarrierTwoStepTester.scala
+
+TimeoutExchangerTwoStepTester.scala
+
+TO DO: timeout channel, closeable channel, two families, resignable barrier,
+terminating queue.
+
 
 ==================================================================
 

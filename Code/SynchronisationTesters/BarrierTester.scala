@@ -4,7 +4,8 @@ import scala.util.Random
 import synchronisationTesting.{HistoryLog,StatelessTester}
 import synchronisationObject.{
   BarrierT,Barrier,Barrier2,FaultyBarrier,FaultyBarrier2,FaultyBarrier3}
-// import io.threadcso._
+import ox.gavin.profiling.{SamplingProfiler,ProfilerSummaryTree}
+import scala.collection.mutable.ArrayBuffer
 
 object BarrierTester extends Tester{
   /** The number of threads involved in each synchronisation. */
@@ -61,6 +62,19 @@ object BarrierTester extends Tester{
   //     ops1.isEmpty
   //   }
 
+  /** Is ops a suffix of a possible synchronisation?  I.e. are the ids fields a
+    * suffix of [0..p)? */
+  def suffixMatching(ops: List[Sync]) : Boolean = {
+    if(ops.isEmpty) true
+    else{
+      var k = ops.head.id; var ops1 = ops.tail
+      while(ops1.nonEmpty && ops1.head.id == k+1){
+        k = ops1.head.id; ops1 = ops1.tail
+      }
+      ops1.isEmpty && k == p-1
+    }
+  }
+
   var faulty = false; var faulty2 = false; 
   var faulty3 = false; var version2 = false
 
@@ -78,12 +92,12 @@ object BarrierTester extends Tester{
       }
     if(progressCheck){
       val tester = new StatelessTester[Sync](
-        worker(barrier), p, List(n), matching, isSorted, verbose = false)
+        worker(barrier), p, List(n), matching, suffixMatching/*isSorted*/, verbose = false)
       tester(timeout) // if(!tester(timeout)) sys.exit()
     }
     else{
       val tester = new StatelessTester[Sync](
-        worker(barrier), p, List(n), matching, isSorted, verbose = false)
+        worker(barrier), p, List(n), matching, suffixMatching/*isSorted*/, verbose = false)
       tester() // if(!tester()) sys.exit()
     }
   }
@@ -114,6 +128,20 @@ object BarrierTester extends Tester{
     // assert(p%n == 0)
     if(p != n) println("Warning: different values for p and n")
 
+    if(profiling){
+      def filter(frame: StackTraceElement) : Boolean =
+        SamplingProfiler.defaultFilter(frame) &&
+          !frame.getClassName.contains("jdk.internal")
+      def printer(data: ArrayBuffer[SamplingProfiler.StackTrace]) = {
+        SamplingProfiler.print(filter = filter, length = 20)(data)+
+        "\n"+
+        SamplingProfiler.printTree(
+          filter = filter, expand = ProfilerSummaryTree.expandToThreshold(0.5)
+        )(data)
+      }
+      val profiler = new SamplingProfiler(interval = interval, print = printer)
+      profiler{ runTests(reps, timing) }
+    }
     runTests(reps, timing)
   }
 

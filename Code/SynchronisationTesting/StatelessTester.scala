@@ -102,20 +102,14 @@ class StatelessTester[Op](
     for(arity <- arities; (arg,_,_) <- allArgs(arity); 
         if canSync(arg); ce <- arg)
       matches(ce.opIndex) ::= arg.map(_.opIndex)
-    // if(verbose){
-    //   println("Matches:")
-    //   for(i <- 0 until result.length) println(s"$i: "+result(i))
-    // }
 
     // Check every returned invocation could synchronise; otherwise return null
     val nonSyncs = (0 until matches.length).filter(i => matches(i).isEmpty)
     if(nonSyncs.nonEmpty){
-      // for(i <- 0 until matches.length) if(matches(i).isEmpty){
       println(events.mkString("\n"))
       println(s"No candidate synchronisation for invocations "+
         nonSyncs.mkString(", ")+".\nPossible synchronisations:")
       showMatches(matches)
-      // for(i <- 0 until matches.length) println(s"$i: "+matches(i))
       return null
     }
 
@@ -129,20 +123,6 @@ class StatelessTester[Op](
 
     matches
   }
-
-  // /** Are sync1 and sync2 disjoint? */
-  // private def disjoint(sync1: SyncIndices, sync2: SyncIndices) = {
-  //   //   sync1.forall(i => !sync2.contains(i))
-  //   // done indicates if an element of sync1 is in sync2
-  //   var xs = sync1; var done = false
-  //   while(xs.nonEmpty && !done){
-  //     // Does sync2 contain x?  If so, set done
-  //     var ys = sync2; val x = xs.head; xs = xs.tail
-  //     while(ys.nonEmpty && ys.head != x) ys = ys.tail
-  //     done = ys.nonEmpty
-  //   }
-  //   !done
-  // }
 
   /** Seen set.  Each entry gives a set of invocation indices waiting to be
     * linearised.  */
@@ -173,17 +153,10 @@ class StatelessTester[Op](
         val matches2 = new Array[List[SyncIndices]](length); var i = 0
         while(i < length){
           matches2(i) = 
-            // if(sync.contains(i)) List[SyncIndices]()
-            if(syncBM(i)) List[SyncIndices]() // needed?????
-            //else matches(i).filter(sync1 => disjoint(sync,sync1))
-            // else matches(i).filter(sync1 => disjointBM(syncBM,sync1))
+            if(syncBM(i)) List[SyncIndices]() 
             else filterDisjoint(syncBM, matches(i))
           i += 1
         }
-        // val matches2 = Array.tabulate(matches.length)( i =>
-        //   if(sync.contains(i)) List[SyncIndices]()
-        //   else matches(i).filter(sync1 => disjoint(sync,sync1))
-        // )
         // toDo2 is invocations still to linearise
         val toDo2 = removeSynced(syncBM, toDo, matches2)
         if(toDo2 != null && seen.add(toDo2)){

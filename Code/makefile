@@ -37,7 +37,8 @@ $(EXDIR)/CloseableChanTester.class $(EXDIR)/ResignableBarrierTester.class
 
 TWO_STEP_TESTERS = $(EXDIR)/ChanTwoStepTester.class				\
 $(EXDIR)/ChanCounterTwoStepTester.class $(EXDIR)/MenWomenTwoStepTester.class	\
-$(EXDIR)/ExchangerTwoStepTester.class $(EXDIR)/ABCTwoStepTester.class
+$(EXDIR)/ExchangerTwoStepTester.class $(EXDIR)/ABCTwoStepTester.class		\
+$(EXDIR)/BarrierTwoStepTester.class $(EXDIR)/TimeoutExchangerTwoStepTester.class
 
 TESTERSX = $(BINARY_HETERO_TESTERS) $(BINARY_STATEFUL_TESTERS)			\
 $(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS) $(NON_BINARY_STATEFUL_TESTERS)	\
@@ -160,6 +161,7 @@ $(DIR)/TwoStepHomoLinSpec.class: SynchronisationTesting/TwoStepHomoLinSpec.scala
 $(DIR)/TwoStepLinSpec3.class: SynchronisationTesting/TwoStepLinSpec3.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationTesting/TwoStepLinSpec3.scala
 
+
 $(DIR)/%.class:     SynchronisationTesting/%.scala
 	$(FSC) $<
 
@@ -177,7 +179,7 @@ $(OBDIR)/Barrier.class: SynchronisationObjects/Barrier.scala
 $(OBDIR)/%.class:     SynchronisationObjects/%.scala
 	$(FSC) $<
 
-##### Testers
+##### Two-step testers
 
 $(EXDIR)/ChanTwoStepTester.class: SynchronisationTesters/ChanTwoStepTester.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/ChanTwoStepTester.scala
@@ -193,6 +195,14 @@ $(EXDIR)/MenWomenTwoStepTester.class: SynchronisationTesters/MenWomenTwoStepTest
 
 $(EXDIR)/ABCTwoStepTester.class: SynchronisationTesters/ABCTwoStepTester.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/ABCTwoStepTester.scala
+
+$(EXDIR)/BarrierTwoStepTester.class: SynchronisationTesters/BarrierTwoStepTester.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/BarrierTwoStepTester.scala
+
+$(EXDIR)/TimeoutExchangerTwoStepTester.class: SynchronisationTesters/TimeoutExchangerTwoStepTester.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/TimeoutExchangerTwoStepTester.scala
+
+#### Other testers
 
 $(EXDIR)/CloseableChanTester.class: SynchronisationTesters/CloseableChanTester.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/CloseableChanTester.scala
