@@ -34,6 +34,13 @@ object ChanCounterTwoStepTester extends Tester{
     def sync(x: Int, u: Unit): ((Int, Int), SyncSpec) = 
       ((counter+1, x), new SyncSpec(counter+1))
   }
+
+  /* Now with the roles of `send` and `receive` swapped. */
+  case class SyncSpecR(counter: Int = 0) 
+      extends SyncSpecObject[Unit,Int,Int,Int]{
+    def sync(u: Unit, x: Int): ((Int, Int), SyncSpecR) = 
+      ((x, counter+1), new SyncSpecR(counter+1))
+  }
  
   /** The type of two-step linearizability specification objects. */
   type Spec = TwoStepLinSpec[Int,Unit,Int,Int]
@@ -53,13 +60,6 @@ object ChanCounterTwoStepTester extends Tester{
       else log(_.receive(), s"receive", _.op2(()))
   }
 
-  /* Now with the roles of `send` and `receive` swapped. */
-
-  case class SyncSpecR(counter: Int = 0) 
-      extends SyncSpecObject[Unit,Int,Int,Int]{
-    def sync(u: Unit, x: Int): ((Int, Int), SyncSpecR) = 
-      ((x, counter+1), new SyncSpecR(counter+1))
-  }
 
   type SpecR = TwoStepLinSpec[Unit,Int,Int,Int]
 

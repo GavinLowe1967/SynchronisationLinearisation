@@ -18,8 +18,30 @@ object TimeoutExchangerTwoStepTester extends Tester{
    * have failed, and the other succeeded.  We do this by ensuring every
    * invocation has a distinct label. */
 
+  /** Common code from ExchangerSpec and ExchangerSpec2. */
+  trait ExchangerSpecT{
+    val state: AState[Int]; val returns: Array[Option[Int]]
+
+    override def hashCode = {
+      var h = state.hashCode
+      for(x <- returns) h = h*157+x.hashCode
+      h
+    }
+
+    override def equals(that: Any) =  that match{
+      case es: ExchangerSpecT =>
+        if(es.state == state){
+          var i = 0
+          while(i < returns.length && returns(i) == es.returns(i)) i += 1
+          i == returns.length
+        }
+        else false
+    }
+  }
+
   /** Specification object. */
-  class ExchangerSpec(val state: AState[Int], val returns: Array[Option[Int]]){
+  class ExchangerSpec(val state: AState[Int], val returns: Array[Option[Int]]) 
+      extends ExchangerSpecT{
     /** Constructor for initial state. */
     def this(n: Int) = this(Zero(), Array.fill(n)(None))
 
@@ -50,22 +72,66 @@ object TimeoutExchangerTwoStepTester extends Tester{
     /** An attempt to exchange that failed. */
     def syncFail(t: ThreadID, x: Int): (Unit, ExchangerSpec) = ((), this)
 
-    override def hashCode = {
-      var h = state.hashCode
-      for(x <- returns) h = h*157+x.hashCode
-      h
+    // override def hashCode = {
+    //   var h = state.hashCode
+    //   for(x <- returns) h = h*157+x.hashCode
+    //   h
+    // }
+
+    // override def equals(that: Any) =  that match{
+    //   case es: ExchangerSpec =>
+    //     if(es.state == state){
+    //       var i = 0
+    //       while(i < returns.length && returns(i) == es.returns(i)) i += 1
+    //       i == returns.length
+    //     }
+    //     else false
+    // }
+  } // end of ExchangerSpec
+
+
+  /** This version uses an idea due to Jonathan: when two calls are concurrent,
+    * linearise the one with the smaller id first.  This turns out not to
+    * work. */
+  class ExchangerSpec2(val state: AState[Int], val returns: Array[Option[Int]]) 
+      extends ExchangerSpecT{
+
+    /** Constructor for initial state. */
+    def this(n: Int) = this(Zero(), Array.fill(n)(None))
+
+    /** The result of t exchanging. */
+    private def getFromReturns(t: ThreadID) = {
+      val newReturns = returns.clone; newReturns(t) = None
+      (returns(t), new ExchangerSpec2(state, newReturns))
     }
 
-    override def equals(that: Any) =  that match{
-      case es: ExchangerSpec =>
-        if(es.state == state){
-          var i = 0
-          while(i < returns.length && returns(i) == es.returns(i)) i += 1
-          i == returns.length
-        }
-        else false
+    def sync1(t: ThreadID, x: Int): (Unit, ExchangerSpec2) = {
+      assert(returns(t) == None)
+      state match{
+        case Zero() => ((), new ExchangerSpec2(One(t,x), returns))
+        case One(t1,y) =>
+          assert(t != t1)
+          if(t1 < t){ // synchronisation succeeds
+            val newReturns = returns.clone
+            newReturns(t) = Some(y); newReturns(t1) = Some(x)
+            ((), new ExchangerSpec2(Zero(), newReturns))
+          }
+          else ((), this) // this one fails
+      }
     }
-  } // end of ExchangerSpec
+
+    /** The second part of the synchronisation. */
+    def sync2(t: ThreadID): (Option[Int], ExchangerSpec2) = state match{
+      case Zero() => getFromReturns(t)
+      case One(t1,y) => 
+        if(t1 == t){ 
+          assert(returns(t) == None); (None, new ExchangerSpec2(Zero(), returns))
+        }
+        else getFromReturns(t)
+    }
+
+    override def equals(that: Any) = false
+  }
 
   /** The maximum value sent. */
   var MaxVal = 100
@@ -79,7 +145,30 @@ object TimeoutExchangerTwoStepTester extends Tester{
       var y = null.asInstanceOf[Option[Int]] // value received
       log(te => y = te.exchange(x), s"exchange($x) ($i, $me)",
         spec => if(y == None) spec.syncFail(me,x) else spec.sync1(me, x) )
-      if(y != None) log(_ => y, s"exchange2($x)", _.sync2(me))
+      if(y != None) log(_ => y, s"exchange2($x) ($i, $me)", _.sync2(me))
+    }
+  }
+
+  /** A worker in the testing system for use with ExchangerSpec2. */
+  def worker2(me: Int, log: LinearizabilityLog[ExchangerSpec2,TE]) = {
+    val random = new Random()
+    if(false){ // Standard definition
+      for(i <- 0 until iters){
+        Thread.sleep(random.nextInt(3))
+        val x = random.nextInt(MaxVal) // value sent
+        var y = null.asInstanceOf[Option[Int]] // value received
+        log(te => y = te.exchange(x), s"$me: exchange($x) $i", _.sync1(me, x) )
+        log(_ => y, s"$me: exchange2($x) $i", _.sync2(me))
+      }
+    }
+    else{ // This version is designed to show why this approach doesn't work.
+      assert(p == 2 && iters == 1)
+      if(me == 1) Thread.sleep(5)
+      val x = random.nextInt(MaxVal) // value sent
+      var y = null.asInstanceOf[Option[Int]] // value received
+      log(te => y = te.exchange(x), s"$me: exchange($x)", _.sync1(me, x) )
+      if(me == 0) Thread.sleep(5)
+      log(_ => y, s"$me: exchange2($x)", _.sync2(me))
     }
   }
 
@@ -91,10 +180,18 @@ object TimeoutExchangerTwoStepTester extends Tester{
       if(faulty) new FaultyTimeoutExchanger[Int](1) 
       else if(faulty2) new FaultyTimeoutExchanger2[Int](1) 
       else new TimeoutExchanger[Int](1)
-    val spec = new ExchangerSpec(p)
-    val tester = LinearizabilityTester[ExchangerSpec,TE](
-      spec, exchanger, p, worker _)
-    tester() > 0
+    if(true){
+      val spec = new ExchangerSpec(p)
+      val tester = LinearizabilityTester[ExchangerSpec,TE](
+        spec, exchanger, p, worker _)
+      tester() > 0
+    }
+    else{
+      val spec = new ExchangerSpec2(p)
+      val tester = LinearizabilityTester[ExchangerSpec2,TE](
+        spec, exchanger, p, worker2 _)
+      tester() > 0
+    }
   }
 
   def main(args: Array[String]) = {

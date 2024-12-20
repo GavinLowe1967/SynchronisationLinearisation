@@ -62,17 +62,14 @@ object BarrierTester extends Tester{
   //     ops1.isEmpty
   //   }
 
-  /** Is ops a suffix of a possible synchronisation?  I.e. are the ids fields a
-    * suffix of [0..p)? */
+  /** Is ops a suffix of a possible synchronisation?  I.e. are the ids fields
+    * of the form [k..p) for some k? */
   def suffixMatching(ops: List[Sync]) : Boolean = {
-    if(ops.isEmpty) true
-    else{
-      var k = ops.head.id; var ops1 = ops.tail
-      while(ops1.nonEmpty && ops1.head.id == k+1){
-        k = ops1.head.id; ops1 = ops1.tail
-      }
-      ops1.isEmpty && k == p-1
+    assert(ops.nonEmpty); var k = ops.head.id; var ops1 = ops.tail
+    while(ops1.nonEmpty && ops1.head.id == k+1){
+      k = ops1.head.id; ops1 = ops1.tail
     }
+    ops1.isEmpty && k == p-1
   }
 
   var faulty = false; var faulty2 = false; 
@@ -142,7 +139,7 @@ object BarrierTester extends Tester{
       val profiler = new SamplingProfiler(interval = interval, print = printer)
       profiler{ runTests(reps, timing) }
     }
-    runTests(reps, timing)
+    else runTests(reps, timing)
   }
 
 }

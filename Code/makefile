@@ -38,7 +38,11 @@ $(EXDIR)/CloseableChanTester.class $(EXDIR)/ResignableBarrierTester.class
 TWO_STEP_TESTERS = $(EXDIR)/ChanTwoStepTester.class				\
 $(EXDIR)/ChanCounterTwoStepTester.class $(EXDIR)/MenWomenTwoStepTester.class	\
 $(EXDIR)/ExchangerTwoStepTester.class $(EXDIR)/ABCTwoStepTester.class		\
-$(EXDIR)/BarrierTwoStepTester.class $(EXDIR)/TimeoutExchangerTwoStepTester.class
+$(EXDIR)/BarrierTwoStepTester.class						\
+$(EXDIR)/TimeoutExchangerTwoStepTester.class					\
+$(EXDIR)/TwoFamiliesTwoStepTester.class						\
+$(EXDIR)/ResignableBarrierTwoStepTester.class					\
+$(EXDIR)/TerminatingQueueTwoStepTester.class
 
 TESTERSX = $(BINARY_HETERO_TESTERS) $(BINARY_STATEFUL_TESTERS)			\
 $(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS) $(NON_BINARY_STATEFUL_TESTERS)	\
@@ -201,6 +205,15 @@ $(EXDIR)/BarrierTwoStepTester.class: SynchronisationTesters/BarrierTwoStepTester
 
 $(EXDIR)/TimeoutExchangerTwoStepTester.class: SynchronisationTesters/TimeoutExchangerTwoStepTester.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/TimeoutExchangerTwoStepTester.scala
+
+$(EXDIR)/TwoFamiliesTwoStepTester.class: SynchronisationTesters/TwoFamiliesTwoStepTester.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/TwoFamiliesTwoStepTester.scala
+
+$(EXDIR)/ResignableBarrierTwoStepTester.class: SynchronisationTesters/ResignableBarrierTwoStepTester.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/ResignableBarrierTwoStepTester.scala
+
+$(EXDIR)/TerminatingQueueTwoStepTester.class: SynchronisationTesters/TerminatingQueueTwoStepTester.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/TerminatingQueueTwoStepTester.scala
 
 #### Other testers
 

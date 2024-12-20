@@ -170,9 +170,107 @@ then Proposition~\ref{prop:two-step-lin} implies that $h'$ is two-step
 linearisable with respect to |TwoStepLinSpec|.  Hence $h_l$ is linearisable
 with respect to |TwoStepLinSpec|, by construction.
 
-This approach generalises to non-binary synchronisations, and to homogeneous
-synchronisations, as in Section~\ref{ssec:relating-variations}.
+This approach generalises to non-binary synchronisations, homogeneous
+synchronisations, and stateful specification objects as in
+Section~\ref{ssec:relating-variations}.
 
 %\framebox{Generalisations}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \framebox{Improve below}
+
+However, it is not, in general, possible to capture variable-arity
+synchronisations where the arity depends upon the relative timing of
+invocations, as opposed to the state of the specification object.  This is a
+result of two things: that the logging of operations, in particular the
+$\overline{\op}_1$, can be arbitrarily delayed; and that it can be
+nondeterministic whether or not two invocations synchronise, which is at odds
+with the fact that each operation on the specification object needs to be
+deterministic.
+
+To illustrate this point, consider a timeout channel.  Without loss of
+generality, let the |send| operation correspond to $\op_1$, and the
+|receive| operation correspond to~$\op_2$.
+
+The left-hand side of Figure~\ref{fig:two-step-timeout-channel} gives a
+timeline illustrating a successful |send(3)| and |receive|.  Note that this
+corresponds to the history
+\[
+\seq{ \send(3)\::(),\; \receive()\::\sm{Some}(3),\; 
+  \overline{\send}(3)\::\sm{true} }
+\]
+of the specification object.
+
+%%%%%%%%%%
+
+\begin{figure}
+\begin{center}
+\begin{tikzpicture}[xscale = 0.9]
+\draw[|-|] (0,0) -- node[above] {$\send(3)\::()$} (1.6,0);
+\crossAt(0.7,0){$\send(3)\::()$}
+%
+\draw[|-|] (0.3,-1.5) -- 
+  node[above] {$\receive()\::\sm{Some}(3)$} (1.9,-1.5);
+\crossAt(1.5,-1.5){$\receive()\::\sm{Some}(3)$}
+%
+\draw[|-|] (2.5,0) -- node[above] 
+  {$\overline{\send}(3)\::\sm{true}$} (4.1,0);
+\crossAt(3.3,0){$\overline{\send}\::\sm{true}$}
+%% \draw[|-|] (4,0) -- 
+%%   node[above] {$\overline{\sendWithin}(3)\::\sm{true}$} (6,0);
+%
+%\draw (0,-2.5) -- (7.5,-2.5);
+\end{tikzpicture}
+%%%%%%
+\hfil\hfil
+%\bigskip
+\begin{tikzpicture}[xscale = 0.9]
+\draw[|-|] (0,-3.5) -- node[above] {$\send(3)\::()$} (1.6,-3.5);
+\crossAt(0.7,-3.5){$\send(3)\::()$}
+%
+\draw[|-|] (2.2,-5) -- 
+  node[above] {$\receive()\::\sm{None}$} (3.8,-5);
+\crossAt(3.4,-5){$\receive()\::\sm{Some}(3)$}
+%
+\draw[|-|] (4.0,-3.5) -- node[above] 
+  {$\overline{\send}(3)\::\sm{false}$} (5.6,-3.5);
+\crossAt(4.8,-3.5){$\overline{\send}(3)\::\sm{true}$}
+%% \draw[|-|] (5.5,-3.5) -- 
+%%   node[above] {$\overline{\sendWithin}(3)\::\sm{false}$} (7.5,-3.5);
+\end{tikzpicture}
+\end{center}
+\caption{Figure showing why two-step linearisation cannot be used for a
+  timeout channel.  The horizontal lines and the labels above represent the
+  log history; the crosses and the labels below illustrate the linearisation
+  points.  For simplicity, we omit invocation identifiers and thread
+  identities.}
+\label{fig:two-step-timeout-channel}
+\end{figure}
+
+%%%%%%%%%%
+
+The right-hand side of Figure~\ref{fig:two-step-timeout-channel} gives a
+timeline illustrating an unsuccessful |send(3)| and |receive|, and where the
+logging of $\overline{\send}$ is delayed.  None of the invocations overlap, so
+they must necessarily be linearised in the same order as in the previous
+history.  The specification object is deterministic, so the operations must
+return the same results as in the previous history.  But, in the cases of
+$\receive$ and $\overline{\send}$, those returned values do not agree with the
+corresponding values in the log history.  Hence the history would be flagged
+as an error, despite being valid.
+
+The difference between this situation and the discussion in
+Section~\ref{ssec:relating-variations} concerns the fact that the logging of
+operations, in particular the $\overline{\send}$, can be arbitrarily delayed.
+However, in the earlier section we allowed the $\overline{\send}$ anywhere
+within the corresponding concrete operation.  This means that a history like
+in Figure~\ref{fig:two-step-timeout-channel} (right) could be linearised by
+the history
+\[
+\seq{ \send(3)\::(),\; \overline{\send}(3)\::\sm{false},\;
+  \receive()\::\sm{None} }
+\]
+of the specification, where the operations take place in a different order
+than for Figure~\ref{fig:two-step-timeout-channel}; this is consistent with a
+deterministic specification object.

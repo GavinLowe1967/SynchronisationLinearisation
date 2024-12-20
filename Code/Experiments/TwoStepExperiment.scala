@@ -37,8 +37,10 @@ object TwoStepExperiment{
     ("Men and Women", "MenWomenTester", "MenWomenTwoStepTester"),
     ("ABC", "ABCTester", "ABCTwoStepTester"),
  */
-    ("Barrier", "BarrierTester", "BarrierTwoStepTester")// ,
+    // ("Barrier", "BarrierTester", "BarrierTwoStepTester")// ,
     // ("Timeout exchanger", "TimeoutExchangerTester", "TimeoutExchangerTwoStepTester")
+//    ("Two Families", "TwoFamiliesTester", "TwoFamiliesTwoStepTester")
+    ("Resignable Barrier", "ResignableBarrierTester", "ResignableBarrierTwoStepTester")
   )
 
   /** Numbers of iterations to consider. */

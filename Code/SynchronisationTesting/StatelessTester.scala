@@ -87,7 +87,7 @@ class StatelessTester[Op](
 
   /** A representation of a synchronisation: the list of indices of CallEvents
     * for the invocations that synchronise. */
-  type SyncIndices = List[Int]
+  type SyncIndices = Array[Int] // List[Int]
 
   /** Find which invocations could synchronise.  If any returned invocation has
     * no possible synchronisations, return null.  If any pending invocations
@@ -101,7 +101,7 @@ class StatelessTester[Op](
     val allArgs = allArgsLists(calls)
     for(arity <- arities; (arg,_,_) <- allArgs(arity); 
         if canSync(arg); ce <- arg)
-      matches(ce.opIndex) ::= arg.map(_.opIndex)
+      matches(ce.opIndex) ::= arg.map(_.opIndex).toArray
 
     // Check every returned invocation could synchronise; otherwise return null
     val nonSyncs = (0 until matches.length).filter(i => matches(i).isEmpty)
@@ -204,14 +204,18 @@ class StatelessTester[Op](
     }
   }
 
-  /** Are list (a list of Ints) and bm (a bitmap) disjoint? */
-  @inline private def disjointBM(bm: Array[Boolean], list: SyncIndices) = {
-    var l = list
-    while(l.nonEmpty && !bm(l.head)) l = l.tail
-    l.isEmpty
+  /** Are a (an array of Ints) and bm (a bitmap) disjoint? */
+  @inline private def disjointBM(bm: Array[Boolean], a: SyncIndices) = {
+    var i = 0; val len = a.length
+    while(i < len && !bm(a(i))) i += 1
+    i == len
+
+    // var l = list
+    // while(l.nonEmpty && !bm(l.head)) l = l.tail
+    // l.isEmpty
   }
 
-  private def showMatches(matches: Array[List[List[Int]]]) = 
+  private def showMatches(matches: Array[List[SyncIndices]]) = 
     for(i <- 0 until matches.length)
       println(s"$i: "+matches(i).map(_.mkString("(", ", ", ")")).mkString(", "))
 

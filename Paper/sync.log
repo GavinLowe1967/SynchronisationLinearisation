@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2024.3.15)  24 SEP 2024 10:12
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2024.3.15)  6 DEC 2024 10:55
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -514,7 +514,7 @@ csp style >> version 5.6 <<
 Package: scalalistings 
 )
 \c@lemma=\count277
-Package Listings Info: Made | a short reference for \lstinline on input line 41
+Package Listings Info: Made | a short reference for \lstinline on input line 43
 .
 
 (/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdfmode.def
@@ -525,20 +525,20 @@ File: l3backend-pdfmode.def 2020-02-03 L3 backend support: PDF mode
 (./sync.aux)
 \openout1 = `sync.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 51.
-LaTeX Font Info:    ... okay on input line 51.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 51.
-LaTeX Font Info:    ... okay on input line 51.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 51.
-LaTeX Font Info:    ... okay on input line 51.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 51.
-LaTeX Font Info:    ... okay on input line 51.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 51.
-LaTeX Font Info:    ... okay on input line 51.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 51.
-LaTeX Font Info:    ... okay on input line 51.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 51.
-LaTeX Font Info:    ... okay on input line 51.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
  ABD: EveryShipout initializing macros
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -566,18 +566,18 @@ Package pgfplots notification 'compat/show suggested version=true': document ha
 s been generated with the most recent feature set (\pgfplotsset{compat=1.16}).
 
 \c@lstlisting=\count285
-LaTeX Font Info:    Trying to load font information for U+lasy on input line 52
+LaTeX Font Info:    Trying to load font information for U+lasy on input line 54
 .
 (/usr/share/texlive/texmf-dist/tex/latex/base/ulasy.fd
 File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
 )
-LaTeX Font Info:    Trying to load font information for U+msa on input line 52.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 54.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 52.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 54.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
@@ -633,28 +633,28 @@ Overfull \hbox (1.66231pt too wide) in paragraph at lines 226--227
 [18] [19]
 Missing character: There is no ; in font nullfont!
  [20]) (./relating2.tex [21]
-Overfull \hbox (21.79962pt too wide) in paragraph at lines 113--114
+Overfull \hbox (21.79962pt too wide) in paragraph at lines 112--113
 [][][][][][][][][][][][][][][][][][][]$[]$[][][] 
  []
 
 
-Overfull \hbox (57.56326pt too wide) in paragraph at lines 121--122
+Overfull \hbox (57.56326pt too wide) in paragraph at lines 120--121
 [][][][][][][][][][][][][]$[]$[][][][][][][]$[]$[][][][][][][][][][][][]$[]$[][
 ][][][][][] 
  []
 
 
-Overfull \hbox (62.5669pt too wide) in paragraph at lines 125--126
+Overfull \hbox (62.5669pt too wide) in paragraph at lines 124--125
 [][][][][][][][][][][][][][][][][][][][][][][][][] 
  []
 
 
-Overfull \hbox (9.49698pt too wide) in paragraph at lines 147--149
+Overfull \hbox (9.49698pt too wide) in paragraph at lines 146--148
 [][] 
  []
 
-[22] [23]) (./testing.tex [24] [25] [26]) (./direct.tex [27] [28] [29] [30]
-[31] [32] [33] [34]) (./examples.tex [35] [36]
+[22]) (./testing.tex [23] [24] [25] [26] [27]) (./direct.tex [28] [29] [30]
+[31] [32] [33] [34] [35]) (./examples.tex [36]
 Underfull \hbox (badness 2726) in paragraph at lines 109--111
 [][] \OT1/cmr/m/n/12 Ex-per-i-ments com-par-ing two-step and di-rect al-go-rith
 ms.
@@ -666,7 +666,7 @@ Overfull \hbox (85.47523pt too wide) in paragraph at lines 109--111
 riment --samples 10 
  []
 
-(./BPN-ChanTester--faulty.tex
+[37] (./BPN-ChanTester--faulty.tex
 Package pgfplots info on input line 17: Using 'lua backend=false' for axis: xmo
 de=log unsupported (yet).
 ) (./BPN-ABCTester--faulty.tex
@@ -677,21 +677,21 @@ Overfull \hbox (2.61108pt too wide) in paragraph at lines 139--148
 []$[]$ $[]$ 
  []
 
-[37] [38] [39]) (./sync.bbl [40]
+[38] [39] [40]) (./sync.bbl
 Underfull \hbox (badness 1297) in paragraph at lines 31--36
 \OT1/cmr/m/n/12 lems.  In Ray-mond E. Miller, James W. Thatcher, and
  []
 
-) [41] (./sync.aux)
+[41]) [42] (./sync.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 25325 strings out of 483183
- 632172 string characters out of 5966292
- 1007841 words of memory out of 5000000
- 39917 multiletter control sequences out of 15000+600000
+ 25330 strings out of 483183
+ 632259 string characters out of 5966292
+ 1002088 words of memory out of 5000000
+ 39922 multiletter control sequences out of 15000+600000
  549138 words of font info for 91 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  73i,21n,127p,721b,2693s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -719,10 +719,10 @@ s/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1
 c/amsfonts/cm/cmti12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsf
 onts/cm/cmtt12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/l
 atxfont/lasy10.pfb>
-Output written on sync.pdf (41 pages, 372628 bytes).
+Output written on sync.pdf (42 pages, 375367 bytes).
 PDF statistics:
- 243 PDF objects out of 1000 (max. 8388607)
- 173 compressed objects within 2 object streams
+ 246 PDF objects out of 1000 (max. 8388607)
+ 175 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

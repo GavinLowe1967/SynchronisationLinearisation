@@ -52,7 +52,7 @@ object BarrierTwoStepTester extends Tester{
   def worker(me: Int, log: LinearizabilityLog[BarrierSpec,BarrierT]) = {
     for(i <- 0 until iters){
       log(_.sync(me), s"$me: sync", _.sync1(me))
-      log((b: BarrierT) => (), s"me: sync2", _.sync2(me))
+      log((b: BarrierT) => (), s"$me: sync2", _.sync2(me))
     } 
   }
 

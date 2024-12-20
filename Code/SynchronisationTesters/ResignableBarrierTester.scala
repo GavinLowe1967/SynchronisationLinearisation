@@ -3,6 +3,8 @@ package synchronisationTester
 import scala.util.Random
 import synchronisationTesting.{HistoryLog,StatefulTester}
 import synchronisationObject.{ResignableBarrierT, ResignableBarrier}
+import ox.gavin.profiling.{SamplingProfiler,ProfilerSummaryTree}
+import scala.collection.mutable.ArrayBuffer
 import scala.collection.immutable.HashSet
 
 /** A tester for ResignableBarriers. */
@@ -114,8 +116,9 @@ object ResignableBarrierTester extends Tester{
     // if(!tester()) sys.exit()
   }
 
-  def main(args: Array[String]) = {
-    var reps = 10000; var i = 0
+  def main(args: Array[String]): Unit = {
+    var reps = 10000; var i = 0; var timing = false; var profiling = false
+    var interval = 50
     while(i < args.length) args(i) match{
       case "-p" => p = args(i+1).toInt; i += 2
       case "--reps" => reps = args(i+1).toInt; i += 2
@@ -123,9 +126,26 @@ object ResignableBarrierTester extends Tester{
       case "--syncProb" => syncProb = args(i+1).toDouble; i += 2
       case "--faulty" => faulty = true; i += 1 
       case "--doASAP" => doASAP = true; i += 1
+      case "--timing" => timing = true; i += 1
+      case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
     }
 
-    runTests(reps)
+    if(profiling){
+      def filter(frame: StackTraceElement) : Boolean =
+        SamplingProfiler.defaultFilter(frame) &&
+          !frame.getClassName.contains("jdk.internal")
+      def printer(data: ArrayBuffer[SamplingProfiler.StackTrace]) = {
+        SamplingProfiler.print(filter = filter, length = 20)(data)+
+        "\n"+
+        SamplingProfiler.printTree(
+          filter = filter, expand = ProfilerSummaryTree.expandToThreshold(0.5)
+        )(data)
+      }
+      val profiler = new SamplingProfiler(interval = interval, print = printer)
+      profiler{ runTests(reps, timing) }
+    }
+    else runTests(reps, timing)
+
     // for(i <- 0 until reps){
     //   doTest()
     //   if(i%500 == 0){ print("."); if(i%10000 == 0) print(i) }

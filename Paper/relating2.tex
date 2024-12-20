@@ -1,16 +1,15 @@
-
 \subsection{Generalisations}
 \label{ssec:relating-variations}
 
-The results of the previous subsections carry across to non-binary
-synchronisations, in a straightforward way.  For a $k$-ary synchronisation
-between distinct operations |op|\s1, \ldots, |op|$_k$, the corresponding
-two-step linearisation specification object has $2k-1$ operations, |op|\s1,
-\ldots, |op|$_k$, $\overline{\sm{op}}_1$, \ldots, $\overline{\sm{op}}_{k-1}$.
-The definition of two-step linearisation is then the obvious adaptation of the
-binary case: each operation |op|\s{i} of the synchronisation object is
-linearised by the composition of |op|\s{i} and $\overline{\op}_i$ of the
-specification object, for $i = 1, \ldots, k-1$.
+The results of the previous subsections carry across to non-binary, fixed
+arity synchronisations, in a straightforward way.  For a $k$-ary
+synchronisation between distinct operations |op|\s1, \ldots, |op|$_k$, the
+corresponding two-step linearisation specification object has $2k-1$
+operations, |op|\s1, \ldots, |op|$_k$, $\overline{\sm{op}}_1$, \ldots,
+$\overline{\sm{op}}_{k-1}$.  The definition of two-step linearisation is then
+the obvious adaptation of the binary case: each operation |op|\s{i} of the
+synchronisation object is linearised by the composition of |op|\s{i} and
+$\overline{\op}_i$ of the specification object, for $i = 1, \ldots, k-1$.
 
 %% Each of the first $k - 1$ |op| operations takes a thread identity as a
 %% parameter.
@@ -75,7 +74,7 @@ itself.  In the case $k=4$, it has definition:
 Each $\overline{\sm{op}}_i$ operation retrieves the result from the
 corresponding |returns|\s{i} array.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Homogeneous
 
 We now consider the homogeneous case.  For simplicity, we describe the binary
 case; synchronisations of more than two invocations are handled similarly.
@@ -149,77 +148,32 @@ class TwoStepLinSpec{
 \end{minipage}%
 \end{trivlist}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% \subsection{Mixed-mode synchronisations}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Mixed arity
+
 
 Recall that some operations may have mixed modes of synchronisations:
 different invocations may have synchronisations with different arities.  For
-example, in a timed channel, an invocation of the |send| and |receive| operations
-may synchronise with an invocation of the other operation, or may timeout
-corresponding to a unary synchronisation. 
-
-We illustrate how to test for synchronisation linearisation of objects with
-mixed modes of synchronisation via an example.
+example, in a timeout channel, an invocation of the |send| and |receive|
+operations may synchronise with an invocation of the other operation, or may
+timeout corresponding to a unary synchronisation.
 %
+%% We illustrate how to test for synchronisation linearisation of objects with
+%% mixed modes of synchronisation via an example.
+
 Figure~\ref{fig:two-step-timeout-chan} gives the automaton for a timeout
 channel, where we treat $\send$ as corresponding to $\op_1$ (we omit concrete
-code in the interests of brevity).  It is a small
-change from that for a standard channel.  The |receive| operation can happen
-from either state: if it happens from the |One| state, then a synchronisation
-has occurred and the invocation returns a value of the form |Some(x)|; but if
-it happens from the |Zero| state, there has been no corresponding |send|, and
-so the invocation returns~|None|, indicating a timeout.  Likewise, the
-$\overline{\send}$ operation can happen from either state; if it happens from
-the |Zero| state, then a synchronisation has occurred and the invocation
-returns |true|; but if it happens from the |One| state, there has been no
-corresponding |receive|, and so the invocation returns~|false|, indicating a
-timeout.
+code in the interests of brevity).  The automaton is similar to that for a
+standard channel.  The |receive| operation can happen from either state: if it
+happens from the |One| state, then a synchronisation has occurred and the
+invocation returns a value of the form |Some(x)|; but if it happens from the
+|Zero| state, there has been no corresponding |send|, and so the invocation
+returns~|None|, indicating a timeout.  Likewise, the $\overline{\send}$
+operation can happen from either state; if it happens from the |Zero| state,
+then a synchronisation has occurred and the invocation returns |true|; but if
+it happens from the |One| state, there has been no corresponding |receive|,
+and so the invocation returns~|false|, indicating a timeout.
 
-%% \begin{itemize}
-%% \item A thread~$t$ that performs a $\send(x)$ invocation: (1)~writes
-%%   $\call.\send^i(x)$ into the log; (2)~performs the |send(x)| on the timed
-%%   channel; (3)(a)~if the send is successful, acts much as previously, writing
-%%   $\return.\send^i\::true$, $\call.\overline{\send}^i(t)$ and
-%%   $\return.\overline{\send}^i\::true$ into the log; (b)~if the send is
-%%   unsuccessful, just writes $\return.\send^i\::false$ into the log.
-
-%% \item A thread that performs a |receive| invocation acts as before.
-%% \end{itemize}
-
-%% Then test for synchronisation linearisation against a specification object
-%% encoding the following automaton.
-%% %
-%% \begin{center}
-%% \begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
-%% \draw (0,0) node[draw] (zero) {$\sm{Zero}$};
-%% \draw[->] (zero) ++ (-1.5, 0) -- (zero);
-%% \draw[->] (zero) .. controls ++(1.5,+1.5) and ++(1.5,-1.5) .. 
-%%   node[right] {$\begin{align}
-%%       \send(\sm t, \sm x)\::\sm{false}  \\ 
-%%       \overline{\send}(\sm t)\::\sm{true}
-%%     \end{align}$}   
-%%   (zero);
-%% %
-%% \draw (0,-4.6) node[draw] (one) {$\sm{One}(\sm t, \sm{x})$};
-%% \draw[->] (zero) .. controls ++(0.3,-2.3) .. 
-%%   node[right] {$\send(\sm t, \sm{x})\::\sm{true}$} (one); 
-%% %
-%% \draw[->] (one) .. controls ++(-0.3,2.3) .. 
-%%   node[left] {$\receive()$} (zero);
-%% \end{tikzpicture}
-%% \end{center}
-%
-%% This doesn't work, because the linearisation framework requires the
-%% specification object to be \emph{deterministic}; but the above automaton is
-%% nondeterministic in the sense that, from state |Zero|, the |send| operation
-%% can return either |true| or |false|. 
-
-%% I think what will work is (1)~returning to the previous form of logging, in
-%% particular with \emph{all} invocations of |send| corresponding to two
-%% invocations on the specification object, and (2)~testing against the automaton
-%% below.
-%
 \begin{figure}
 \begin{center}
 \begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
@@ -245,31 +199,42 @@ timeout.
 \label{fig:two-step-timeout-chan}
 \end{figure}
 
-%%%%%%%%%%
+%% It is interesting to ask whether we can optimise the above construction, using
+%% just a single transition in the case of a failed send.  It turns out that we
+%% cannot.  To do so we require \emph{two} |send| transitions from |Zero|,
+%% corresponding to successful and unsuccessful cases (leading to |One| and
+%% |Zero| states, respectively).  This would make the automaton nondeterministic,
+%% contrary to our assumptions.
 
-It is interesting to ask whether we can optimise the above construction, using
-just a single transition in the case of a failed send.  It turns out that we
-cannot.  To do so we require \emph{two} |send| transitions from |Zero|,
-corresponding to successful and unsuccessful cases (leading to |One| and
-|Zero| states, respectively).  This would make the automaton nondeterministic,
-contrary to our assumptions.
 
-%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Stateful
 
 We now consider stateful specification objects.  In general, we can simply
 augment the |Zero| and |One| states of the automaton to include the state of
 the specification object.  Note that different transitions may be available
-based upon that state.  For example, with a closeable channel, we could
-include a boolean field in the automaton states, indicating whether the
-channel is closed.  However, it can be clearer and simpler to introduce
-different named states into the automaton, as in
-Figure~\ref{fig:two-step-closeable-chan}, where the automaton has an
-additional state, |Closed|, corresponding to the channel being closed.  All
-transitions can be loops in this state, so this represents a simplification
-over the general approach discussed above.  Note that a $\overline{\send}(\sm
-t)$ transition from the |Closed| state may return |true| if the corresponding
-synchronisation happened before the channel was closed, in which case
-$\sm{returns(t)} \ne \sm{None}$.
+based upon that state.  
+%% For example, with a closeable channel, we could include a boolean field in
+%% the automaton states, indicating whether the channel is closed.
+However, it can be clearer and simpler to introduce
+different named states into the automaton.
+
+%% , as in
+%% Figure~\ref{fig:two-step-closeable-chan}, where the automaton has an
+%% additional state, |Closed|, corresponding to the channel being closed.  
+
+%% It is also possible to capture operations with mixed modes of synchronisations
+%% where the arity of each invocation depends upon the state of the
+%% synchronisation object.  
+
+Figure~\ref{fig:two-step-closeable-chan} gives the specification automaton for
+a closeable channel.  The automaton has an additional state, |Closed|,
+corresponding to the channel being closed.  All invocations are unary
+synchronisations in this state.  This automaton represents a simplification
+over the general approach discussed above: we do not need two separate states
+after closing.  Note that a $\overline{\send}(\sm t)$ transition from the
+|Closed| state may succeed if the corresponding synchronisation happened
+before the channel was closed, in which case $\sm{returns(t)} \ne \sm{None}$.
 
 %%%%%%%%%%
 
@@ -305,54 +270,14 @@ $\sm{returns(t)} \ne \sm{None}$.
 
 %%%%%%%%%%
 
-%% Figure~\ref{fig:two-step-closeable-chan} gives the automaton for a closeable
-%% channel.  The automaton has an additional state, |Closed|, corresponding to
-%% the channel being closed.  Note that a $\overline{\send}(\sm t)$ transition
-%% from the |Closed| state may return |true| if the corresponding synchronisation
-%% happened before the channel was closed, in which case $\sm{returns(t)} \ne
-%% \sm{None}$.
+%% \framebox{***} I don't think it's worth discussing this.
 
+%% It is possible to perform a further optimisation in this case: we can capture
+%% a send that happens after the channel is closed by a \emph{single} transition,
+%% rather than two.  (The difference from the timeout channel is that these
+%% transitions happen from a different state, so the automaton is still
+%% deterministic.)  
 
-It is possible to perform a further optimisation in this case: we can capture
-a send that happens after the channel is closed by a \emph{single} transition,
-rather than two.  (The difference from the timeout channel is that these
-transitions happen from a different state, so the automaton is still
-deterministic.)  \framebox{***} I don't think it's worth discussing this.
+%% We believe that the approach can be adapted to all the other synchronisation
+%% objects we have considered.
 
-%% To do this, we augment the $\send(x)$
-%% events with the boolean result of the send, and include the
-%% $\overline{\send}(x)$ event only when the send is successful.
-
-%% In the |Closed| state, calls of |send| return |true|, and calls of |receive|
-%% return |None|.  Calls of $\overline{\send}$ can be linearised only if the
-%% corresponding synchronisation happened before the channel was closed, and in
-%% this case return |true|.
-
-%%   %% private val returns = new Array[Option[Boolean]]
-%%   %% for(t <- 0 until NumThreads) returns(t) = None
-%% \begin{scala}
-%% object SyncChanTwoStepLinSpec{
-%%   private val Zero = 0; private val One = 1; private val Closed = 2
-%%   private var state = Zero        // Takes values Zero, One, Closed
-%%   private var threadID = -1    // Current sender's thread ID when state = One
-%%   private val canReturn =       // which senders can return?
-%%     new Array[Boolean](NumThreads) 
-%%   private var value: A = _      // The current value being sent when state = One
-%%   def send(t: ThreadID, x: A): Boolean = { 
-%%     require(!canReturn(t))
-%%     if(state == Zero){ value = x; threadID = t; state = One; true }
-%%     else{ require(state == Closed); false }
-%%   }
-%%   def receive(u: Unit): Option[A] = { 
-%%     if(state == One){ canReturn(threadID) = true; state = Zero; Some(value) }
-%%     else{ require(state == Closed); None }
-%%   }
-%%   def £$\overline{\send}$£(t: ThreadID): Unit = { 
-%%     require(state != One && canReturn(t)); canReturn(t) = false; true 
-%%   }
-%%   def close(): Unit = { require(state != One); state = Closed } 
-%% }
-%% \end{scala}
-
-We believe that the approach can be adapted to all the other synchronisation
-objects we have considered.
