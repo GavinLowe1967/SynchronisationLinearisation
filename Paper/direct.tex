@@ -114,8 +114,8 @@ $linearised$ empty.
 
 Any path from the initial configuration to a target configuration clearly
 represents an interleaving of a history of the specification object with~$h$,
-as required for compatibility.  We can therefore search this graph using a
-standard algorithm.  Our implementation uses depth-first search.
+as required for synchronisation linearisation.  We can therefore search this
+graph using a standard algorithm.  Our implementation uses depth-first search.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -155,7 +155,7 @@ as soon as possible.
 \begin{definition}
 Let $h$ be a complete history of a synchronisation object, and let~$h_s$ be a
 legal history of the corresponding specification object; and consider an
-interleaving, as required for synchronisation compatibility.  We say that the
+interleaving, as required for synchronisation linearisation.  We say that the
 interleaving is an \emph{ASAP interleaving} if every event in~$h_s$ appears
 either: (1)~directly after the $\call$ event of one of the corresponding
 invocations from~$h$; or (2)~directly after another event from~$h_s$.
@@ -165,13 +165,14 @@ The following lemma shows that it suffices to consider ASAP interleavings.
 %
 \begin{lemma}
 Let $h$ be a complete history of a synchronisation object, and let~$h_s$ be a
-legal history of the corresponding specification object.  If $h$ and~$h_s$ are
-synchronisation-compatible, then there is an ASAP interleaving of them.
+legal history of the corresponding specification object.  If $h_s$ is a
+synchronisation linearisation of~$h$, then there is an ASAP interleaving of
+them.
 \end{lemma}
 %
 \begin{proof}
 Consider an interleaving of~$h$ and~$h_s$, as required for synchronisation
-compatibility.  We transform it into an ASAP interleaving as follows.  Working
+linearisation.  We transform it into an ASAP interleaving as follows.  Working
 forwards through the interleaving, we move every event of $h_s$ earlier in the
 interleaving, as far as possible, without it moving past any of the corresponding
 $\call$ events, nor moving past any other event from~$h_s$.  This means that
@@ -316,11 +317,10 @@ Consider the bipartite graph where the two sets of nodes are invocations
 of~$\op_1$ and~$\op_2$, respectively, and there is an edge between two
 invocations if they are compatible.  A synchronisation linearisation then
 corresponds to a total matching of this graph: given a total matching, we
-build a synchronisation-compatible history of the synchronisation
-specification object by including events
+build a synchronisation linearisation by including events
 $\sync^{i_1,i_2}(x_1,x_2)\::(y_1,y_2)$ (in an appropriate order) whenever
 there is an edge between $\op_1^{i_1}(x_1)\::y_1$ and $\op_2^{i_2}(x_2)\::y_2$
-in the matching; and conversely, each synchronisation-compatible history
+in the matching; and conversely, each synchronisation linearisation
 corresponds to a total matching.
 
 Thus we have reduced the problem to that of deciding whether a total matching

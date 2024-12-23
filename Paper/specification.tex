@@ -251,16 +251,17 @@ Let $h$ be a complete concurrent history, and let $h_s$ be a legal history of
 the specification object.  We say that $h$ and~$h_s$ \emph{correspond} if they
 contain the same invocations, i.e., for each $\call.op^i(x)$ and
 $\return.op^i\::y$ in $h$,\, $h_s$ contains $op^i(x)\::y$, and vice versa.  We
-say that $h$ and~$h_s$ are \emph{compatible} if there is some way of
-interleaving the two histories (i.e.~creating a history containing the events
-of~$h$ and~$h_s$, preserving the order of events) such that each $op^i(x)\::y$
-occurs between $\call.op^i(x)$ and $\return.op^i\::y$.  Informally, this
-indicates that the invocations of~$h$ appeared to take place in the order
-described by~$h_s$, and that this order is consistent with the specification
-object.
+say that $h_s$ is a \emph{linearisation} of~$h$ 
+if there is some way of interleaving the two histories (i.e.~creating a
+history containing the events of~$h$ and~$h_s$, preserving the order of
+events) such that each $op^i(x)\::y$ occurs between $\call.op^i(x)$ and
+$\return.op^i\::y$.  Informally, this indicates that the invocations of~$h$
+appeared to take place in the order described by~$h_s$, and that this order is
+consistent with the specification object.  We say that $h$ is
+\emph{linearisable} in this case. 
 
-Continuing the running example, the histories $h$ and~$h_s$ are compatible, as
-evidenced by the interleaving
+Continuing the running example, $h_s$ is a linearisation of~$h$, as evidenced
+by the interleaving
 \[
 \seq{\begin{align}
   \call.\sm{enq}^1(5),\; \call.\sm{enq}^2(4),\; 
@@ -271,9 +272,6 @@ evidenced by the interleaving
 \]
 as illustrated in  Figure~\ref{fig:lin-timeline}.
 
-We say that a complete history~$h$ is \emph{linearisable} with respect to
-$Spec$ if there is a corresponding legal history~$h_s$ of~$Spec$ such that $h$
-and~$h_s$ are compatible.  
 
 A concurrent history might not be complete, i.e.~it might have some pending
 invocations that have been called but have not returned.  An \emph{extension}
@@ -292,7 +290,8 @@ linearisable if all of its histories are linearisable.
 \subsection{Synchronisation linearisability}
 \label{sec:sync-lin}
 
-We now adapt the definition of linearisability to synchronisations.  We
+We now adapt the definition of linearisability to synchronisations.  For the
+moment, we consider only binary synchronisations.  We
 consider a concurrent history of the synchronisation object~$Sync$.  The
 history contains $\call$ and $\return$ events, as in the previous subsection;
 in the case of binary synchronisation, the events correspond to the
@@ -366,8 +365,9 @@ would also be legal (but not all such permutations will be compatible with the
 history of the synchronisation object); but the same will not be true in
 general of a specification object with state.
 
-Let $h$ be a complete history of the synchronisation object~$Sync$.  We say
-that a legal history~$h_s$ of~$Spec$ \emph{corresponds} to~$h$ if:
+Let $h$ be a complete history of the synchronisation object~$Sync$.
+Informally, we say that a legal history~$h_s$ of~$Spec$ \emph{corresponds}
+to~$h$ if their invocation identities agree; more precisely:
 %
 \begin{itemize}
 \item For each |sync| event with identity~$(i_1,i_2)$ in~$h_s$,\, $h$ contains
@@ -384,22 +384,30 @@ that a legal history~$h_s$ of~$Spec$ \emph{corresponds} to~$h$ if:
 %% Informally, a |sync| event with identity~$(i_1,i_2)$ represents that the
 %% invocations $op_1^{i_1}$ and $op_2^{i_2}$ synchronise.
 
-We say that a complete history $h$ of~$Sync$ and a corresponding legal history
-$h_s$ of~$Spec$ are \emph{synchronisation-compatible} if there is some way of
-interleaving them such that each event $\sync^{i_1, i_2}(x_1, x_2)\:: (y_1,
-y_2)$ occurs between $\call.\op_1^{i_1}(x_1)$ and $\return.\op_1^{i_1}\::y_1$,
-and between $\call.\op_2^{i_2}(x_2)$ and $\return.\op_2^{i_2}\::y_2$.
+Given a complete history $h$ of~$Sync$ and a corresponding legal history $h_s$
+of~$Spec$, we say that $h_s$ is a \emph{synchronisation linearisation} of~$h$
+if there is some way of interleaving $h$ and~$h_s$ such that each event
+$\sync^{i_1, i_2}(x_1, x_2)\:: (y_1, y_2)$ occurs between
+$\call.\op_1^{i_1}(x_1)$ and $\return.\op_1^{i_1}\::y_1$, and between
+$\call.\op_2^{i_2}(x_2)$ and $\return.\op_2^{i_2}\::y_2$.
 %
-In~the running example, the histories~$h$ and~$h_s$ are synchronisation
-compatible, as shown by the interleaving in Figure~\ref{fig:sync-timeline}.
+We say that $h$ is \emph{synchronisation linearisable} in this case.
+In~the running example, $h_s$ is a synchronisation linearisation of~$h$,
+as shown by the interleaving in Figure~\ref{fig:sync-timeline}.
 
-We say that a complete history $h$ of~$Sync$ is
-\emph{synchronisation-linearisable} if there is a corresponding legal history
-$h_s$ of~$Spec$ such that $h$ and~$h_s$ are synchronisation compatible.
+%% We say that a complete history $h$ of~$Sync$ is
+%% \emph{synchronisation-linearisable} if there is a corresponding legal history
+%% $h_s$ of~$Spec$ such that $h_s$ is a synchronisation linearisation of~$h$.
+% $h$ and~$h_s$ are synchronisation compatible.
 
-We say that a (not necessarily complete) concurrent history~$h$ is
-\emph{synchronisation-linearisable} if there is an extension~$h'$ of~$h$ such
-that $complete(h')$ is synchronisation-linearisable.  We say that a
+Given  a (not necessarily complete) concurrent history~$h$ and a corresponding
+legal history~$h_s$ of $Spec$, we say that $h_s$ is a \emph{synchronisation
+  linearisation} of~$h$ if 
+%is \emph{synchronisation-linearisable}
+there is an extension~$h'$ of~$h$ such that $h_s$ is a synchronisation
+linearisation of $complete(h')$.
+%
+We say that $h$ is synchronisation-linearisable in this case.  We say that a
 synchronisation object is synchronisation-linearisable if all of its histories
 are synchronisation-linearisable.
 

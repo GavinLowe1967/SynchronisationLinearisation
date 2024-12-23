@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2024.3.15)  6 DEC 2024 10:55
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2024.3.15)  23 DEC 2024 10:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -616,17 +616,24 @@ Package Listings Info: Made | a short reference for \lstinline on input line 21
 8.
  [8] [9]
 Package Listings Info: Deleted | as a short reference for \lstinline on input l
-ine 318.
+ine 317.
 Package Listings Info: Made | a short reference for \lstinline on input line 33
-7.
+6.
  [10])
-(./specification2.tex [11] [12] [13] [14]) (./relating.tex
+(./specification2.tex [11] [12] [13]
+Underfull \hbox (badness 1810) in paragraph at lines 181--185
+\OT1/cmr/m/n/12 For ex-am-ple, con-sid-er-ing the above his-to-ries $\OML/cmm/m
+/it/12 h$ \OT1/cmr/m/n/12 and $\OML/cmm/m/it/12 h[]$\OT1/cmr/m/n/12 , the event
+s
+ []
+
+[14]) (./relating.tex
 Underfull \hbox (badness 2088) in paragraph at lines 1--1
 []\OT1/cmr/bx/n/17.28 Comparing syn-chro-ni-sa-tion lin-eari-sa-tion
  []
 
 [15] [16] [17]
-Overfull \hbox (1.66231pt too wide) in paragraph at lines 226--227
+Overfull \hbox (1.66231pt too wide) in paragraph at lines 225--226
 [][] 
  []
 
@@ -677,7 +684,7 @@ Overfull \hbox (2.61108pt too wide) in paragraph at lines 139--148
 []$[]$ $[]$ 
  []
 
-[38] [39] [40]) (./sync.bbl
+[38] [39]) [40] (./sync.bbl
 Underfull \hbox (badness 1297) in paragraph at lines 31--36
 \OT1/cmr/m/n/12 lems.  In Ray-mond E. Miller, James W. Thatcher, and
  []
@@ -686,12 +693,15 @@ Underfull \hbox (badness 1297) in paragraph at lines 31--36
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
  ) 
 Here is how much of TeX's memory you used:
- 25330 strings out of 483183
- 632259 string characters out of 5966292
- 1002088 words of memory out of 5000000
- 39922 multiletter control sequences out of 15000+600000
+ 25329 strings out of 483183
+ 632244 string characters out of 5966292
+ 1001270 words of memory out of 5000000
+ 39921 multiletter control sequences out of 15000+600000
  549138 words of font info for 91 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  73i,21n,127p,721b,2693s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -719,7 +729,7 @@ s/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1
 c/amsfonts/cm/cmti12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsf
 onts/cm/cmtt12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/l
 atxfont/lasy10.pfb>
-Output written on sync.pdf (42 pages, 375367 bytes).
+Output written on sync.pdf (42 pages, 374833 bytes).
 PDF statistics:
  246 PDF objects out of 1000 (max. 8388607)
  175 compressed objects within 2 object streams
