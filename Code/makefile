@@ -42,7 +42,9 @@ $(EXDIR)/BarrierTwoStepTester.class						\
 $(EXDIR)/TimeoutExchangerTwoStepTester.class					\
 $(EXDIR)/TwoFamiliesTwoStepTester.class						\
 $(EXDIR)/ResignableBarrierTwoStepTester.class					\
-$(EXDIR)/TerminatingQueueTwoStepTester.class
+$(EXDIR)/TerminatingQueueTwoStepTester.class					\
+$(EXDIR)/TimeoutChannelTwoStepTester.class					\
+$(EXDIR)/CloseableChannelTwoStepTester.class
 
 TESTERSX = $(BINARY_HETERO_TESTERS) $(BINARY_STATEFUL_TESTERS)			\
 $(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS) $(NON_BINARY_STATEFUL_TESTERS)	\
@@ -214,6 +216,13 @@ $(EXDIR)/ResignableBarrierTwoStepTester.class: SynchronisationTesters/Resignable
 
 $(EXDIR)/TerminatingQueueTwoStepTester.class: SynchronisationTesters/TerminatingQueueTwoStepTester.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/TerminatingQueueTwoStepTester.scala
+
+$(EXDIR)/TimeoutChannelTwoStepTester.class: SynchronisationTesters/TimeoutChannelTwoStepTester.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/TimeoutChannelTwoStepTester.scala
+
+$(EXDIR)/CloseableChannelTwoStepTester.class: SynchronisationTesters/CloseableChannelTwoStepTester.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/CloseableChannelTwoStepTester.scala
+
 
 #### Other testers
 

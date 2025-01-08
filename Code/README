@@ -123,6 +123,7 @@ TerminatingQueueTester.scala (mixed modes, stateful, heterogeneous)
 CloseableChanTester.scala (mixed modes, stateful, heterogeneous)
 
 Two-step testers:
+----------------
 
 ChanCounterTwoStepTester.scala
 
@@ -141,6 +142,13 @@ TimeoutExchangerTwoStepTester.scala
 TwoFamiliesTwoStepTester.scala
 
 ResignableBarrierTwoStepTester.class
+
+TerminatingQueueTwoStepTester.scala
+
+CloseableChannelTwoStepTester.scala
+
+TimeoutChannelTwoStepTester.scala
+
 
 TO DO: timeout channel, closeable channel, terminating queue.
 

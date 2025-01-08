@@ -132,7 +132,7 @@ object TerminatingQueueTester extends Tester{
       case "--verbose" => verbose = true; i += 1
       case "--doASAP" => doASAP = true; i += 1
       case "--timing" => timing = true; i += 1
-      // case "--iters" => i += 2 // Ignore this flag!
+      case "--iters" => i += 2 // Ignore this flag!
       case "--untilIters" => itersBound = args(i+1).toInt; i += 2
 
       case "--progressCheck" => 

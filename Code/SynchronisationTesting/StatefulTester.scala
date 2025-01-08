@@ -254,12 +254,26 @@ class StatefulTester[Op,S](
     val linIndices: Array[Int], val nextLinIndex: Int) 
       extends Tester.Config(index, spec, canReturn, pending)
   { 
+    /** Elements of ps not in es. */
+    private def mkNewPending(ps: List[CallEvent1], es: List[CallEvent1])
+        : List[CallEvent1] =
+      if(ps.isEmpty) List[CallEvent1]()
+      else{
+        val p = ps.head
+        if(contains(es,p)) mkNewPending(ps.tail, es) 
+        else p::mkNewPending(ps.tail, es)
+      }
+      // ps.filter(e => !contains(es,e))
+
+    private def mkNewCanReturn(es: List[CallEvent1]) = 
+      merge(es.map(_.ret).sortBy(e => - e.index), canReturn)
+
     /** The next configuration from this after the synchronisation corresponding
       * to spec1 and es. */
     private def mkNext(spec1: S, es: List[CallEvent1]): Config = {
       // Update pending and canReturn
-      val newPending = pending.filter(e => !contains(es,e))
-      val newCanReturn = merge(es.map(_.ret).sortBy(e => - e.index), canReturn)
+      val newPending = mkNewPending(pending, es)
+      val newCanReturn = mkNewCanReturn(es) // merge(es.map(_.ret).sortBy(e => - e.index), canReturn)
       // assert(isSortedByIndex(newCanReturn))
       // Update matching, matchingSize, linIndices
       val newMatching = matching.clone; val indices = es.map(_.opIndex)

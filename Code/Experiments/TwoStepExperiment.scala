@@ -40,7 +40,11 @@ object TwoStepExperiment{
     // ("Barrier", "BarrierTester", "BarrierTwoStepTester")// ,
     // ("Timeout exchanger", "TimeoutExchangerTester", "TimeoutExchangerTwoStepTester")
 //    ("Two Families", "TwoFamiliesTester", "TwoFamiliesTwoStepTester")
-    ("Resignable Barrier", "ResignableBarrierTester", "ResignableBarrierTwoStepTester")
+//    ("Resignable Barrier", "ResignableBarrierTester", "ResignableBarrierTwoStepTester")
+//    ("Terminating Queue", "TerminatingQueueTester", "TerminatingQueueTwoStepTester")
+    ("Closeable Channel", "CloseableChanTester", "CloseableChannelTwoStepTester")
+  //  ("Timeout Channel", "TimeoutChannelTester", "TimeoutChannelTwoStepTester")
+
   )
 
   /** Numbers of iterations to consider. */

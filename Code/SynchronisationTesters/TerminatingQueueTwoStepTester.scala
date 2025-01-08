@@ -131,7 +131,7 @@ object TerminatingQueueTwoStepTester extends Tester{
       case "-p" => p = args(i+1).toInt; i += 2
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--timing" => timing = true; i += 1
-      // case "--iters" => i += 2 // Ignore this flag!
+      case "--iters" => i += 2 // Ignore this flag!
       case "--untilIters" => itersBound = args(i+1).toInt; i += 2
       // case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
       case arg => println(s"Illegal argument: $arg"); sys.exit()
