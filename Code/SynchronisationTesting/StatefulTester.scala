@@ -30,6 +30,8 @@ class StatefulTester[Op,S](
 
   import HistoryLog.{Event,CallEvent,ReturnEvent} 
 
+  //type ReturnEvent1 = ReturnEvent[Op,_]
+
   private val maxSyncArity = arities.max
 
   // /** The CallEvents used here. */
@@ -211,31 +213,19 @@ class StatefulTester[Op,S](
         else ":  unmatched"
     }))
 
-  /** Merge rets1 and rets2 in decreasing order of index.  Pre: rets1 and rets2
-    * are sorted in this way. */ 
-  private def merge(
-    rets1: List[ReturnEvent[Op,_]], rets2: List[ReturnEvent[Op,_]])
-      : List[ReturnEvent[Op,_]] = {
-    if(rets1.isEmpty) rets2
-    else if(rets2.isEmpty) rets1
-    else{
-      val r1 = rets1.head; val r2 = rets2.head
-      if(r1.index > r2.index) r1 :: merge(rets1.tail, rets2)
-      else r2 :: merge(rets1, rets2.tail)
-    }
-  }
-
   /** Is rets in decreasing order of index? */
   def isSortedByIndex(rets: List[ReturnEvent[Op,_]]): Boolean =
     rets.length <= 1 || 
       rets(0).index > rets(1).index && isSortedByIndex(rets.tail)
 
+  /* Note: 2025-01-08: canReturn was previously held in the reversed order, and
+   * I don't know why. */
 
   /** A configuration in the search. 
     * @param the index in the history reached so far. 
     * @param spec the state of the specification object. 
     * @param canReturn invocations that have been linearised so can return, 
-    * sorted in decreasing order of index.
+    * sorted in order of index.
     * @param pending invocations that have been called but not yet linearised,
     * sorted in decreasing order of index.
     * @param matching array showing which invocations have been matched so far.
@@ -249,7 +239,7 @@ class StatefulTester[Op,S](
     */
   private class Config(
     index: Int, spec: S, 
-    canReturn: List[ReturnEvent[Op,_]], pending: List[CallEvent1],
+    canReturn: Array[ReturnEvent1], pending: List[CallEvent1],
     val matching: Matching, val matchingSize: Int,
     val linIndices: Array[Int], val nextLinIndex: Int) 
       extends Tester.Config(index, spec, canReturn, pending)
@@ -265,15 +255,22 @@ class StatefulTester[Op,S](
       }
       // ps.filter(e => !contains(es,e))
 
-    private def mkNewCanReturn(es: List[CallEvent1]) = 
-      merge(es.map(_.ret).sortBy(e => - e.index), canReturn)
+    /** New value for canReturn formed by adding the ReturnEvents from es. */
+    private def mkNewCanReturn(es: List[CallEvent1]) = {
+      val esLen = es.length; val newRs = new Array[ReturnEvent1](esLen)
+      var i = 0
+      while(i < esLen){ newRs(i) = es(i).ret; i += 1 }
+      //merge(newRs.sortBy(e => - e.index), canReturn)
+      merge(newRs.sortBy(e => e.index), canReturn)
+    }
 
     /** The next configuration from this after the synchronisation corresponding
       * to spec1 and es. */
     private def mkNext(spec1: S, es: List[CallEvent1]): Config = {
       // Update pending and canReturn
       val newPending = mkNewPending(pending, es)
-      val newCanReturn = mkNewCanReturn(es) // merge(es.map(_.ret).sortBy(e => - e.index), canReturn)
+      val newCanReturn = mkNewCanReturn(es)
+      // merge(es.map(_.ret).sortBy(e => - e.index), canReturn)
       // assert(isSortedByIndex(newCanReturn))
       // Update matching, matchingSize, linIndices
       val newMatching = matching.clone; val indices = es.map(_.opIndex)
@@ -321,6 +318,22 @@ class StatefulTester[Op,S](
         buff
       }
 
+    // /** Optionally remove re from canReturn, if it is there. */
+    // private def maybeRemoveReturn(re: ReturnEvent1)
+    //     : Option[Array[ReturnEvent1]] = {
+    //   var ix = 0; val len = canReturn.length
+    //   // IMPROVE: use fact that canReturn is sorted?  Maybe not worthwhile
+    //   while(ix < len && canReturn(ix) != re) ix += 1
+    //   if(ix < len){ // found it
+    //     val result = new Array[ReturnEvent1](len-1); var i = 0
+    //     while(i < ix){ result(i) = canReturn(i); i += 1 }
+    //     assert(canReturn(i) == re); i += 1
+    //     while(i < len){ result(i-1) = canReturn(i); i += 1 }
+    //     Some(result)
+    //   }
+    //   else None
+    // }
+
     /** Next configurations in the search graph. */
     def nexts: List[Config] = {
       var result = List[Config]()
@@ -338,10 +351,13 @@ class StatefulTester[Op,S](
 
         case re: ReturnEvent[Op,Any] @unchecked =>
           // maybe allow this event to return
-          if(canReturn.contains(re)){
-            val newCanReturn = canReturn.filter(_ != re)
-            result ::= new Config(index+1, spec, newCanReturn, pending,
-              matching, matchingSize, linIndices, nextLinIndex)
+          maybeRemoveReturn(re) match{
+            case Some(newCanReturn) =>
+              // if(canReturn.contains(re)){
+              //   val newCanReturn = canReturn.filter(_ != re)
+              result ::= new Config(index+1, spec, newCanReturn, pending,
+                matching, matchingSize, linIndices, nextLinIndex)
+            case None => {}
           }
       }
       // Consider linearisations
@@ -373,7 +389,7 @@ class StatefulTester[Op,S](
     invocs = calls.length
     maxMatching = Array.fill[List[Int]](invocs)(null) 
     maxLinIndices = Array.fill(invocs)(-1)
-    val config0 = new Config(0, spec0, List(), List(), 
+    val config0 = new Config(0, spec0, Array(), List(), 
       maxMatching, 0, maxLinIndices, 0)
     def atEnd(c: Config) = {
       if(verbose) showMatching(c.matching, c.linIndices)

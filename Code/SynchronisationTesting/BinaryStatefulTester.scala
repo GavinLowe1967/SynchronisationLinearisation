@@ -177,16 +177,21 @@ class BinaryStatefulTester[Op,S](
     * @param nextLinIndex the number of synchronisations so far. */
   private class Config(
     index: Int, spec: S, 
-    canReturn: List[ReturnEvent[Op,_]], pending: List[CallEvent1],
+    canReturn: Array[ReturnEvent1], pending: List[CallEvent1],
     val matching: Array[Int], val matchingSize: Int,
     val linIndices: Array[Int], val nextLinIndex: Int) 
-      extends Tester.Config(index, spec, canReturn, pending){
+      extends Tester.Config[Op,S](index, spec, canReturn, pending){
 
     /** The next configuration from this after the synchronisation corresponding
       * to events ce1 and ce2 producing specification spec1. */
     private def mkNext(spec1: S, e1: CallEvent1, e2: CallEvent1): Config = {
       val newPending = pending.filter(e => e != e1 && e != e2)
-      val newCanReturn = Tester.insert(e1.ret, Tester.insert(e2.ret, canReturn))
+      val r1 = e1.ret; val r2 = e2.ret
+      val rs = 
+        if(r1.index < r2.index) Array[ReturnEvent1](r1,r2)
+        else Array[ReturnEvent1](r2,r1)
+      val newCanReturn = merge(canReturn, rs)
+        //Tester.insert(e1.ret, Tester.insert(e2.ret, canReturn)).toArray
       val index1 = e1.opIndex; val index2 = e2.opIndex
       val newMatching = matching.clone
       newMatching(index1) = index2; newMatching(index2) = index1
@@ -253,10 +258,13 @@ class BinaryStatefulTester[Op,S](
 
         case re: ReturnEvent[Op,Any] @unchecked =>
           // maybe allow this event to return
-          if(canReturn.contains(re)){
-            val newCanReturn = canReturn.filter(_ != re)
-            result ::= new Config(index+1, spec, newCanReturn, pending,
-              matching, matchingSize, linIndices, nextLinIndex)
+          maybeRemoveReturn(re) match{
+            case Some(newCanReturn) =>
+          // if(canReturn.contains(re)){
+          //   val newCanReturn = canReturn.filter(_ != re)
+              result ::= new Config(index+1, spec, newCanReturn, pending,
+                matching, matchingSize, linIndices, nextLinIndex)
+            case None => {}
           }
       }
       // Consider linearisations
@@ -289,7 +297,7 @@ class BinaryStatefulTester[Op,S](
     invocs = (length+pending.length)/2; numReturns = (length-pending.length)/2
     maxMatching = Array.fill(invocs)(-1); maxLinIndices = Array.fill(invocs)(-1)
     // Starting configuration
-    val config0 = new Config(0, spec0, List(), List(), 
+    val config0 = new Config(0, spec0, Array(), List(), 
       Array.fill(invocs)(-1), 0, Array.fill(invocs)(-1), 0)
     if(numReturns == 0) totalMatchingSpec = spec0
     def atEnd(c: Config) = {

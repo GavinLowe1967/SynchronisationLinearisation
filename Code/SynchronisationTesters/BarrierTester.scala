@@ -99,7 +99,7 @@ object BarrierTester extends Tester{
     }
   }
 
-  def main(args: Array[String]) = {
+  def main(args: Array[String]): Unit = {
     // Parse arguments
     var reps = 1000; var i = 0; var interval = 50; var profiling = false
     var timing = false

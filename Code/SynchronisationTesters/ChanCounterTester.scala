@@ -6,6 +6,8 @@ import synchronisationTesting.{HistoryLog, BinaryStatefulTester}
 import synchronisationObject.{
   ChanCounterT, ChanCounter, ChanCounter2, ChanCounter3, FaultyChanCounter, 
   DeadlockingChanCounter}
+import ox.gavin.profiling.{SamplingProfiler,ProfilerSummaryTree}
+import scala.collection.mutable.ArrayBuffer
 
 /** A testing file for a synchronous channel with a sequence counter. */
 object ChanCounterTester extends Tester{
@@ -98,9 +100,10 @@ object ChanCounterTester extends Tester{
     }
   }
 
-  def main(args: Array[String]) = {
+  def main(args: Array[String]): Unit = {
     // Parse arguments
     var reps = 5000; var i = 0; var timing = false; 
+    var interval = 50; var profiling = false
     while(i < args.length) args(i) match{
       case "-p" => p = args(i+1).toInt; i += 2
       case "--iters" => iters = args(i+1).toInt; i += 2
@@ -117,12 +120,27 @@ object ChanCounterTester extends Tester{
       case "--progressCheck" => 
         progressCheck = true; timeout = args(i+1).toInt; i += 2
       case "--doASAP" => doASAP = true; i += 1
+      case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
     assert(p%2 == 0 || progressCheck)
 
     // val start = java.lang.System.nanoTime
-    runTests(reps, timing)
+    if(profiling){
+      def filter(frame: StackTraceElement) : Boolean =
+        SamplingProfiler.defaultFilter(frame) &&
+          !frame.getClassName.contains("jdk.internal")
+      def printer(data: ArrayBuffer[SamplingProfiler.StackTrace]) = {
+        SamplingProfiler.print(filter = filter, length = 20)(data)+
+        "\n"+
+        SamplingProfiler.printTree(
+          filter = filter, expand = ProfilerSummaryTree.expandToThreshold(0.5)
+        )(data)
+      }
+      val profiler = new SamplingProfiler(interval = interval, print = printer)
+      profiler{ runTests(reps, timing) }
+    }
+    else runTests(reps, timing)
     // for(i <- 0 until reps){ 
     //   doTest; if(i%100 == 0 || progressCheck && i%10 == 0) print(".") 
     // }
