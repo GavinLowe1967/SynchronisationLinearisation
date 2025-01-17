@@ -2,7 +2,8 @@ package synchronisationTester
 
 import scala.util.Random
 import synchronisationTesting.{HistoryLog,StatefulTester}
-import synchronisationObject.{TerminatingQueueT,TerminatingQueue}
+import synchronisationObject.{
+  TerminatingQueueT,TerminatingQueue,FaultyTerminatingQueue}
 
 import ox.gavin.profiling.{SamplingProfiler,ProfilerSummaryTree,Profiler}
 import scala.collection.mutable.ArrayBuffer
@@ -18,6 +19,9 @@ object TerminatingQueueTester extends Tester{
 
   // /** Do we check the progress condition? */
   // var progressCheck = false
+
+  /** The type we test. */
+  type TQueue = TerminatingQueueT[Int]
 
   /** The timeout time with the progress check. */
   var timeout = -1
@@ -75,7 +79,7 @@ object TerminatingQueueTester extends Tester{
 
   val dequeueProb = 0.5
 
-  def worker(queue: TerminatingQueueT[Int])(me: Int, log: HistoryLog[Op]) = {
+  def worker(queue: TQueue)(me: Int, log: HistoryLog[Op]) = {
     // Even-numbered workers always dequeue; odd-numbered workers randomly
     // choose whether to enqueue or dequeue (dequeueing with probability
     // dequeueProb).
@@ -105,11 +109,14 @@ object TerminatingQueueTester extends Tester{
 
   var verbose = false
   var doASAP = false
+  var faulty = false
 
   /** Run a single test. */
   def doTest = {
     allNone = List.fill(p)(None)
-    val queue = new TerminatingQueue[Int](p)
+    val queue: TQueue =
+      if(faulty) new FaultyTerminatingQueue[Int](p)
+      else new TerminatingQueue[Int](p)
     val spec = Spec(Queue[Int](), false)
     val tester = new StatefulTester[Op,Spec](
       worker(queue) _, p, List(1,p), matching _, suffixMatching _, 
@@ -134,6 +141,7 @@ object TerminatingQueueTester extends Tester{
       case "--timing" => timing = true; i += 1
       case "--iters" => i += 2 // Ignore this flag!
       case "--untilIters" => itersBound = args(i+1).toInt; i += 2
+      case "--faulty" => faulty = true; i += 1
 
       case "--progressCheck" => 
         progressCheck = true; timeout = args(i+1).toInt; i += 2

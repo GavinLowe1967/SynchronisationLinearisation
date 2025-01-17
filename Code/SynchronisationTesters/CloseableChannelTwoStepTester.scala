@@ -94,9 +94,9 @@ object CloseableChannelTwoStepTester extends Tester {
   def worker(me: Int, log: LinearizabilityLog[CCSpec, CC]) = {
     val random = new Random()
     for(i <- 0 until iters){
-      if(Random.nextFloat() < closeProb) log(_.close, s"close", _.close) 
+      if(random.nextFloat() < closeProb) log(_.close, s"close", _.close) 
       else if(me%2 == 0){
-        val x = Random.nextInt(MaxVal); 
+        val x = random.nextInt(MaxVal); 
         var ok = false
         log(c => {ok = trySend(c,x);ok}, s"send($x)", _.send(x)) // Perform the send
         log(c => (), s"sendX", _.sendX()) // Register the second step
@@ -138,6 +138,7 @@ object CloseableChannelTwoStepTester extends Tester {
       case "--timing" => timing = true; i += 1
 
       case "--faulty" => faulty = true; i += 1
+      case "--faultyWrapped" => faulty = true; wrapped = true; i += 1
       case "--wrapped" => wrapped = true; i += 1
       case "--nonsync" => nonsync = true; i += 1
 

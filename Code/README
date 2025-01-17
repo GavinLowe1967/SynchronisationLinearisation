@@ -122,7 +122,7 @@ TerminatingQueueTester.scala (mixed modes, stateful, heterogeneous)
 
 CloseableChanTester.scala (mixed modes, stateful, heterogeneous)
 
-Two-step testers:
+Two-step testers: (12)
 ----------------
 
 ChanCounterTwoStepTester.scala
@@ -141,7 +141,7 @@ TimeoutExchangerTwoStepTester.scala
 				
 TwoFamiliesTwoStepTester.scala
 
-ResignableBarrierTwoStepTester.class
+ResignableBarrierTwoStepTester.scala
 
 TerminatingQueueTwoStepTester.scala
 
@@ -159,7 +159,7 @@ Experiments:
 
 Experiment.scala: compares times on various correct examples. 
 
-BugFinderExperiment
+BugFinderExperiment: compares times on various incorrect examples.
 
 BugParametersExperiment
 

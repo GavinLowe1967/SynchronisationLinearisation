@@ -3,9 +3,10 @@ We study \emph{synchronisation objects}: objects that allow two or more
 threads to synchronise.  We define a correctness condition for such
 synchronisation objects, which we call \emph{synchronisation linearisation}:
 informally, the synchronisations appear to take place in a one-at-a-time
-order, consistent with the invocations of operations on the object.  We also
-define a progress condition, which we call \emph{synchronisation
-  progressibility}: informally, invocations don't get stuck unnecessarily. 
+order, consistent with the calls and returns of operations on the object.  We
+also define a progress condition, which we call \emph{synchronisation
+  progressibility}: informally, executions of operations don't get stuck
+unnecessarily.
 
 We consider testing of implementations of synchronisation objects.  The basic
 idea is to run several threads that use the object, record the history of
@@ -47,14 +48,14 @@ class SyncChan[A]{
 }
 \end{scala}
 %
-Each invocation of one of the operations must synchronise with an invocation
-of the other operation: the two invocations must overlap in time.  If an
-invocation |send(x)| synchronises with an invocation of |receive|, then the
+Each execution of one of the operations must synchronise with an execution
+of the other operation: the two executions must overlap in time.  If an
+execution |send(x)| synchronises with an execution of |receive|, then the
 |receive| returns~|x|.
 
-Each synchronisation of a synchronous channel involves two invocations of
+Each synchronisation of a synchronous channel involves two executions of
 \emph{different} operations; we say that the synchronisation is
-\emph{heterogeneous}.  By contrast, sometimes two invocations of the
+\emph{heterogeneous}.  By contrast, sometimes two executions of the
 \emph{same} operation may synchronise; we say that the synchronisation is
 \emph{homogeneous}.  For example, an \emph{exchanger} has the following
 signature.
@@ -65,11 +66,8 @@ class Exchanger[A]{
 }
 \end{scala}
 %
-When two threads call |exchange|, the invocations can synchronise, and each
+When two threads call |exchange|, the executions can synchronise, and each
 receives the value passed in by the other.
-%% When invocations of two different operations synchronise, we use the
-%% term \emph{heterogeneous}; where two invocations of the same operation
-%% synchronise, we use the term \emph{homogeneous}.  
 
 For some synchronisation objects, synchronisations might involve more than two
 threads.  For example, a \emph{barrier synchronisation} object of the
@@ -83,7 +81,7 @@ class Barrier(n: Int){
 %
 can be used to synchronise~|n| threads.  Each thread is assumed to have an
 integer thread identifier in the range $\range{0}{\sm{n}}$.  Each thread~|me|
-calls |sync(me)|, and no invocation returns until all~|n| have called it.  We
+calls |sync(me)|, and no execution returns until all~|n| have called it.  We
 say that the synchronisation has \emph{arity}~|n|.
 
 A \emph{combining barrier}, in addition to acting as a barrier
@@ -105,9 +103,9 @@ back $\sm f(x_1, \sm f(x_2, \ldots \sm f(x_{{\ss n}-1}, x_{\ss n}) \ldots ))$.
 order of the parameters.)
 
 Some synchronisation objects allow different modes of synchronisation.  For
-example, consider a synchronous channel with timeouts: each invocation might
-synchronise with another invocation, or might timeout without
-synchronisation.  Such a channel might have a signature as follows.
+example, consider a synchronous channel with timeouts: each execution might
+synchronise with another execution, or might timeout without
+synchronisation.  Such a channel has a signature as follows.
 %
 \begin{scala}
 class TimeoutChannel[A]{
@@ -121,8 +119,8 @@ successful, i.e.~whether it synchronised.  The |receive| operation can return
 a value |Some(x)| to indicate that it synchronised and received~|x|, or can
 return the value |None| to indicate that it failed to synchronise\footnote{The
   type {\scalashape Option[A]} contains the union of such values.}.  Thus an
-invocation of each operation may or may not synchronise with an invocation of
-the other operation.  Equivalently, unsuccessful instances of send and receive
+execution of each operation may or may not synchronise with an execution of
+the other operation.  Unsuccessful executions of send and receive
 can be considered \emph{unary} synchronisations.  
 
 So far, our example synchronisation objects have been \emph{stateless}: they
@@ -130,7 +128,7 @@ maintain no state from one synchronisation to another.  By contrast, some
 synchronisation objects are \emph{stateful}: they maintain some state between
 synchronisations, which might affect the availability of the results of
 synchronisations.  As a toy example, consider a synchronous channel that, in
-addition, maintains a sequence counter, and such that both invocations receive
+addition, maintains a sequence counter, and such that both executions receive
 the value of this counter.
 \begin{scala}
 class SyncChanCounter[A]{
@@ -174,14 +172,14 @@ enrolled, so |sync| has a variable arity.  The barrier has a state, namely the
 currently enrolled threads.
 
 A \emph{terminating queue} can also be thought of as a stateful
-synchronisation object with multiple modes.  Such an object acts like a
+synchronisation object with multiple modes.  Such an object mostly acts like a
 standard partial concurrent queue: if a thread attempts to dequeue, but the
 queue is empty, it blocks until the queue becomes non-empty.  However, if a
 state is reached where all the threads are blocked in this way, then they all
-return a special value to indicate this fact.  In many concurrent algorithms,
+return a special value to indicate this fact.  In some concurrent algorithms,
 such as a concurrent graph search, this latter outcome indicates that the
-algorithm should terminate.  Such a terminating queue might have the
-following signature, where a dequeue returns the value |None| to indicate the
+algorithm should terminate.  Such a terminating queue might have the following
+signature, where a dequeue returns the value |None| to indicate the
 termination case.
 %
 \begin{scala}
@@ -214,12 +212,12 @@ implementations.
 In Section~\ref{sec:spec} we describe how to specify a synchronisation object.
 The definition has similarities with the standard definition of
 \emph{linearisation} for concurrent datatypes, except it talks about
-synchronisations between invocations, rather than single invocations: we call
-the property \emph{synchronisation linearisation}; informally, the
-synchronisations appear to take place in a one-at-a-time order, consistent
-with the invocations of operations on the object.  We also define a progress
-condition, which we call \emph{synchronisation progressibility}: informally,
-invocations don't get stuck unnecessarily.
+synchronisations between executions of operations, rather than single
+executions: we call the property \emph{synchronisation linearisation};
+informally, the synchronisations appear to take place in a one-at-a-time
+order, consistent with the calls and returns of operations on the object.  We
+also define a progress condition, which we call \emph{synchronisation
+  progressibility}: informally, executions don't get stuck unnecessarily.
 
 In Section~\ref{sec:relating} we consider the relationship between
 synchronisation linearisation and (standard) linearisation.  We show that
@@ -254,4 +252,4 @@ In Section~\ref{sec:experiments} we describe experiments to determine the
 effectiveness of the testing techniques.  We sum up in
 Section~\ref{sec:conc}. 
 
-% \framebox{Contributions}
+\framebox{Contributions}

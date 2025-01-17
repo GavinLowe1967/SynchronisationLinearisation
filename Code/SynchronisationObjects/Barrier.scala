@@ -84,3 +84,27 @@ class Barrier2(n: Int) extends BarrierT{
     }
   }
 }
+
+// =======================================================
+
+/** Another faulty version, somewhat contrived. */
+class FaultyBarrier4(n: Int) extends BarrierT{
+  private var count = 0 // The number of waiting threads.
+  private var leaving = false // Are we in the leaving phase?
+
+  def sync(id: Int) = synchronized{
+    // while(leaving) wait() // Wait for previous round to finish
+    count += 1
+    if(count == n){ leaving = true; count -= 1; notifyAll() }
+    else{ 
+      while(!leaving) wait()
+      // count -= 1 -- Omitting this is an error!
+      if(count == 0){ 
+        leaving = false; notifyAll() // Allow next round to continue. 
+      }
+    }
+  }
+}
+/* Note: the testers normally find the bug on the second iteration of the
+ * first run.  Thus the time to find the bug is largely independent of the
+ * number of iterations. */

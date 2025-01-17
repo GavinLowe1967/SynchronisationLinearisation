@@ -83,8 +83,10 @@ object TimeoutChannelTwoStepTester extends Tester {
   def worker(me: Int, log: LinearizabilityLog[TCSpec, TC]) = {
     val random = new Random()
     for (i <- 0 until iters) {
-      Thread.sleep(random.nextInt(3))
-      if (me % 2 == 0) { // Try to sendWithin() a random value
+      // Note: the delay below means we get a reasonable mix of successul and
+      // unsuccessful invocations.
+      Thread.sleep(random.nextInt(1))
+      if (random.nextInt(2) == 0) { // Try to sendWithin() a random value
         val x = random.nextInt(MaxVal) // value sent
         var ok = false // value received
         log(

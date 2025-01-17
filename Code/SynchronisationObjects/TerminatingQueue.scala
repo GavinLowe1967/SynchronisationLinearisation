@@ -53,7 +53,31 @@ class TerminatingQueue[A](numWorkers: Int) extends TerminatingQueueT[A]{
     }
     if(done) None else Some(queue.dequeue())
   }
-
 }
 
+// =======================================================
 
+/** An incorrect termination queue.
+  * @param numWorkers the number of worker threads. */
+class FaultyTerminatingQueue[A](numWorkers: Int) extends TerminatingQueueT[A]{
+  /** The queue itself. */
+  private val queue = new Queue[A]
+
+  /** The number of threads currently waiting to perform a dequeue. */
+  // private var waiting = 0
+
+  // /** Has the queue been shut down? */
+  // private var done = false
+
+  /** Enqueue x.  */
+  def enqueue(x: A) = synchronized{ queue.enqueue(x) }
+
+  /** Attempt to dequeue a value.  
+    * @return None if the queue has been shut down, or it the queue is empty
+    * and all threads are trying to dequeue. */
+  def dequeue: Option[A] = synchronized{
+    if(queue.isEmpty) None // Bug!
+    else Some(queue.dequeue())
+  }
+
+}

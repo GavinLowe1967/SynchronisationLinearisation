@@ -82,29 +82,74 @@ an appropriate result.
 %% data, but otherwise their operation does not depend on the data values used;
 %% this means that the data values used do not affect the occurrences of bugs.
 
-For each interface, we have implemented a tester, using the appropriate
-algorithm from earlier sections, and have produced a correct implementation.
-For most interfaces, we also implemented one or more faulty versions that fail
-to achieve either synchronisation linearisation or progressibility.  The
-faulty versions mostly have realistic mistakes: mistakes that we believe
-programmers could make.
+For each interface, we have implemented testers, using both the two-step
+approach from Section~\ref{sec:lin-testing}, and the direct algorithm from
+Section~\ref{sec:direct}.
 
-We describe various experiments below: some concern the time required to find
-bugs; and some concern the throughput for correct versions.
-%
-The experiments were performed on an eight-core machine (two 2.40GHz Intel(R)
-Xeon(R) E5620 CPUs, with 12GB of RAM).
-
-In each experiment below, we performed \emph{observations}, by running a
-tester multiple times, and recording the time taken.  Each observation aims to
-reflect a typical use case.  In each experiment we performed multiple
-observations; we give the average running time and a 95\%-confidence interval.
-Each observation was run as a separate operating system process, to ensure
-independence.  The number of observations is chosen so as to obtain a
-reasonably small confidential interval, but avoiding excessively long
-experiments.
+For each interface, we have produced a correct implementation.  For most
+interfaces, we have also implemented one or more faulty versions that fail to
+achieve either synchronisation linearisation or progressibility.  The faulty
+versions mostly have realistic mistakes: mistakes that we believe programmers
+could make.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Experiments}
+
+
+We describe various experiments below.  Questions we want to answer include:
+\begin{itemize}
+\item Which works better, the direct algorithm or the two-step algorithm?  
+\item How should we choose parameters (number of threads to run, number of
+  iterations performed by each thread, etc.)\ for testing?  
+\item Is this approach effective at finding bugs?
+\end{itemize}
+%
+The purpose of testing is to find bugs.  We therefore concentrate on the time
+taken to find bugs.
+
+
+The experiments were performed on a dedicated eight-core machine (two 2.40GHz
+Intel(R) Xeon(R) E5620 CPUs, with 12GB of RAM, but limited to 4GB of heap
+space).
+
+In each experiment below, we performed a number of \emph{runs} of a tester on
+a synchronisation object with a bug that causes a failure
+of synchronisation linearisation, but does not lead to a deadlock.  In each
+run, a particular number of threads performed a particular number of operation
+calls on the synchronisation object; the relevant algorithm was then used to
+decide whether the log history was synchronisation linearisable or two-step
+linearisable.
+
+Each \emph{observation} performed multiple runs until an error was detected.
+Each observation was performed as a separate operating system process, with
+the aim of making observations independent, avoiding dependencies caused by,
+for example garbage collection, caching behaviour, and just-in-time
+compilation.  Thus each observation was as close as possible to a normal use
+case.
+
+For each data point in the experiments, we performed multiple observations.
+We give the average running time and a 95\%-confidence interval.  The number
+of observations is chosen so as to obtain a reasonably small confidential
+interval, but avoiding excessively long experiments.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We start with the second of the questions above, how to choose parameters for
+testing.  Each of the graphs in Figures~\ref{fig:params-experiment-1}
+and~\ref{fig:params-experiment-2} concerns a particular
+tester.  Each data point represents a particular number of threads (given in
+the key), and a particular number of operation executions by each thread
+(given on the $X$-axis), with 100 observations.  The $Y$-axis gives the time
+in milliseconds. 
+
+
+\input{BPN-all}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{OLD VERSION}
 
 \framebox{TO DO}  Experiments comparing two-step and direct algorithms.  
 \verb!scala -cp .:/home/gavin/Scala/Util experiments.TwoStepExperiment --samples 10!
@@ -135,20 +180,20 @@ and 95\%-confidence intervals.
 
 %%%%%%%%%%%%
 
-\begin{figure}
-\begin{minipage}{0.5\textwidth}
-\input{BPN-ChanTester--faulty}
-\end{minipage}
-%
-\begin{minipage}{0.5\textwidth}
-\input{BPN-ABCTester--faulty}
-\end{minipage}%
-\caption{Results of tuning experiments for finding errors in implementations
-  of a synchronous channel (left) and the ABC problem (right).  $p$~denotes
-  the number of threads.  \label{fig:tuning}}
-%% scala -cp .:/home/gavin/Scala/Util experiments.BugParametersExperiment  --samples 200 --tester ChanTester --maxItersPerRun 256
-%% scala -cp .:/home/gavin/Scala/Util experiments.BugParametersExperiment  --samples 200 --tester ABCTester --maxItersPerRun 480
-\end{figure}
+%% \begin{figure}
+%% \begin{minipage}{0.5\textwidth}
+%% \input{BPN-ChanTester--faulty}
+%% \end{minipage}
+%% %
+%% \begin{minipage}{0.5\textwidth}
+%% \input{BPN-ABCTester--faulty}
+%% \end{minipage}%
+%% \caption{Results of tuning experiments for finding errors in implementations
+%%   of a synchronous channel (left) and the ABC problem (right).  $p$~denotes
+%%   the number of threads.  \label{fig:tuning}}
+%% %% scala -cp .:/home/gavin/Scala/Util experiments.BugParametersExperiment  --samples 200 --tester ChanTester --maxItersPerRun 256
+%% %% scala -cp .:/home/gavin/Scala/Util experiments.BugParametersExperiment  --samples 200 --tester ABCTester --maxItersPerRun 480
+%% \end{figure}
 
 %%%%%%%%%%%%
 

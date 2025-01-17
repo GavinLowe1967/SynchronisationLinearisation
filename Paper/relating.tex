@@ -12,17 +12,19 @@ standard linearisation is an instance of synchronisation linearisation with
 just unary synchronisations.
 
 However, linearisability and synchronisation linearisability are not
-equivalent in general: we show that, given a synchronisation linearisability
-specification object |SyncSpec|, it is not always possible to find a
-linearisability specification |Spec| such that for every concurrent
-history~$h$,\, $h$ is synchronisation linearisable with respect to |SyncSpec|
-if and only if $h$ is linearisable with respect to |Spec|.
-
-For example, consider the example of a synchronous channel from
-Section~\ref{sec:spec}, where synchronisation linearisation is captured by
-|SyncChanSpec|.  Assume (for a contradiction) that the same property can be
-captured by linearisation with respect to linearisability
-specification~|Spec|.  Consider the history
+equivalent in general.
+%% : we show that, given a synchronisation linearisability
+%% specification object |SyncSpec|, it is not always possible to find a
+%% linearisability specification |Spec| such that for every concurrent
+%% history~$h$,\, $h$ is synchronisation linearisable with respect to |SyncSpec|
+%% if and only if $h$ is linearisable with respect to |Spec|.
+%
+For example, consider the a synchronous channel from Section~\ref{sec:spec},
+where synchronisation linearisation is captured by |SyncChanSpec|.  We show
+that there is no corresponding linearisability specification |Spec|, i.e.~such
+that for every concurrent history~$h$,\, $h$ is synchronisation linearisable
+with respect to |SyncChanSpec| if and only if $h$ is linearisable with respect
+to |Spec|.  Suppose (for a contradiction) otherwise.  Consider the history
 \begin{eqnarray*}
 h & = & \seq{ 
   \call.\send^1(3),\, \call.\receive^2(),\, 
@@ -59,14 +61,12 @@ do not overlap.  Hence no such linearisability specification~|Spec| exists.
 We now show that binary heterogeneous synchronisation linearisability
 corresponds to a small adaptation of linearisability, where one of the
 operations on the synchronisation object corresponds to \emph{two} operations
-of the linearisability specification object.  We define what we mean by this,
-and then prove the correspondence in the next subsection.  We generalise to
+of the linearisability specification object.  We define below what we mean by
+this.  We prove the correspondence in the next subsection.  We generalise to
 synchronisations of more than two threads, and to the homogeneous case in
-Section~\ref{ssec:relating-variations}.  In the definitions below, we describe
-just the differences from standard linearisation, to avoid repetition.
+Section~\ref{ssec:relating-variations}.  
 
 Given a synchronisation object with signature
-% |op|\s1 and |op|\s2,
 \begin{scala}
 class SyncObj{
   def op£\s1£(x£\s1£: A£\s1£): B£\s1£
@@ -87,18 +87,26 @@ The idea is that the operation |op|\s1 on |SyncObj| will be linearised by the
 composition of the two operations |op|\s1 and $\overline{\sm{op}}_1$ of
 |TwoStepLinSpec|; but operation |op|\s2 on |SyncObj| will be linearised by
 just the operation |op|\s2 of |TwoStepLinSpec|, as before.  We call such an
-object a \emph{two-step linearisability specification object}.
+object a \emph{two-step linearisability specification object}.  
 
-We define a legal history~$h_s$ of such a two-step specification object much
-as in Section~\ref{sec:specification-linearisability}, with the addition that
-for each event $\overline{\sm{op}}_1^i()\::y$ in~$h_s$, we require that there
-is an earlier event |op|$_1^i(x)\::()$ in~$h_s$ with the same invocation
-identity; other than in this regard, invocation identities are not repeated
+We describe how to define a two-step linearisability specification object
+corresponding to a given synchronisation specification object in the following
+subsections.  First, we define our notion of two-step linearisation with
+respect to such a two-step linearisability specification object.  In the
+definitions below, we describe just the differences from standard
+linearisation, to avoid repetition.
+
+We define a history~$h_s$ of such a
+two-step specification object much as in
+Section~\ref{sec:specification-linearisability}, with the addition that for
+each event $\overline{\sm{op}}_1^i()\::y$ in~$h_s$, we require that there is
+an earlier event |op|$_1^i(x)\::()$ in~$h_s$ with the same execution
+identity; other than in this regard, execution identities are not repeated
 in~$h_s$.
 
 Let $h$ be a complete concurrent history of a synchronisation object, and let
-$h_s$ be a legal history of a two-step specification object corresponding to
-the same invocations in the following sense:
+$h_s$ be a legal history of a two-step specification object.  We say that
+$h_s$ \emph{corresponds} to~$h$ if:
 %
 \begin{itemize}
 \item For every $\call.\sm{op}_1^i(x)$ and $\return.\sm{op}_1^i\::y$ in $h$,\,
@@ -123,7 +131,8 @@ way of interleaving the two histories such that
 
 For example, consider a synchronous channel, with |send| corresponding
 to~$\op_1$, and |receive| corresponding to~$\op_2$.  Then the following would
-be an interleaving of a history of the channel and a two-step linearisation.
+be an interleaving of histories of the channel and a two-step linearisation
+specification object.
 \[
 \seq{\begin{align} 
  \call.\sm{send}^1(3),\; \sm{send}^1(3)\::(),\; 
@@ -135,9 +144,9 @@ be an interleaving of a history of the channel and a two-step linearisation.
 %
 %\framebox{timeline to illustrate}
 This is represented by the following timeline, where the horizontal lines and
-the labels above represent the interval between the $\call$ and $\return$
-events of the synchronisation object, and the ``$\cross$''s and the labels
-below represent the corresponding operations of the specification object.
+the labels above represent the execution of operations on the channel, and the
+``$\cross$''s and the labels below represent the corresponding operations of
+the specification object.
 %  
 \begin{center}
 \begin{tikzpicture}[xscale = 0.9]
@@ -180,52 +189,57 @@ operations~|op|\s1 and $\overline{\sm{op}}_1$.
 %% could implement thread identities internally to the object, for example using
 %% the technique from~\cite[Appendix~A.2.4]{herlihy-shavit}.)
 
-The object |TwoStepLinSpec| requires that corresponding invocations of~|op|\s1
-and~|op|\s2 are linearised consecutively: it does this by encoding the
-automaton on the right.  However, it allows the corresponding
-$\overline{\sm{op}}_1$ to be linearised later (but before the next operation
-invocation by the same thread).  It uses an array |returns|, indexed by thread
-identities, to record the value that should be returned by an
-$\overline{\sm{op}}_1$ invocation by each thread.  Each invocation of $\op_2$
-calls |SyncSpec.sync| to obtain the values that should be returned for
+
+\begin{window}[3,r,{%
+\begin{minipage}{61mm} % {45mm}
+\begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
+\draw (0,0) node[draw] (zero) {$\sm{Zero}$};
+\draw[->] (zero) ++ (-1.5, 0) -- (zero);
+%\draw (zero)++(0.2,0) node (zz) {};
+\loopAbove(zero){$\begin{array}{c}
+  \overline\op_1(\sm t) \, {[\sm{returns(t)} \ne \sm{None}]}
+  \end{array}$}
+%% \draw[->] (zero) .. controls ++(1.2,+1.0) and ++(1.2,-1.0) .. 
+%%   node[right] {$\overline\op_1(\sm t)$} (zero);
+%
+\draw (0,-4.5) node[draw] (one) {%
+  $\sm{One}(\sm t, \sm{x}_1)$};
+\draw[->] (zero) .. controls ++(0.3,-2) .. 
+  node[right] {%
+    $\begin{array}{c}
+    \sm{op}_1(\sm t, \sm{x}_1) \\ {[\sm{returns(t)} = \sm{None}]}
+    \end{array}$} 
+  (one); 
+%
+\draw[->] (one) .. controls ++(-0.3,2) .. 
+  node[left] {$\sm{op}_2(\sm x_2)$} (zero);
+\end{tikzpicture}%
+\end{minipage}
+},]
+The object |TwoStepLinSpec| encodes the automaton on the right.  It requires
+that corresponding executions of~|op|\s1 and~|op|\s2 occur consecutively,
+which means that corresponding executions of~|op|\s1 and |op|\s2 on the
+synchronisation object are linearised successively.  However, it
+allows the corresponding $\overline{\sm{op}}_1$ to be later (but before the
+next operation execution by the same thread).  It uses an array |returns|,
+indexed by thread identities, to record the value that should be returned by
+an $\overline{\sm{op}}_1$ execution by each thread.  Each execution of
+$\op_2$ calls |SyncSpec.sync| to obtain the values that should be returned for
 synchronisation linearisation; it writes the value for the corresponding
 $\overline\op_1$ into |returns|.
+\end{window}
+
 %
-\begin{trivlist}
-\item[]
-\begin{minipage}{92mm}
+%\begin{trivlist}
+%\item[]
+%\begin{minipage}{87mm} % {92mm}
 \begin{scala}
 type ThreadID = Int              // Thread identifiers
 val NumThreads: Int = ...       // Number of threads
 trait State
 case object Zero extends State
 case class One(t: ThreadID, x£\s1£: A£\s1£) extends State
-\end{scala}
-\end{minipage}
-%%%%%
-\hfill 
-%
-\begin{minipage}{39mm}
-\begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
-\draw (0,0) node[draw] (zero) {$\sm{Zero}$};
-\draw[->] (zero) ++ (-1.5, 0) -- (zero);
-%\draw (zero)++(0.2,0) node (zz) {};
-\loopAbove(zero){$\begin{array}{c}
-  \overline\op_1(\sm t) \\ {[\sm{returns(t)} \ne \sm{None}]}
-  \end{array}$}
-%% \draw[->] (zero) .. controls ++(1.2,+1.0) and ++(1.2,-1.0) .. 
-%%   node[right] {$\overline\op_1(\sm t)$} (zero);
-%
-\draw (0,-4) node[draw] (one) {$\sm{One}(\sm t, \sm{x}_1)$};
-\draw[->] (zero) .. controls ++(0.3,-2) .. 
-  node[right] {$\sm{op}_1(\sm t, \sm{x}_1)$} (one); 
-%
-\draw[->] (one) .. controls ++(-0.3,2) .. 
-  node[left] {$\sm{op}_2(\sm x_2)$} (zero);
-\end{tikzpicture}%
-\end{minipage}%
-%%%%%
-\begin{scala}
+
 object TwoStepLinSpec{
   private var state: State = Zero
   private val returns = new Array[Option[B£\s1£]](NumThreads)
@@ -243,12 +257,10 @@ object TwoStepLinSpec{
   }
 }
 \end{scala}
-\end{trivlist}
+%\end{trivlist}
 
 %%%%%
 
-%% \framebox{Do we want to talk about \emph{complete} histories of
-%%   TwoStepDelayedLinSpec?} -- containing all three events of a set
 
 The following lemma identifies important properties of
 |Two|\-|Step|\-|LinSpec|.  It follows immediately from the
@@ -282,7 +294,7 @@ Let |SyncObj| be a binary heterogeneous synchronisation object, |SyncSpec| a
 corresponding synchronisation specification object, and let |TwoStepLinSpec|
 be built from |SyncSpec| as above.  Then each history~$h$ of |SyncObj| is
 two-step linearisable with respect to |Two|\-|Step|\-|LinSpec| if and only if
-it is synchronisation linearisable with respect to |SyncSpec|.  And hence
+it is synchronisation linearisable with respect to |SyncSpec|.  Hence
 |SyncObj| is two-step linearisable with respect to |Two|\-|Step|\-|LinSpec| if
 and only if it is synchronisation linearisable with respect to |SyncSpec|.
 \end{prop}
@@ -290,7 +302,8 @@ and only if it is synchronisation linearisable with respect to |SyncSpec|.
 \begin{proof}
 \textbf{($\implies$).}\quad
 %
-Let $h$ be a concurrent history of |SyncObj|.  By assumption, there is an
+Let $h$ be a concurrent history of |SyncObj| that is two-step linearisable
+with respect to |Two|\-|Step|\-|LinSpec|.  By assumption, there is an
 extension $h'$ of~$h$, and a legal history~$h_s$ of |TwoStepLinSpec| such that
 $h_s$ is a  two-step linearisation of $h'' = complete(h')$.
 %
@@ -338,9 +351,10 @@ synchronisation-linearisable.
 
 \textbf{($\Leftarrow$).}\quad
 %
-Let $h$ be a complete history of |SyncObj|.  By assumption, there is an
-extension $h'$ of~$h$, and a legal history~$h_s$ of |SyncSpec| such that $h_s$
-is a synchronisation linearisation of $h'' = complete(h')$.
+Let $h$ be a history of |SyncObj| that is synchronisation linearisable with
+respect to |SyncSpec|.  By assumption, there is an extension $h'$ of~$h$, and
+a legal history~$h_s$ of |SyncSpec| such that $h_s$ is a synchronisation
+linearisation of $h'' = complete(h')$.
 %
 Build a history~$h_s'$ of |TwoStepLinSpec| by replacing each event
 $\sm{sync}^{i_1,i_2}(x_1,x_2) \:: (y_1,y_2)$ in~$h_s$ by the three consecutive

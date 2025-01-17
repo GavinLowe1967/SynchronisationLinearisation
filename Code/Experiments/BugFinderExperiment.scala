@@ -25,7 +25,7 @@ object BugFinderExperiment{
 
   def options = 
     s" --reps $reps --iters $iters --timing "+
-      (if(progress > 0) s"--progressCheck $progress" else "")
+      (if(progress > 0) s"--progressCheck $progress" else "") 
 
   /** Make command to run file. */
   def mkCmd(file: String) = cmd0+file+options
@@ -38,27 +38,51 @@ object BugFinderExperiment{
   /** Files for synchronisation linearisation testing. */
   val linFiles = Array(
     ("Synchronous channel", "ChanTester --faulty"),    
-    ("Men and women", "MenWomenTester --faulty"),   
-    { // Each thread does one op, so run more threads
-      val p1 =  p*iters; val reps1 = p*iters*reps/p1
-      ("Exchanger", s"ExchangerTester --faulty -p $p1 --reps $reps1") },
+    ("Synchronous channel two-step", "ChanTwoStepTester --faulty"),    
+
+    ("Men and women", "MenWomenTester --faulty"),     
+    ("Men and women two-step", "MenWomenTwoStepTester --faulty"),  
+ 
+    // With following two, each thread does one op, so run more threads
+    { val p1 =  p*2; ("Exchanger", s"ExchangerTester --faulty -p $p1") },  
+    // This explodes for p1 more than about 10!
+    { val p1 =  p*2;
+      ("Exchanger two-step", s"ExchangerTwoStepTester --faulty -p $p1") },
+
+    ("Counter channel", "ChanCounterTester --faulty"),    
+    ("Counter channel two-step", "ChanCounterTwoStepTester --faulty"),
+
     ("Two families", s"TwoFamiliesTester --faulty -m ${p/2} -n ${p/2}"),
-    ("One family", "OneFamilyTester --faulty"),        
+    ("Two families two-step", 
+      s"TwoFamiliesTwoStepTester --faulty -m ${p/2} -n ${p/2}"),
+
+    ("One family", "OneFamilyTester --faulty"),     
+    // ("One family two-step", "OneFamilyTwoStepTester --faulty"),   
+     
     ("ABC", "ABCTester --faulty -p 6"),         
+    ("ABC two-step", "ABCTwoStepTester --faulty -p 6"), 
+        
     ("Timeout channel", "TimeoutChannelTester --faulty"), 
+    ("Timeout channel two-step", "TimeoutChannelTwoStepTester --faulty"), 
+
     ("Timeout exchanger", "TimeoutExchangerTester --faulty2"), 
-    ("Closeable channel", "CloseableChanTester --faultyWrapped") 
+    ("Timeout exchanger two-step", "TimeoutExchangerTwoStepTester --faulty2"),
+ 
+    ("Closeable channel", "CloseableChanTester --faultyWrapped"), 
+    ("Closeable channel two-step", 
+      "CloseableChannelTwoStepTester --faultyWrapped"),
+
+    ("Barrier", "BarrierTester --faulty4"),
+    ("Barrier two-step", "BarrierTwoStepTester --faulty4"),
+
+    ("Resignable Barrier", "ResignableBarrierTester --faulty"),
+    ("Resignable Barrier two-step", "ResignableBarrierTwoStepTester --faulty"),
+
+    ("Terminating Queue", "TerminatingQueueTester --faulty"),
+    ("Terminating Queue two-step", "TerminatingQueueTwoStepTester --faulty")
   )
 
-  //    "CloseableChanTester --faulty",                // ~200ms
-  //  "TimeoutExchangerTester --faulty",          // Less believable than faulty2
-       
-  //  ("Barrier", "BarrierTester --faulty"), not really believable.
- 
-  // FilterChan: I can't think of a sensible incorrect version other than
-  // variants on SyncChan faulty implementations
-
-  // TerminatingQueue: I can't think of a sensible incorrect version.
+  // Missing for two-step: OneFamily.
 
   /** Flag to indicate to produce LaTeX output. */
   var latex = false

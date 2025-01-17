@@ -77,13 +77,12 @@ corresponding |returns|\s{i} array.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Homogeneous
 
 We now consider the homogeneous case.  For simplicity, we describe the binary
-case; synchronisations of more than two invocations are handled similarly.
-Suppose we have a synchronisation object with a single operation 
-\SCALA{def op(x: A): B}.
-All invocations of~|op| have to be treated similarly, so we associate
-\emph{each} with two operations |op| and $\overline{\sm{op}}$ of the
-specification object.  The specification object is below, and encodes the
-automaton on the right.
+case; synchronisations of more than two operation executions are handled
+similarly.  Suppose we have a synchronisation object with a single operation
+\SCALA{def op(x: A): B}.  All executions of~|op| have to be treated similarly,
+so we associate \emph{each} with two operations |op| and $\overline{\sm{op}}$
+of the specification object.  The specification object is below, and encodes
+the automaton on the right.
 %% %
 %% \begin{center}
 %% \begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
@@ -99,9 +98,9 @@ automaton on the right.
 %% \end{tikzpicture}
 %% \end{center}
 %
-The second invocation of |op| in any synchronisation (from the |One| state of the
-automaton) writes the results of the invocation into the |returns| array.
-Each invocation of $\overline{\sm{op}}$ returns the stored value.
+The second execution of |op| in any synchronisation (from the |One| state of the
+automaton) writes the results of the execution into the |returns| array.
+Each execution of $\overline{\sm{op}}$ returns the stored value.
 
 \begin{trivlist}
 \item[]
@@ -152,11 +151,11 @@ class TwoStepLinSpec{
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Mixed arity
 
 
-Recall that some operations may have mixed modes of synchronisations:
-different invocations may have synchronisations with different arities.  For
-example, in a timeout channel, an invocation of the |send| and |receive|
-operations may synchronise with an invocation of the other operation, or may
-timeout corresponding to a unary synchronisation.
+Recall that some operations have different modes of synchronisations:
+different executions of the operation may have synchronisations with different
+arities.  For example, in a timeout channel, an execution of the |send| and
+|receive| operations may synchronise with an execution of the other operation,
+or may timeout corresponding to a unary synchronisation.
 %
 %% We illustrate how to test for synchronisation linearisation of objects with
 %% mixed modes of synchronisation via an example.
@@ -166,13 +165,13 @@ channel, where we treat $\send$ as corresponding to $\op_1$ (we omit concrete
 code in the interests of brevity).  The automaton is similar to that for a
 standard channel.  The |receive| operation can happen from either state: if it
 happens from the |One| state, then a synchronisation has occurred and the
-invocation returns a value of the form |Some(x)|; but if it happens from the
-|Zero| state, there has been no corresponding |send|, and so the invocation
+execution returns a value of the form |Some(x)|; but if it happens from the
+|Zero| state, there has been no corresponding |send|, and so the execution
 returns~|None|, indicating a timeout.  Likewise, the $\overline{\send}$
 operation can happen from either state; if it happens from the |Zero| state,
-then a synchronisation has occurred and the invocation returns |true|; but if
+then a synchronisation has occurred and the execution returns |true|; but if
 it happens from the |One| state, there has been no corresponding |receive|,
-and so the invocation returns~|false|, indicating a timeout.
+and so the execution returns~|false|, indicating a timeout.
 
 \begin{figure}
 \begin{center}
@@ -199,13 +198,6 @@ and so the invocation returns~|false|, indicating a timeout.
 \label{fig:two-step-timeout-chan}
 \end{figure}
 
-%% It is interesting to ask whether we can optimise the above construction, using
-%% just a single transition in the case of a failed send.  It turns out that we
-%% cannot.  To do so we require \emph{two} |send| transitions from |Zero|,
-%% corresponding to successful and unsuccessful cases (leading to |One| and
-%% |Zero| states, respectively).  This would make the automaton nondeterministic,
-%% contrary to our assumptions.
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Stateful
@@ -213,23 +205,12 @@ and so the invocation returns~|false|, indicating a timeout.
 We now consider stateful specification objects.  In general, we can simply
 augment the |Zero| and |One| states of the automaton to include the state of
 the specification object.  Note that different transitions may be available
-based upon that state.  
-%% For example, with a closeable channel, we could include a boolean field in
-%% the automaton states, indicating whether the channel is closed.
-However, it can be clearer and simpler to introduce
+based upon that state.  However, it can be clearer and simpler to introduce
 different named states into the automaton.
-
-%% , as in
-%% Figure~\ref{fig:two-step-closeable-chan}, where the automaton has an
-%% additional state, |Closed|, corresponding to the channel being closed.  
-
-%% It is also possible to capture operations with mixed modes of synchronisations
-%% where the arity of each invocation depends upon the state of the
-%% synchronisation object.  
 
 Figure~\ref{fig:two-step-closeable-chan} gives the specification automaton for
 a closeable channel.  The automaton has an additional state, |Closed|,
-corresponding to the channel being closed.  All invocations are unary
+corresponding to the channel being closed.  All executions are unary
 synchronisations in this state.  This automaton represents a simplification
 over the general approach discussed above: we do not need two separate states
 after closing.  Note that a $\overline{\send}(\sm t)$ transition from the
@@ -278,6 +259,6 @@ before the channel was closed, in which case $\sm{returns(t)} \ne \sm{None}$.
 %% transitions happen from a different state, so the automaton is still
 %% deterministic.)  
 
-%% We believe that the approach can be adapted to all the other synchronisation
-%% objects we have considered.
+We believe that these techniques can be adapted to all the other
+synchronisation objects we have considered.
 

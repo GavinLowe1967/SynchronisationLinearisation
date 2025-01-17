@@ -2,11 +2,11 @@
 \label{sec:spec}
 
 In this section we describe how synchronisations can be formally specified.
-For ease of exposition, we start by considering \emph{heterogeneous binary}
-synchronisation in this section, i.e.~where every synchronisation is between
-\emph{two} invocations of \emph{different} operations.  We allow stateful
-synchronisation objects (which includes stateless objects as  degenerative
-cases).  We generalise later in this section.
+We start by considering \emph{heterogeneous binary} synchronisation,
+i.e.~where every synchronisation is between \emph{two} executions of
+\emph{different} operations.  We allow stateful synchronisation objects (which
+includes stateless objects as degenerative cases).  We generalise later in
+this section.
 
 
 We assume that the synchronisation object has two operations, each of which
@@ -22,12 +22,12 @@ operation that takes a $k$-tuple as its parameter.  We identify a 0-tuple with
 the unit value, but will sometimes omit that value in examples.)
 %
 In addition, the synchronisation object might have some state.
-Each invocation of~|op|\s1 must synchronise with an invocation of~|op|\s2, and
-vice versa.  The result of each invocation may depend on the two parameters
-|x|$_1$ and |x|$_2$ and the current state.  In addition, the state may be
+Each execution of~|op|\s1 must synchronise with an execution of~|op|\s2, and
+vice versa.  The result of each execution may depend on the two parameters,
+|x|$_1$ and |x|$_2$, and the current state.  In addition, the state may be
 updated.  The external behaviour is consistent with the synchronisation
 happening atomically at some point within the duration of both operation
-invocations (which implies that the invocations must overlap): we refer to this
+executions (which implies that the executions must overlap): we refer to this
 point as the \emph{synchronisation point}.
 
 Synchronisation linearisation is defined in terms of a \emph{synchronisation
@@ -53,13 +53,15 @@ class Spec{
 }
 \end{scala}
 %
-The idea is that if two invocations |op|\s1|(x|\s1|)| and |op|\s2|(x|\s2|)|
-synchronise, then the results |y|\s1 and |y|\s2 of the invocations are such
+The idea is that if two executions |op|\s1|(x|\s1|)| and |op|\s2|(x|\s2|)|
+synchronise, then the results |y|\s1 and |y|\s2 of the executions are such
 that $\sm{sync}(\sm x_1, \sm x_2)$ could return the pair |(y|\s1|, y|\s2|)|.
-(We allow |sync| to be nondeterministic; but in all our examples it will be
-deterministic.)  The specification object might have private state, which can
-be accessed and updated within~|sync|.  Note that invocations of |sync| occur
-\emph{sequentially}.
+%% (We allow |sync| to be nondeterministic; but in all our examples it will be
+%% deterministic.)  
+The specification object might have private state, which can be accessed and
+updated within~|sync|.  Note that executions of |sync| occur
+\emph{sequentially}.  We assume that |sync| is a deterministic function of its
+parameters and the state.
 
 We formalise below what it means for a synchronisation object to satisfy the
 requirements of a synchronisation specification object.  But first, we give
@@ -79,10 +81,10 @@ class Spec{
 }
 \end{scala}
 %
-The object has some local state, which persists between invocations.  The
+The object has some local state, which persists between executions.  The
 |require| clause of |sync| specifies a precondition for the synchronisation to
 take place.  The values |res|\s1 and |res|\s2 represent the results that
-should be returned by the corresponding invocations of~|op|\s1 and~|op|\s2,
+should be returned by the corresponding executions of~|op|\s1 and~|op|\s2,
 respectively.  The function |update| describes how the local state should be
 updated.  We assume the specification object is deterministic: |f|$_1$, |f|$_2$
 and |update| are functions. 
@@ -124,7 +126,7 @@ specification object with operation
 def sync(x: A, p: A => Boolean): (Unit, A) = { require(p(x)); ((), x) }
 \end{scala}
 %
-The |require| clause specifies that invocations |send(x)| and |receive(p)| can
+The |require| clause specifies that executions |send(x)| and |receive(p)| can
 synchronise only if |p(x)|.
 
 As an example illustrating the use of state in the synchronisation object,
@@ -149,36 +151,36 @@ thread.
 \subsection{Linearisability}
 \label{sec:specification-linearisability}
 
-We formalise below precisely the allowable behaviours captured by a particular
-synchronisation specification object.  Our definition has much in common with
-the well known notion of \emph{linearisation}~\cite{herlihy-wing}, used for
-specifying concurrent datatypes; so we start by reviewing that notion.  There
-are a number of equivalent ways of defining linearisation: we choose a way
-that will be convenient subsequently.
+We formalise the allowable behaviours captured by a particular synchronisation
+specification object.  Our definition has much in common with the well known
+notion of \emph{linearisation}~\cite{herlihy-wing}, used for specifying
+concurrent datatypes; so we start by reviewing that notion.  There are a
+number of equivalent ways of defining linearisation: we choose a way that will
+be convenient subsequently.
 
 A \emph{concurrent history} of an object~$o$ (either a concurrent datatype or
-a synchronisation object) records the calls and returns of operation
-invocations on~$o$.  It is a sequence of events of the following forms:
+a synchronisation object) records the calls and returns of operations on~$o$.
+It is a sequence of events of the following forms:
 %
 \begin{itemize}
 \item $\call.op^i(x)$, representing a call of operation~$op$ with
   parameter~$x$;
-\item $\return.op^i \:: y$, representing a return of an invocation of~$op$,
+\item $\return.op^i \:: y$, representing a return of an execution of~$op$,
   giving result~$y$.
 \end{itemize}
 %
-Here $i$ is a \emph{invocation identity}, used to identify a particular
-invocation, and to link the $\call$ and corresponding~$\return$.  In order to
-be well formed, each invocation identity must appear on at most one $\call$
+Here $i$ is a \emph{execution identity}, used to identify a particular
+execution, and to link the $\call$ and corresponding~$\return$.  In order to
+be well formed, each execution identity must appear on at most one $\call$
 event and at most one $\return$ event; and for each event $\return.op^i\::y$,
 the history must contain an earlier event $\call.op^i(x)$, i.e.~for the same
-operation and invocation identity.  We consider only well formed histories
+operation and execution identity.  We consider only well formed histories
 from now on.  
 
 We say that a $\call$ event and a $\return$ event \emph{match}
-if they have the same invocation identifier.  A concurrent history is
+if they have the same execution identifier.  A concurrent history is
 \emph{complete} if for every $\call$ event, there is a matching $\return$
-event, i.e.~no invocation is still pending at the end of the history.
+event, i.e.~no execution is still pending at the end of the history.
 
 For example, consider the following complete concurrent history of a
 concurrent object that is intended to implement a queue, with operations |enq|
@@ -211,7 +213,7 @@ This history is illustrated by the timeline in Figure~\ref{fig:lin-timeline}.
 \end{tikzpicture}
 \end{center}
 \caption{Timeline representing the linearisation example.  Time runs from left
-  to right; each horizontal line represents an operation invocation, with the
+  to right; each horizontal line represents an operation execution, with the
   left-hand end representing the $\call$ event, and the right-hand end
   representing the $\return$ event}
 \label{fig:lin-timeline}
@@ -227,16 +229,16 @@ A history of the specification object is a sequence of events of
 the form:
 %
 \begin{itemize}
-\item $op^i(x)\::y$ representing an invocation of operation~$op$ with
-  parameter~$x$, returning result~$y$; again $i$~is an invocation identity,
+\item $op^i(x)\::y$ representing an execution of operation~$op$ with
+  parameter~$x$, returning result~$y$; again $i$~is an execution identity,
   which must appear at most once in the history.
 \end{itemize}
 %
 A history is \emph{legal} if it is consistent with the definition of~$Spec$,
-i.e.~for each invocation, the precondition is satisfied, and the return value
+i.e.~for each execution, the precondition is satisfied, and the return value
 is as for the definition of the operation in~$Spec$.  We assume that the
 specification object is deterministic: after a particular history, there is a
-unique value that can be returned by each invocation.
+unique value that can be returned by each execution.
 
 For example, consider the history
 \begin{eqnarray*}
@@ -249,16 +251,16 @@ Figure~\ref{fig:lin-timeline}.
 
 Let $h$ be a complete concurrent history, and let $h_s$ be a legal history of
 the specification object.  We say that $h$ and~$h_s$ \emph{correspond} if they
-contain the same invocations, i.e., for each $\call.op^i(x)$ and
+contain the same executions, i.e., for each $\call.op^i(x)$ and
 $\return.op^i\::y$ in $h$,\, $h_s$ contains $op^i(x)\::y$, and vice versa.  We
-say that $h_s$ is a \emph{linearisation} of~$h$ 
-if there is some way of interleaving the two histories (i.e.~creating a
-history containing the events of~$h$ and~$h_s$, preserving the order of
-events) such that each $op^i(x)\::y$ occurs between $\call.op^i(x)$ and
-$\return.op^i\::y$.  Informally, this indicates that the invocations of~$h$
-appeared to take place in the order described by~$h_s$, and that this order is
-consistent with the specification object.  We say that $h$ is
-\emph{linearisable} in this case. 
+say that $h_s$ is a \emph{linearisation} of~$h$ if there is some way of
+interleaving the two histories (i.e.~creating a history containing the events
+of~$h$ and~$h_s$, preserving the order of events) such that each $op^i(x)\::y$
+occurs between $\call.op^i(x)$ and $\return.op^i\::y$.  Informally, this
+indicates that the executions of~$h$ appeared to take place in the order
+described by~$h_s$, and that this order is consistent with the specification
+object.
+%% We say that $h$ is \emph{linearisable} in this case.
 
 Continuing the running example, $h_s$ is a linearisation of~$h$, as evidenced
 by the interleaving
@@ -274,18 +276,18 @@ as illustrated in  Figure~\ref{fig:lin-timeline}.
 
 
 A concurrent history might not be complete, i.e.~it might have some pending
-invocations that have been called but have not returned.  An \emph{extension}
+executions that have been called but have not returned.  An \emph{extension}
 of a history~$h$ is formed by adding zero or more $\return$ events
-corresponding to pending invocations.  We write $complete(h)$ for the
+corresponding to pending executions.  We write $complete(h)$ for the
 subsequence of~$h$ formed by removing all $\call$ events corresponding to
-pending invocations.
+pending executions.
 %
 We say that a (not necessarily complete) concurrent history~$h$ is
 \emph{linearisable} if there is an extension~$h'$ of~$h$ such that
 $complete(h')$ is linearisable.  We say that a concurrent object is
 linearisable if all of its histories are linearisable. 
 
-%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Synchronisation linearisability}
 \label{sec:sync-lin}
@@ -294,7 +296,7 @@ We now adapt the definition of linearisability to synchronisations.  For the
 moment, we consider only binary synchronisations.  We
 consider a concurrent history of the synchronisation object~$Sync$.  The
 history contains $\call$ and $\return$ events, as in the previous subsection;
-in the case of binary synchronisation, the events correspond to the
+in the case of binary synchronisations, the events correspond to the
 operations~$\op_1$ and~$\op_2$.
 
 For example, the following is a complete history of the synchronous channel
@@ -339,14 +341,15 @@ h & = &
 
 A history of a synchronisation specification object $Spec$ is a sequence of
 events of the form $\sync^{i_1, i_2}(x_1, x_2)\:: (y_1, y_2)$, representing an
-invocation of |sync| with parameters $(x_1, x_2)$ and result $(y_1,y_2)$.  The
-event's invocation identity is~$(i_1,i_2)$: each of~$i_1$ and~$i_2$ must
+execution of |sync| with parameters $(x_1, x_2)$ and result $(y_1,y_2)$.  The
+event's  identity is~$(i_1,i_2)$: each of~$i_1$ and~$i_2$ must
 appear at most once in the history.  Informally, an event $\sync^{i_1,
   i_2}(x_1, x_2)\:: (y_1, y_2)$ corresponds to a synchronisation between
-invocations $\op_1^{i_1}(x_1)\::y_1$ and $\op_2^{i_2}(x_2)\::y_2$ in a history
+executions $\op_1^{i_1}(x_1)\::y_1$ and $\op_2^{i_2}(x_2)\::y_2$ in a history
 of the corresponding synchronisation object.
 
-A history is \emph{legal} if is consistent with the specification object.  
+A history is \emph{legal} if is consistent with the definition of the
+specification object.
 %
 For example, the following is a legal history of |SyncChanSpec|.
 \begin{eqnarray*}
@@ -367,22 +370,20 @@ general of a specification object with state.
 
 Let $h$ be a complete history of the synchronisation object~$Sync$.
 Informally, we say that a legal history~$h_s$ of~$Spec$ \emph{corresponds}
-to~$h$ if their invocation identities agree; more precisely:
+to~$h$ if their  identities agree; more precisely:
 %
 \begin{itemize}
 \item For each |sync| event with identity~$(i_1,i_2)$ in~$h_s$,\, $h$ contains
-  an invocation of~$\op_1$ with identity~$i_1$ and an invocation of~$\op_2$ with
+  an execution of~$\op_1$ with identity~$i_1$ and an execution of~$\op_2$ with
   identity~$i_2$;
 
-\item For each invocation of~$\op_1$ with identity~$i_1$ in~$h$,\, $h_s$
+\item For each execution of~$\op_1$ with identity~$i_1$ in~$h$,\, $h_s$
   contains a |sync| event with identity~$(i_1,i_2)$ for some~$i_2$;
 
-\item For each invocation of~$\op_2$ with identity~$i_2$ in~$h$,\, $h_s$
+\item For each execution of~$\op_2$ with identity~$i_2$ in~$h$,\, $h_s$
   contains a |sync| event with identity~$(i_1,i_2)$ for some~$i_1$.
 \end{itemize}
-%
-%% Informally, a |sync| event with identity~$(i_1,i_2)$ represents that the
-%% invocations $op_1^{i_1}$ and $op_2^{i_2}$ synchronise.
+
 
 Given a complete history $h$ of~$Sync$ and a corresponding legal history $h_s$
 of~$Spec$, we say that $h_s$ is a \emph{synchronisation linearisation} of~$h$
@@ -391,36 +392,18 @@ $\sync^{i_1, i_2}(x_1, x_2)\:: (y_1, y_2)$ occurs between
 $\call.\op_1^{i_1}(x_1)$ and $\return.\op_1^{i_1}\::y_1$, and between
 $\call.\op_2^{i_2}(x_2)$ and $\return.\op_2^{i_2}\::y_2$.
 %
-We say that $h$ is \emph{synchronisation linearisable} in this case.
+% We say that $h$ is \emph{synchronisation linearisable} in this case.
 In~the running example, $h_s$ is a synchronisation linearisation of~$h$,
 as shown by the interleaving in Figure~\ref{fig:sync-timeline}.
 
-%% We say that a complete history $h$ of~$Sync$ is
-%% \emph{synchronisation-linearisable} if there is a corresponding legal history
-%% $h_s$ of~$Spec$ such that $h_s$ is a synchronisation linearisation of~$h$.
-% $h$ and~$h_s$ are synchronisation compatible.
-
-Given  a (not necessarily complete) concurrent history~$h$ and a corresponding
+Given a (not necessarily complete) concurrent history~$h$ and a corresponding
 legal history~$h_s$ of $Spec$, we say that $h_s$ is a \emph{synchronisation
-  linearisation} of~$h$ if 
-%is \emph{synchronisation-linearisable}
-there is an extension~$h'$ of~$h$ such that $h_s$ is a synchronisation
-linearisation of $complete(h')$.
+  linearisation} of~$h$ if there is an extension~$h'$ of~$h$ such that $h_s$
+is a synchronisation linearisation of $complete(h')$.
 %
 We say that $h$ is synchronisation-linearisable in this case.  We say that a
 synchronisation object is synchronisation-linearisable if all of its histories
 are synchronisation-linearisable.
 
-%% Following definition of linearisation.  History of synchronisation object,
-%% containing call and return events, with matching invocation indices,
-%% e.g. $call.\sm{op}_1^{i_1}(x_1)$ and $return.\sm{op}_1^{i_1}: y_1$; indiced
-%% otherwise distinct.  History of sequential specification object, with events
-%% representing (atomic) invocations of sync, labelled with a pair of invocation
-%% indices, e.g.~$\sm{sync}^{i_1, i_2}(x_1, x_2): (y_1, y_2)$.  No invocation
-%% index is repeated in the history.  Define ``legal'' in the normal way.  Define
-%% interleaving of concurrent and sequential history: each |sync| has to be
-%% between the corresponding $call$ and $return$ for each of the two invocations.
 
-%% Maybe call this \emph{synchronisation linearisation}. 
-
-% \framebox{Is the definition compositional?}  I think so.
+%  \framebox{Is the definition compositional?}  I think so.

@@ -3,7 +3,8 @@ package synchronisationTester
 import scala.util.Random
 import synchronisationTesting.{HistoryLog,StatelessTester}
 import synchronisationObject.{
-  BarrierT,Barrier,Barrier2,FaultyBarrier,FaultyBarrier2,FaultyBarrier3}
+  BarrierT, Barrier, Barrier2, FaultyBarrier, FaultyBarrier2, FaultyBarrier3,
+  FaultyBarrier4}
 import ox.gavin.profiling.{SamplingProfiler,ProfilerSummaryTree}
 import scala.collection.mutable.ArrayBuffer
 
@@ -73,7 +74,7 @@ object BarrierTester extends Tester{
   }
 
   var faulty = false; var faulty2 = false; 
-  var faulty3 = false; var version2 = false
+  var faulty3 = false; var faulty4 = false; var version2 = false
 
   /** Run a single test. */
   def doTest = {
@@ -82,6 +83,7 @@ object BarrierTester extends Tester{
       else if(faulty) new FaultyBarrier(n)
       else if(faulty2) new FaultyBarrier2(n) 
       else if(faulty3) new FaultyBarrier3(n) 
+      else if(faulty4) new FaultyBarrier4(n) 
       else{ 
         assert(p == n, 
           s"For standard barrier, require p = n, but p = $p, n = $n")
@@ -99,12 +101,15 @@ object BarrierTester extends Tester{
     }
   }
 
+  /* Note: both p and n can be specified.  Setting p sets n to the same number.
+   * If different numbers really are wanted, then n has to be set second. */
+
   def main(args: Array[String]): Unit = {
     // Parse arguments
     var reps = 1000; var i = 0; var interval = 50; var profiling = false
     var timing = false
     while(i < args.length) args(i) match{
-      case "-p" => p = args(i+1).toInt; i += 2
+      case "-p" => p = args(i+1).toInt; n = p; i += 2
       case "-n" => n = args(i+1).toInt; i += 2
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--iters" => iters = args(i+1).toInt; i += 2
@@ -113,6 +118,7 @@ object BarrierTester extends Tester{
       case "--faulty" => faulty = true; i += 1
       case "--faulty2" => faulty2 = true; i += 1 // spurious wakeups; error not found 
       case "--faulty3" => faulty3 = true; i += 1 // deadlocks
+      case "--faulty4" => faulty4 = true; i += 1 // ???
 
       case "--timing" => timing = true; i += 1
 

@@ -56,10 +56,11 @@ object CloseableChanTester extends Tester{
     * otherwise, workers with an even identity send; workers with an odd
     * identity receive.  */
   def worker(chan: CloseableChan[Int])(me: Int, log: HistoryLog[Op]) = {
+    val random = new Random()
     for(i <- 0 until iters){
-      if(Random.nextFloat() < closeProb) log(me, chan.close, Close)
+      if(random.nextFloat() < closeProb) log(me, chan.close, Close)
       else if(me%2 == 0){
-        val x = Random.nextInt(MaxVal); log(me, trySend(chan, x), Send(x))
+        val x = random.nextInt(MaxVal); log(me, trySend(chan, x), Send(x))
       }
       else log(me, tryReceive(chan), Receive)
     }

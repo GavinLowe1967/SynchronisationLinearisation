@@ -35,13 +35,14 @@ object TimeoutChannelTester extends Tester{
 
   /** A worker. */
   def worker(chan: TimeoutChannelT[Int])(me: Int, log: HistoryLog[Op]) = {
+    val random = new Random()
     for(i <- 0 until iters){
       // Note: the delay below means we get a reasonable mix of successul and
       // unsuccessful invocations.
-      Thread.sleep(Random.nextInt(1))
-      if(Random.nextInt(2) == 0){
-        val x = Random.nextInt(MaxVal)
-        def doSend() = chan.sendWithin(x, 1+Random.nextInt(1))
+      Thread.sleep(random.nextInt(1))
+      if(random.nextInt(2) == 0){
+        val x = random.nextInt(MaxVal)
+        def doSend() = chan.sendWithin(x, 1+random.nextInt(1))
         if(countProfile)
           log(me, 
             { val op = doSend(); Profiler.count(s"send $op"); op },
@@ -49,7 +50,7 @@ object TimeoutChannelTester extends Tester{
         else log(me, doSend(), Send(x))
       }
       else{ // receive
-        def doRec() = chan.receiveWithin(1+Random.nextInt(1))
+        def doRec() = chan.receiveWithin(1+random.nextInt(1))
         if(countProfile)
           log(me, 
             { val op = doRec(); Profiler.count(s"receive ${op.nonEmpty}"); op }, 

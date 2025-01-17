@@ -2,7 +2,8 @@ package synchronisationTester
 
 import ox.scl.{LinearizabilityTester,LinearizabilityLog}
 import synchronisationObject.{
-  BarrierT,Barrier,Barrier2,FaultyBarrier,FaultyBarrier2,FaultyBarrier3}
+  BarrierT,Barrier,Barrier2,FaultyBarrier,FaultyBarrier2,FaultyBarrier3, 
+  FaultyBarrier4}
 
 /** Two-step linearisation synchronisation tester for a barrier. */
 object BarrierTwoStepTester extends Tester{
@@ -57,7 +58,7 @@ object BarrierTwoStepTester extends Tester{
   }
 
   var faulty = false; var faulty2 = false; 
-  var faulty3 = false; var version2 = false
+  var faulty3 = false; var faulty4 = false; var version2 = false
 
   /** Run a single test. */
   def doTest: Boolean = {
@@ -66,12 +67,15 @@ object BarrierTwoStepTester extends Tester{
       else if(faulty) new FaultyBarrier(numThreads)
       else if(faulty2) new FaultyBarrier2(numThreads) 
       else if(faulty3) new FaultyBarrier3(numThreads) 
+      else if(faulty4) new FaultyBarrier4(numThreads) 
       else new Barrier(numThreads)
     val spec = new BarrierSpec(numThreads)
     val tester = LinearizabilityTester[BarrierSpec,BarrierT](
       spec, barrier, numThreads, worker _)
     tester() > 0
   }
+
+  // override def runsPerDot = 1
 
   def main(args: Array[String]) = {
     // Parse arguments
@@ -86,6 +90,7 @@ object BarrierTwoStepTester extends Tester{
       case "--faulty" => faulty = true; i += 1
       case "--faulty2" => faulty2 = true; i += 1
       case "--faulty3" => faulty3 = true; i += 1
+      case "--faulty4" => faulty4 = true; i += 1
       case "--version2" => version2 = true; i += 1
 
       case arg => println(s"Illegal argument: $arg"); sys.exit()

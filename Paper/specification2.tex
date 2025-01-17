@@ -1,11 +1,12 @@
 \subsection{Variations}
 \label{ssec:spec-variations}
 
-Above we considered heterogeneous binary synchronisations, i.e.~two
-invocations of different operations, with a single mode of synchronisation.
+Above we considered heterogeneous binary synchronisations,
+i.e.~synchronisations between \emph{two} executions of \emph{different}
+operations, with a single mode of synchronisation.
 
 It is straightforward to generalise to synchronisations between an arbitrary
-number of invocations, some of which might be invocations of the same
+number of operation executions, some of which might be executions of the same
 operation.  Consider a $k$-way synchronisation between operations
 \begin{scala}
 def op£\s j£(x£\s j£: A£\s j£): B£\s j£   £for $j = 1, \ldots, k,$£
@@ -64,7 +65,8 @@ synchronising; likewise $\sm{sync}_r$ corresponds to a receive returning
 without synchronising; and $\sm{sync}_{s,r}$ corresponds to a send and receive
 synchronising.  The formal definition of synchronisation linearisation is the
 obvious adaptation of the earlier definition: in particular |sync|\s{s} must
-occur between the call and return of send, and likewise for |sync|\s{r}.
+occur between the call and return of a send that doesn't synchronise, and
+likewise for |sync|\s{r}.
 
 As another example, the following is a specification object for a channel with
 a close operation.
@@ -90,17 +92,17 @@ corresponding to |sendFail| and |receiveFail|.
 
 We now consider a progress condition for synchronisation objects.  
 
-We assume that each pending invocation is scheduled infinitely often, unless
-it is blocked (for example, trying to obtain a lock); in other words, the
-scheduler is fair to each invocation.  Under this assumption, our progress
+We assume that each pending operation execution is scheduled infinitely often,
+unless it is blocked (for example, trying to obtain a lock); in other words,
+the scheduler is fair to each execution.  Under this assumption, our progress
 condition can be stated informally as:
 %
 \begin{itemize}
-\item If some pending invocations can synchronise (according to the
+\item If some pending operation executions can synchronise (according to the
   synchronisation specification object), then some such synchronisation should
   happen;
 
-\item Once a particular invocation has synchronised, it should eventually
+\item Once a particular execution has synchronised, it should eventually
   return.
 \end{itemize}
 %
@@ -112,44 +114,47 @@ should return the appropriate value, and the corresponding |send| should also
 return.  In such cases, our progress condition allows \emph{either}
 synchronisation to occur.
 
-Our progress condition allows all pending invocations to block if no
-synchronisation is possible.  For example, if every pending invocations on a
+Our progress condition allows all pending executions to block if no
+synchronisation is possible.  For example, if every pending executions on a
 synchronous channel is a |send|, then clearly none can return.
 
 Note that our progress condition is somewhat different from the condition of
 \emph{lock freedom} for concurrent datatypes~\cite{herlihy-shavit}.  That
-condition requires that, assuming invocations collectively are scheduled
-infinitely often, then eventually some invocation returns.  Lock freedom makes
-no assumption about scheduling being fair.  For example, if a particular
-invocation holds a lock then lock freedom allows the scheduler to never
-schedule that invocation; in most cases, this will mean that no invocation
-returns: any implementation that uses a lock in a non-trivial way is not
-lock-free.
+condition requires that, assuming operation executions collectively are
+scheduled infinitely often, then eventually some execution returns.  Lock
+freedom makes no assumption about scheduling being fair.  For example, if a
+particular operation execution holds a lock then lock freedom allows the
+scheduler to never schedule that execution; in most cases, this will mean that
+no execution returns: any implementation that uses a lock in a non-trivial way
+is not lock-free.
 
-By contrast, our assumption, that each unblocked pending invocation is
+By contrast, our assumption, that each unblocked pending execution is
 scheduled infinitely often, reflects that modern schedulers \emph{are} fair,
-and do not starve any single invocation.  For example, if an invocation holds
+and do not starve any single execution.  For example, if an execution holds
 a lock, and is not in a potentially unbounded loop or permanently blocked
 trying to obtain a second lock, then it will be scheduled sufficiently often,
 and so will eventually release the lock.  Thus our progress condition can be
 satisfied by an implementation that uses locks.  However, our assumption does
-allow invocations to be scheduled in an unfortunate order (as long as each is
+allow executions to be scheduled in an unfortunate order (as long as each is
 scheduled infinitely often), which may cause the progress condition to fail.
+It also allows other synchronisation primitives, such as locks and semaphores
+to be unfair: for example, a thread that is repeatedly trying to obtain a lock
+may repeatedly fail as other threads obtain the lock. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The following definitions identifies maximal sequences of synchronisations
+The following definition identifies maximal sequences of synchronisations
 that could occur given a particular history of a synchronisation object.
 %
 \begin{definition}
-Given a history~$h$ of the synchronisation object and a history~$h_s$ of the
-specification object, we say that $h_s$ is a \emph{maximal synchronisation
+Given a history~$h$ of the synchronisation object and a legal history~$h_s$ of
+the specification object, we say that $h_s$ is a \emph{maximal synchronisation
   linearisation} of~$h$ if:
 \begin{itemize}
 \item $h_s$ is a synchronisation linearisation of~$h$;
 
-\item no proper extension $h_s \cat \trace{e}$ of~$h_s$ is a synchronisation
-  linearisation of~$h$.
+\item no proper legal extension $h_s \cat \trace{e}$ of~$h_s$ is a
+  synchronisation linearisation of~$h$.
 \end{itemize}
 \end{definition}
 %
@@ -237,94 +242,6 @@ return.
 
 On the other hand, for the history $\trace{\call.\send^1(4)}$, the only
 maximal synchronisation linearisation is $\trace{}$, for which there are no
-anticipated returns, and so synchronisation progressibility is satisfied: it
-is fine for the $\send$ to get stuck in this case, since there is no
-$\receive$ with which it could synchronise.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% \subsection*{OLD VERSION}
-
-%% The following definitions make this notion precise.
-%% %
-%% \begin{definition}
-%% We say that an infinite execution is \emph{fair} if every invocation either
-%% returns or performs infinitely many steps.
-
-%% Consider a synchronisation object in a particular state~$st$.  We say that the
-%% object \emph{eventually returns} if (1)~no execution leads to a deadlocked
-%% state, and (2)~for every fair infinite execution
-%% from~$st$ that contains no $\call$ event, there is a $\return$ event.
-%% \end{definition}
-%% %
-
-%% The following definition describes the circumstances under which it is
-%% acceptable for an object to block, and so does not eventually return.
-%% %
-%% \begin{definition}
-%% \label{def:may-block}
-%% Let $Sync$ be a synchronisation object that is synchronisation-linearisable
-%% with respect to specification object $Spec$.  Let $h$ be a history of~$Sync$.
-%% We say that $Sync$ \emph{may block} after~$h$ if there is a legal
-%% history~$h_s$ of~$Spec$, such that:
-%% %
-%% \begin{itemize}
-%% \item $complete(h)$ and~$h_s$ are compatible; and
-
-%% \item There is no proper extension~$h'$ of~$h$ (adding one or more $\return$
-%%   events, but no $\call$ events) and extension $h_s'$ of~$h_s$ such that
-%%   $h_s'$ is a legal history of~$Spec$, and $complete(h')$ and~$h_s'$ are
-%%   compatible.
-%% \end{itemize}
-%% \end{definition}
-%% %
-%% The first condition says that for each synchronisation in~$h_s$,
-%% there is a corresponding $\return$ event in~$h$: there is no invocation that
-%% has synchronised but not yet returned.  The second condition says that no more
-%% synchronisations are possible: such a synchronisation would correspond to a
-%% synchronisation event in~$h_s'$ and $\return$ event in~$h'$.
-
-%% %%%%%
-
-%% We give two examples, both for a synchronous channel.
-%% %
-%% \begin{example}
-%% Consider $h = \seq{ \call.\send^1(3), \call.\receive^2(),
-%%   \return.\receive^2\::3 }$.  Note that $h$ has a pending invocation, and
-%% $complete(h) = \seq{\call.\receive^2(),\linebreak[1] \return.\receive^2\::3}$.
-%% It is clear that there is no history~$h_s$ of~$Spec$ such that $complete(h)$
-%% and~$h_s$ are compatible, because $complete(h)$ is missing the |send| invocation.
-%% %
-%% Definition~\ref{def:may-block} says that the channel may not block after~$h$.
-%% Informally, a synchronisation has occurred, and so the pending return of the
-%% |send| invocation should occur.
-%% \end{example}
-
-%% \begin{example}
-%% Now consider $h = \seq{\call.\send^1(3), \call.\receive^2()}$.  We have that
-%% $complete(h) = \seq{}$ is compatible with the history $h_s = \seq{}$ of $Spec$
-%% (and no other). But the extension $h' = h \cat
-%% \seq{\return.\send^1\::(),\linebreak[1] \return.\receive^2\::3}$ is compatible
-%% with the extension $h_s' = \linebreak[1] \seq{\sync^{1,2}(3,()) \:: ((),3)}$
-%% of~$h_s$.  Hence Definition~\ref{def:may-block} says that the channel may not
-%% block after~$h$.  Informally, the two pending invocations can synchronise and
-%% then return.
-%% \end{example}
-
-%% We now give an example where blocking is allowed.
-%% %
-%% \begin{example}  
-%% Let $h = \seq{\call.\send^1(3)}$.  Then $complete(h) = \seq{}$ is compatible
-%% with the history $h_s = \seq{}$ of $Spec$.  But the only proper extension
-%% of~$h$ is $h' = \seq{\call.\send^1(3),\linebreak[1] \return.\send^1\::()}$,
-%% and no history of $Spec$ is compatible with~$complete(h') = h'$.
-%% \end{example}
-
-
-%% \begin{definition}
-%% Let $Sync$ be a synchronisation object that is synchronisation-linearisable
-%% with respect to specification object $Spec$.  We say that $Sync$ is
-%% \emph{synchronisation-progressable} if for every history~$h$, if it is not the
-%% case that $Sync$ may block after~$h$, then, for every state reached
-%% after~$h$,\, $Sync$ eventually returns.
-%% \end{definition}
+anticipated returns, and so synchronisation progressibility is trivially
+satisfied: it is fine for the $\send$ to get stuck in this case, since there
+is no $\receive$ with which it could synchronise.

@@ -1,7 +1,8 @@
 package synchronisationTester
 
 import ox.scl.{LinearizabilityTester,LinearizabilityLog}
-import synchronisationObject.{TerminatingQueueT,TerminatingQueue}
+import synchronisationObject.{
+  TerminatingQueueT,TerminatingQueue,FaultyTerminatingQueue}
 
 import scala.util.Random
 import scala.collection.immutable.Queue
@@ -12,7 +13,7 @@ object TerminatingQueueTwoStepTester extends Tester{
   val MaxVal = 20
 
   /** The type of objects tested. */
-  type TQueue = TerminatingQueue[Int]
+  type TQueue = TerminatingQueueT[Int]
 
   type ThreadID = Int
 
@@ -98,9 +99,13 @@ object TerminatingQueueTwoStepTester extends Tester{
     addToIters(myIters)
   }
 
+  var faulty = false
+
   /** Do a single test. */
   def doTest: Boolean = {
-    val queue = new TerminatingQueue[Int](p)
+    val queue: TQueue =
+      if(faulty) new FaultyTerminatingQueue[Int](p)
+      else new TerminatingQueue[Int](p)
     val spec = new TerminatingQueueSpec()
     val tester = LinearizabilityTester[TerminatingQueueSpec,TQueue](
       spec, queue, p, worker _)
@@ -133,6 +138,7 @@ object TerminatingQueueTwoStepTester extends Tester{
       case "--timing" => timing = true; i += 1
       case "--iters" => i += 2 // Ignore this flag!
       case "--untilIters" => itersBound = args(i+1).toInt; i += 2
+      case "--faulty" => faulty = true; i += 1
       // case "--profile" => profiling = true; interval = args(i+1).toInt; i += 2
       case arg => println(s"Illegal argument: $arg"); sys.exit()
     }
