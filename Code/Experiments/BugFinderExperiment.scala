@@ -94,7 +94,7 @@ object BugFinderExperiment{
     ("Men and women", "MenWomenTester --deadlock"),
     ("One family", "OneFamilyTester --deadlock"),
     ("ABC", "ABCTester --deadlock"),             
-    ("Barrier", "BarrierTester --faulty3") 
+    ("Barrier", "BarrierTester --faulty3"),            
   )
 
 

@@ -149,8 +149,7 @@ CloseableChannelTwoStepTester.scala
 
 TimeoutChannelTwoStepTester.scala
 
-
-TO DO: timeout channel, closeable channel, terminating queue.
+TO DO: FilterChannel, One Family, Barrier Counter(?)
 
 
 ==================================================================

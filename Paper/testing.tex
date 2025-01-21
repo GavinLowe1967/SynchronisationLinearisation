@@ -98,8 +98,8 @@ returns.
   y_2$ into the log
 \end{itemize}
 %
-Figure~\ref{fig:twostep-timeline} illustrates a possible run, containing a
-single synchronisation, together with the log history.
+The top half of Figure~\ref{fig:twostep-timeline} illustrates a possible run,
+containing a single synchronisation, together with the log history.
 
 \begin{figure}
 \begin{center}
@@ -168,11 +168,15 @@ that
 
 %%%%%
 
-As with standard linearisation, the tester needs to define the worker
-threads so that all executions will eventually return, i.e.~that each will be
-able to synchronise.  For a binary synchronisation with no precondition, we
-can achieve this by half the threads calling one operation, and the other half
-calling the other operation (with the same number of calls by each).
+As with standard linearisation, the tester needs to define the worker threads
+so that all executions will eventually return, i.e.~that each will be able to
+synchronise.  For a binary heterogeneous synchronisation with no precondition,
+we can achieve this by half the threads calling one operation, and the other
+half calling the other operation (with the same number of calls by each).  For
+a binary homogeneous synchronisation, this approach might not work if every
+worker does more than one operation: one worker might end up with two
+operations to perform, when all others have terminated; instead, we arrange
+for an even number of workers to each perform one operation. 
 
 Once all threads have finished, we test whether the log history is
 linearisable (i.e.~standard linearisation) with respect to |TwoStepLinSpec|
@@ -184,8 +188,9 @@ linearisation of the concrete history of operation executions with respect to
 |SyncSpec|; (2)~two-step linearisation of the concrete history with respect
 to~|TwoStepLinSpec|; and (3)~linearisation of the log history with respect
 to~|TwoStepLinSpec|.  Proposition~\ref{prop:two-step-lin} shows that the first
-two of these are equivalent.  We need to show that these imply~(3).  (The
-converse might not hold, because of delays in writing to the log.)
+two of these are equivalent.  We need to show that these imply~(3), so the
+technique does not give false errors.  (The converse might not hold, because
+of delays in writing to the log.)
 
 \begin{prop}
 \label{prop:twostep-testing}
@@ -199,11 +204,12 @@ respect to |TwoStepSyncSpec|.
 \end{prop}
 %
 \begin{proof}
-By assumption there is a legal history~$h_s$ of |SyncSpec| such that $h_s$ is
-a synchronisation linearisation of $h$.  Consider the interleaving of $h_s$
-and~$h$, that demonstrates this, and interleave $h_l$ with it, consistent with
-the interleaving of~$h$ and~$h_l$ that demonstrates that they correspond.
-Figure~\ref{fig:twostep-timeline} illustrates such an interleaving.
+Since $h$ is synchronisation linearisable, there is a legal history~$h_s$ of
+|SyncSpec| such that $h_s$ is a synchronisation linearisation of $h$.
+Consider the interleaving of $h_s$ and~$h$, that demonstrates this, and
+interleave $h_l$ with it, consistent with the interleaving of~$h$ and~$h_l$
+that demonstrates that they correspond.  Figure~\ref{fig:twostep-timeline}
+illustrates such an interleaving.
 
 We build a history~$h_{2s}$ of~|TwoStepSyncSpec|, and interleave it with~$h_l$
 as follows.  In the interleaving of the previous paragraph, replace each event
@@ -211,7 +217,7 @@ $\sync^{i_1,i_2}(x_1,x_2)\::(y_1,y_2)$ (from~$h_s$) by consecutive
 events~$\op_1^{i_1}(x_1)\::()$ and $\op_2^{i_2}(x_2)\::y_2$, and add
 $\overline{\op}_1^{i_1}()\::y_1$ between $\call.\overline{\op}_1^{i_1}()$ and
 $\return.\overline{\op}_1^{i_1} \:: y_1$ (from~$h_l$).  Again,
-Figure~\ref{fig:twostep-timeline} illustrates such an interleaving.This is a
+Figure~\ref{fig:twostep-timeline} illustrates such an interleaving.  This is a
 legal history of~|TwoStepSyncSpec|, by
 Lemma~\ref{lem:TwoStepLinSpec-histories}.  Further, each event of~$h_{2s}$ is
 between the corresponding $\call$ and $\return$ events of~$h_l$, by
@@ -284,16 +290,16 @@ Section~\ref{ssec:relating-variations}.
 
 % \framebox{Improve below}
 
-\subsubsection{Variable-arity synchronisations}
+\paragraph{Variable-arity synchronisations.}
 
 It turns out that it is not, in general, possible to capture variable-arity
-synchronisations, in particular where the arity depends upon the relative
-timing of executions, as opposed to the state of the specification object.
-This is a result of two things: that the logging of operations, in particular
-the $\overline{\op}_1$, can be arbitrarily delayed; and that it can be
-nondeterministic whether or not two executions synchronise, which is at odds
-with the fact that each operation on the specification object needs to be
-deterministic.
+synchronisations using this technique, in particular where the arity of a
+synchronisation depends upon the relative timing of executions, as opposed to
+the state of the specification object.  This is a result of two things: that
+the logging of operations, in particular the $\overline{\op}_1$, can be
+arbitrarily delayed; and that it can be nondeterministic whether or not two
+executions synchronise, which is at odds with the fact that each operation on
+the specification object needs to be deterministic.
 
 To illustrate this point, consider a timeout channel.  Without loss of
 generality, let the |send| operation correspond to $\op_1$, and the
@@ -400,3 +406,76 @@ linearised by the history
 of the two-step specification object, where the operations take place in a
 different order than for Figure~\ref{fig:two-step-timeout-channel}; this is
 consistent with a deterministic specification object.
+
+A similar problem arises with a timeout exchanger.
+
+%\framebox{Explain how it can be done.}
+
+We have investigated an alternative approach, which involves worker threads
+adapting their logging behaviour based on the outcome of their operations.
+For the timeout channel:
+\begin{itemize}
+\item A thread that sends a value~$x$: (1)~writes $\call.\send^{i_1}(x)$ into
+  the log; (2)~performs $\send(x)$ on the channel; (3)~writes
+  $\return.\send^{i_1} \:: ()$ into the log; (4)~if the send is successful,
+  associates the log entries with an operation $\send(x)$ on the specification
+  object, and otherwise associates them with an operation $\sm{sendFail}(x)$;
+  (5)~if the send is successful, writes $\call.\overline{\send}^{i_1}()$ and
+  $\return.\overline{\send}_1^{i_1} \:: ()$ into the log, associating them
+  with an operation $\overline{\send}()$ on the specification object (and
+  otherwise does nothing).
+
+%%     (6)~writes $\return.\overline{\send}_1^{i_1} \:: ()$ into the log
+
+%% then:
+%%   \begin{itemize}
+%%   \item if the send is successful: (4) associates the log entries with an
+%%     operation $\send(x)$ on the specification object; (5)~writes
+%%     $\call.\overline{\send}^{i_1}()$ into the log, associating it with a
+%%     corresponding execution $\overline{\send}()$ on the specification object;
+%%     (6)~writes $\return.\overline{\send}_1^{i_1} \:: ()$ into the log.
+
+%%   \item if the send is unsuccessful: (4)~associates the log entries with an
+%%     operation $\sm{sendFail(x)}$ on the specification object (and does not
+%%     perform the second step).
+%%   \end{itemize}
+
+\item A thread that performs a receive: (1)~writes $\call.\receive^{i_2}$ into
+  the log; (2)~performs $\receive$ on the channel, receiving result~$r$, say;
+  (3)~writes $\return.\receive^{i_1} \:: r$ into the log; (4)~if the receive
+  was successful, associates the log entries with an operation |receive| on
+  the specification, and otherwise associates them with an
+  operation $\sm{receiveFail}$.
+\end{itemize}
+
+
+The specification object encodes the automaton below. 
+%% \begin{window}[0,r,{
+%% \begin{minipage}{73mm}
+\begin{center}
+\begin{tikzpicture}[>= angle 60]
+\draw (0,0) node[draw] (zero) {$\sm{Zero}$};
+\draw[<-] (zero) -- ++ (-1.5,0);
+\loopAbove(zero){$
+%% \draw[->] (zero) .. controls ++(1.5,0.4) and (1.5,-0.4) .. node[right] {$
+  \begin{array}{c} 
+  \sm{sendFail}, \overline{\send}, \\ \sm{receiveFail}
+  \end{array}$}% (zero);
+%
+\draw (4,0) node[draw] (one) {$\sm{One}(\sm{x})$};
+\draw[->] (zero) .. controls ++(2,0.3) .. node[above] {$\sm{send(x)}$} (one); 
+\draw[->] (one) .. controls ++(-2,-0.3) .. 
+  node[below] {$\sm{receive}\::\sm{Some(x)}$} (zero);
+\end{tikzpicture}
+\end{center}
+%% \end{minipage}
+%% },] 
+Thus a successful synchronisation is linearised by a sequence $\send(\sm x)$,
+$\receive\::\sm{Some(x)}$, $\overline{\send}$, with the former two events
+consecutive, as for other binary heterogeneous synchronisations.  Unsuccessful
+sends and receives are each linearised by a single event.
+
+A similar technique can be used for a timeout exchanger.  We consider this
+approach convoluted, and we do not advocate it.  We include it only for
+completeness.
+

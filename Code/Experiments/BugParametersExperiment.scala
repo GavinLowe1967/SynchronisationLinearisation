@@ -159,7 +159,6 @@ object BugParametersExperiment{
     val params = new Experiments.Params(samples, samples, 0.05, 0.01)
     val numTesters = testers.length
     val results = Array.ofDim[(Double,Double)](numTesters, ps.length)
-    val options1 = options :+ "xlabel = Number of threads"
     // Run experiments
     for(ix <- 0 until numTesters){
       val (tester, pMax) = testers(ix)
@@ -191,6 +190,8 @@ object BugParametersExperiment{
       }
     }
     // Produce graphs
+// FIXME: the title is wrong
+    val options1 = options :+ "xlabel = Number of threads"
     val labels = testers.map(_._1) // labels for plots
     // val pmax = testers.map(_._2.max).max
     val pLabels = ps.map(_.toString) // labels for x-axis
