@@ -1,0 +1,191 @@
+%% \documentclass[a4paper]{article}
+%% \usepackage{pgfplots}
+%% \pgfplotsset{compat=1.16}
+%% \begin{document}
+
+\begin{figure}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  title = Synchronous channel,
+% Experiment on the time taken to find a bug using ABCTester --faulty,
+  %% ylabel = Time (ms),
+  %% xlabel = Number of iterations per thread,
+  ymin = 0, ymax = 4000,
+  log basis x=2,
+  scaled ticks = false,
+  legend pos = north west,
+  height = \gHeight,
+  width = \gWidth,
+  %% xlabel = Number of threads
+]
+\addplot+[error bars/.cd, y dir=both,y explicit] coordinates {
+  (2,80.17557097) +- (0,2.313976246200295)
+  (4,82.28302028) +- (0,2.4335327027022076)
+  (8,85.36077082999999) +- (0,1.6876257801962267)
+  (12,92.07562671) +- (0,1.2105274136407866)
+  (16,99.44679917) +- (0,1.541428322475591)
+  (20,104.17721047) +- (0,1.1526221977538424)
+  %% (22,108.18462238) +- (0,1.3651851641225)
+  (24,120.06519478) +- (0,2.049365255112062)
+  (28,131.57102554) +- (0,2.098694031220748)
+  (32,137.73540709) +- (0,1.8049509031073891)
+};
+\addlegendentry{Direct}
+\addplot+[error bars/.cd, y dir=both,y explicit] coordinates {
+  (2,99.35065917) +- (0,2.290820993958403)
+  (4,107.21510358) +- (0,1.08627145477178)
+  (8,128.75744427) +- (0,3.02110024002185)
+  (12,192.25562924000002) +- (0,18.038345750964854)
+  (16,406.23790026999995) +- (0,98.63111643854575)
+  (20,3704.92351963) +- (0,3686.316989775613)
+};
+\addlegendentry{Two-step}
+\end{axis}
+\end{tikzpicture}
+%%%%%%%%%%
+\begin{tikzpicture}
+\begin{axis}[
+  title = ABC,
+  %% ylabel = Time (ms),
+  %% xlabel = Number of iterations per thread,
+  ymin = 0, ymax = 6500,
+  log basis x=2,
+  scaled ticks = false,
+  legend pos = north west,
+  height = \gHeight,
+  width = \gWidth,
+  %% xlabel = Number of threads
+]
+\addplot+[error bars/.cd, y dir=both,y explicit] coordinates {
+  (6,738.97523388) +- (0,192.30437419901662)
+  (9,516.3166476499999) +- (0,73.07929020702144)
+  (12,428.05922672) +- (0,51.84354705496431)
+  (18,437.17449813999997) +- (0,43.68155185436697)
+  (21,468.40309231) +- (0,49.17296231702148)
+  (24,480.95971837) +- (0,45.26460652255709)
+  (30,503.82373912) +- (0,47.435795199862945)
+};
+\addlegendentry{Direct}
+\addplot+[error bars/.cd, y dir=both,y explicit] coordinates {
+  (6,1185.0105184000001) +- (0,500.305829959669)
+  (9,649.7943049600001) +- (0,92.47896644220319)
+  (12,523.2936806700001) +- (0,55.589694380875514)
+  (18,1389.68275199) +- (0,265.9151307866405)
+  (21,6136.98969674) +- (0,2374.586589732776)
+};
+\addlegendentry{Two-step}
+\end{axis}
+\end{tikzpicture}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}
+\begin{axis}[
+  title = Exchanger,
+  %% ylabel = Time (ms),
+  %% xlabel = Number of iterations per thread,
+  ymin = 0, ymax = 5000,
+  log basis x=2,
+  scaled ticks = false,
+  legend pos = north east,
+  height = \gHeight,
+  width = \gWidth,
+  %% xlabel = Number of threads
+]
+\addplot+[error bars/.cd, y dir=both,y explicit] coordinates {
+  (4,83.98867041) +- (0,5.84972087508774)
+  (6,71.83952737) +- (0,2.065354913851141)
+  (8,74.11781601) +- (0,3.1537908684816114)
+  (10,75.0670475) +- (0,0.805666269953274)
+  (12,77.90637123) +- (0,0.9281723987237208)
+  (16,84.82022478) +- (0,0.9538758094074133)
+  (20,88.69409691) +- (0,1.274185258318204)
+  (24,94.56927361) +- (0,1.0908692638240356)
+  (28,100.10252856999999) +- (0,1.251472815008965)
+  (32,111.07823459999999) +- (0,2.241102402077327)
+};
+\addlegendentry{Direct}
+\addplot+[error bars/.cd, y dir=both,y explicit] coordinates {
+  (4,118.93380857) +- (0,5.801655675442106)
+  (6,165.84577971000002) +- (0,4.284111269787625)
+  (8,512.19757177) +- (0,24.459417584181057)
+  (10,4367.849069819999) +- (0,520.9152639377908)
+};
+\addlegendentry{Two-step}
+\end{axis}
+\end{tikzpicture}
+%%%%%%%%%%
+\begin{tikzpicture}
+\begin{axis}[
+  title = Barrier,
+  %% ylabel = Time (ms),
+  %% xlabel = Number of iterations per thread,
+  ymin = 0, ymax = 5000,
+  log basis x=2,
+  scaled ticks = false,
+  legend pos = north east,
+  height = \gHeight,
+  width = \gWidth,
+  %% xlabel = Number of threads
+]
+\addplot+[error bars/.cd, y dir=both,y explicit] coordinates {
+  (4,79.15746188) +- (0,0.8148235154891171)
+  (6,86.35219253) +- (0,0.9117832455251536)
+  (8,91.54211674) +- (0,0.8558335206240062)
+  (10,97.45011204000001) +- (0,0.9875873719463663)
+  (12,103.31072401) +- (0,1.0294361811920485)
+  (16,114.19281606) +- (0,1.1061892417043115)
+  (24,134.09490376) +- (0,1.5693232175285319)
+  (32,167.9751856) +- (0,2.0879807791854277)
+};
+\addlegendentry{Direct}
+\addplot+[error bars/.cd, y dir=both,y explicit] coordinates {
+  (4,106.80990786) +- (0,1.028433378278398)
+  (6,165.23789938) +- (0,1.4234599346997459)
+  (8,482.3549788) +- (0,5.198066954797921)
+  (10,4774.87041949) +- (0,180.19593219438985)
+};
+\addlegendentry{Two-step}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\caption{The effect of increasing the number of threads on the time to find
+  bugs.}
+\label{fig:scalingExperiment}
+\end{figure}
+%% \begin{tikzpicture}
+%% \begin{axis}[
+%%   title = Experiment on the time taken to find a bug using ABCTester --faulty,
+%%   %% ylabel = Time (ms),
+%%   %% xlabel = Number of iterations per thread,
+%%   ymin = 0,
+%%   log basis x=2,
+%%   scaled ticks = false,
+%%   legend pos = north east,
+%%   height = 0.8\textheight,
+%%   width = 0.6\textwidth,
+%%   %% xlabel = Number of threads
+%% ]
+%% \addplot+[error bars/.cd, y dir=both,y explicit] coordinates {
+%%   (4,96.63427718999999) +- (0,2.5163477297936216)
+%%   (8,113.01763845) +- (0,9.94350003552628)
+%%   (12,118.24920412) +- (0,3.8038559172848885)
+%%   (16,127.87080176) +- (0,2.1334251628644845)
+%%   (18,137.21550991) +- (0,5.109093758472966)
+%%   (20,148.60901783) +- (0,4.363024022806203)
+%%   (24,169.97987766) +- (0,6.020211068562741)
+%%   (28,176.99855642) +- (0,4.140373056156611)
+%%   (32,188.88253531) +- (0,6.00941825984061)
+%% };
+%% \addlegendentry{ChanCounterTester}
+%% \addplot+[error bars/.cd, y dir=both,y explicit] coordinates {
+%%   (4,107.01148408) +- (0,1.3175787272172261)
+%%   (8,135.87752678) +- (0,2.7028257297729663)
+%%   (12,283.46283038) +- (0,23.433002506513333)
+%%   (16,1254.59913635) +- (0,443.72455626905014)
+%% };
+%% \addlegendentry{ChanCounterTwoStepTester}
+%% \end{axis}
+%% \end{tikzpicture}
+%% %\end{document}
