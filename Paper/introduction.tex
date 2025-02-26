@@ -1,19 +1,21 @@
 \begin{abstract}
 We study \emph{synchronisation objects}: objects that allow two or more
-threads to synchronise.  We define a correctness condition for such
-synchronisation objects, which we call \emph{synchronisation linearisation}:
-informally, the synchronisations appear to take place in a one-at-a-time
-order, consistent with the calls and returns of operations on the object.  We
-also define a progress condition, which we call \emph{synchronisation
-  progressibility}: informally, executions of operations don't get stuck
-unnecessarily.
+threads to synchronise, and maybe exchange data.  We define a correctness
+condition for such synchronisation objects, which we call
+\emph{synchronisation linearisation}: informally, the synchronisations appear
+to take place in a one-at-a-time order, consistent with the calls and returns
+of operations on the object, and giving correct results.  We also define a
+liveness condition, which we call \emph{synchronisation progressibility}:
+informally, executions of operations don't get stuck when a synchronisation is
+possible.
 
 We consider testing of implementations of synchronisation objects.  The basic
 idea is to run several threads that use the object, record the history of
-operation calls and returns, and then to test whether the resulting history
+operation calls and returns, and then test whether the resulting history
 satisfies synchronisation linearisation and progressibility.  We present
-algorithms for this last step, and also present results concerning the
-complexity of the problem.
+algorithms for this last step, and give results concerning the complexity of
+the problem.  We describe an implementation of such a testing framework, and
+present experimental results.
 \end{abstract}
 
 \section{Introduction}
@@ -36,10 +38,10 @@ language in footnotes.)  In each case, the synchronisation is mediated by a
 \emph{synchronisation object}.
 
 Perhaps the most common form of synchronisation object is a synchronous
-channel.  Such a channel might have signature\footnote{The class is
-  polymorphic in the type~{\scalashape A} of data.  The type {\scalashape
-    Unit} is the type that contains a single value, the \emph{unit value},
-  denoted~{\scalashape ()}.}
+channel~\cite{andrews,JCSP,sufrin:CSO}.  Such a channel might have
+signature\footnote{The class is polymorphic in the type~{\scalashape A} of
+  data.  The type {\scalashape Unit} is the type that contains a single value,
+  the \emph{unit value}, denoted~{\scalashape ()}.}
 %
 \begin{scala}
 class SyncChan[A]{
@@ -54,11 +56,11 @@ execution |send(x)| synchronises with an execution of |receive|, then the
 |receive| returns~|x|.
 
 Each synchronisation of a synchronous channel involves two executions of
-\emph{different} operations; we say that the synchronisation is
-\emph{heterogeneous}.  By contrast, sometimes two executions of the
-\emph{same} operation may synchronise; we say that the synchronisation is
-\emph{homogeneous}.  For example, an \emph{exchanger} has the following
-signature.
+\emph{different} operations (|send| and |receive|); we say that the
+synchronisation is \emph{heterogeneous}.  By contrast, sometimes two
+executions of the \emph{same} operation may synchronise; we say that the
+synchronisation is \emph{homogeneous}.  For example, an
+\emph{exchanger}~\cite{HSY2004,herlihy-shavit} has the following signature:
 %
 \begin{scala}
 class Exchanger[A]{
@@ -70,8 +72,8 @@ When two threads call |exchange|, the executions can synchronise, and each
 receives the value passed in by the other.
 
 For some synchronisation objects, synchronisations might involve more than two
-threads.  For example, a \emph{barrier synchronisation} object of the
-following class
+threads.  For example, a \emph{barrier synchronisation}
+object~\cite{andrews,JCSP} can be used to synchronise~|n| threads:
 %
 \begin{scala}
 class Barrier(n: Int){
@@ -79,16 +81,16 @@ class Barrier(n: Int){
 }
 \end{scala}
 %
-can be used to synchronise~|n| threads.  Each thread is assumed to have an
-integer thread identifier in the range $\range{0}{\sm{n}}$.  Each thread~|me|
-calls |sync(me)|, and no execution returns until all~|n| have called it.  We
-say that the synchronisation has \emph{arity}~|n|.
+Each thread is assumed to have an integer thread identifier in the range
+$\range{0}{\sm{n}}$.  Each thread~|me| calls |sync(me)|, and no execution
+returns until all~|n| have called it.  We say that the synchronisation has
+\emph{arity}~|n|.
 
-A \emph{combining barrier}, in addition to acting as a barrier
+A \emph{combining barrier}~\cite{andrews}, in addition to acting as a barrier
 synchronisation, also allows each thread to submit a parameter, and for all to
 receive back some function of those parameters.\footnote{The Scala type
-  {\scalastyle (A,A) =}$>$ {\scalastyle A} represents functions from pairs of
-  {\scalastyle A} to~{\scalastyle A}.}
+  {\scalashape (A,A) =}$>$ {\scalashape A} represents functions from pairs of
+  {\scalashape A} to~{\scalashape A}.}
 %
 \begin{scala}
 class CombiningBarrier[A](n: Int, f: (A,A) => A){
@@ -102,7 +104,7 @@ back $\sm f(x_1, \sm f(x_2, \ldots \sm f(x_{{\ss n}-1}, x_{\ss n}) \ldots ))$.
 (In the common case that |f| is commutative, this result is independent of the
 order of the parameters.)
 
-Some synchronisation objects allow different modes of synchronisation.  For
+Some synchronisation objects have multiple modes of synchronisation.  For
 example, consider a synchronous channel with timeouts: each execution might
 synchronise with another execution, or might timeout without
 synchronisation.  Such a channel has a signature as follows.
@@ -120,28 +122,37 @@ a value |Some(x)| to indicate that it synchronised and received~|x|, or can
 return the value |None| to indicate that it failed to synchronise\footnote{The
   type {\scalashape Option[A]} contains the union of such values.}.  Thus an
 execution of each operation may or may not synchronise with an execution of
-the other operation.  Unsuccessful executions of send and receive
+the other operation.  Unsuccessful executions of |send| and |receive|
 can be considered \emph{unary} synchronisations.  
+
+Similarly, a timeout exchanger~\cite{HSY2004,herlihy-shavit} can allow threads
+to exchange; but if a thread fails to exchange, it can return without
+synchronising.  It has a signature as follows.
+\begin{scala}
+class TimeoutExchanger[A]{
+  def exchange(x: A): Option[A]
+}
+\end{scala}
+
 
 So far, our example synchronisation objects have been \emph{stateless}: they
 maintain no state from one synchronisation to another.  By contrast, some
 synchronisation objects are \emph{stateful}: they maintain some state between
-synchronisations, which might affect the availability of the results of
-synchronisations.  As a toy example, consider a synchronous channel that, in
-addition, maintains a sequence counter, and such that both executions receive
-the value of this counter.
+synchronisations, which might affect synchronisations.  As a toy example,
+consider a synchronous channel that, in addition, maintains a sequence
+counter, and such that both executions receive the value of this counter.
 \begin{scala}
 class SyncChanCounter[A]{
   private var counter: Int
-  def send(x: A): Int      // result is sequence number
-  def receive(): (A, Int)  // result is (value received, sequence number)
+  def send(x: A): Int      // Result is sequence number.
+  def receive(): (A, Int)  // Result is (value received, sequence number).
 }
 \end{scala}
 
 % Variations: homogenous case; different modes
 
-Some implementations of synchronous channels allow the channel to be closed,
-say by a unary operation |close|. 
+Some implementations of synchronous channels allow the channel to be
+closed~\cite{JCSP,sufrin:CSO}, say by a unary operation |close|.
 \begin{scala}
 class CloseableChan[A]{
   def send(x: A): Unit
@@ -155,8 +166,7 @@ Thus such an object is stateful, with two states, open and closed; and the
 operations have different modes of synchronisation, either successful or
 throwing an exception.
 
-
-An \emph{enrollable barrier} (based on~\cite{alting-barrier}) is a barrier
+An \emph{enrollable barrier}~\cite{alting-barrier} is a barrier
 that allows threads to enrol and resign (via unary operations):
 %
 \begin{scala}
@@ -211,13 +221,16 @@ implementations.
 
 In Section~\ref{sec:spec} we describe how to specify a synchronisation object.
 The definition has similarities with the standard definition of
-\emph{linearisation} for concurrent datatypes, except it talks about
+\emph{linearisation} for concurrent
+datatypes~\cite{herlihy-wing,herlihy-shavit}, except it talks about
 synchronisations between executions of operations, rather than single
-executions: we call the property \emph{synchronisation linearisation};
-informally, the synchronisations appear to take place in a one-at-a-time
-order, consistent with the calls and returns of operations on the object.  We
-also define a progress condition, which we call \emph{synchronisation
-  progressibility}: informally, executions don't get stuck unnecessarily.
+executions: we call the property \emph{synchronisation linearisation}.
+Informally, the synchronisations should appear to take place in a
+one-at-a-time order, consistent with the calls and returns of operations on
+the synchronisation object, and with results as defined by a
+\emph{synchronisation specification object}.  We also define a liveness
+condition, which we call \emph{synchronisation progressibility}: informally,
+executions don't get stuck when a synchronisation is possible.
 
 In Section~\ref{sec:relating} we consider the relationship between
 synchronisation linearisation and (standard) linearisation.  We show that
@@ -225,31 +238,54 @@ linearisation is an instance of synchronisation linearisation, but that
 synchronisation linearisation is more general.  We also show that
 synchronisation linearisation corresponds to a small adaptation of
 linearisation, where an operation of the synchronisation object may correspond
-to \emph{two} operations of the object used to specify linearisation.
+to \emph{two} operations of the object used to specify linearisation; we call
+this \emph{two-step linearisation}.
 
 We then consider testing of synchronisation object implementations.  Our
 techniques are based on the techniques for testing (standard)
-linearisation~\cite{gavin:lin-testing}, which we sketch in
+linearisation~\cite{gavin:lin-testing}, which we review in
 Section~\ref{sec:lin-testing}: the basic idea is to record a history of
 threads using the object, and then to test whether that history is
 linearisable.
 %
 In Section~\ref{sec:testing-hacking} we show how the technique can be adapted
 to test for synchronisation linearisation, using the result of
-Section~\ref{sec:relating}.  Then in Section~\ref{sec:direct} we show how
-synchronisation linearisation can be tested more directly: we describe
-algorithms that test whether a history of a synchronisation object is
-synchronisation linearisable.  We also present various
-complexity results: testing whether a history is synchronisation linearisable
-is NP-complete in general, but can be solved in polynomial time in the case of
-binary (heterogeneous or homogeneous) stateless synchronisation objects.
+Section~\ref{sec:relating}, where an operation of the synchronisation object
+may correspond to two operations of the specification object.  
+
+In Section~\ref{sec:direct} we show how synchronisation linearisation can be
+tested more directly: we describe algorithms that test whether a history of a
+synchronisation object is synchronisation linearisable.  We also present
+various complexity results: deciding whether a given history is
+synchronisation linearisable is NP-complete in general, but it can be decided
+in polynomial time in the case of binary (heterogeneous or homogeneous)
+stateless synchronisation objects.  
 
 %% In Section~\ref{sec:modelChecking} we consider how the property of
 %% synchronisation linearisation can be analysed via model checking.
 %% \framebox{Cut this?} 
 
-In Section~\ref{sec:experiments} we describe experiments to determine the
-effectiveness of the testing techniques.  We sum up in
-Section~\ref{sec:conc}. 
+We describe the implementation of a testing framework in
+Section~\ref{sec:implementation}; the framework supports both two-step
+linearisation and the direct algorithms.  In Section~\ref{sec:experiments} we
+describe experiments to determine the effectiveness of the testing techniques:
+both find errors on faulty implementations of synchronisation objects very
+quickly.  We sum up in Section~\ref{sec:conc}.
 
-\framebox{Contributions}
+We consider our main contributions to be as follows.
+%
+\begin{itemize}
+\item An exploration of the range of different synchronisation objects;
+
+\item A general technique for specifying synchronisation objects, capturing
+  both safety and liveness properties;
+
+\item A study of the relationship between synchronisation linearisation and
+  standard linearisation;
+
+\item Algorithms for deciding whether a history of a synchronisation object is
+  synchronisation linearisable, together with related complexity results;
+
+\item A testing framework for synchronisation objects, and an experimental
+  assessment of its effectiveness.
+\end{itemize}

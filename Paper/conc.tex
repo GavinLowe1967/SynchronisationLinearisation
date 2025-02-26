@@ -1,0 +1,25 @@
+\section{Conclusions}
+\label{sec:conc}
+
+In this paper we have studied synchronisation objects.  We have proposed the
+correctness conditions of synchronisation linearisation and synchronisation
+progressibility.  We have studied how to carry our testing on implementations
+of synchronisation objects.  The approach is effective: the testing code is
+easy to write; and the testers normally find errors quickly.  We have also
+studied the complexity of algorithms for deciding whether a history is
+synchronisation linearisable. 
+
+Our analysis technique in this paper has been software testing of
+implementations of synchronisation objects.  However, one can also apply model
+checking to the problem.  The companion paper~\cite{gavin:SCL-CSP} analyses a
+library of communication primitives (including a closeable channel with timed
+operations, and alternation), using CSP~\cite{awr:ucs} and its model checker
+FDR~\cite{fdr3}.  An error is identified on a previous version of the library;
+but the revised version is shown to be synchronisation linearisable and
+progressible.
+
+
+
+
+\bibliographystyle{alpha}
+\bibliography{sync}

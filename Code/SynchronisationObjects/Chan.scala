@@ -30,6 +30,8 @@ class SyncChan[A] extends Chan[A]{
   }
 }
 
+
+
 // ==================================================================
 
 /** A deliberately incorrect implementation of a shared synchronous channel.

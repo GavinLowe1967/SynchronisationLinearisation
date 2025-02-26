@@ -120,28 +120,55 @@
   number =	 8
 }
 
-@inproceedings{10.1145/1297027.1297033,
-author = {Georges, Andy and Buytaert, Dries and Eeckhout, Lieven},
-title = {Statistically rigorous java performance evaluation},
-year = {2007},
-isbn = {9781595937865},
-publisher = {Association for Computing Machinery},
-address = {New York, NY, USA},
-url = {https://doi.org/10.1145/1297027.1297033},
-doi = {10.1145/1297027.1297033},
-abstract = {Java performance is far from being trivial to benchmark because it is affected by various factors such as the Java application, its input, the virtual machine, the garbage collector, the heap size, etc. In addition, non-determinism at run-time causes the execution time of a Java program to differ from run to run. There are a number of sources of non-determinism such as Just-In-Time (JIT) compilation and optimization in the virtual machine (VM) driven by timer-based method sampling, thread scheduling, garbage collection, and various.There exist a wide variety of Java performance evaluation methodologies usedby researchers and benchmarkers. These methodologies differ from each other in a number of ways. Some report average performance over a number of runs of the same experiment; others report the best or second best performance observed; yet others report the worst. Some iterate the benchmark multiple times within a single VM invocation; others consider multiple VM invocations and iterate a single benchmark execution; yet others consider multiple VM invocations and iterate the benchmark multiple times.This paper shows that prevalent methodologies can be misleading, and can even lead to incorrect conclusions. The reason is that the data analysis is not statistically rigorous. In this paper, we present a survey of existing Java performance evaluation methodologies and discuss the importance of statistically rigorous data analysis for dealing with non-determinism. We advocate approaches to quantify startup as well as steady-state performance, and, in addition, we provide the JavaStats software to automatically obtain performance numbers in a rigorous manner. Although this paper focuses on Java performance evaluation, many of the issues addressed in this paper also apply to other programming languages and systems that build on a managed runtime system.},
-booktitle = {Proceedings of the 22nd Annual ACM SIGPLAN Conference on Object-Oriented Programming Systems, Languages and Applications},
-pages = {57–76},
-numpages = {20},
-keywords = {benchmarking, data analysis, java, methodology, statistics},
-location = {Montreal, Quebec, Canada},
-series = {OOPSLA '07}
-}
-
-
-
 @InProceedings{GBE2007,
   author = 	 {Georges, Andy and Buytaert, Dries and Eeckhout, Lieven},
   title = 	 {Statistically rigorous {Java} performance evaluation},
   booktitle = {Proceedings of OOPSLA '07},
   year = 	 2007}
+
+@Book{andrews,
+  author = 	 {Gregory Andrews},
+  title = 	 {Concurrent Programming: Principles and Practice},
+  publisher = 	 {Benjamin/Cummings},
+  year = 	 1991}
+
+@InProceedings{sufrin:CSO,
+  author = 	 {Bernard Sufrin},
+  title = 	 {Communicating Scala Objects},
+  booktitle = {Proceedings of Communicating Process Architectures},
+  year = 	 2008}
+
+@InProceedings{HSY2004,
+  author =	 {D. Hendler and N. Shavit and L. Yerushalmi},
+  title =	 {A scalable lock-free stack algorithm},
+  booktitle =	 {Proceedings of the Sixteenth Annual Symposium on Parallelism
+                  in Algorithms and Architectures},
+  year =	 2004,
+  pages =	 {206--215}
+}
+
+@InProceedings{JCSP,
+  author =	 {Peter Welch and Neil Brown and James Moores and Kevin
+                  Chalmers and Bernhard Sputh},
+  title =	 {Integrating and Extending {JCSP}},
+  booktitle =	 {Proceedings of Communicating Process Architectures},
+  year =	 2007
+}
+
+@Article{PC23,
+  author =	 {Jan B. Pedersen and Kevin Chalmers},
+  title =	 {Towards Verifying Coopreatively-Scheduled Runtimes using
+                  {CSP}},
+  journal =	 {Formal Aspects of Computing},
+  year =	 2023,
+  volume =	 35,
+  number =	 4,
+  pages =	 {1--45}
+}
+
+@Unpublished{gavin:SCL-CSP,
+  author = 	 {Gavin Lowe},
+  title = 	 {Analysing a Library of Concurrency Primitives using {CSP}},
+  note = 	 {Submitted for publication},
+  year = 	 2025}
+

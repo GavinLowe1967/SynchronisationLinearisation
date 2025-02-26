@@ -35,7 +35,7 @@ documented.  Further, the technique is easy to use: we have taught it to
 undergraduate students, who have used it effectively.
 
 Note that this testing concentrates upon the safety property of
-linearisability, rather than liveness properties such as deadlock-freedom.
+linearisation, rather than liveness properties such as deadlock-freedom.
 However, if the concurrent object can deadlock, it is likely that the testing
 will discover this.  Related to this point, it is the responsibility of the
 tester to define the worker threads in a way that all executions will
@@ -70,11 +70,13 @@ was intended, so we consider it a hack.  However, it has the advantage of not
 requiring the implementation of any new algorithms.  (We do not consider
 progressibility in this section.)
 
-Recall, from the introduction of Section~\ref{sec:relating}, that a
-straightforward approach won't work.  Instead we adapt the idea of two-step
-linearisation from later in that section.  We start by considering the case of
-binary heterogeneous synchronisation.  We aim to obtain a log history that can
-be tested for (standard) linearisability against |TwoStepLinSpec|.
+%% Recall, from the introduction of Section~\ref{sec:relating}, that a
+%% straightforward approach won't work.  Instead 
+
+We adapt the idea of two-step linearisation from Section~\ref{sec:relating}.
+We start by considering the case of binary heterogeneous synchronisation.  We
+aim to obtain a log history that can be tested for (standard) linearisation
+against |TwoStepLinSpec|.
 
 As with standard linearisability testing, we run several worker threads,
 calling operations on the synchronisation object, and logging the calls and
@@ -145,8 +147,24 @@ containing a single synchronisation, together with the log history.
 
 %%%%%
 
-The following definition captures that a log history~$h_l$ might arise from a
-concrete history~$h$, using the logging strategy described above.
+Once all threads have finished, we test whether the log history is
+linearisable (i.e.~standard linearisation) with respect to |TwoStepLinSpec|
+from Section~\ref{sec:relating}.  Figure~\ref{fig:twostep-timeline} gives an
+example linearisation, denoted~$h_{2s}$.
+
+Note that we have three related concepts here: (1)~synchronisation
+linearisation of the concrete history of operation executions with respect to
+|SyncSpec|; (2)~two-step linearisation of the concrete history with respect
+to~|TwoStepLinSpec|; and (3)~linearisation of the log history with respect
+to~|TwoStepLinSpec|.  Proposition~\ref{prop:two-step-lin} shows that the first
+two of these are equivalent.  We need to show that these imply~(3), so the
+technique does not give false errors.  (The converse might not hold, because
+of delays in writing to the log.)
+
+Since the linearisation algorithm receives  a log history, rather
+than a concrete history, we need to describe the relationship.  
+%% The following definition captures that a log history~$h_l$ might arise from a
+%% concrete history~$h$, using the logging strategy described above.
 %
 \begin{definition}
 Let $h$ be a complete history of a binary heterogeneous synchronisation
@@ -165,32 +183,6 @@ that
   \:: y_2$, from~$h_l$.
 \end{itemize}
 \end{definition}
-
-%%%%%
-
-As with standard linearisation, the tester needs to define the worker threads
-so that all executions will eventually return, i.e.~that each will be able to
-synchronise.  For a binary heterogeneous synchronisation with no precondition,
-we can achieve this by half the threads calling one operation, and the other
-half calling the other operation (with the same number of calls by each).  For
-a binary homogeneous synchronisation, this approach might not work if every
-worker does more than one operation: one worker might end up with two
-operations to perform, when all others have terminated; instead, we arrange
-for an even number of workers to each perform one operation. 
-
-Once all threads have finished, we test whether the log history is
-linearisable (i.e.~standard linearisation) with respect to |TwoStepLinSpec|
-from Section~\ref{sec:relating}.  Figure~\ref{fig:twostep-timeline} gives an
-example linearisation. 
-
-Note that we have three related concepts here: (1)~synchronisation
-linearisation of the concrete history of operation executions with respect to
-|SyncSpec|; (2)~two-step linearisation of the concrete history with respect
-to~|TwoStepLinSpec|; and (3)~linearisation of the log history with respect
-to~|TwoStepLinSpec|.  Proposition~\ref{prop:two-step-lin} shows that the first
-two of these are equivalent.  We need to show that these imply~(3), so the
-technique does not give false errors.  (The converse might not hold, because
-of delays in writing to the log.)
 
 \begin{prop}
 \label{prop:twostep-testing}
@@ -284,6 +276,16 @@ This approach generalises to non-binary synchronisations, homogeneous
 synchronisations, and stateful specification objects as in
 Section~\ref{ssec:relating-variations}.
 
+
+As with standard linearisation, the tester needs to define the worker threads
+so that all executions will eventually return, i.e.~so that each will be able
+to synchronise.  For a binary heterogeneous synchronisation with no
+precondition, we can achieve this by half the threads calling one operation,
+and the other half calling the other operation (with the same number of calls
+by each).  For a binary homogeneous synchronisation, this approach might not
+work if every worker does more than one operation: one worker might end up
+with two operations to perform, when all others have terminated; instead, we
+arrange for an even number of workers to each perform one operation.
 %\framebox{Generalisations}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -310,7 +312,7 @@ timeline illustrating a successful |send(3)| and |receive|.  Note that this
 corresponds to the history
 \[
 \seq{ \send(3)\::(),\; \receive()\::\sm{Some}(3),\; 
-  \overline{\send}(3)\::\sm{true} }
+  \overline{\send}()\::\sm{true} }
 \]
 of the specification object.
 
@@ -340,12 +342,12 @@ of the specification object.
 %% \crossAt(1.5,-3){$\receive()\::\sm{Some}(3)$}
 \crossAt(5.5,\yLin){$\overline{\send}\::\sm{true}$}
 %
-\draw (-2,-3.4) -- ++(10,0); 
+\draw (-2.2,-3.6) -- ++(12.4,0); 
 \end{tikzpicture}
 
 %%%%%%
 %\hfil\hfil
-%\bigskip
+\medskip
 
 \begin{tikzpicture}[xscale = 0.9]
 \bulletAt(-0.4,0){$\call.\send(3)$};
@@ -388,9 +390,10 @@ logging of $\overline{\send}$ is delayed.  None of the executions overlap, so
 they must necessarily be linearised in the same order as in the previous
 history.  The specification object is deterministic, so the operations must
 return the same results as in the previous history.  But, in the cases of
-$\receive$ and $\overline{\send}$, those returned values do not agree with the
-corresponding values in the log history.  Hence the history would be flagged
-as an error, despite being valid.
+$\receive$ and $\overline{\send}$, those returned values, |Some(3)| and
+|true|, do not agree with the corresponding values in the log history, |None|
+and |false|.  Hence the history would be flagged as an error, despite being
+valid.
 
 The difference between this situation and the discussion in
 Section~\ref{ssec:relating-variations} concerns the fact that the logging of
@@ -449,7 +452,7 @@ For the timeout channel:
 \end{itemize}
 
 
-The specification object encodes the automaton below. 
+The specification object then encodes the automaton below. 
 %% \begin{window}[0,r,{
 %% \begin{minipage}{73mm}
 \begin{center}

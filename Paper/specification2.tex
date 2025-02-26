@@ -54,9 +54,9 @@ synchronisation.  The corresponding specification object would be:
 %
 \begin{scala}
 class TimeoutChannelSpec[A]{
-  def sync£\s s£(x: A) = false       // send times out
-  def sync£\s r£(u: Unit) = None  // receive times out
-  def sync£\s{s,r}£(x: A, u: Unit) = (true, Some(x))  // synchronisation
+  def sync£\s s£(x: A) = false       // £send£ times out.
+  def sync£\s r£(u: Unit) = None  // £receive£ times out.
+  def sync£\s{s,r}£(x: A, u: Unit) = (true, Some(x))  // Synchronisation.
 }
 \end{scala}
 %
@@ -73,9 +73,9 @@ a close operation.
 %
 \begin{scala}
 class ClosableChannelSpec[A]{
-  private var isClosed = false  // is the channel closed? 
+  private var isClosed = false  // Is the channel closed? 
   def close(u: Unit) = { isClosed = true; () }
-  def sync(x: A, u: Unit) = { require(!isClosed); ((), x)
+  def sync(x: A, u: Unit) = { require(!isClosed); ((), x) }
   def sendFail(x: A) = { require(isClosed); throw new Closed }
   def receiveFail(u: Unit) = { require(isClosed); throw new Closed }
 }
@@ -87,14 +87,14 @@ corresponding to |sendFail| and |receiveFail|.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Specifying progress}
+\subsection{Specifying liveness}
 \label{sec:progress}
 
-We now consider a progress condition for synchronisation objects.  
+We now consider a liveness condition for synchronisation objects.  
 
 We assume that each pending operation execution is scheduled infinitely often,
 unless it is blocked (for example, trying to obtain a lock); in other words,
-the scheduler is fair to each execution.  Under this assumption, our progress
+the scheduler is fair to each execution.  Under this assumption, our liveness
 condition can be stated informally as:
 %
 \begin{itemize}
@@ -111,35 +111,37 @@ example, consider a synchronous channel, and suppose there are pending calls
 to |send(4)|, |send(5)| and |receive|.  Then the |receive| could synchronise
 with \emph{either} |send|, nondeterministically; subsequently, the |receive|
 should return the appropriate value, and the corresponding |send| should also
-return.  In such cases, our progress condition allows \emph{either}
+return.  In such cases, our liveness condition allows \emph{either}
 synchronisation to occur.
-
-Our progress condition allows all pending executions to block if no
+%
+However, our liveness condition allows all pending executions to block if no
 synchronisation is possible.  For example, if every pending executions on a
-synchronous channel is a |send|, then clearly none can return.
+synchronous channel is a |send|, then clearly none can make progress.
 
-Note that our progress condition is somewhat different from the condition of
+Note that our liveness condition is somewhat different from the condition of
 \emph{lock freedom} for concurrent datatypes~\cite{herlihy-shavit}.  That
 condition requires that, assuming operation executions collectively are
 scheduled infinitely often, then eventually some execution returns.  Lock
 freedom makes no assumption about scheduling being fair.  For example, if a
-particular operation execution holds a lock then lock freedom allows the
-scheduler to never schedule that execution; in most cases, this will mean that
-no execution returns: any implementation that uses a lock in a non-trivial way
-is not lock-free.
+particular thread holds a lock, then lock freedom allows the scheduler to
+never schedule that thread; in most cases, this will mean that no operation
+returns: any implementation that uses a lock in a non-trivial way is not
+lock-free.
 
 By contrast, our assumption, that each unblocked pending execution is
 scheduled infinitely often, reflects that modern schedulers \emph{are} fair,
-and do not starve any single execution.  For example, if an execution holds
-a lock, and is not in a potentially unbounded loop or permanently blocked
+and do not starve any single execution.  For example, if a thread holds
+a lock,  and is not in a potentially unbounded loop or permanently blocked
 trying to obtain a second lock, then it will be scheduled sufficiently often,
-and so will eventually release the lock.  Thus our progress condition can be
-satisfied by an implementation that uses locks.  However, our assumption does
-allow executions to be scheduled in an unfortunate order (as long as each is
-scheduled infinitely often), which may cause the progress condition to fail.
-It also allows other synchronisation primitives, such as locks and semaphores
-to be unfair: for example, a thread that is repeatedly trying to obtain a lock
-may repeatedly fail as other threads obtain the lock. 
+and so will eventually release the lock.  Thus our liveness condition can be
+satisfied by an implementation that uses locks.  
+
+However, our assumption does allow executions to be scheduled in an
+unfortunate order (as long as each is scheduled infinitely often), which may
+cause the liveness condition to fail.  It also allows other synchronisation
+primitives, such as locks and semaphores, to be unfair: for example, a thread
+that is repeatedly trying to obtain a lock may repeatedly fail as other
+threads obtain the lock.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -186,18 +188,19 @@ event appears in~$h_s$.
 For example, considering the above histories~$h$ and~$h_s^1$, the events
 $\return.\send^1\::()$ and $\return.\receive^3\::4$ are anticipated: assuming
 $h_s^1$ describes the synchronisations that happen, we would expect those
-$\return$ events to occur; if they do not, that is a failure of progress.  
+$\return$ events to occur; if they do not, that is a failure of liveness.  
 
 %%%%%
 
 The following definition captures our fairness assumption.
 %
 \begin{definition}
-Given an execution, we say that an operation execution is \emph{pending} if it
-has been called but not yet returned.  We say that an operation execution is
-\emph{blocked} in a particular state if it is unable to perform a step, for
-example because it is trying to acquire a lock held by another thread, or
-waiting to receive a signal from another thread.
+Given an execution, we say 
+%% that an operation execution is \emph{pending} if it
+%% has been called but not yet returned.  We say 
+that an operation execution is \emph{blocked} in a particular state if it is
+unable to perform a step, for example because it is trying to acquire a lock
+held by another thread, or waiting to receive a signal from another thread.
 
 We say that an infinite execution is \emph{fair} if each pending operation
 execution either (a)~eventually returns, (b)~is blocked in infinitely many

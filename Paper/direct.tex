@@ -2,6 +2,7 @@
 \label{sec:direct}
 
 We now consider how to test for synchronisation linearisation more directly.
+We also consider how to test for synchronisation progressibility.  
 We perform logging precisely as for standard linearisation: a thread that
 performs a particular operation~$\sm{op}^i(x)$: (1) writes
 $\call.\sm{op}^i(x)$ into the log; (2)~performs $\sm{op}(x)$ on the
@@ -27,26 +28,29 @@ would return, and the failure of progressability would be missed.
 
 Instead, we run threads performing operations, typically chosen at random; and
 after a suitable duration, we interrupt any threads that have not yet
-returned.  The duration before the interrupts needs to be chosen so that it is
-highly likely that any threads that have not returned really are stuck:
-otherwise this approach it likely to produce false positives.  Our informal
-experiments suggest that a duration of 100ms is appropriate (at least, on the
-architecture we were using): we have not observed any false positives with
-this duration, but did with a shorter duration of 80ms.  This delay does
-significantly increase the time that a given number of runs will take.
-
+returned.  The duration before the interrupts needs to be chosen so that if
+any threads have not returned by that point, then (almost certainly) they
+really are stuck: otherwise this approach it likely to produce false
+positives.  Our informal experiments suggest that a duration of 100ms is
+appropriate (at least, on the architecture we were using): we have not
+observed any false positives with this duration, but did with a shorter
+duration of 80ms.  This delay does significantly increase the time that a
+given number of runs will take.
 
 In the remainder of this section we consider algorithms for determining if the
 resulting log history is synchronisation linearisable, and whether it is
 synchronisation progressable.  In Section~\ref{sec:algorithm-dfs} we present a
-general algorithm for this problem, based on depth-first search.  We then
-consider the complexity of this problem.  We show, in
-Section~\ref{sec:NP-complete}, that, in the case of a stateful synchronisation
+general algorithm for this problem, based on depth-first search.  We also show
+how the algorithm can be extended to test for synchronisation
+progressibility. 
+
+We then consider the complexity of this problem.  We show, in
+Section~\ref{sec:NP-complete}, that, for a \emph{stateful} synchronisation
 object, the problem of deciding whether a history is synchronisation
 linearisable is NP-complete in general.  However, we show that in the case of
-binary synchronisations with a stateless specification object the problem can
-be solved in polynomial time: we consider the heterogeneous case in
-Section~\ref{sec:binary-heterogeneous}, and the homogeneous case in
+\emph{binary} synchronisations with a \emph{stateless} specification object,
+the problem can be solved in polynomial time: we consider the heterogeneous
+case in Section~\ref{sec:binary-heterogeneous}, and the homogeneous case in
 Section~\ref{sec:binary-homogeneous}.  Nevertheless, in
 Section~\ref{sec:non-binary-stateless} we show that for synchronisations of
 three or more executions, the problem is again NP-complete, even in the
@@ -184,8 +188,8 @@ synchronisation linearisable with respect to a given synchronisation
 specification object.  We show that this problem is NP-complete in general.
 
 We make use of a result from~\cite{gibbons-korach} concerning the complexity
-of the corresponding problem for linearisability.  Let |Variable| be a
-linearisability specification object corresponding to an integer variable with
+of the corresponding problem for linearisation.  Let |Variable| be a
+linearisation specification object corresponding to an integer variable with
 |get| and |set| operations.  Then the problem of deciding whether a given
 concurrent history is linearisable with respect to |Variable| is NP-complete.
 
@@ -214,7 +218,7 @@ object.
 %
 \begin{scala}
 object VariableSyncSpec{
-  private var state = 0   // the value of the variable
+  private var state = 0   // The value of the variable.
   def sync((op, x): (String, Int), u: Unit): (Int, Unit) = 
     if(op == "get") (state, ()) else{ state = x; (-1, ()) }
 }
@@ -288,7 +292,7 @@ We now consider the case of binary \emph{homogeneous} synchronisations with a
 stateless specification object.  This case is almost identical to the case
 with heterogeneous synchronisations, except the graph produced is not
 necessarily bipartite.  Thus we have reduced the problem to that of finding a
-maximum matching in a general graph.  This problem can be solved using, for
+total matching in a general graph.  This problem can be solved using, for
 example, the blossom algorithm~\cite{edmonds_1965}, which runs in time
 $O(n^4)$.
   
@@ -310,7 +314,7 @@ we can choose the values to be exchanged randomly from a reasonably large
 range (say size~100).  Then we can nearly always find a node~$n$ for which
 there is a unique unmatched compatible node: this means that the algorithm
 nearly always runs in linear time.  We expect that similar techniques could be
-used in other examples in this category.
+used for other examples in this category.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -359,86 +363,3 @@ Our implementation for these cases uses a depth-first search to find a
 matching, very much like in the binary homogeneous case.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\subsection{Implementation}
-
-We have implemented a testing framework (in Scala), based on the above
-algorithms, and used it to implement testers for particular synchronisation
-objects\footnote{The implementation is available from ???.}.  We consider the
-framework to be straightforward to use: most of the boilerplate code is
-encapsulated within the framework; defining a tester for a new synchronisation
-object takes just a few minutes.
-
-Figure~\ref{fig:ChanTester} gives a stripped-down tester for a synchronous
-channel.  (The full version can be used to test a number of implementations
-with the same interface, and replaces the numeric constants by parameters that
-can be set on the command line.)
-
-%%%%%
-
-\begin{figure}
-\begin{scala}
-object ChanTester extends Tester{
-  trait Op   // Representation of operations within the log
-  case class Send(x: Int) extends Op
-  case object Receive extends Op
-
-  def worker(c: SyncChan[Int])(me: Int, log: HistoryLog[Op]) = 
-    for(i <- 0 until 20)
-      if(me%2 == 0) log(me, c.receive(), Receive)
-      else{ val x = Random.nextInt(100); log(me, c.send(x), Send(x)) }
-
-  object SyncChanSpec{
-    def sync(x: Int, u: Unit) = ((), x)    
-  }
-
-  def matching: PartialFunction[(Op,Op), (Any,Any)] = {
-    case (Send(x), Receive) => SyncChanSpec.sync(x, ()) // = ((), x)
-  }
-
-  /** Do a single test.  Return true if it passes. */
-  def doTest(): Boolean = {
-    val c = new SyncChan[Int]
-    new BinaryStatelessTester[Op](worker(c), 8, matching)()
-  }
-
-  def main(args: Array[String]) = {
-    var i = 0; while(i < 5000 && doTest()) i += 1
-  }
-}
-\end{scala}
-\caption{A simple tester for a synchronous channel. \label{fig:ChanTester}}
-\end{figure}
-
-%%%%%%%%%%
-
-The |worker| function defines a worker thread that performs operations on the
-channel~|c|.  The function also takes parameters representing the thread's
-identity and a log object.  Here, each worker with an even identity performs
-20 |receive| executions: the call |log(me, c.receive(), Receive)| logs the
-call, performs the |receive|, and then logs the return.  Similarly, each
-worker with an odd identity performs 20 |send| executions of random values.
-This definition is designed so that an even number of workers with contiguous
-identities will not deadlock. 
-
-|SyncChanSpec| is the synchronisation specification object from earlier.  The
-way executions synchronise is captured by the function |matching|.  This is a
-partial function whose domain defines which operation executions can
-synchronise together, and, in that case, the value each should return: here
-|send(x)| and |receive| can synchronise, giving a result as defined but the
-synchronisation specification object.  (Alternatively, the call to
-|SyncChanSpec.sync| can be in-lined.)
-
-The function |doTest| performs a single test.  This uses a
-|BinaryStatelessTester| object from the testing framework, which encapsulates
-the search from Section~\ref{sec:binary-heterogeneous}.  Here, the tester runs
-8 |worker| threads, and tests the resulting history against |matching|.  If a
-non-synchronisation-linearisable history is recorded, it displays this for the
-user.  The |main| function runs |doTest| either 5000 times or until an error
-is found.  The tester can be adapted to test for synchronisation
-progressibility by passing a timeout duration to the |BinaryStatelessTester|.
-
-Other classes of testers are similar.  In the case of a stateful
-specification, the |matching| function takes the specification object as a
-parameter, and also returns the new value of the specification object.
-

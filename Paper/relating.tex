@@ -11,17 +11,17 @@ corresponds to a single operation of the concurrent object.  Put another way:
 standard linearisation is an instance of synchronisation linearisation with
 just unary synchronisations.
 
-However, linearisability and synchronisation linearisability are not
+However, linearisation and synchronisation linearisation are not
 equivalent in general.
-%% : we show that, given a synchronisation linearisability
+%% : we show that, given a synchronisation linearisation
 %% specification object |SyncSpec|, it is not always possible to find a
-%% linearisability specification |Spec| such that for every concurrent
+%% linearisation specification |Spec| such that for every concurrent
 %% history~$h$,\, $h$ is synchronisation linearisable with respect to |SyncSpec|
 %% if and only if $h$ is linearisable with respect to |Spec|.
 %
-For example, consider the a synchronous channel from Section~\ref{sec:spec},
+For example, consider the  synchronous channel from Section~\ref{sec:spec},
 where synchronisation linearisation is captured by |SyncChanSpec|.  We show
-that there is no corresponding linearisability specification |Spec|, i.e.~such
+that there is no corresponding linearisation specification |Spec|, i.e.~such
 that for every concurrent history~$h$,\, $h$ is synchronisation linearisable
 with respect to |SyncChanSpec| if and only if $h$ is linearisable with respect
 to |Spec|.  Suppose (for a contradiction) otherwise.  Consider the history
@@ -31,7 +31,7 @@ h & = & \seq{
   \return.\send^1\::(),\, \return.\receive^2()\::3 }.
 \end{eqnarray*}
 %
-This is synchronisation linearisable with respect to |SyncChanSpec|.  By the
+This is synchronisation-linearisable with respect to |SyncChanSpec|.  By the
 assumption, it must also be linearisable with respect to~|Spec|; so there must
 be a legal history~$h_s$ of~|Spec| such that $h_s$ is a linearisation of~$h$.
 Without loss of generality, suppose the |send| in~$h_s$ occurs before
@@ -51,17 +51,17 @@ h' & = & \seq{
 is also linearised by~$h_s$, so $h'$ is linearisable with respect to~|Spec|.
 But then the assumption would imply that $h'$ is synchronisation linearisable
 with respect to~|SyncChanSpec|.  This is clearly false, because the operations
-do not overlap.  Hence no such linearisability specification~|Spec| exists.
+do not overlap.  Hence no such linearisation specification~|Spec| exists.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Two-step linearisability}
+\subsection{Two-step linearisation}
 
-We now show that binary heterogeneous synchronisation linearisability
-corresponds to a small adaptation of linearisability, where one of the
+We now show that binary heterogeneous synchronisation linearisation
+corresponds to a small adaptation of linearisation, where one of the
 operations on the synchronisation object corresponds to \emph{two} operations
-of the linearisability specification object.  We define below what we mean by
+of the linearisation specification object.  We define below what we mean by
 this.  We prove the correspondence in the next subsection.  We generalise to
 synchronisations of more than two threads, and to the homogeneous case in
 Section~\ref{ssec:relating-variations}.  
@@ -73,7 +73,7 @@ class SyncObj{
   def op£\s2£(x£\s2£: A£\s2£): B£\s2£
 }
 \end{scala}
-we will consider a linearisability specification object with signature
+we will consider a linearisation specification object with signature
 %
 \begin{scala}
 class TwoStepLinSpec{
@@ -87,12 +87,12 @@ The idea is that the operation |op|\s1 on |SyncObj| will be linearised by the
 composition of the two operations |op|\s1 and $\overline{\sm{op}}_1$ of
 |TwoStepLinSpec|; but operation |op|\s2 on |SyncObj| will be linearised by
 just the operation |op|\s2 of |TwoStepLinSpec|, as before.  We call such an
-object a \emph{two-step linearisability specification object}.  
+object a \emph{two-step linearisation specification object}.  
 
-We describe how to define a two-step linearisability specification object
+We describe how to define a two-step linearisation specification object
 corresponding to a given synchronisation specification object in the following
 subsections.  First, we define our notion of two-step linearisation with
-respect to such a two-step linearisability specification object.  In the
+respect to such a two-step linearisation specification object.  In the
 definitions below, we describe just the differences from standard
 linearisation, to avoid repetition.
 
@@ -160,7 +160,7 @@ the specification object.
 \end{tikzpicture}
 \end{center}
 
-The definition of two-step linearisability of a synchronistion object then
+The definition of two-step linearisation of a synchronistion object then
 follows from this definition of two-step linearisation of complete histories,
 precisely as in Section~\ref{sec:specification-linearisability}.
 
@@ -181,16 +181,49 @@ equivalent to two-step linearisation with respect to
 possible, but it is convenient for the testing framework we use in
 Section~\ref{sec:testing-hacking}.
 
-The definition of |TwoStepLinSpec| is below.  We assume that each thread has
-an identity in some range $\range 0 {\sm{NumThreads}}$.  For simplicity, we
-arrange for this identity to be included in the $\call$ events for
-operations~|op|\s1 and $\overline{\sm{op}}_1$.
+The definition of |TwoStepLinSpec| is in Figure~\ref{fig:twosteplinspec}.  We
+assume that each thread has an identity in some range $\range 0
+{\sm{NumThreads}}$.  For simplicity, we arrange for this identity to be
+included in the $\call$ events for operations~|op|\s1 and
+$\overline{\sm{op}}_1$.
 %%  (Alternatively, we
 %% could implement thread identities internally to the object, for example using
 %% the technique from~\cite[Appendix~A.2.4]{herlihy-shavit}.)
 
+%%%%%
 
-\begin{window}[3,r,{%
+\begin{figure}
+\begin{scala}
+type ThreadID = Int              // Thread identifiers.
+val NumThreads: Int = ...       // Number of threads.
+trait State
+case object Zero extends State
+case class One(t: ThreadID, x£\s1£: A£\s1£) extends State
+
+object TwoStepLinSpec{
+  private var state: State = Zero
+  private val returns = new Array[Option[B£\s1£]](NumThreads)
+  for(t <- 0 until NumThreads) returns(t) = None
+  def op£\s1£(t: ThreadID, x£\s1£: A£\s1£): Unit = {
+    require(state == Zero && returns(t) == None); state = One(t, x£\s1£); ()
+  }
+  def op£\s2£(x£\s2£: A£\s2£): B£\s2£ = {
+    require(state.isInstanceOf[One]); val One(t, x£\s1£) = state
+    val (y£\s1£, y£\s2£) = SyncSpec.sync(x£\s1£, x£\s2£); returns(t) = Some(y£\s1£); state = Zero; y£\s2£
+  }
+  def £$\overline{\sm{op}}_1$£(t: ThreadID): B£\s1£ = {
+    require(state == Zero && returns(t).isInstanceOf[Some[B£\s1£]])
+    val Some(y£\s1£) = returns(t); returns(t) = None; y£\s1£
+  }
+}
+\end{scala}
+\caption{The {\scalashape TwoStepLinSpec} object.}
+\label{fig:twosteplinspec}
+\end{figure}
+
+%%%%%
+
+\begin{window}[0,r,{%
 \begin{minipage}{61mm} % {45mm}
 \begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
 \draw (0,0) node[draw] (zero) {$\sm{Zero}$};
@@ -220,43 +253,14 @@ that corresponding executions of~|op|\s1 and~|op|\s2 occur consecutively,
 which means that corresponding executions of~|op|\s1 and |op|\s2 on the
 synchronisation object are linearised successively.  However, it
 allows the corresponding $\overline{\sm{op}}_1$ to be later (but before the
-next operation execution by the same thread).  It uses an array |returns|,
-indexed by thread identities, to record the value that should be returned by
-an $\overline{\sm{op}}_1$ execution by each thread.  Each execution of
-$\op_2$ calls |SyncSpec.sync| to obtain the values that should be returned for
-synchronisation linearisation; it writes the value for the corresponding
-$\overline\op_1$ into |returns|.
+next operation execution by the same thread).  
 \end{window}
 
-%
-%\begin{trivlist}
-%\item[]
-%\begin{minipage}{87mm} % {92mm}
-\begin{scala}
-type ThreadID = Int              // Thread identifiers
-val NumThreads: Int = ...       // Number of threads
-trait State
-case object Zero extends State
-case class One(t: ThreadID, x£\s1£: A£\s1£) extends State
-
-object TwoStepLinSpec{
-  private var state: State = Zero
-  private val returns = new Array[Option[B£\s1£]](NumThreads)
-  for(t <- 0 until NumThreads) returns(t) = None
-  def op£\s1£(t: ThreadID, x£\s1£: A£\s1£): Unit = {
-    require(state == Zero && returns(t) == None); state = One(t, x£\s1£); ()
-  }
-  def op£\s2£(x£\s2£: A£\s2£): B£\s2£ = {
-    require(state.isInstanceOf[One]); val One(t, x£\s1£) = state
-    val (y£\s1£, y£\s2£) = SyncSpec.sync(x£\s1£, x£\s2£); returns(t) = Some(y£\s1£); state = Zero; y£\s2£
-  }
-  def £$\overline{\sm{op}}_1$£(t: ThreadID): B£\s1£ = {
-    require(state == Zero && returns(t).isInstanceOf[Some[B£\s1£]])
-    val Some(y£\s1£) = returns(t); returns(t) = None; y£\s1£
-  }
-}
-\end{scala}
-%\end{trivlist}
+|TwoStepLinSpec| uses an array |returns|, indexed by thread identities, to
+record the value that should be returned by an $\overline{\sm{op}}_1$
+execution by each thread.  Each execution of $\op_2$ calls |SyncSpec.sync| to
+obtain the values that should be returned for synchronisation linearisation;
+it writes the value for the corresponding $\overline\op_1$ into |returns|.
 
 %%%%%
 
@@ -284,8 +288,8 @@ of events $\sm{sync}^{i_1,i_2}(x_1,x_2) \:: (y_1,y_2)$ is a legal history of
 
 %%%%%
 
-The following proposition reduces synchronisation linearisability to two-step
-linearisability.
+The following proposition reduces synchronisation linearisation to two-step
+linearisation.
 %
 \begin{prop}
 \label{prop:two-step-lin}
@@ -383,10 +387,10 @@ object for a synchronous channel.
 %
 \begin{scala}
 object SyncChanTwoStepLinSpec{
-  private var state = 0           // Takes values 0, 1, cyclically 
-  private var threadID = -1    // Current sender's thread ID when state = 1
-  private var value: A = _      // The current value being sent when state = One
-  private val canReturn =       // which senders can return?
+  private var state = 0            // Takes values 0, 1, cyclically. 
+  private var threadID = -1    // Current sender's thread ID when £state£ = 1.
+  private var value: A = _       // The current value being sent when £state£ = 1.
+  private val canReturn =       // Which senders can return?
     new Array[Boolean](NumThreads) 
   def send(t: ThreadID, x: A): Unit = { 
     require(state == 0 && !canReturn(t)); value = x; threadID = t; state = 1 }

@@ -37,6 +37,7 @@ object BugFinderExperiment{
 
   /** Files for synchronisation linearisation testing. */
   val linFiles = Array(
+/*
     ("Synchronous channel", "ChanTester --faulty"),    
     ("Synchronous channel two-step", "ChanTwoStepTester --faulty"),    
 
@@ -80,6 +81,10 @@ object BugFinderExperiment{
 
     ("Terminating Queue", "TerminatingQueueTester --faulty"),
     ("Terminating Queue two-step", "TerminatingQueueTwoStepTester --faulty")
+ */
+    ("Filter Channel", "FilterChanTester --faulty"),
+    ("Filter Channel two-step", "FilterChanTwoStepTester --faulty"),
+    ("One family two-step", "OneFamilyTwoStepTester --faulty")
   )
 
   // Missing for two-step: OneFamily.
@@ -93,7 +98,7 @@ object BugFinderExperiment{
     ("Filter channel", "FilterChanTester --nonProgressing"),
     ("Men and women", "MenWomenTester --deadlock"),
     ("One family", "OneFamilyTester --deadlock"),
-    ("ABC", "ABCTester --deadlock"),             
+    ("ABC", "ABCTester  -p 6 --deadlock"),             
     ("Barrier", "BarrierTester --faulty3"),            
   )
 

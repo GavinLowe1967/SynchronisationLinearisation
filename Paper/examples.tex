@@ -5,6 +5,13 @@ In this section we describe experiments based on our testing framework.
 
 %%%%%
 
+We consider synchronisation objects implementing a number of interfaces,
+summarised in Figure~\ref{fig:examples}.  Most of the interfaces were
+described in earlier sections (namely synchronous channel, filter channel,
+exchanger, counter channel, barrier, enrollable barrier, timeout channel,
+timeout exchanger, closeable channel, and terminating queue).
+
+
 \begin{figure}
 \begin{center}
 \begin{tabular}{lccc}
@@ -35,50 +42,47 @@ Terminating queue   & 1, $n$ & Y        & N
 
 %%%%%
 
-We consider synchronisation objects implementing a number of interfaces,
-summarised in Figure~\ref{fig:examples}.  Most of the interfaces were
-described in earlier sections (namely synchronous channel, filter channel,
-exchanger, counter channel, barrier, enrollable barrier, timeout channel,
-closeable channel, and terminating queue).
 %
 The \emph{men and women} problem involves two families of threads, known as
 men and women: each thread wants to pair off with a thread of the other type;
 each passes in its own identity, and expects to receive back the identity of
 the thread with which it has paired.  
 %
-In the \emph{two families} problem,
-there are two families of threads, with $n$~threads of each family; each
-thread calls an operation~$n$ times, and each execution should synchronise
-with a thread of the opposite family, a different thread each time.  In the
-\emph{one family} problem, there are $n$~threads, each of which calls an
-operation $n-1$~times, and each time should synchronise with a different
-thread.  
+In the \emph{two families} problem, there are two families of threads, with
+$n$~threads of each family; each thread calls an operation~$n$ times, and each
+execution should synchronise with a thread of the opposite family, but with a
+\emph{different} thread each time.  In the \emph{one family} problem, there
+are $n$~threads, each of which calls an operation $n-1$~times, and each time
+should synchronise with a \emph{different} thread.
 %
-The \emph{ABC} problem can be thought of as a ternary version of the men and
-women problem: there are three types of threads, A, B and C; each
-synchronisation involves one thread of each type.  
+Finally, the \emph{ABC} problem can be thought of as a ternary version of the
+men and women problem: there are three types of threads, A, B and C; each
+synchronisation involves one thread of each type.
 %
-Finally, the \emph{timeout exchanger} is a timed version of the exchanger: if
-a thread fails to exchange data with another thread, it can timeout and return
-an appropriate result.
+%% Finally, the \emph{timeout exchanger} is a timed version of the exchanger: if
+%% a thread fails to exchange data with another thread, it can timeout and return
+%% an appropriate result.
 
-For each interface, we have implemented a tester using the direct algorithm
-from Section~\ref{sec:direct}; for most, we have also implemented a tester
-using the two-step approach from Section~\ref{sec:lin-testing}.
+For each interface, we have implemented a tester using the two-step approach
+from Section~\ref{sec:lin-testing}, and also a tester using the direct
+algorithm from Section~\ref{sec:direct}.
 
 For each interface, we have produced a correct implementation.  For most
 interfaces, we have also implemented one or more faulty versions that fail to
 achieve either synchronisation linearisation or progressibility.  The faulty
 versions mostly have realistic mistakes: a few are genuine bugs; others are
-similar bugs we have seen from students.
+similar to bugs we have seen from students.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Experiments}
+%\subsection{Experiments}
 
 We describe various experiments below.  The purpose of testing is to find
-bugs.  We therefore concentrate on the time taken to find bugs.  Questions we
-want to answer include:
+bugs.  We therefore concentrate on the time taken to find bugs.  If the
+technique is fast to find bugs when they exist, then the failure to find bugs
+on other examples should give us reasonable confidence that none exists.
+
+Questions we want to answer include:
 \begin{itemize}
 \item Which works better, the direct algorithm or the two-step algorithm?  
 \item How should we choose parameters (number of threads to run, number of
@@ -106,19 +110,19 @@ behaviour, and just-in-time compilation.  Thus each observation was as close
 as possible to a normal use case.
 
 For each data point in the experiments, we performed 100 observations.  We
-give the average running time and a 95\%-confidence interval for that average
-(following~\cite{GBE2007}).  The number of observations is chosen so as to
-obtain a reasonably small confidential interval, but avoiding excessively long
-experiments.
+give the average time to find an arror, and a 95\%-confidence interval for
+that average (following~\cite{GBE2007}).  The number of observations is chosen
+so as to obtain a reasonably small confidence interval, but avoiding
+excessively long experiments.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 We start with the second of the questions above, how to choose parameters for
 testing.  Each of the graphs in Figures~\ref{fig:params-experiment-1}
-and~\ref{fig:params-experiment-2} concerns a particular
-tester.  Each data point represents a particular number $p$ of threads (given in
-the key), and a particular number of operation executions by each thread
-(given on the $X$-axis).
+and~\ref{fig:params-experiment-2} concerns a particular tester.  Each data
+point represents a particular number $p$ of worker threads (given in the key),
+and a particular number of operation executions per run by each thread (given
+on the $X$-axis).
 %, with 100 observations.  
 The $Y$-axis gives the time in milliseconds.
 
@@ -126,12 +130,25 @@ The $Y$-axis gives the time in milliseconds.
 \input{BPN-all}
 
 The experiments suggest that both types of tester work best with a fairly
-small number of threads, each performing a fairly small number of operations
-per run.  Some bugs are exhibited only when the number of threads exceeds the
-arity of a synchronisation: for the ABC problem, two different
-synchronisations interfere; for the closeable channel, the closing of the
-channel interferes with a synchronisation.  We therefore recommend including
-enough threads to find such bugs. 
+small number of worker threads (typically two to four), each performing a
+fairly small number of operations per run (typically about four).
+
+Some bugs are exhibited only when the number of threads exceeds the arity of a
+synchronisation: for the ABC problem, two different synchronisations
+interfere; for the closeable channel, the closing of the channel interferes
+with a synchronisation.  We therefore recommend including enough threads to
+find such bugs.
+
+On the other hand, the number of operations performed by each thread should
+not be too small.  For example, for the ABC problem, the testers are rather
+slow to find the bug when each thread performs only two operations per run.
+The reason in this case seems to be that on most runs some of the threads
+finish their operations before others start, which removes the possibility of
+interference between synchronisations.
+
+Using rather short runs has an additional advantage: if the tester does find
+an erroneous history, a shorter history is normally easier to interpret than a
+longer one.  
 
 %%  We therefore subsequently run four threads for binary
 %% synchronisation objects, or six for the ABC problem (where the tester assumes
@@ -143,25 +160,25 @@ enough threads to find such bugs.
 
 %%%%%%%%%%
 
-These results suggest that the direct algorithms scale better than the
-two-step approach as the number of threads increases.
+The results also suggest that the direct algorithms scale better than the
+two-step tester as the number of threads increases.
 Figure~\ref{fig:scalingExperiment} investigates this further.  Each graph
 considers one type of synchronisation object, with the two plots representing
 the two testers.  Each data point considers a particular number of threads
 (given on the $X$-axis).
 %, with 100 observations.  
-The $Y$-axis again gives the time in milliseconds.  We omit results for the
-two-step tester where testing sometimes ran out of memory.
-%
-The results confirm that the two-step approach does not scale well with the
-number of threads.  In each case, the running time explodes at a particular
-point, and tests often fail.  The running time also becomes erratic (as
-indicated by the wide confidence intervals): some runs take an extremely long
-time.  By contrast, the direct algorithms scale well.
+The $Y$-axis again gives the time in milliseconds.  We omit results for cases
+where the two-step tester sometimes ran out of memory.
 
 % scala -cp .:/home/gavin/Scala/Util  experiments.BugParametersExperiment --scalingExperiments --samples 100
 \input{scalingExperiment}
 
+%
+The results confirm that the two-step approach does not scale well with the
+number of threads.  In each case, the running time increases dramatically at a
+particular point, and tests often fail.  The running time also becomes erratic
+(as indicated by the wide confidence intervals): some runs take an extremely
+long time.  By contrast, the direct algorithms scale well.
 
 We believe the reason the two-step approach scales poorly is as follows.  The
 linearisation tester tries to find a linearisation order for operation
@@ -180,26 +197,31 @@ Figure~\ref{fig:bugFindingExperiment} gives times to find various bugs with
 the two testers.  Based on the earlier experiments, in most cases we ran four
 threads, each executing four operations; for the ABC testers, we ran six
 threads, each executing four operations; for the (untimed) exchanger, we ran
-eight threads, each performing one operation; for the two-families object, we
-ran four threads (two from each family), each performing two operations; and
-for the one-family object, we ran four threads, each performing three
-operations.  The table gives average times in milliseconds to detect the bug,
-with 95\%-confidence intervals.
+eight threads, each performing a single operation (recall from
+Section~\ref{sec:relating} that this avoids deadlocks); for the two-families
+object, we ran four threads (two from each family), each performing two
+operations; and for the one-family object, we ran four threads, each
+performing three operations.  The table gives average times in milliseconds to
+detect the bug, with 95\%-confidence intervals.
 
 %%%%%
 
 \begin{figure}
-%scala -cp .:/home/gavin/Scala/Util  experiments.BugFinderExperiment --samples 100
+%scala -cp .:/home/gavin/Scala/Util  experiments.BugFinderExperiment --samples
+%100
+\begin{center}
 \begin{tabular}{lr@{$\,\pm\,$}lr@{$\,\pm\,$}l}
 Synchronisation object & \multicolumn{2}{c}{Direct} &
 \multicolumn{2}{c}{Two-step} \\ \hline
 Synchronous channel  &	85 	 & 3 &  	109	 & 2 \\
-Filter channel & \multicolumn{2}{c}{---} & \multicolumn{2}{c}{---} \\
+Filter channel &        77       & 1 &          108      & 3 \\
+%\multicolumn{2}{c}{---} & \multicolumn{2}{c}{---} \\
 Men and women  &	75	 & 1 &  	108	 & 4 \\
 Exchanger  	&       73	 & 1 &  	511	 & 25 \\
 Counter channel &  	94	 & 2 &  	106	 & 1 \\
 Two families &  	299	 & 34 &  	267	 & 25 \\
-One family &    	336	 & 27 & \multicolumn{2}{c}{---} \\
+One family &    	336	 & 27 &         437      & 39 \\
+% \multicolumn{2}{c}{---} \\
 ABC &    	        717	 & 225 &  	928	 & 216 \\
 Barrier &       	80	 & 1 &   	106	 & 1 \\
 Enrollable barrier &  	132	 & 5 &  	149	 & 6 \\
@@ -208,9 +230,9 @@ Timeout exchanger & 	288	 & 64 &  	231	 & 18 \\
 Closeable channel & 	191	 & 11 &  	173	 & 9 \\
 Terminating queue & 	103	 & 1 &  	105	 & 1
 \end{tabular}
-
-\framebox{???} Add one family, filter channel? % Remove counter channel? 
-\caption{Times to find bugs.}
+\end{center}
+%\framebox{???} Add one family, filter channel? % Remove counter channel? 
+\caption{Times to find bugs affecting synchronisation linearisation.}
 \label{fig:bugFindingExperiment}
 \end{figure}
 
@@ -223,10 +245,15 @@ are effective at finding most bugs.
 
 In most cases, the direct tester is faster than the two-step one; and the
 two-step tester is never significantly faster.  We therefore recommend the
-direct algorithms.  This approach has an additional advantage: our experience
-is that it is easier to create the testing program based on these algorithms,
-whereas using the two-step approach involves designing and encoding the
-appropriate automaton, which can be somewhat tricky. 
+direct algorithms.  This approach has two additional advantages.  Our
+experience is that it is easier to create the testing program based on the
+direct algorithms, whereas using the two-step approach involves designing and
+encoding the appropriate automaton, which can be somewhat tricky.  Further,
+error histories found by the direct algorithms tend to be easier to
+understand: the corresponding two-step history is longer, because of the
+second step of some operations, and this can be distracting.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 We now consider synchronisation progressibility.  Our experience is that if a
 synchronisation object does not satisfy progressibility, then this can lead to
@@ -241,4 +268,41 @@ guarantee.
 %% completing on its own, and not having to wait for the timeout.  We omit the
 %% results, because they are uninteresting.
 
-\framebox{Add experiments?}
+% \framebox{Add experiments?}
+
+\begin{figure}
+\begin{center}
+% scala -cp .:/home/gavin/Scala/Util  experiments.BugFinderExperiment --progressCheck 100  --samples 100
+\begin{tabular}{lr@{$\,\pm\,$}l}
+% Synchronisation object & \multicolumn{2}{c}{Direct}\\ \hline
+Synchronous channel  &	323	 & 39 \\
+Filter channel  &	338	 & 50 \\
+Men and women  	&       232	 & 19 \\
+One family  	&      1098	 & 278 \\
+ABC  	&              1080	 & 186 \\
+Barrier  	&       169	 & 3
+\end{tabular}
+\end{center}
+\caption{Times to find bugs affecting synchronisation progressibility.}
+\label{fig:progressBugFindingExperiment}
+\end{figure}
+
+Figure~\ref{fig:progressBugFindingExperiment} gives results for the time to
+find various bugs that lead to a failure of progressibility.  Each uses the
+relevant direct algorithm: recall that two-step linearisation cannot be used
+to test progressibility. 
+
+Again, each bug is found quickly, within about a second.  Testing for
+progressibility is normally a bit slower than for linearisation, because of
+the need to interrupt the worker threads, but only after allowing enough time
+that we can be confident that they really have got stuck.
+
+One class of errors that we believe our testing framework will be less
+successful at finding is so-called \emph{spurious wake-ups}.  Scala inherits a
+wait/notify mechanism from Java.  A thread that calls |wait()| is supposed to
+suspend until another thread calls |notify()|.  Unfortunately, a waiting
+thread may spuriously wake-up and continue without being notified.
+Programmers are expected to guard against spurious wake-ups --- but sometimes
+they don't, and this leads to bugs.  However, spurious wake-ups happen
+sufficiently rarely that they might not be found by testing in a reasonable
+amount of time.

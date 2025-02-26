@@ -151,11 +151,11 @@ class TwoStepLinSpec{
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Mixed arity
 
 
-Recall that some operations have different modes of synchronisations:
-different executions of the operation may have synchronisations with different
-arities.  For example, in a timeout channel, an execution of the |send| and
-|receive| operations may synchronise with an execution of the other operation,
-or may timeout corresponding to a unary synchronisation.
+Recall that some operations have multiple modes of synchronisations: different
+executions of the operation may have synchronisations with different arities.
+For example, in a timeout channel, an execution of the |send| and |receive|
+operations may synchronise with an execution of the other operation, or may
+timeout corresponding to a unary synchronisation.
 %
 %% We illustrate how to test for synchronisation linearisation of objects with
 %% mixed modes of synchronisation via an example.

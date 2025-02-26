@@ -1,0 +1,143 @@
+\section{Implementation}
+\label{sec:implementation}
+
+We have implemented a testing framework (in Scala).  The framework supports
+both two-step linearisation and the direct algorithms.  We have used the
+framework to implement testers for particular synchronisation
+objects\footnote{The implementation is available from \framebox{???}.}.  We
+consider the framework to be straightforward to use: most of the boilerplate
+code is encapsulated within the framework; defining a tester for a new
+synchronisation object normally takes just a few minutes.  Below, we
+concentrate our discussion on the part of the framework using the direct
+algorithms.
+
+Figure~\ref{fig:ChanTester} gives a stripped-down tester for a synchronous
+channel.  (The full version can be used to test several different
+implementations with the same interface, and replaces the numeric constants by
+parameters that can be set on the command line.)
+
+%%%%%
+
+\begin{figure}
+\begin{scala}
+object ChanTester extends Tester{
+  trait Op   // Representation of operations within the log.
+  case class Send(x: Int) extends Op
+  case object Receive extends Op
+
+  def worker(c: SyncChan[Int])(me: Int, log: HistoryLog[Op]) = 
+    for(i <- 0 until 10)
+      if(me%2 == 0) log(me, c.receive(), Receive)
+      else{ val x = Random.nextInt(100); log(me, c.send(x), Send(x)) }
+
+  object SyncChanSpec{
+    def sync(x: Int, u: Unit) = ((), x)    
+  }
+
+  def matching: PartialFunction[(Op,Op), (Any,Any)] = {
+    case (Send(x), Receive) => SyncChanSpec.sync(x, ()) // £= ((), x)£.
+  }
+
+  /** Do a single test.  Return true if it passes. */
+  def doTest(): Boolean = {
+    val c = new SyncChan[Int]
+    new BinaryStatelessTester[Op](worker(c), 4, matching)()
+  }
+
+  def main(args: Array[String]) = {
+    var i = 0; while(i < 5000 && doTest()) i += 1
+  }
+}
+\end{scala}
+\caption{A simple tester for a synchronous channel. \label{fig:ChanTester}}
+\end{figure}
+
+%%%%%%%%%%
+
+The |worker| function defines a worker thread that performs operations on the
+channel~|c|.  The function also takes parameters representing the thread's
+identity and a log object.  Here, each worker with an even identity performs
+10 |receive|s: the call |log(me, c.receive(), Receive)| logs the
+call, performs the |receive|, and then logs the return.  Similarly, each
+worker with an odd identity performs 10 |send|s of random values.
+This definition is designed so that an even number of workers with contiguous
+identities will not deadlock. 
+
+|SyncChanSpec| is the synchronisation specification object from earlier.  The
+way executions synchronise is captured by the function |matching|.  This is a
+partial function whose domain defines which operation executions can
+synchronise together, and, in that case, the value each should return: here
+|send(x)| and |receive| can synchronise, giving a result as defined by the
+synchronisation specification object.  (Alternatively, the call to
+|SyncChanSpec.sync| could be in-lined.)
+
+The function |doTest| performs a single test.  This uses a
+|BinaryStatelessTester| object from the testing framework, which encapsulates
+the search from Section~\ref{sec:binary-heterogeneous}.  Here, the tester runs
+4 |worker| threads, and tests the resulting history against |matching|.  If a
+non-synchronisation-linearisable history is recorded, it displays this for the
+user.  The |main| function runs |doTest| either 5000 times or until an error
+is found.  The tester can be adapted to test for synchronisation
+progressibility by passing a timeout duration to the |BinaryStatelessTester|.
+
+Other classes of testers are similar.  In the case of a stateful
+specification, the |matching| function takes the specification object as a
+parameter, and also returns the new value of the specification object.  The
+framework directly supports two-step linearisation testing for binary
+synchronisations, but for other forms of synchronisation, the programmer has
+to define the appropriate automaton.
+
+
+\begin{figure}
+\begin{verbatim}
+0:   Call of Exchange(13)
+1:   Call of Exchange(70)
+1:   Return of 13 from Exchange(70)
+2:   Call of Exchange(76)
+3:   Call of Exchange(58)
+3:   Return of 76 from Exchange(58)
+2:   Return of 58 from Exchange(76)
+0:   Return of 58 from Exchange(13)
+Invocation 0 does not synchronise with any other operation.
+\end{verbatim}
+\caption{A faulty history for an exchanger, showing a failure of
+  synchronisation linearisability.  The left-hand column gives an index for
+  each operation execution.}
+% scala -cp .:/home/gavin/Scala/SCL  synchronisationTester.ExchangerTester --faulty -p 4
+\label{fig:exchanger-error}
+\end{figure}
+
+%%%%%
+
+If a tester finds a history that is not synchronisation linearisable, it
+displays it.  For example, Figure~\ref{fig:exchanger-error} gives such a
+history for an exchanger.  Here executions~2 and~3 have correctly synchronised
+and exchanged their values, 76 and~58.  Execution~1 has received execution~0's
+value,~13.  However, execution~0 has received execution~3's value, rather than
+execution~1's.  This does not, of course, identify what the bug is; but it does
+give some indication as to what has gone wrong, namely that execution~1 has been
+delayed and so failed to pick up the correct value. 
+
+Similarly, if a tester finds a failure of synchronisation progressibility, it
+displays the history.  Figure~\ref{fig:progress-error} gives an example for a
+faulty synchronous channel.  Here executions~0 and 1 have successfully
+synchronised.  However, executions~2 and~3 have failed to synchronise when
+they should have done.
+
+%%%%%
+
+\begin{figure}
+\begin{verbatim}
+0:   Call of Send(48)
+1:   Call of Receive
+2:   Call of Send(92)
+3:   Call of Receive
+1:   Return of 48 from Receive
+0:   Return of () from Send(48)
+Pending invocations 2 and 3 should have synchronised.
+\end{verbatim}
+\caption{A faulty history for a synchronous channel, showing a failure of
+  progressibility.}
+% scala -cp .:/home/gavin/Scala/SCL  synchronisationTester.ChanTester --faulty2 --progressCheck 120 --iters 1 -p 4
+\label{fig:progress-error}
+\end{figure}
