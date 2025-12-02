@@ -4,8 +4,6 @@ CP = .:/home/gavin/Scala/Util
 # Class path including SCL
 CPSCL = .:/home/gavin/Scala/Util:/home/gavin/Scala/SCL
 
-# CP = .:/home/gavin/Scala/CSO:/home/gavin/Scala/CADS:/home/gavin/Scala/Util
-
 # Directory for the testing architecture
 DIR = synchronisationTesting
 
@@ -182,6 +180,9 @@ $(OBDIR)/CloseableChan.class: SynchronisationObjects/CloseableChan.scala
 
 $(OBDIR)/Barrier.class: SynchronisationObjects/Barrier.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationObjects/Barrier.scala
+
+$(OBDIR)/MenWomen.class: SynchronisationObjects/MenWomen.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationObjects/MenWomen.scala
 
 $(OBDIR)/%.class:     SynchronisationObjects/%.scala
 	$(FSC) $<

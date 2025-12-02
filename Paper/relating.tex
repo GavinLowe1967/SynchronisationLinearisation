@@ -99,8 +99,8 @@ linearisation, to avoid repetition.
 We define a history~$h_s$ of such a
 two-step specification object much as in
 Section~\ref{sec:specification-linearisability}, with the addition that for
-each event $\overline{\sm{op}}_1^i()\::y$ in~$h_s$, we require that there is
-an earlier event |op|$_1^i(x)\::()$ in~$h_s$ with the same execution
+each event $\overline{\sm{op}}_1^{i_1}()\::y$ in~$h_s$, we require that there is
+an earlier event |op|$_1^{i_1}(x)\::()$ in~$h_s$ with the same execution
 identity; other than in this regard, execution identities are not repeated
 in~$h_s$.
 
@@ -109,24 +109,24 @@ $h_s$ be a legal history of a two-step specification object.  We say that
 $h_s$ \emph{corresponds} to~$h$ if:
 %
 \begin{itemize}
-\item For every $\call.\sm{op}_1^i(x)$ and $\return.\sm{op}_1^i\::y$ in $h$,\,
-  $h_s$~contains $\sm{op}_1^i(x)\::()$ and $\overline{\sm{op}}_1^i()\::y$; and
-  vice versa;
+\item For every $\call.\sm{op}_1^{i_1}(x)$ and $\return.\sm{op}_1^{i_1}\::y$
+  in $h$,\, $h_s$~contains $\sm{op}_1^{i_1}(x)\::()$ and
+  $\overline{\sm{op}}_1^{i_1}()\::y$; and vice versa;
 
-\item For every $\call.\sm{op}_2^i(x)$ and $\return.\sm{op}_2^i\::y$ in $h$,\,
-  $h_s$~contains $\sm{op}_2^i(x)\::y$; and vice versa.
+\item For every $\call.\sm{op}_2^{i_2}(x)$ and $\return.\sm{op}_2^{i_2}\::y$
+  in $h$,\, $h_s$~contains $\sm{op}_2^{i_2}(x)\::y$; and vice versa.
 \end{itemize}
 %
 We say that $h_s$ is a \emph{two-step linearisation} of~$h$ if there is some
 way of interleaving the two histories such that
 %
 \begin{itemize}
-\item Each $\sm{op}_1^i(x)\::()$ and $\overline{\sm{op}}_1^i()\::y$ occur
-  between $\call.\sm{op}_1^i(x)$ and $\return.\sm{op}_1^i\::y$, in that
+\item Each $\sm{op}_1^{i_1}(x)\::()$ and $\overline{\sm{op}}_1^{i_1}()\::y$ occur
+  between $\call.\sm{op}_1^{i_1}(x)$ and $\return.\sm{op}_1^{i_1}\::y$, in that
   order; 
 
-\item Each $\sm{op}_2^i(x)\::y$ occurs between $\call.\sm{op}_2^i(x)$ and
-  $\return.\sm{op}_2^i\::y$.
+\item Each $\sm{op}_2^{i_2}(x)\::y$ occurs between $\call.\sm{op}_2^{i_2}(x)$ and
+  $\return.\sm{op}_2^{i_2}\::y$.
 \end{itemize}
 
 For example, consider a synchronous channel, with |send| corresponding
@@ -162,7 +162,9 @@ the specification object.
 
 The definition of two-step linearisation of a synchronistion object then
 follows from this definition of two-step linearisation of complete histories,
-precisely as in Section~\ref{sec:specification-linearisability}.
+analogously to as in Definition~\ref{def:sync-lin-objects}.
+
+%% precisely as in Section~\ref{sec:specification-linearisability}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -224,7 +226,7 @@ object TwoStepLinSpec{
 %%%%%
 
 \begin{window}[0,r,{%
-\begin{minipage}{61mm} % {45mm}
+\begin{minipage}{54mm} % {45mm}
 \begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
 \draw (0,0) node[draw] (zero) {$\sm{Zero}$};
 \draw[->] (zero) ++ (-1.5, 0) -- (zero);
@@ -236,17 +238,17 @@ object TwoStepLinSpec{
 %%   node[right] {$\overline\op_1(\sm t)$} (zero);
 %
 \draw (0,-4.5) node[draw] (one) {$\sm{One}(\sm t, \sm{x}_1)$};
-\draw[->] (zero) .. controls ++(0.3,-2) .. 
+\draw[->] (zero) .. controls ++(0.3,-2.2) .. 
   node[right] {%
-    $\begin{array}{c}
+    $\begin{array}{@{}c@{}}
     \sm{op}_1(\sm t, \sm{x}_1) \\ {[\sm{returns(t)} = \sm{None}]}
     \end{array}$} 
   (one); 
 %
-\draw[->] (one) .. controls ++(-0.3,2) .. 
+\draw[->] (one) .. controls ++(-0.3,2.2) .. 
   node[left] {$\sm{op}_2(\sm x_2)$} (zero);
 \end{tikzpicture}%
-\end{minipage}
+\end{minipage}%
 },]
 The object |TwoStepLinSpec| encodes the automaton on the right.  It requires
 that corresponding executions of~|op|\s1 and~|op|\s2 occur consecutively,
@@ -321,7 +323,7 @@ by the horizontal lines and the labels above; $h_s$ is represented by the
 ``$\bullet$'' and the label below.
 %
 \begin{center}
-\begin{tikzpicture}[xscale = 0.9]
+\begin{tikzpicture}[xscale = 0.8]
 \draw[|-|] (0,0) -- node[above] {$\send^1(3)\::()$} (7,0);
 \crossAt(1,0){$\send^1(3):()$}
 %\draw (1, 0) \X; \draw (1,-0.4) node{$\sm{send}^1(3):()$}; 
@@ -388,9 +390,9 @@ object for a synchronous channel.
 \begin{scala}
 object SyncChanTwoStepLinSpec{
   private var state = 0            // Takes values 0, 1, cyclically. 
-  private var threadID = -1    // Current sender's thread ID when £state£ = 1.
+  private var threadID = -1     // Current sender's thread ID when £state£ = 1.
   private var value: A = _       // The current value being sent when £state£ = 1.
-  private val canReturn =       // Which senders can return?
+  private val canReturn =        // Which senders can return?
     new Array[Boolean](NumThreads) 
   def send(t: ThreadID, x: A): Unit = { 
     require(state == 0 && !canReturn(t)); value = x; threadID = t; state = 1 }

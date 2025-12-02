@@ -36,7 +36,14 @@ homogeneous case.  Performs heuristic-guided DFS to find matching.
 
 - StatefulTester: tester for the general stateful case.  Performs DFS.
 
-- TwoStepLinSpec: implementation of two-step linearisation testing. 
+- TwoStepLinSpec: implementation of two-step linearisation testing for binary
+  hetrogeneous synchronisations.
+
+- TwoStepHomoLinSpec: implementation of two-step linearisation testing for binary
+  homogeneous synchronisations.
+
+- TwoStepLinSpec3: implementation of two-step linearisation testing for
+  ternary hetrogeneous synchronisations.
 
 
 SynchronisationObjects
@@ -44,131 +51,138 @@ SynchronisationObjects
 
 Synchronisation objects.  (Class files in package synchronisationObject.)
 
-Semaphore.scala: implemenation of semaphore; supporting code, only. 
+- Semaphore.scala: implemenation of semaphore; supporting code, only. 
 
-Chan.scala: synchronous channels; binary, heterogeneous, stateless.
+- Chan.scala: synchronous channels; binary, heterogeneous, stateless.
 
-ChanCounter.scala: channel with sequence number; binary, heterogeneous,
+- ChanCounter.scala: channel with sequence number; binary, heterogeneous,
 stateful.
 
-TimeoutChannel: channel with timeouts; non-binary with multiple modes,
+- TimeoutChannel: channel with timeouts; non-binary with multiple modes,
 heterogeneous, stateless.
 
-FilterChan.scala: filtering channel; binary, heterogeneous, stateless.
+- FilterChan.scala: filtering channel; binary, heterogeneous, stateless.
 
-MenWomen.scala: the men and women problem; binary, heterogeneous, stateless.
+- MenWomen.scala: the men and women problem; binary, heterogeneous, stateless.
 
-Exchanger.scala: allows two threads to exchange values; binary, homogeneous,
+- Exchanger.scala: allows two threads to exchange values; binary, homogeneous,
 stateless.
 
-TimeoutExchanger: also allows timeouts.  Multiple modes. 
+- TimeoutExchanger: also allows timeouts.  Multiple modes. 
 
-TwoFamilies.scala: the speed-dating problem; binary, heterogeneous, stateful.
+- TwoFamilies.scala: the speed-dating problem; binary, heterogeneous, stateful.
 
-OneFamily.scala: a one-family version of the speed-dating problem; binary,
+- OneFamily.scala: a one-family version of the speed-dating problem; binary,
 homogeneous, stateful.
 
-ABC.scala: the ABC problem; non-binary, heterogeneous, stateless.
+- ABC.scala: the ABC problem; non-binary, heterogeneous, stateless.
 
-ABCCounter.scala: ABC extended with a counter. non-binary, heterogeneous,
+- ABCCounter.scala: ABC extended with a counter. non-binary, heterogeneous,
 stateful.
 
-Barrier.scala: a barrier synchronisation; non-binary, homogeneous, stateless.
+- Barrier.scala: a barrier synchronisation; non-binary, homogeneous, stateless.
 
-BarrierCounter: a barrier synchronisation with a sequence number; non-binary,
+- BarrierCounter: a barrier synchronisation with a sequence number; non-binary,
 homogeneous, stateful.
 
-TerminatingQueue: a terminating queue; non-binary with multiple modes,
+- ResignableBarrier: a barrier to which threads can enrol and resign. 
+
+- TerminatingQueue: a terminating queue; non-binary with multiple modes,
 heterogeneous, stateful.
 
-CloseableChan: a channel with a close operation. 
+- CloseableChan: a channel with a close operation. 
 
-TODO:  combining barrier.
 
 =======================================================
 
 SynchronisationTesters
 
-Specific testers.  (Class files in synchronisationTester.)  Each tests the
-synchronisation objects with a similar name.
+Specific testers.  (Class files in synchronisationTester.)  
 
-ChanTester.scala (binary, stateless, heterogeneous)
+- Tester.scala: superclass of testers, containing common code.  
 
-FilterChanTester.scala (binary, stateless, heterogeneous)
+Testers using direct algorithms.  Each tests the synchronisation objects with
+a similar name.
 
-MenWomenTester.scala (binary, stateless, heterogeneous)
+- ChanTester.scala (binary, stateless, heterogeneous)
 
-ExchangerTester.scala (binary, stateless, homogeneous)
+- FilterChanTester.scala (binary, stateless, heterogeneous)
 
-ChanCounterTester.scala (binary, stateful, heterogeneous)
+- MenWomenTester.scala (binary, stateless, heterogeneous)
 
-TwoFamiliesTester.scala (binary, stateful, heterogeneous)
+- ExchangerTester.scala (binary, stateless, homogeneous)
 
-OneFamilyTester.scala (binary, stateful, homogenous)
+- ChanCounterTester.scala (binary, stateful, heterogeneous)
 
-ABCTester.scala (ternary, stateless, heterogeneous)
+- TwoFamiliesTester.scala (binary, stateful, heterogeneous)
 
-BarrierTester.scala (n-ary, stateless, homogenous)
+- OneFamilyTester.scala (binary, stateful, homogenous)
 
-TimeoutChannelTester.scala (mixed modes, stateless, heterogeneous)
+- ABCTester.scala (ternary, stateless, heterogeneous)
 
-TimeoutExchangerTester.scala (mixed modes, stateless, homogeneous)
+- BarrierTester.scala (n-ary, stateless, homogenous)
 
-ABCCounterTester.scala (ternary, stateful, heterogeneous)
+- TimeoutChannelTester.scala (mixed modes, stateless, heterogeneous)
 
-BarrierCounterTester.scala (n-ary, stateful, homogeneous)
+- TimeoutExchangerTester.scala (mixed modes, stateless, homogeneous)
 
-TerminatingQueueTester.scala (mixed modes, stateful, heterogeneous)
+- ABCCounterTester.scala (ternary, stateful, heterogeneous)
 
-CloseableChanTester.scala (mixed modes, stateful, heterogeneous)
+- BarrierCounterTester.scala (n-ary, stateful, homogeneous)
 
-Two-step testers: (12)
+- TerminatingQueueTester.scala (mixed modes, stateful, heterogeneous)
+
+- CloseableChanTester.scala (mixed modes, stateful, heterogeneous)
+
+- ResignableBarrierTester (n-ary, stateful, homogenous). 
+
+Two-step testers: 
 ----------------
 
-ChanCounterTwoStepTester.scala
+- ChanCounterTwoStepTester.scala
 
-ChanTwoStepTester.scala
+- ChanTwoStepTester.scala
 
-ABCTwoStepTester.scala
+- ABCTwoStepTester.scala
 
-ExchangerTwoStepTester.scala
+- ExchangerTwoStepTester.scala
 
-MenWomenTwoStepTester.scala
+- MenWomenTwoStepTester.scala
 
-BarrierTwoStepTester.scala
+- BarrierTwoStepTester.scala
 
-TimeoutExchangerTwoStepTester.scala	
+- TimeoutExchangerTwoStepTester.scala	
 				
-TwoFamiliesTwoStepTester.scala
+- TwoFamiliesTwoStepTester.scala
 
-ResignableBarrierTwoStepTester.scala
+- ResignableBarrierTwoStepTester.scala
 
-TerminatingQueueTwoStepTester.scala
+- TerminatingQueueTwoStepTester.scala
 
-CloseableChannelTwoStepTester.scala
+- CloseableChannelTwoStepTester.scala
 
-TimeoutChannelTwoStepTester.scala
+- TimeoutChannelTwoStepTester.scala
 
-TO DO: FilterChannel, One Family, Barrier Counter(?)
+- OneFamilyTwoStepTester.scala
 
+- TimeoutExchangerTwoStepTester.scala
 
 ==================================================================
 
 Experiments:
 
-Experiment.scala: compares times on various correct examples. 
+- Experiment.scala: compares times on various correct examples. 
 
-BugFinderExperiment: compares times on various incorrect examples.
+- BugFinderExperiment: compares times on various incorrect examples.
 
-BugParametersExperiment
+- BugParametersExperiment: experiment concerning effect of parameters on time
+  to find errors.
 
+- TwoStepExperiment.scala: experiment to compare direct and two-step
+  approaches.
 
-TODO: 
+- ParametersExperiment: experiment concerning effect of parameters on time on
+  successful examples (old experiment).
 
-- Extend binary stateless testers to also deal with unary cases, for
-  TimeOutChannelTester and TimeoutExchangerTester.
-
-- Experiments: different testers, time against #iterations/#threads.  Maybe
-  also #ops against #iterations/#threads
-
-- Experiment: Barrier, time against # threads.
+- ProgressExperiment.scala: experiment concerning times for testing
+  progressibility (old experiment).

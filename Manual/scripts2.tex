@@ -3,7 +3,7 @@
 \begin{scala}
 object OneFamilyTester extends Tester{
   /** Number of threads to run. */
-  var n = 5
+  var n = 4
 
   /** Representation of operations within the log. */
   case class Sync(id: Int)
@@ -86,12 +86,12 @@ object CloseableChanTester extends Tester{
   /** Try to send x on chan, catching a ClosedException.  Return true if
     * successful. */ 
   @inline private def trySend(chan: CloseableChan[Int], x: Int): Boolean = 
-    try{ chan!x; true } catch { case _: ClosedException => false }
+    try{ chan.send(x); true } catch { case _: ClosedException => false }
 
   /** Try to receive on chan, catching a ClosedException.  Optionally return the
     * value received. */ 
   @inline private def tryReceive(chan: CloseableChan[Int]): Option[Int] = 
-    try{ Some(chan?()) } catch { case _: ClosedException => None }
+    try{ Some(chan.receive()) } catch { case _: ClosedException => None }
 
   /** Mapping showing how synchronisations of concrete operations correspond 
     * to operations of the specification object.  Here the specification object
@@ -221,7 +221,7 @@ object ResignableBarrierTester{
   /** A worker. */
   def worker(barrier: Barrier)(me: Int, log: HistoryLog[Op]) = {
     var enrolled = false
-    for(i <- 0 until 10){
+    for(i <- 0 until 4){
       if(enrolled){
         if(Random.nextFloat() < 0.7) log(me, barrier.sync(me), Sync(me))
         else{ log(me, barrier.resign(me), Resign(me)); enrolled = false }

@@ -73,10 +73,12 @@ passing in a value; this call should synchronise with another call, and both
 threads should receive the other's value.  
 
 Most parts of the script are straightforward, and similar to the script for
-the synchronous channel.  One point to note about this script is that each
-worker thread performs a \emph{single} invocation: otherwise it is possible
-for the system to deadlock, for example if one thread has two remaining
-invocations but all the others have terminated.
+the synchronous channel.  
+
+One point to note about this script is that each worker thread performs a
+\emph{single} invocation: otherwise it is possible for the system to deadlock,
+for example if one thread has two remaining invocations but all the others
+have terminated.  This tactic might be of use elsewhere.
  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -137,8 +139,9 @@ function), so as to reduce the number of cases considered.
 
 We also supply an argument for the optional parameter |suffixMatching| of the
 |StatelessTester| constructor.  Recall that this parameter tests whether its
-argument is a suffix of a possible synchronisation, so we can again use the
-|isSorted| function.  Internally to the |StatelessTester|, this reduces the
+argument is a suffix of a possible synchronisation, so this function tests if
+the identities are of the form $\interval{k}{\sm n}$ for some~$k$.
+Internally to the |StatelessTester|, this reduces the
 number of lists of operations built as possible synchronisations.  When run
 with six worker threads, the use of this parameter reduces the running time of
 the tester by a factor if over 20, although the speed-up is less with fewer

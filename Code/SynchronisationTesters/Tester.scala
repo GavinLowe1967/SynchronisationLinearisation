@@ -6,7 +6,7 @@ trait Tester{
   var p = 4
 
   /** Number of iterations per worker thread. */
-  var iters = 20
+  var iters = 4
 
   /** Do a single test.  Return true if it passes.  Defined in subclasses.  */
   def doTest: Boolean

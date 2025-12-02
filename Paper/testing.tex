@@ -6,8 +6,8 @@ implementation of a synchronisation object is synchronisation linearisable
 with respect to a synchronisation specification object.
 %
 The techniques are influenced by the techniques for testing (standard)
-linearisation~\cite{gavin:lin-testing}, so we begin by sketching those
-techniques.
+linearisation~\cite{wing-gong,gavin:lin-testing}, so we begin by sketching
+those techniques.
 
 The idea of linearisability testing is as follows.  We run several
 \emph{worker threads}, performing operations (typically chosen randomly) upon
@@ -22,9 +22,10 @@ corresponding operation on the specification object.
 Once all worker threads have finished, we can use an algorithm to test whether
 the history is linearisable with respect to the specification object.  The
 algorithm searches for an order to linearise the executions, consistent with
-what is recorded in the log, and such that the order represents a legal
-history of the corresponding executions on the specification object.
-See~\cite{gavin:lin-testing} for details of several algorithms.
+the log, and such that the order represents a legal history of the
+corresponding executions on the specification object.
+See~\cite{wing-gong,gavin:lin-testing} for details of several algorithms.
+All these algorithms assume that the specification object is deterministic.
 
 This process can be repeated many times, so as to generate and analyse many
 histories.  Our experience is that the technique works well.  It seems
@@ -34,7 +35,7 @@ of~\cite{faulty-pri-queue}, which we believe had not previously been
 documented.  Further, the technique is easy to use: we have taught it to
 undergraduate students, who have used it effectively.
 
-Note that this testing concentrates upon the safety property of
+This testing concentrates upon the safety property of
 linearisation, rather than liveness properties such as deadlock-freedom.
 However, if the concurrent object can deadlock, it is likely that the testing
 will discover this.  Related to this point, it is the responsibility of the
@@ -60,15 +61,18 @@ the correctness of the concurrent datatype.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Hacking the linearisablity framework}
+\section{Hacking the linearisability framework}
 \label{sec:testing-hacking}
 
 In this section we investigate how to use the existing linearisation testing
 framework for testing synchronisation linearisation, using the ideas of
-Section~\ref{sec:relating}.  This is not a use for which the framework
-was intended, so we consider it a hack.  However, it has the advantage of not
-requiring the implementation of any new algorithms.  (We do not consider
-progressibility in this section.)
+Section~\ref{sec:relating}.  We require the synchronisation specification
+object to be deterministic, reflecting the fact that the linearisation
+testing framework requires its specification object to be deterministic.  
+
+This is not a use for which the framework was intended, so we consider it a
+hack.  However, it has the advantage of not requiring the implementation of
+any new algorithms.  (We do not consider progressibility in this section.)
 
 %% Recall, from the introduction of Section~\ref{sec:relating}, that a
 %% straightforward approach won't work.  Instead 
@@ -111,13 +115,13 @@ containing a single synchronisation, together with the log history.
 \begin{tikzpicture}%[yscale = 1.4]
 \bulletAt(-0.6,0){$\call.\op_1(x_1)$};
 \draw[|-|] (0.0,0) -- node[above] {$\op_1(x_1)\::y_1$} (2.5,0);
-\bulletAt(3.0,0){$\return.\op_1$};
+\bulletAt(3.1,0){$\return.\op_1$};
 \bulletAt(4.7,0){$\call.\overline{\op}_1$};
 \bulletAt(6.5,0){$\return.\overline{\op}_1\::y_1$};
 %
 \bulletAt(-0.3,\y){$\call.\op_2(x_2)$};
-\draw[|-|] (0.2,\y) -- node[above]{$\op_2(x_2)\::y_2$} (2.6,\y);
-\bulletAt(3.2,\y){$\return.\op_2\::y_2$};
+\draw[|-|] (0.4,\y) -- node[above]{$\op_2(x_2)\::y_2$} (2.7,\y);
+\bulletAt(3.5,\y){$\return.\op_2\::y_2$};
 %
 \draw (-2,\ySLin) node{$h_s$};
 \crossAt(1.4,\ySLin){$\sync(x_1,x_2)\::(y_1,y_2)$};
@@ -174,12 +178,12 @@ that
 %
 \begin{itemize}
 \item Each $\call.\op_1^{i_1}(x_1)$, from $h_l$, precedes the call and return
-  of~$\op_1^{i_1}(x_1)\::y_1$ from~$h$, which precedes $\return.\op_1^{i_1} \::
+  of~$\op_1^{i_1}(x_1)\::y_1$ from~$h$, which precede $\return.\op_1^{i_1} \::
   ()$, $\call.\overline{\op}_1^{i_1}()$ and $\return.\overline{\op}_1^{i_1}
   \:: y_1$, from~$h_l$, in that order.
 
 \item Each $\call.\op_2^{i_2}(x_2)$, from $h_l$, precedes the call and return
-  of~$\op_2^{i_2}(x_2)\::y_2$ from~$h$, which precedes $\return.\op_2^{i_2}
+  of~$\op_2^{i_2}(x_2)\::y_2$ from~$h$, which precede $\return.\op_2^{i_2}
   \:: y_2$, from~$h_l$.
 \end{itemize}
 \end{definition}
@@ -205,7 +209,7 @@ illustrates such an interleaving.
 
 We build a history~$h_{2s}$ of~|TwoStepSyncSpec|, and interleave it with~$h_l$
 as follows.  In the interleaving of the previous paragraph, replace each event
-$\sync^{i_1,i_2}(x_1,x_2)\::(y_1,y_2)$ (from~$h_s$) by consecutive
+$\sync^{i_1,i_2}(x_1,x_2)\::(y_1,y_2)$ (from~$h_s$) by immediately consecutive
 events~$\op_1^{i_1}(x_1)\::()$ and $\op_2^{i_2}(x_2)\::y_2$, and add
 $\overline{\op}_1^{i_1}()\::y_1$ between $\call.\overline{\op}_1^{i_1}()$ and
 $\return.\overline{\op}_1^{i_1} \:: y_1$ (from~$h_l$).  Again,
@@ -285,14 +289,14 @@ and the other half calling the other operation (with the same number of calls
 by each).  For a binary homogeneous synchronisation, this approach might not
 work if every worker does more than one operation: one worker might end up
 with two operations to perform, when all others have terminated; instead, we
-arrange for an even number of workers to each perform one operation.
+arrange for an even number of workers to each perform a single operation.
 %\framebox{Generalisations}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % \framebox{Improve below}
 
-\paragraph{Variable-arity synchronisations.}
+\paragraph{Variable-arity synchronisations}
 
 It turns out that it is not, in general, possible to capture variable-arity
 synchronisations using this technique, in particular where the arity of a
@@ -308,7 +312,7 @@ generality, let the |send| operation correspond to $\op_1$, and the
 |receive| operation correspond to~$\op_2$.
 
 The top-half of Figure~\ref{fig:two-step-timeout-channel} gives a
-timeline illustrating a successful |send(3)| and |receive|.  Note that this
+timeline illustrating a successful |send(3)| and |receive|.  This
 corresponds to the history
 \[
 \seq{ \send(3)\::(),\; \receive()\::\sm{Some}(3),\; 
@@ -396,7 +400,7 @@ and |false|.  Hence the history would be flagged as an error, despite being
 valid.
 
 The difference between this situation and the discussion in
-Section~\ref{ssec:relating-variations} concerns the fact that the logging of
+Section~\ref{ssec:relating-variations} is that the logging of
 operations, in particular the $\overline{\send}$, can be arbitrarily delayed.
 However, in the earlier section we allowed the $\overline{\send}$ anywhere
 within the corresponding concrete operation.  This means that a history like
@@ -406,9 +410,9 @@ linearised by the history
 \seq{ \send(3)\::(),\; \overline{\send}(3)\::\sm{false},\;
   \receive()\::\sm{None} }
 \]
-of the two-step specification object, where the operations take place in a
-different order than for Figure~\ref{fig:two-step-timeout-channel}; this is
-consistent with a deterministic specification object.
+of the two-step specification object.  Here the operations take place in a
+different order than for Figure~\ref{fig:two-step-timeout-channel}, and so
+this is consistent with a deterministic specification object.
 
 A similar problem arises with a timeout exchanger.
 
@@ -452,31 +456,59 @@ For the timeout channel:
 \end{itemize}
 
 
-The specification object then encodes the automaton below. 
-%% \begin{window}[0,r,{
-%% \begin{minipage}{73mm}
-\begin{center}
+
+\begin{window}[0,r,{
+\begin{minipage}{48.5mm}
 \begin{tikzpicture}[>= angle 60]
 \draw (0,0) node[draw] (zero) {$\sm{Zero}$};
 \draw[<-] (zero) -- ++ (-1.5,0);
-\loopAbove(zero){$
+\loopRight(zero){$
 %% \draw[->] (zero) .. controls ++(1.5,0.4) and (1.5,-0.4) .. node[right] {$
-  \begin{array}{c} 
-  \sm{sendFail}, \overline{\send}, \\ \sm{receiveFail}
-  \end{array}$}% (zero);
+  \begin{align} 
+  \sm{sendFail}, \\ \overline{\send}, \\ \sm{receiveFail}
+  \end{align}$}% (zero);
 %
-\draw (4,0) node[draw] (one) {$\sm{One}(\sm{x})$};
-\draw[->] (zero) .. controls ++(2,0.3) .. node[above] {$\sm{send(x)}$} (one); 
-\draw[->] (one) .. controls ++(-2,-0.3) .. 
-  node[below] {$\sm{receive}\::\sm{Some(x)}$} (zero);
+\draw (0,-2) node[draw] (one) {$\sm{One}(\sm{x})$};
+\draw[->] (zero) .. controls ++(0.3,-1) .. node[right] {$\sm{send(x)}$} (one); 
+\draw[->] (one) .. controls ++(-0.3,1) .. 
+  node[left] {$\begin{align}\sm{receive}\::\\ \quad\sm{Some(x)}\end{align}$} (zero);
 \end{tikzpicture}
-\end{center}
-%% \end{minipage}
-%% },] 
-Thus a successful synchronisation is linearised by a sequence $\send(\sm x)$,
+\end{minipage}
+},] 
+The specification object then encodes the automaton to the right.
+Thus a successful synchronisation is linearised by the sequence $\send(\sm x)$,
 $\receive\::\sm{Some(x)}$, $\overline{\send}$, with the former two events
 consecutive, as for other binary heterogeneous synchronisations.  Unsuccessful
 sends and receives are each linearised by a single event.
+\end{window}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% The specification object then encodes the automaton below. 
+%% %% \begin{window}[0,r,{
+%% %% \begin{minipage}{73mm}
+%% \begin{center}
+%% \begin{tikzpicture}[>= angle 60]
+%% \draw (0,0) node[draw] (zero) {$\sm{Zero}$};
+%% \draw[<-] (zero) -- ++ (-1.5,0);
+%% \loopAbove(zero){$
+%% %% \draw[->] (zero) .. controls ++(1.5,0.4) and (1.5,-0.4) .. node[right] {$
+%%   \begin{array}{c} 
+%%   \sm{sendFail}, \overline{\send}, \\ \sm{receiveFail}
+%%   \end{array}$}% (zero);
+%% %
+%% \draw (4,0) node[draw] (one) {$\sm{One}(\sm{x})$};
+%% \draw[->] (zero) .. controls ++(2,0.3) .. node[above] {$\sm{send(x)}$} (one); 
+%% \draw[->] (one) .. controls ++(-2,-0.3) .. 
+%%   node[below] {$\sm{receive}\::\sm{Some(x)}$} (zero);
+%% \end{tikzpicture}
+%% \end{center}
+%% %% \end{minipage}
+%% %% },] 
+%% Thus a successful synchronisation is linearised by the sequence $\send(\sm x)$,
+%% $\receive\::\sm{Some(x)}$, $\overline{\send}$, with the former two events
+%% consecutive, as for other binary heterogeneous synchronisations.  Unsuccessful
+%% sends and receives are each linearised by a single event.
 
 A similar technique can be used for a timeout exchanger.  We consider this
 approach convoluted, and we do not advocate it.  We include it only for

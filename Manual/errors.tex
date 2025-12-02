@@ -112,10 +112,10 @@ synchronised with invocations~1 and 2; but invocation~5 might have
 synchronised with invocations~6 and~8, or invocations~9 and~8.
 
 The error is that there is no possible synchronisation for invocations~3, 4
-and~7.  Invocation 3 --- |syncA(0)|, returning |(4,5)| --- did not synchronise
+and~7.  Invocation 3 (|syncA(0)|, returning |(4,5)|) did not synchronise
 with any other thread: no |syncB(4)| returned~|(0,5)|, and no |syncC(5)|
-returned~|(0,4)|.  Likewise invocations~4 and~7 --- |syncB(1)| returning
-|(0,2)|, and |syncC(2)| returning |(0,1)|, respectively --- did not
+returned~|(0,4)|.  Likewise invocations~4 and~7 (|syncB(1)| returning
+|(0,2)|, and |syncC(2)| returning |(0,1)|) did not
 synchronise with any A-thread (although those two invocations were consistent
 with each other): no overlapping |syncA(0)| returned~|(1,2)|.
 
@@ -146,9 +146,9 @@ successful synchronisations (in this case, each happens to be a unary
 synchronisation).  These linearisation indexes give a maximal prefix of a
 linearisation.
 
-The problem displayed by this history is that invocation~3 --- a receive
-successfully returning~4 --- cannot be matched with a corresponding send.  In
-particular, invocation~0 --- a send of~4 --- found the channel closed and so
+The problem displayed by this history is that invocation~3 (a receive
+successfully returning~4) cannot be matched with a corresponding send.  In
+particular, invocation~0 (a send of~4) found the channel closed and so
 failed.  The problem is that the receive returned and then the close took
 effect, and the send reacted to this closure rather than detecting that its
 value had been received before the closure.
@@ -227,4 +227,21 @@ the concurrent call of |Sync(2)| (invocation~8) does not return~3.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\framebox{Progressibility}
+%\subsection*{Progressibility}
+
+Similarly, if a tester finds a failure of synchronisation progressibility, it
+displays the history.  Below is such a history for a faulty synchronous
+channel.
+%
+\begin{verbatim}
+0:   Call of Send(48)
+1:   Call of Receive
+2:   Call of Send(92)
+3:   Call of Receive
+1:   Return of 48 from Receive
+0:   Return of () from Send(48)
+Pending invocations 2 and 3 should have synchronised.
+\end{verbatim}
+%
+Here executions~0 and 1 have successfully synchronised.  However, executions~2
+and~3 have failed to synchronise when they should have done.

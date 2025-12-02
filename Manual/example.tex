@@ -7,15 +7,15 @@ trait~|Chan|, defined as follows.
 %
 \begin{scala}
 trait Chan[A]{
-  def !(x: A): Unit
-  def ?(u:Unit): A
+  def send(x: A): Unit
+  def receive(): A
 }
 
 class SyncChan[A] extends Chan[A]{ ... }
 \end{scala}
 %
-The intention is that an invocation |!x| sends the value~|x|, and syncronises
-with an invocation |?()|, which should return~|x|.
+The intention is that an invocation |send(x)| sends the value~|x|, and
+syncronises with an invocation |receive()|, which should return~|x|.
 
 %%%%%
 
@@ -30,20 +30,20 @@ object ChanTester{
   /** A worker.  An even number of these workers should not produce a
     * deadlock. */
   def worker(c: Chan[Int])(me: Int, log: HistoryLog[Op]) = {
-    for(i <- 0 until 20)
-      if(me%2 == 0) log(me, c?(), Receive)
-      else{ val x = Random.nextInt(100); log(me, c!x, Send(x)) }
+    for(i <- 0 until 4)
+      if(me%2 == 0) log(me, c.receive(), Receive)
+      else{ val x = Random.nextInt(100); log(me, c.send(x), Send(x)) }
   }
 
   /** The specification class. */
   object Spec{
-    def sync(x: Int, u: Unit) = ((), x)
+    def sync(x: Int, u: Unit) = ((), x) 
   } 
 
   /** Mapping showing how synchronisations of concrete operations correspond
     * to operations of the specification object. */
   def matching: PartialFunction[(Op,Op), (Any,Any)] = {
-    case (Send(x), Receive) => Spec.sync(x, ()) 
+    case (Send(x), Receive) => Spec.sync(x, ())   // £= ((), x)£
   }
 
   /** Do a single test.  Return true if it passes. */
@@ -118,16 +118,16 @@ the function |worker(c)|.  This function takes as parameters the identity~|me|
 of the worker, and a log object~|log|.  Here, in order to avoid deadlocks, we
 run an even number of workers, where workers with an even identity perform
 receives, and workers with an odd identity perform sends.  Each worker
-performs 20~invocations.  
+performs 4~invocations.  
 
-The code |log(me, c?(), Receive)| (a call of the |apply| operation on the
+The code |log(me, c.receive(), Receive)| (a call of the |apply| operation on the
 |log| object) performs a receive.  The three parameters are: the identity of
 the thread; the invocation to be performed on the channel; and the
 representation of the invocation to be used in the log.  This logs the call of
 the invocation, performs the invocation on the channel, and logs the return
 together with the result of the invocation (i.e.~the value received).
 Similarly, each worker with an odd identity sends a random value~|x|, with
-suitable logging, via the code |log(me, c!x, Send(x)|.
+suitable logging, via the code |log(me, c.send(x), Send(x))|.
 
 The specification of the channel is captured by the combination of the
 synchronisation specification object |Spec| and the partial
@@ -155,9 +155,13 @@ the |apply| method of~|bst|) then runs the worker threads, and tests whether
 the resulting log is synchronisation linearisable; the result of that call is
 also the result of~|doTest|.
 
+Note that each test is rather short: four workers, each performing four
+invocations.  Experiments in~\cite{sync} show that running short tests like
+this tends to find errors, if they exist, faster.  
+
 The code |runTests(reps)| executes |doTest| at most |reps| times, or until it
 finds an erroneous history.  Finally, the |main| method uses the |runTests|
-method to perform 5000 tests.
+method to perform at most 5000 tests.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -177,7 +181,7 @@ trait Tester{
   var p = 4
 
   /** Number of iterations per worker thread. */
-  var iters = 20
+  var iters = 4
 
   /** Do we check the progress condition? */
   var progressCheck = false
@@ -201,7 +205,7 @@ trait Tester{
 The trait |synchronisationTester.Tester| in the distribution, outlined in
 Figure~\ref{fig:tester}, encapsulates some boiler-plate code often used in
 testers.  Objects that extend |Tester| must provide the |doTest| method, but
-can inherit the |runTest| method, which executes |doTest| a set number of
+can inherit the |runTests| method, which executes |doTest| a set number of
 times or until an error is found.  Thus we could have extended |Tester| in
 Figure~\ref{fig:script}, and avoided defining~|runTests|.
 
@@ -261,8 +265,8 @@ is to arrange for workers to pick invocations at random, for example:
 \begin{scala}
   def worker(c: Chan[Int])(me: Int, log: HistoryLog[Op]) = {
     for(i <- 0 until 20)
-      if(Random.nextInt(2) == 0) log(me, c?(), Receive)
-      else{ val x = Random.nextInt(100); log(me, c!x, Send(x)) }
+      if(Random.nextInt(2) == 0) log(me, c.receive(), Receive)
+      else{ val x = Random.nextInt(100); log(me, c.send(x), Send(x)) }
   }
 \end{scala}
 

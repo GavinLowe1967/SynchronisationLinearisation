@@ -1,6 +1,23 @@
+\begin{frontmatter}
+\title{Synchronisation: Specification and Testing}
+
+\author{Jonathan Lawrence}
+\ead{jonathan@tbtl.com}
+\affiliation{organization = {The Blockhouse Technology Ltd.}, city = {Oxford},
+  country = {UK}}
+
+\author{Gavin Lowe\corref{cor1}}
+\ead{gavin.lowe@cs.ox.ac.uk} 
+\affiliation{organization = {St Catherine's College, University of
+    Oxford}, country = {UK}}
+\cortext[cor1]{Corresponding author.}
+
+\journal{Science of Computer Programming}
+
 \begin{abstract}
 We study \emph{synchronisation objects}: objects that allow two or more
-threads to synchronise, and maybe exchange data.  We define a correctness
+threads to synchronise, each waiting until the other threads have reached a
+particular point, and maybe exchanging data.  We define a correctness
 condition for such synchronisation objects, which we call
 \emph{synchronisation linearisation}: informally, the synchronisations appear
 to take place in a one-at-a-time order, consistent with the calls and returns
@@ -18,19 +35,32 @@ the problem.  We describe an implementation of such a testing framework, and
 present experimental results.
 \end{abstract}
 
+\begin{keyword}
+Concurrent programming \sep
+synchronisation \sep specification \sep linearisation \sep synchronisation
+linearisation \sep synchronisation progressibility \sep testing.
+\end{keyword}
+\end{frontmatter}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \section{Introduction}
 
 In many concurrent programs, it is necessary at some point for two or more
-threads to \emph{synchronise}: each thread waits until other relevant threads
-have reached the synchronisation point before continuing; in addition, the
-threads can exchange data.  Reasoning about programs can be easier when
-synchronisations are used: it helps to keep threads in consistent stages of
-the program, and so makes it easier to reason about the states of different
-threads.
+threads to \emph{synchronise}: each of the threads waits until the other
+threads have reached the synchronisation point before continuing; in addition,
+the threads can exchange or combine data.  Reasoning about programs can be
+easier when synchronisations are used: it helps to keep threads in consistent
+stages of the program, and so makes it easier to reason about the states of
+different threads. (The word ``synchronisation'' is used in a couple of
+different ways within concurrent programming: we use it in the sense just
+described, where every thread waits for the others, rather than for more
+general coordination between threads, such as via a semaphore which allows
+asynchrony between a signal and the receipt of the signal.)
 
 We study synchronisations in this paper: we describe how synchronisations can
 be specified, and what it means for such a specification to be satisfied.  We
-also describe techniques for testing implementations.
+also describe techniques for testing implementations. 
 
 We start by giving some examples of synchronisations in order to illustrate
 the idea.  (We use Scala notation; we explain non-standard aspects of the
@@ -38,10 +68,10 @@ language in footnotes.)  In each case, the synchronisation is mediated by a
 \emph{synchronisation object}.
 
 Perhaps the most common form of synchronisation object is a synchronous
-channel~\cite{andrews,JCSP,sufrin:CSO}.  Such a channel might have
-signature\footnote{The class is polymorphic in the type~{\scalashape A} of
-  data.  The type {\scalashape Unit} is the type that contains a single value,
-  the \emph{unit value}, denoted~{\scalashape ()}.}
+channel, e.g.~\cite{H78,occam,andrews,JCSP,sufrin:CSO,DK-go}.  Such a channel
+might have signature\footnote{The class is polymorphic in the
+  type~{\scalashape A} of data.  The type {\scalashape Unit} is the type that
+  contains a single value, the \emph{unit value}, denoted~{\scalashape ()}.}
 %
 \begin{scala}
 class SyncChan[A]{
@@ -55,7 +85,7 @@ of the other operation: the two executions must overlap in time.  If an
 execution |send(x)| synchronises with an execution of |receive|, then the
 |receive| returns~|x|.
 
-Each synchronisation of a synchronous channel involves two executions of
+Each synchronisation of a synchronous channel involves executions of two
 \emph{different} operations (|send| and |receive|); we say that the
 synchronisation is \emph{heterogeneous}.  By contrast, sometimes two
 executions of the \emph{same} operation may synchronise; we say that the
@@ -73,7 +103,7 @@ receives the value passed in by the other.
 
 For some synchronisation objects, synchronisations might involve more than two
 threads.  For example, a \emph{barrier synchronisation}
-object~\cite{andrews,JCSP} can be used to synchronise~|n| threads:
+object~\cite{andrews,JCSP,SCL} can be used to synchronise~|n| threads:
 %
 \begin{scala}
 class Barrier(n: Int){
@@ -86,17 +116,20 @@ $\range{0}{\sm{n}}$.  Each thread~|me| calls |sync(me)|, and no execution
 returns until all~|n| have called it.  We say that the synchronisation has
 \emph{arity}~|n|.
 
-A \emph{combining barrier}~\cite{andrews}, in addition to acting as a barrier
+A \emph{combining barrier}~\cite{andrews,SCL}, in addition to acting as a barrier
 synchronisation, also allows each thread to submit a parameter, and for all to
 receive back some function of those parameters.\footnote{The Scala type
   {\scalashape (A,A) =}$>$ {\scalashape A} represents functions from pairs of
   {\scalashape A} to~{\scalashape A}.}
 %
+\pagebreak[3]
+%\begin{samepage}
 \begin{scala}
 class CombiningBarrier[A](n: Int, f: (A,A) => A){
-  def sync(x: A): A
+  def sync(me: Int, x: A): A
 }
 \end{scala}
+%\end{samepage}
 %
 The function |f| is assumed to be associative.  If |n| threads call |sync|
 with parameters $x_1, \ldots, x_{\ss n}$, in some order, then each receives
@@ -107,7 +140,8 @@ order of the parameters.)
 Some synchronisation objects have multiple modes of synchronisation.  For
 example, consider a synchronous channel with timeouts: each execution might
 synchronise with another execution, or might timeout without
-synchronisation.  Such a channel has a signature as follows.
+synchronisation~\cite{sufrin:CSO,SCL}.  Such a channel has a signature as
+follows.
 %
 \begin{scala}
 class TimeoutChannel[A]{
@@ -139,15 +173,17 @@ So far, our example synchronisation objects have been \emph{stateless}: they
 maintain no state from one synchronisation to another.  By contrast, some
 synchronisation objects are \emph{stateful}: they maintain some state between
 synchronisations, which might affect synchronisations.  As a toy example,
-consider a synchronous channel that, in addition, maintains a sequence
-counter, and such that both executions receive the value of this counter.
+consider a synchronous channel that maintains a sequence counter, and such
+that both executions receive the current value of this counter.
+\begin{mysamepage}
 \begin{scala}
 class SyncChanCounter[A]{
   private var counter: Int
-  def send(x: A): Int      // Result is sequence number.
-  def receive(): (A, Int)  // Result is (value received, sequence number).
+  def send(x: A): Int      // Result is sequence counter.
+  def receive(): (A, Int)  // Result is (value received, sequence counter).
 }
 \end{scala}
+\end{mysamepage}
 
 % Variations: homogenous case; different modes
 
@@ -215,14 +251,14 @@ concurrent datatype and a synchronisation object.
 %% %
 %% Each thread passes in some data, and receives back a result. 
 
-In this paper, we consider what it means for one of these synchronisation
-objects to be correct.  We also present techniques for testing correctness of
+In this paper, we consider what it means for such a synchronisation
+object to be correct.  We also present techniques for testing correctness of
 implementations.
 
 In Section~\ref{sec:spec} we describe how to specify a synchronisation object.
 The definition has similarities with the standard definition of
 \emph{linearisation} for concurrent
-datatypes~\cite{herlihy-wing,herlihy-shavit}, except it talks about
+datatypes~\cite{herlihy-wing,herlihy-shavit}, except that it talks about
 synchronisations between executions of operations, rather than single
 executions: we call the property \emph{synchronisation linearisation}.
 Informally, the synchronisations should appear to take place in a
@@ -243,18 +279,18 @@ this \emph{two-step linearisation}.
 
 We then consider testing of synchronisation object implementations.  Our
 techniques are based on the techniques for testing (standard)
-linearisation~\cite{gavin:lin-testing}, which we review in
+linearisation~\cite{wing-gong,gavin:lin-testing}, which we review in
 Section~\ref{sec:lin-testing}: the basic idea is to record a history of
-threads using the object, and then to test whether that history is
+threads using the object, and then to check whether that history is
 linearisable.
 %
-In Section~\ref{sec:testing-hacking} we show how the technique can be adapted
+In Section~\ref{sec:testing-hacking} we show how this technique can be adapted
 to test for synchronisation linearisation, using the result of
 Section~\ref{sec:relating}, where an operation of the synchronisation object
-may correspond to two operations of the specification object.  
+may correspond to two operations of the specification object.
 
 In Section~\ref{sec:direct} we show how synchronisation linearisation can be
-tested more directly: we describe algorithms that test whether a history of a
+tested more directly: we describe algorithms that check whether a history of a
 synchronisation object is synchronisation linearisable.  We also present
 various complexity results: deciding whether a given history is
 synchronisation linearisable is NP-complete in general, but it can be decided
@@ -269,7 +305,7 @@ We describe the implementation of a testing framework in
 Section~\ref{sec:implementation}; the framework supports both two-step
 linearisation and the direct algorithms.  In Section~\ref{sec:experiments} we
 describe experiments to determine the effectiveness of the testing techniques:
-both find errors on faulty implementations of synchronisation objects very
+both find errors in faulty implementations of synchronisation objects very
 quickly.  We sum up in Section~\ref{sec:conc}.
 
 We consider our main contributions to be as follows.

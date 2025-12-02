@@ -37,12 +37,13 @@ observed any false positives with this duration, but did with a shorter
 duration of 80ms.  This delay does significantly increase the time that a
 given number of runs will take.
 
-In the remainder of this section we consider algorithms for determining if the
-resulting log history is synchronisation linearisable, and whether it is
-synchronisation progressable.  In Section~\ref{sec:algorithm-dfs} we present a
-general algorithm for this problem, based on depth-first search.  We also show
-how the algorithm can be extended to test for synchronisation
-progressibility. 
+In the remainder of this section we consider algorithms for determining
+whether the resulting log history is synchronisation linearisable, and whether
+it is synchronisation progressable.  These algorithms again assume that the
+synchronisation specification object is deterministic.  In
+Section~\ref{sec:algorithm-dfs} we present a general algorithm for this
+problem, based on depth-first search.  We also show how the algorithm can be
+extended to test for synchronisation progressibility.
 
 We then consider the complexity of this problem.  We show, in
 Section~\ref{sec:NP-complete}, that, for a \emph{stateful} synchronisation
@@ -89,9 +90,10 @@ From such a configuration, there are edges to configurations as follows:
 \def\edgeFont#1{\rm\textsf{#1}}
 \begin{description}
 \item[\edgeFont{Synchronisation}.] If some set of executions in $pending$ can
-  synchronise, giving results compatible with~$spec$, then there is an edge to
-  a configuration where the synchronising executions are moved into
-  $linearised$, and $spec$ is updated corresponding to the synchronisation;
+  synchronise, giving the same results as required by the
+  specification~$spec$, then there is an edge to a configuration where the
+  synchronising executions are moved into $linearised$, and $spec$ is updated
+  corresponding to the synchronisation;
 
 \item[\edgeFont{Call}.] If the next event in the log is a $\call$ event, then
   there is an edge where that event is added to $pending$, and $i$ is
@@ -157,7 +159,7 @@ $\call$ events, nor moving past any other event from~$h_s$.  This means that
 subsequently each such event follows either a corresponding $\call$ event or
 another event from~$h_s$.
 
-Note that each event from~$h_s$ is still between the $\call$ and $\return$
+Each event from~$h_s$ is still between the $\call$ and $\return$
 events of the corresponding executions.  Further, we do not reorder events
 from~$h_s$ so the resulting interleaving is still an interleaving of~$h$
 and~$h_s$.
@@ -191,7 +193,8 @@ We make use of a result from~\cite{gibbons-korach} concerning the complexity
 of the corresponding problem for linearisation.  Let |Variable| be a
 linearisation specification object corresponding to an integer variable with
 |get| and |set| operations.  Then the problem of deciding whether a given
-concurrent history is linearisable with respect to |Variable| is NP-complete.
+concurrent history is linearisable with respect to |Variable| is NP-complete
+in general.
 
 Since standard linearisation is a special case of synchronisation
 linearisation (in the trivial case of unary synchronisations), this
@@ -247,7 +250,7 @@ synchronisation linearisable can be decided in quadratic time.  We consider
 the homogeneous case in the next subsection.
 
 So consider a binary heterogeneous synchronisation object, whose specification
-object is stateless.  Note that in this case we do not need to worry about the
+object is stateless.  In this case we do not need to worry about the
 order of synchronisations: if each individual synchronisation is correct, then
 any permutation will also be correct from the point of view of the
 specification object; and we can order the synchronisations in a way that is
@@ -271,8 +274,8 @@ there is an edge between $\op_1^{i_1}(x_1)\::y_1$ and $\op_2^{i_2}(x_2)\::y_2$
 in the matching; and conversely, each synchronisation linearisation
 corresponds to a total matching.
 
-Thus we have reduced the problem to that of deciding whether a total matching
-exits, for which standard algorithms exist.  We use the Ford-Fulkerson
+Thus we have reduced the problem to that of deciding whether there is a total
+matching, for which standard algorithms exist.  We use the Ford-Fulkerson
 method~\cite{ford-fulkerson}, which runs in time $O(n^2)$.
 
 It is straightforward to extend this to a mix of binary and unary
@@ -327,15 +330,15 @@ general, even in the stateless case.  We prove this fact by reduction from the
 following problem, which is known to be NP-complete~\cite{Karp1972}.
 %
 \begin{definition}
-The problem of finding a complete matching in a 3-partite hypergraph is as
+The problem of finding a total matching in a 3-partite hypergraph is as
 follows: given disjoint finite sets $X$, $Y$ and~$Z$ of the same cardinality,
 and a set $T \subseteq X \times Y \times Z$, find $U \subseteq T$ such that
-each member of~$X$, $Y$ and~$Z$ is included in precisely one element of~$T$.
+each member of~$X$, $Y$ and~$Z$ is included in precisely one element of~$U$.
 \end{definition}
 
 Suppose we are given an instance $(X, Y, Z, T)$ of the above problem.  We
 construct a synchronisation specification and a corresponding history~$h$ such
-that $h$ is synchronisation linearisable if and only if a complete matching
+that $h$ is synchronisation linearisable if and only if a total matching
 exists.  The synchronisations are between operations as follows:
 \begin{scala}
   def op£\s1£(x: X): Unit
@@ -355,8 +358,8 @@ The history~$h$ starts with calls of |op|$_1(x)$ for each $x \in X$,
 |op|$_2(y)$ for each $y \in Y$, and |op|$_3(z)$ for each $z \in Z$ (in any
 order); and then continues with returns of the same executions (in any
 order).  It is clear that any synchronisation linearisation corresponds to a
-complete matching, i.e.~the executions that synchronise correspond to the
-complete matching~$U$.  Hence finding a synchronisation linearisation is
+total matching, i.e.~the executions that synchronise correspond to the
+total matching~$U$.  Hence finding a synchronisation linearisation is
 NP-complete. 
 
 Our implementation for these cases uses a depth-first search to find a

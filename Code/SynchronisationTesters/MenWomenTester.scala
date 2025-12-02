@@ -3,7 +3,7 @@ package synchronisationTester
 import scala.util.Random
 import synchronisationTesting.{HistoryLog,BinaryStatelessTester}
 import synchronisationObject.{
- MenWomenT, MenWomen, FaultyMenWomen, DeadlockMenWomen}
+ MenWomenT, MenWomen, FaultyMenWomen, FaultyMenWomen2, DeadlockMenWomen}
 
 /** A testing file. */
 object MenWomenTester extends Tester{
@@ -53,13 +53,16 @@ object MenWomenTester extends Tester{
 
   /* Flags to identify the implementation to use. */
   private var faulty = false // FaultyMenWomen
+  private var faulty2 = false // FaultyMenWomen2
   private var deadlock = false // DeadlockMenWomen
   /* Default is MenWomen */
 
   /** Do a single test. */
   def doTest = {
     val mw: MenWomenT = 
-      if(faulty) new FaultyMenWomen else if(deadlock) new DeadlockMenWomen
+      if(faulty) new FaultyMenWomen 
+      else if(faulty2) new FaultyMenWomen2
+      else if(deadlock) new DeadlockMenWomen
       else new MenWomen
     if(progressCheck){
       val bst = new BinaryStatelessTester[Op](worker1(mw), p, matching)
@@ -82,6 +85,7 @@ object MenWomenTester extends Tester{
       case "--MaxVal" => MaxVal = args(i+1).toInt; i += 2
 
       case "--faulty" => faulty = true; i += 1
+      case "--faulty2" => faulty2 = true; i += 1
       case "--deadlock" => deadlock = true; i += 1
 
       case "--timing" => timing = true; i += 1

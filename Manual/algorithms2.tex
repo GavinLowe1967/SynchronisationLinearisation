@@ -1,7 +1,34 @@
 \subsection{Stateful testers}
 
 We now consider stateful testers.  The classes that encapsulate testing
-algorithms are described in Figure~\ref{fig:stateful-testers}
+algorithms are described in Figure~\ref{fig:stateful-testers}.
+
+\begin{figure}
+\begin{scala}
+class BinaryStatefulTester[Op,S](
+  worker: (Int, HistoryLog[Op]) => Unit,
+  p: Int,
+  specMatching: S => PartialFunction[(Op,Op), (S,(Any,Any))],
+  spec0: S,
+  doASAP: Boolean = false
+){
+  def apply(delay: Int = -1): Boolean
+}
+
+class StatefulTester[Op,S](
+  worker: (Int, HistoryLog[Op]) => Unit,
+  p: Int, 
+  arities: List[Int],
+  matching: S => PartialFunction[List[Op], (S,List[Any])],
+  suffixMatching: List[Op] => Boolean = (es: List[Op]) => true,
+  spec0: S, 
+  doASAP: Boolean = false
+){
+  def apply(delay: Int = -1): Boolean
+}
+\end{scala}
+\caption{Signatures for the stateful testers.\label{fig:stateful-testers}}
+\end{figure}
 
 The algorithm for testing binary stateful synchronisation objects is
 encapsulated in the class |BinaryStatefulTester|.  The parameters are as
@@ -39,32 +66,6 @@ follows.
 
 %%%%%%%%%%
 
-\begin{figure}
-\begin{scala}
-class BinaryStatefulTester[Op,S](
-  worker: (Int, HistoryLog[Op]) => Unit,
-  p: Int,
-  specMatching: S => PartialFunction[(Op,Op), (S,(Any,Any))],
-  spec0: S,
-  doASAP: Boolean = false
-){
-  def apply(delay: Int = -1): Boolean
-}
-
-class StatefulTester[Op,S](
-  worker: (Int, HistoryLog[Op]) => Unit,
-  p: Int, 
-  arities: List[Int],
-  matching: S => PartialFunction[List[Op], (S,List[Any])],
-  suffixMatching: List[Op] => Boolean = (es: List[Op]) => true,
-  spec0: S, 
-  doASAP: Boolean = false
-){
-  def apply(delay: Int = -1): Boolean
-}
-\end{scala}
-\caption{Signatures for the stateful testers.\label{fig:stateful-testers}}
-\end{figure}
 
 %
 

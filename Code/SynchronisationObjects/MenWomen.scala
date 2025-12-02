@@ -86,3 +86,36 @@ class DeadlockMenWomen extends MenWomenT{
     her = me; stage = 2; notify(); him   // signal to man at (2)
   }
 }
+
+
+// =======================================================
+
+import ox.scl.{MutexSemaphore,SignallingSemaphore}
+
+class FaultyMenWomen2 extends MenWomenT{
+  /* Semaphores to provide mutual exclusion between men, resp. women.  Note: a
+   * man and a woman may run concurrently. */ 
+  private val manMutex, womanMutex = new MutexSemaphore
+
+  /* Semaphores for signalling by a man, resp. a woman. */
+  private val manSignal, womanSignal = new SignallingSemaphore
+
+  /* Identities of current man, woman. */
+  private var man, woman = -1
+
+  def manSync(me: Int) = {
+    manMutex.down
+    man = me; manSignal.up
+    womanSignal.down // wait for signal
+    val her = woman; womanMutex.up; her
+  }
+
+  def womanSync(me: Int) = {
+    womanMutex.down
+    woman = me; womanSignal.up
+    manSignal.down // wait for signal
+    val him = man; manMutex.up; him
+  }
+
+
+}

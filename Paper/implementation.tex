@@ -4,10 +4,11 @@
 We have implemented a testing framework (in Scala).  The framework supports
 both two-step linearisation and the direct algorithms.  We have used the
 framework to implement testers for particular synchronisation
-objects\footnote{The implementation is available from \framebox{???}.}.  We
-consider the framework to be straightforward to use: most of the boilerplate
-code is encapsulated within the framework; defining a tester for a new
-synchronisation object normally takes just a few minutes.  Below, we
+objects\footnote{The implementation is available from
+  \url{https://www.cs.ox.ac.uk/people/gavin.lowe/Synchronisation/}.}.
+We consider the framework to be straightforward to use: most of the
+boilerplate code is encapsulated within the framework; defining a tester for a
+new synchronisation object normally takes just a few minutes.  Below, we
 concentrate our discussion on the part of the framework using the direct
 algorithms.
 
@@ -76,16 +77,18 @@ The function |doTest| performs a single test.  This uses a
 the search from Section~\ref{sec:binary-heterogeneous}.  Here, the tester runs
 4 |worker| threads, and tests the resulting history against |matching|.  If a
 non-synchronisation-linearisable history is recorded, it displays this for the
-user.  The |main| function runs |doTest| either 5000 times or until an error
-is found.  The tester can be adapted to test for synchronisation
-progressibility by passing a timeout duration to the |BinaryStatelessTester|.
+user, indicating the first operation that couldn't be linearised.  The |main|
+function runs |doTest| either 5000 times or until an error is found.  The
+tester can be adapted to test for synchronisation progressibility by passing a
+timeout duration to the |BinaryStatelessTester|.
 
-Other classes of testers are similar.  In the case of a stateful
-specification, the |matching| function takes the specification object as a
-parameter, and also returns the new value of the specification object.  The
-framework directly supports two-step linearisation testing for binary
-synchronisations, but for other forms of synchronisation, the programmer has
-to define the appropriate automaton.
+Other classes of testers are similar.  Details and examples can be found in
+the manual~\cite{testing-manual}.  In the case of a stateful specification,
+the |matching| function takes the specification object as a parameter, and
+also returns the new value of the specification object.  The framework
+directly supports two-step linearisation testing for binary synchronisations,
+but for other forms of synchronisation, the programmer has to define the
+appropriate automaton.
 
 
 \begin{figure}

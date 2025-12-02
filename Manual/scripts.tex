@@ -5,7 +5,7 @@ In this appendix we give example input scripts referred to in the body of the
 manual.  
 
 
-\begin{figure}
+\begin{figure}[hb]
 \begin{scala}
 object ExchangerTester extends Tester{
   /** Representation of operations within the log. */
@@ -33,7 +33,7 @@ object ExchangerTester extends Tester{
   def doTest = {
     val exchanger: ExchangerT[Int] = new Exchanger[Int]
     val tester = new HomogeneousBinaryStatelessTester[Exchange](
-      worker(exchanger), 20, matching)
+      worker(exchanger), 8, matching)
     tester()
   }
 
@@ -72,7 +72,7 @@ object ABCTester extends Tester{
 
   /** A worker with identity me. */
   def worker(abc: ABCT[Int,Int,Int])(me: Int, log: HistoryLog[Op]) = {
-    for(i <- 0 until 20){
+    for(i <- 0 until 4){
       if(me%3 == 0) log(me, abc.syncA(me), SyncA(me)) 
       else if(me%3 == 1) log(me, abc.syncB(me), SyncB(me)) 
       else log(me, abc.syncC(me), SyncC(me))
@@ -106,9 +106,9 @@ object TimeoutChannelTester extends Tester{
   /** Mapping showing how synchronisations of concrete operations correspond 
     * to operations of the specification object.   */
   def matching: PartialFunction[List[Op], List[Any]] = {
-    case List(Send(x)) => List(false)
-    case List(Receive) => List(None)
-    case List(Send(x), Receive) => List(true, Some(x))
+    case List(Send(x)) => List(false)  // Unsuccessful send.
+    case List(Receive) => List(None)   // Unsuccessful receive.
+    case List(Send(x), Receive) => List(true, Some(x))  // Synchronisation.
   }
 
   /** A worker. */
@@ -165,14 +165,24 @@ object BarrierTester extends Tester{
 
   /** A worker, which calls barrier.sync. */
   def worker(barrier: BarrierT)(me: Int, log: HistoryLog[Sync]) = {
-    for(i <- 0 until 20) log(me, barrier.sync(me), Sync(me))
+    for(i <- 0 until 4) log(me, barrier.sync(me), Sync(me))
+  }
+
+  /** Is ops a suffix of a possible synchronisation?  I.e. are the ids fields
+    * of the form [k..n) for some k? */
+  def suffixMatching(ops: List[Sync]) : Boolean = {
+    assert(ops.nonEmpty); var k = ops.head.id; var ops1 = ops.tail
+    while(ops1.nonEmpty && ops1.head.id == k+1){
+      k = ops1.head.id; ops1 = ops1.tail
+    }
+    ops1.isEmpty && k == n-1
   }
 
   /** Run a single test. */
   def doTest = {
     val barrier: BarrierT[Int] = new Barrier(n) 
     val tester = new StatelessTester[Sync](
-      worker(barrier), n, List(n), matching, isSorted, false)
+      worker(barrier), n, List(n), matching, suffixMatching, false)
     tester()
   }
 

@@ -2,7 +2,7 @@
 \label{ssec:relating-variations}
 
 The results of the previous subsections carry across to non-binary, fixed
-arity synchronisations, in a straightforward way.  For a $k$-ary
+arity synchronisations, in a straightforward way.  For a $k$-way
 synchronisation between distinct operations |op|\s1, \ldots, |op|$_k$, the
 corresponding two-step linearisation specification object has $2k-1$
 operations, |op|\s1, \ldots, |op|$_k$, $\overline{\sm{op}}_1$, \ldots,
@@ -76,37 +76,43 @@ corresponding |returns|\s{i} array.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Homogeneous
 
+\begin{window}[0,r,{%
+\begin{minipage}{39mm}
+\begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
+\draw (0,0) node[draw] (zero) {$\sm{Zero}$};
+\draw[->] (zero) ++ (-1.5, 0) -- (zero);
+\loopAbove(zero){$\begin{array}{c}
+  \overline\op(\sm t) \\ {[\sm{returns(t)} \ne \sm{None}]}
+  \end{array}$}
+%
+\draw (0,-4) node[draw] (one) {$\sm{One}(\sm t_1, \sm{x}_1)$};
+\draw[->] (zero) .. controls ++(0.3,-2) .. 
+  node[right] {$\sm{op}(\sm t_1, \sm{x}_1)$} (one); 
+%
+\draw[->] (one) .. controls ++(-0.3,2) .. 
+  node[left] {$\sm{op}(\sm t_2, \sm x_2)$} (zero);
+\end{tikzpicture}%
+\end{minipage}
+},]
 We now consider the homogeneous case.  For simplicity, we describe the binary
 case; synchronisations of more than two operation executions are handled
 similarly.  Suppose we have a synchronisation object with a single operation
-\SCALA{def op(x: A): B}.  All executions of~|op| have to be treated similarly,
+%\protect\SCALA{def op(x: A): B}.  
+{\bfseries\scalastyle def}~{\scalastyle op(x: A): B}.  
+All executions of~|op| have to be treated similarly,
 so we associate \emph{each} with two operations |op| and $\overline{\sm{op}}$
 of the specification object.  The specification object is below, and encodes
 the automaton on the right.
-%% %
-%% \begin{center}
-%% \begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
-%% \draw (0,0) node[draw] (zero) {$\sm{Zero}$};
-%% \draw[->] (zero) ++ (-1.5, 0) -- (zero);
-%% %
-%% \draw (4,0) node[draw] (one) {$\sm{One}(\sm t_1, \sm{x}_1)$};
-%% \draw[->] (zero) .. controls ++(1.75,0.6) .. 
-%%   node[above] {$\sm{op}(\sm t_1, \sm{x}_1)$} (one); 
-%% %
-%% \draw[<-] (zero) .. controls ++(1.75,-0.6) .. 
-%%   node[below] {$\sm{op}(\sm t_2, \sm x_2)$} (one);
-%% \end{tikzpicture}
-%% \end{center}
-%
 The second execution of |op| in any synchronisation (from the |One| state of the
 automaton) writes the results of the execution into the |returns| array.
 Each execution of $\overline{\sm{op}}$ returns the stored value.
-
-\begin{trivlist}
-\item[]
-\begin{minipage}{92mm}
+\end{window}
+%
+%% \begin{trivlist}
+%% \item[]
+%\begin{minipage}{92mm}
 \begin{scala}
-class TwoStepLinSpec{
+class TwoStepHomoLinSpec{
   private var state: State = Zero
   private val returns = new Array[Option[B£\s1£]](NumThreads)
   for(t <- 0 until NumThreads) returns(t) = None
@@ -125,27 +131,27 @@ class TwoStepLinSpec{
   }
 }
 \end{scala}
-\end{minipage}
-\hfill 
+%% \end{minipage}
+%% \hfill 
 %
-\begin{minipage}{37.8mm}
-\begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
-\draw (0,0) node[draw] (zero) {$\sm{Zero}$};
-\draw[->] (zero) ++ (-1.5, 0) -- (zero);
-\loopAbove(zero){$\begin{array}{c}
-  \overline\op(\sm t) \\ {[\sm{returns(t)} \ne \sm{None}]}
-  \end{array}$}
-%
-\draw (0,-4) node[draw] (one) {$\sm{One}(\sm t_1, \sm{x}_1)$};
-\draw[->] (zero) .. controls ++(0.3,-2) .. 
-  node[right] {$\sm{op}(\sm t_1, \sm{x}_1)$} (one); 
-%
-\draw[->] (one) .. controls ++(-0.3,2) .. 
-  node[left] {$\sm{op}(\sm t_2, \sm x_2)$} (zero);
-\end{tikzpicture}%
-\vspace{40mm}
-\end{minipage}%
-\end{trivlist}
+%% \begin{minipage}{37.8mm}
+%% \begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
+%% \draw (0,0) node[draw] (zero) {$\sm{Zero}$};
+%% \draw[->] (zero) ++ (-1.5, 0) -- (zero);
+%% \loopAbove(zero){$\begin{array}{c}
+%%   \overline\op(\sm t) \\ {[\sm{returns(t)} \ne \sm{None}]}
+%%   \end{array}$}
+%% %
+%% \draw (0,-4) node[draw] (one) {$\sm{One}(\sm t_1, \sm{x}_1)$};
+%% \draw[->] (zero) .. controls ++(0.3,-2) .. 
+%%   node[right] {$\sm{op}(\sm t_1, \sm{x}_1)$} (one); 
+%% %
+%% \draw[->] (one) .. controls ++(-0.3,2) .. 
+%%   node[left] {$\sm{op}(\sm t_2, \sm x_2)$} (zero);
+%% \end{tikzpicture}%
+%% \vspace{40mm}
+%% \end{minipage}%
+%\end{trivlist}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Mixed arity
@@ -160,21 +166,8 @@ timeout corresponding to a unary synchronisation.
 %% We illustrate how to test for synchronisation linearisation of objects with
 %% mixed modes of synchronisation via an example.
 
-Figure~\ref{fig:two-step-timeout-chan} gives the automaton for a timeout
-channel, where we treat $\send$ as corresponding to $\op_1$ (we omit concrete
-code in the interests of brevity).  The automaton is similar to that for a
-standard channel.  The |receive| operation can happen from either state: if it
-happens from the |One| state, then a synchronisation has occurred and the
-execution returns a value of the form |Some(x)|; but if it happens from the
-|Zero| state, there has been no corresponding |send|, and so the execution
-returns~|None|, indicating a timeout.  Likewise, the $\overline{\send}$
-operation can happen from either state; if it happens from the |Zero| state,
-then a synchronisation has occurred and the execution returns |true|; but if
-it happens from the |One| state, there has been no corresponding |receive|,
-and so the execution returns~|false|, indicating a timeout.
-
-\begin{figure}
-\begin{center}
+\begin{window}[0,r,{
+\begin{minipage}{52.9mm}
 \begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
 \draw (0,0) node[draw] (zero) {$\sm{Zero}$};
 \draw[->] (zero) ++ (-1.5, 0) -- (zero);
@@ -188,15 +181,50 @@ and so the execution returns~|false|, indicating a timeout.
 \draw[->] (zero) .. controls ++(0.3,-2.5) .. 
   node[right] {$\send(\sm t, \sm{x})$} (one); 
 \draw[->] (one) .. controls ++(-0.3,2.5) .. 
-  node[left] {$\begin{array}[t]{r@{}}
+  node[left] {$\begin{array}[t]{@{}r@{}}
    \receive()\::\sm{Some(x)}, \\ \overline{\send}(\sm t)\::\sm{false}
     \end{array}$} (zero);
 \end{tikzpicture}
-\end{center}
-\caption{Automaton for capturing two-step linearisation for a timeout
-  channel.}
-\label{fig:two-step-timeout-chan}
-\end{figure}
+\end{minipage}
+},] 
+The figure to the right gives the automaton for a timeout
+channel, where we treat $\send$ as corresponding to $\op_1$ (we omit concrete
+code in the interests of brevity).  The automaton is similar to that for a
+standard channel.  The |receive| operation can happen from either state: if it
+happens from the |One| state, then a synchronisation has occurred and the
+execution returns a value of the form |Some(x)|; but if it happens from the
+|Zero| state, there has been no corresponding |send|, and so the execution
+returns~|None|, indicating a timeout.  Likewise, the $\overline{\send}$
+operation can happen from either state; if it happens from the |Zero| state,
+then a synchronisation has occurred and the execution returns |true|; but if
+it happens from the |One| state, there has been no corresponding |receive|,
+and so the execution returns~|false|, indicating a timeout.
+\end{window}
+
+%% \begin{figure}
+%% \begin{center}
+%% \begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
+%% \draw (0,0) node[draw] (zero) {$\sm{Zero}$};
+%% \draw[->] (zero) ++ (-1.5, 0) -- (zero);
+%% % self-loop on Zero
+%% \loopAbove(zero){$\begin{array}{@{}c@{}}
+%%       \receive()\::\sm{None}, \\ 
+%%       \overline{\send}(\sm t)\::\sm{true} [\sm{returns(t)} \ne \sm{None}]
+%%     \end{array}$}
+%% %%%%%% One
+%% \draw (0,-5) node[draw] (one) {$\sm{One}(\sm t, \sm{x})$};
+%% \draw[->] (zero) .. controls ++(0.3,-2.5) .. 
+%%   node[right] {$\send(\sm t, \sm{x})$} (one); 
+%% \draw[->] (one) .. controls ++(-0.3,2.5) .. 
+%%   node[left] {$\begin{array}[t]{r@{}}
+%%    \receive()\::\sm{Some(x)}, \\ \overline{\send}(\sm t)\::\sm{false}
+%%     \end{array}$} (zero);
+%% \end{tikzpicture}
+%% \end{center}
+%% \caption{Automaton for capturing two-step linearisation for a timeout
+%%   channel.}
+%% \label{fig:two-step-timeout-chan}
+%% \end{figure}
 
 
 
@@ -204,22 +232,14 @@ and so the execution returns~|false|, indicating a timeout.
 
 We now consider stateful specification objects.  In general, we can simply
 augment the |Zero| and |One| states of the automaton to include the state of
-the specification object.  Note that different transitions may be available
+the specification object.  Different transitions may be available
 based upon that state.  However, it can be clearer and simpler to introduce
 different named states into the automaton.
 
-Figure~\ref{fig:two-step-closeable-chan} gives the specification automaton for
-a closeable channel.  The automaton has an additional state, |Closed|,
-corresponding to the channel being closed.  All executions are unary
-synchronisations in this state.  This automaton represents a simplification
-over the general approach discussed above: we do not need two separate states
-after closing.  Note that a $\overline{\send}(\sm t)$ transition from the
-|Closed| state may succeed if the corresponding synchronisation happened
-before the channel was closed, in which case $\sm{returns(t)} \ne \sm{None}$.
-
-%%%%%%%%%%
-
-\begin{figure}
+%Figure~\ref{fig:two-step-closeable-chan} 
+The figure below gives the specification automaton for a closeable channel.
+%
+%\begin{figure}
 \begin{center}
 \begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
 \draw (0,0) node[draw] (zero) {$\sm{Zero}$};
@@ -245,9 +265,18 @@ before the channel was closed, in which case $\sm{returns(t)} \ne \sm{None}$.
     \end{array}$} 
 \end{tikzpicture}
 \end{center}
-\caption{Automata for capturing two-step linearisation for a closeable channel.}
-\label{fig:two-step-closeable-chan}
-\end{figure}
+%% \caption{Automaton for capturing two-step linearisation for a closeable
+%%   channel.}
+%% \label{fig:two-step-closeable-chan}
+%% \end{figure}
+%
+The automaton has an additional state, |Closed|,
+corresponding to the channel being closed.  All executions are unary
+synchronisations in this state.  This automaton represents a simplification
+over the general approach discussed above: we do not need two separate states
+after closing.  Note that a $\overline{\send}(\sm t)$ transition from the
+|Closed| state may succeed if the corresponding synchronisation happened
+before the channel was closed, in which case $\sm{returns(t)} \ne \sm{None}$.
 
 %%%%%%%%%%
 

@@ -1,99 +1,107 @@
-\newcommand{\etalchar}[1]{$^{#1}$}
-\begin{thebibliography}{GRABR15}
+\begin{thebibliography}{10}
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \def\href#1#2{#2} \def\path#1{#1}\fi
 
-\bibitem[And91]{andrews}
-Gregory Andrews.
-\newblock {\em Concurrent Programming: Principles and Practice}.
-\newblock Benjamin/Cummings, 1991.
+\bibitem{H78}
+C.~A.~R. Hoare, Communicating sequential processes, Communications of the ACM
+  21~(8) (1978) 666--677.
 
-\bibitem[Edm65]{edmonds_1965}
-Jack Edmonds.
-\newblock Paths, trees, and flowers.
-\newblock {\em Canadian Journal of Mathematics}, 17:449–467, 1965.
+\bibitem{occam}
+{{INMOS} Limited}, occam Programming Manual, Prentice Hall, 1983.
 
-\bibitem[FF56]{ford-fulkerson}
-Lestor~R. Ford, Jr. and D.~R. Fulkerson.
-\newblock Maximal flow through a network.
-\newblock {\em Canadian Journal of Mathematics}, 8:399--404, 1956.
+\bibitem{andrews}
+G.~Andrews, Concurrent Programming: Principles and Practice, Benjamin/Cummings,
+  1991.
 
-\bibitem[GBE07]{GBE2007}
-Andy Georges, Dries Buytaert, and Lieven Eeckhout.
-\newblock Statistically rigorous {Java} performance evaluation.
-\newblock In {\em Proceedings of OOPSLA '07}, 2007.
+\bibitem{JCSP}
+P.~Welch, N.~Brown, J.~Moores, K.~Chalmers, B.~Sputh, Integrating and extending
+  {JCSP}, in: Proceedings of Communicating Process Architectures, 2007.
 
-\bibitem[GK97]{gibbons-korach}
-P.~B. Gibbons and E.~Korach.
-\newblock Testing shared memories.
-\newblock {\em SIAM Journal of Computing}, 26(4):1208--1244, 1997.
+\bibitem{sufrin:CSO}
+B.~Sufrin, {Communicating Scala Objects}, in: Proceedings of Communicating
+  Process Architectures, 2008.
 
-\bibitem[GRABR15]{fdr3}
-Thomas Gibson-Robinson, Philip Armstrong, Alexandre Boulgakov, and A.~W.
-  Roscoe.
-\newblock {FDR3}: a parallel refinement checker for {CSP}.
-\newblock {\em International Journal on Software Tools for Technology
-  Transfer}, 2015.
+\bibitem{DK-go}
+A.~A.~A. Donovan, B.~W. Kernighan, The Go Programming Language, Addison-Wesley,
+  2020.
 
-\bibitem[HS12]{herlihy-shavit}
-Maurice Herlihy and Nir Shavit.
-\newblock {\em The Art of Multiprocessor Programming}.
-\newblock Morgan Kaufmann, 2012.
+\bibitem{HSY2004}
+D.~Hendler, N.~Shavit, L.~Yerushalmi, A scalable lock-free stack algorithm, in:
+  Proceedings of the Sixteenth Annual Symposium on Parallelism in Algorithms
+  and Architectures, 2004, pp. 206--215.
 
-\bibitem[HSY04]{HSY2004}
-D.~Hendler, N.~Shavit, and L.~Yerushalmi.
-\newblock A scalable lock-free stack algorithm.
-\newblock In {\em Proceedings of the Sixteenth Annual Symposium on Parallelism
-  in Algorithms and Architectures}, pages 206--215, 2004.
+\bibitem{herlihy-shavit}
+M.~Herlihy, N.~Shavit, The Art of Multiprocessor Programming, Morgan Kaufmann,
+  2012.
 
-\bibitem[HW90]{herlihy-wing}
-M.~Herlihy and J.~M. Wing.
-\newblock Linearizability: a correctness condition for concurrent objects.
-\newblock {\em ACM Transactions on Programming Languages and Systems},
-  12(3):463--492, 1990.
+\bibitem{SCL}
+G.~Lowe, {Scala Concurrency Library (SCL)}, online repository at
+  \url{https://github.com/GavinLowe1967/Scala-Concurrency-Library} (2025).
 
-\bibitem[Kar72]{Karp1972}
-Richard~M. Karp.
-\newblock Reducibility among combinatorial problems.
-\newblock In Raymond~E. Miller, James~W. Thatcher, and Jean~D. Bohlinger,
-  editors, {\em Complexity of Computer Computations}, pages 85--103. Springer
-  US, 1972.
+\bibitem{alting-barrier}
+P.~Welch, N.~Brown, J.~Moores, K.~Chalmers, B.~Sputh, Alting barriers:
+  synchronisation with choice in {Java} using {JCSP}, Concurrency and
+  Computation: Practice and Experience 22~(8) (2010).
 
-\bibitem[Low16]{gavin:lin-testing}
-Gavin Lowe.
-\newblock Testing for linearizability.
-\newblock {\em Concurrency and Computation: Practice and Experience}, 29(14),
-  2016.
+\bibitem{herlihy-wing}
+M.~Herlihy, J.~M. Wing, Linearizability: a correctness condition for concurrent
+  objects, ACM Transactions on Programming Languages and Systems 12~(3) (1990)
+  463--492.
 
-\bibitem[Low25]{gavin:SCL-CSP}
-Gavin Lowe.
-\newblock Analysing a library of concurrency primitives using {CSP}.
-\newblock Submitted for publication, 2025.
+\bibitem{wing-gong}
+J.~M. Wing, C.~Gong, Testing and verifying concurrent objects, Journal of
+  Parallel and Distributed Computing 17 (1993) 164--182.
 
-\bibitem[Ros10]{awr:ucs}
-A.~W. Roscoe.
-\newblock {\em Understanding Concurrent Systems}.
-\newblock Springer, 2010.
+\bibitem{gavin:lin-testing}
+G.~Lowe, Testing for linearizability, Concurrency and Computation: Practice and
+  Experience 29~(14) (2016).
 
-\bibitem[ST05]{faulty-pri-queue}
-Hakan Sundell and Philippas Tsigas.
-\newblock Fast and lock-free concurrent priority queues for multi-thread
-  systems.
-\newblock {\em Journal of Parallel and Distributed Computing}, 65(5):609--627,
-  2005.
+\bibitem{faulty-pri-queue}
+H.~Sundell, P.~Tsigas, Fast and lock-free concurrent priority queues for
+  multi-thread systems, Journal of Parallel and Distributed Computing 65~(5)
+  (2005) 609--627.
 
-\bibitem[Suf08]{sufrin:CSO}
-Bernard Sufrin.
-\newblock Communicating scala objects.
-\newblock In {\em Proceedings of Communicating Process Architectures}, 2008.
+\bibitem{gibbons-korach}
+P.~B. Gibbons, E.~Korach, Testing shared memories, SIAM Journal of Computing
+  26~(4) (1997) 1208--1244.
 
-\bibitem[WBM{\etalchar{+}}07]{JCSP}
-Peter Welch, Neil Brown, James Moores, Kevin Chalmers, and Bernhard Sputh.
-\newblock Integrating and extending {JCSP}.
-\newblock In {\em Proceedings of Communicating Process Architectures}, 2007.
+\bibitem{ford-fulkerson}
+L.~R. Ford, Jr., D.~R. Fulkerson, Maximal flow through a network, Canadian
+  Journal of Mathematics 8 (1956) 399--404.
 
-\bibitem[WBM{\etalchar{+}}10]{alting-barrier}
-Peter Welch, Neil Brown, James Moores, Kevin Chalmers, and Bernhard Sputh.
-\newblock Alting barriers: synchronisation with choice in {Java} using {JCSP}.
-\newblock {\em Concurrency and Computation: Practice and Experience}, 22(8),
-  2010.
+\bibitem{edmonds_1965}
+J.~Edmonds, Paths, trees, and flowers, Canadian Journal of Mathematics 17
+  (1965) 449–467.
+\newblock \href {https://doi.org/10.4153/CJM-1965-045-4}
+  {\path{doi:10.4153/CJM-1965-045-4}}.
+
+\bibitem{Karp1972}
+R.~M. Karp, Reducibility among combinatorial problems, in: R.~E. Miller, J.~W.
+  Thatcher, J.~D. Bohlinger (Eds.), Complexity of Computer Computations,
+  Springer US, 1972, pp. 85--103.
+
+\bibitem{testing-manual}
+G.~Lowe, Testing Synchronisation Objects, available via
+  \url{https://www.cs.ox.ac.uk/people/gavin.lowe/UnderstandingSynchronisation/}
+  (2025).
+
+\bibitem{GBE2007}
+A.~Georges, D.~Buytaert, L.~Eeckhout, Statistically rigorous {Java} performance
+  evaluation, in: Proceedings of OOPSLA '07, 2007.
+
+\bibitem{gavin:SCL-CSP}
+G.~Lowe, Analysing a library of concurrency primitives using {CSP}, submitted
+  for publication (2025).
+
+\bibitem{awr:ucs}
+A.~W. Roscoe, Understanding Concurrent Systems, Springer, 2010.
+
+\bibitem{fdr3}
+T.~Gibson-Robinson, P.~Armstrong, A.~Boulgakov, A.~W. Roscoe, {FDR3}: a
+  parallel refinement checker for {CSP}, International Journal on Software
+  Tools for Technology Transfer (2015).
 
 \end{thebibliography}

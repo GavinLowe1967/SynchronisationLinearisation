@@ -1,73 +1,26 @@
-\documentclass[12pt,a4paper]{article}
+%\documentclass[12pt,a4paper]{article}
+\documentclass[preprint]{elsarticle}
 \usepackage{tikz}
 \usetikzlibrary{arrows}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.16}
-\usepackage{latexsym}
-\usepackage{tech,mathsx,mytheorems,url}
-\usepackage{cspm}
+\usepackage{latexsym,url,picinpar}
 \usepackage{scalalistings}
-\usepackage{picinpar}
-
-
-\newtheorem{lemma}{Lemma}
-\newtheorem{definition}[lemma]{Definition}
-\newtheorem{prop}[lemma]{Proposition}
-\newtheorem{example}[lemma]{Example}
-
-\def\s#1{$_{#1}$}
-\def\call{\mathsf{call}}
-\def\return{\mathsf{return}}
-\def\::{\mathord{\hspace{0.1mm}:\hspace{0.1mm}}}
-\def\range#1#2{[#1 \mathbin{..} #2)}
-\def\op{{\sm{op}}}
-\def\sync{\sm{sync}}
-\def\send{\sm{send}}
-\def\receive{\sm{receive}}
-\def\sendWithin{\sm{sendWithin}}
-\def\receiveWithin{\sm{receiveWithin}}
-
-% tikz stuff
-
-\def\X{node {$\cross$}}
-% Bullet at (#1,#2) with text #3 below
-\def\bulletAt(#1,#2)#3{%
-  \draw(#1,#2) node {$\bullet$}; \draw(#1,#2-0.4) node{\footnotesize #3};
-}
-% Cross at (#1,#2) with text #3 below
-\def\crossAt(#1,#2)#3{%
-  \draw(#1,#2) \X; \draw(#1,#2-0.4) node{\footnotesize #3};
-}
-%
-\def\loopAbove(#1)#2{%
-  \draw[->] (#1) .. controls ++(-0.4,+1.8) and ++(0.4,1.8) .. 
-  node[above] {#2} (#1);}
-
-\pgfplotscreateplotcyclelist{my mark list}{
-blue,every mark/.append style={solid,fill=\pgfplotsmarklistfill},mark=*\\
-red,every mark/.append style={solid,fill=\pgfplotsmarklistfill},mark=square*\\
-brown!60!black,every mark/.append style={solid,fill=\pgfplotsmarklistfill},mark=triangle*\\
-black,every mark/.append style={solid},mark=star\\
-%% every mark/.append style={solid,fill=\pgfplotsmarklistfill},mark=diamond*\\
-%% every mark/.append style={solid,fill=\pgfplotsmarklistfill!40},mark=otimes*\\
-%% every mark/.append style={solid},mark=|\\
-%% every mark/.append style={solid,fill=\pgfplotsmarklistfill},mark=pentagon*\\
-%% every mark/.append style={solid},mark=text,text mark=p\\
-%% every mark/.append style={solid},mark=tex
-}
+\usepackage{sync}
 
 \scalaMid
+
+\newdefinition{lemma}{Lemma}
+\newdefinition{definition}[lemma]{Definition}
+\newdefinition{prop}[lemma]{Proposition}
+\newproof{proof}{Proof}
 
 \def\topfraction{0.8}
 \renewcommand{\floatpagefraction}{0.75}
 
 \sloppy\raggedbottom
 
-\title{Understanding Synchronisation}
-\author{Jonathan Lawrence and Gavin Lowe}
-
 \begin{document}
-\maketitle
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
