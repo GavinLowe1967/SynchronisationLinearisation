@@ -1,0 +1,640 @@
+Relate to set linearisation.
+
+Capture relationship between concrete and abstract ops as a relation that
+relates a multiset of concrete operations to the corresponding abstract
+operation.  For example, for the synchronous channel:
+
+{ ( { send(x), receive(()) }, sync(x,()) ) | x \in T }
+
+Show locality/compositionality.
+
+Observation: the composition of k identical stateless synchronisation objects
+has the same external behaviour as a single one. 
+
+Clarify the term "linearisation point".  We use it abstractly, rather than
+representing a concrete step in the code. 
+
+Talk about our experience of students trying to test synchronisation objects. 
+
+Add Atomic Broadcast
+
+Note that (non-unary) synchronisations are necessarily not wait-free, lock-free
+or obstruction-free.
+
+============
+
+> Reviewer's Responses to Questions
+> 
+> 1. Are the objectives and the rationale of the study clearly stated?
+> 
+> Reviewer #1: Yes, the introduction does a good job at motivating the work.
+> 
+> Reviewer #3: Yes.
+> 
+> 2. If applicable, is the application/theory/method/study reported in
+> sufficient detail to allow for its replicability and/or reproducibility? 
+> 
+> Reviewer #1: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here: The authors provide detailed enough proofs of
+> their propositions, and the code is available online. 
+> 
+> Reviewer #3: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here:
+> 
+> 3. If applicable, are statistical analyses, controls, sampling mechanism,
+> and statistical reporting (e.g., P-values, CIs, effect sizes) appropriate
+> and well described? 
+> 
+> Reviewer #1: Mark as appropriate with an X:
+> 
+> Yes [] No [X] N/A []
+> 
+> Provide further comments here: I have some suggestions in the next question.
+> 
+> Reviewer #3: Mark as appropriate with an X:
+> 
+> Yes [] No [] N/A [X]
+> 
+> Provide further comments here:
+> 
+> 4. Could the manuscript benefit from additional tables or figures, or from
+> improving or removing (some of the) existing ones? 
+> 
+> Reviewer #1: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here:
+> 
+> A minor criticism is that the examples considered seem rather toy-ish and
+> small. Because of this, I would have liked to see some description of how
+> many lines of code each of the examples takes to implement. It would also
+> have been appropriate to describe qualitatively what kinds of bugs were
+> introduced into the implementations of the synchronization objects. 
+
+*** Consider this.  I think it's common for synchronisation objects to be
+    quite short in terms of lines of code, but still quite tricky to get
+    right.  
+
+*** Discuss bugs.  Typically unexpected orders of threads running.  
+
+> Although sometimes the difference in time between the direct and two-step
+> methods is rather large, it might make sense to put both techniques on the
+> same scale to make them easier to compare. 
+
+*** Consider this. (pp 39, 40; figs 10, 11).  I don't think it would work for
+    the barrier, but it would for the others.
+
+> Lacking a more comprehensive dataset of implementations to analyze, I also
+> question how representative of the class of all synchronization objects the
+> ones chosen here are. 
+
+*** I'm not sure that is answerable. 
+
+> Reviewer #3: Mark as appropriate with an X:
+> 
+> Yes [] No [X] N/A []
+> 
+> Provide further comments here:
+> 
+> 5. If applicable, are the interpretation of results and study conclusions
+> supported by the data? 
+> 
+> Reviewer #1: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here:
+> 
+> Reviewer #3: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here:
+> 
+> 6. Have the authors clearly emphasized the strengths of their
+> study/theory/methods/argument? 
+> 
+> Reviewer #1: Mark as appropriate with an X:
+> 
+> Yes [] No [X] N/A []
+> 
+> Provide further comments here: Lacking a detailed comparison with related
+> works, I did not find their arguments for the novelty and strengths of their
+> techniques were well-argued. Please see the extended answer below for a more
+> detailed discussion on this point. 
+
+***
+
+> Reviewer #3: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here:
+> 
+> 7. Have the authors clearly stated the limitations of their
+> study/theory/methods/argument? 
+> 
+> Reviewer #1: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here:
+> 
+> Reviewer #3: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here:
+> 
+> 8. Does the manuscript structure, flow or writing need improving (e.g., the
+> addition of subheadings, shortening of text, reorganization of sections, or
+> moving details from one section to another)? 
+> 
+> Reviewer #1: Mark as appropriate with an X:
+> 
+> Yes [] No [X] N/A []
+> 
+> Provide further comments here:
+> 
+> Reviewer #3: Mark as appropriate with an X:
+> 
+> Yes [] No [X] N/A []
+> 
+> Provide further comments here:
+> 
+> 9. Could the manuscript benefit from language editing?
+> 
+> Reviewer #1: No
+> 
+> Reviewer #3: No
+
+> ==================================================
+
+> Reviewers' comments to authors
+> 
+> 
+> Reviewer #1: The paper introduces a correctness criterion for objects with
+> synchronization based on linearizability. Then, it compares this criterion
+> with the standard linearizability. Then it moves to discussing and
+> evaluating two testing techniques for their proposed criterion. 
+> 
+> The paper purports to introduce a novel generalization of linearizability to
+> handle objects with synchronization. The paper, however, does not cite any
+> of the literature on linearizability following the original paper by Herlihy
+> and Wing. Particularly relevant is that several increasingly more general
+> criteria for specifying concurrent objects have been proposed, which are
+> much more natural than the one advocated here and can handle strictly more
+> objects. I believe all the objects considered in this paper (even
+> considering the proposed variations from Sec. 2.4) are already covered by
+> set linearizability (later re-branded as concurrency-aware linearizability),
+> not to mention by more recent generalizations that subsume set
+> linearizability such as interval linearizability and compositional
+> linearizability. 
+
+*** Compare with set linearizability.  It does look similar.
+
+[Random thoughts below.]
+
+A Linearizability-based Hierarchy for Concurrent Specifications.  Armando
+Castañeda, Sergio Rajsbaum, and Michel Raynal.  Communications of the ACM.
+Vol. 66 No. 1, Pages: 86-97, 2023.
+
+Reference: 
+https://cacm.acm.org/research/a-linearizability-based-hierarchy-for-concurrent-specifications/.
+Also look at refs 20 and 30 from there (set linearizability); 8 (interval
+linearizability); 33 (intermediate value; not relevant, but shows willing).
+
+20: 
+30: https://dl.acm.org/doi/pdf/10.1145/197917.198176
+
+Hemed, N., Rinetzky, N., and Vafeiadis, V. Modular verification of concurrency-aware linearizability. In Proceedings of 29th Symp. Distributed Computing. Springer LNCS 9363 (2015), 371–387.
+978-3-662-48653-5.pdf
+
+I think they don't consider the question of how to specify a synchronisation
+object.  They just assume the allowed histories are given.  These seems to be
+one of our contributions.  
+
+Maybe show that the algorithm in Figure 3 does not satisfy our property, and
+that our testing mechanism can detect this. 
+
+I think the set-linearizable version of the lattice problem can be specified
+in our setting by
+
+class Spec{
+  private var state: Set[L] = {}
+  def sync_j(x_1: L, ... x_j: L): (L,...,L) = {
+    state = state \union {x_1,...,x_j); val ub = \sqcup state; (ub,...,ub)
+  }
+}
+
+where sync_j synchronises j threads, and there is a sync_j for each j = 1,.... 
+
+Interval linearizability: 
+Castañeda, A., Rajsbaum, S., and Raynal, M. Unifying concurrent objects and
+distributed tasks: interval-linearizability. J. ACM 65, 6 (2018), Article 45. 
+Castaneda, A., Rajsbaum, S., Raynal, M.: Specifying concurrent problems: beyond
+linearizability and up to tasks. In: DISC (2015)
+
+Also look at
+Scherer III, W.N., Scott, M.L.: Nonblocking concurrent data structures with con-
+dition synchronization. In: Guerraoui, R. (ed.) DISC 2004. LNCS, vol. 3274,
+pp. 174–187. Springer, Heidelberg (2004)
+978-3-540-30186-8_13.pdf
+Sounds a bit like two-step linearizability.
+
+"Scherer and Scott~\cite{...} consider a setting where an operation may be
+linearised in several steps, similar to our two-step linearisation.  Their
+interest is in partial concurrent datatypes, where an operation may have a
+nontrivial precondition.  Such an operation is linearised by (1)~an initial
+request (where the operation registers itself); (2)~some number of
+unsuccessful follow-ups (where the precondition is found not to be satisfied);
+(3)~a successful follow-up (where the precondition holds, and the operation
+takes effect)."
+
+> The formal treatment of synchronization objects is not satisfactory. While
+> Sec. 2.1-2.3 are satisfactory in their formalism, they only handle a small
+> subset of all 'synchronization objects'. Sec. 2.4, which is supposed to
+> extend it to the class of all synchronization objects discussed earlier in
+> Sec. 1, is mostly informal. So the paper has only convincingly covered the
+> subclass of synchronization objects described in the introduction to Sec
+> 2. 
+
+** We can make this more formal by specifying the relationship between
+   concrete and abstract operations. 
+
+> Their paper also has a notable omission from the point-of-view of the
+> theory of linearizability in not mentioning whether the criterion satisfies
+> locality. 
+
+** Add this.
+
+> Now, I believe that a formal treatment of the fully general criterion
+> informally suggested in Sec. 2.4 will be weaker or, most likely, equivalent
+> to set linearizability. If that is the case, the paper merely provides a
+> more convoluted, although perhaps specialized and more convenient for their
+> practical applications later in the paper, re-formulation of set
+> linearizability. This renders most of Sec. 2 and Sec. 3 as
+> non-contributions, if not misleading because of the lack of acknowledgement
+> of the pre-existing advances on linearizability and of a dedicated related
+> works section. 
+
+** Add comparison. 
+
+> A different concern is that the specifications here are rather unusual in
+> that an object with reasonable operations, say send and receive, becomes an
+> object with a single operation called sync. On its face, this does not have
+> the same interface as the original object. Note that this is not a
+> conservative generalization of standard linearizability, which keeps the
+> same interface in the specification. Meanwhile, the criteria I mention
+> above, including set linearizability, all use the same interface for the
+> concrete object and the specification. 
+
+** Define the relationship.  
+
+?? I find it easier to specify a synchronisation as a single abstract
+operation. 
+
+> The liveness property the paper proposes also seems inappropriate for
+> multiple reasons. I believe there are two main critical issues. The first is
+> that when you have threads under non-deterministic interleaving operations
+> may be only may-convergent. This means that you may be able to find an
+> extension of a trace s where all the calls that were pending in s have a
+> return, even though they might have diverged.
+
+*** I think the reviewer has misunderstood our intention.  We make assumptions
+    about scheduling that prevent the possibility of divergence.  ** Make this
+    clearer. 
+
+>  Second, it is a well-known
+> result that linearizability does not reflect liveness (i.e. it may be that s
+> linearizes to t, t satisfies a liveness property, but s does not). The
+> progress property here is based on essentially checking that the
+> linearizations satisfy some progress property, so it is inherently
+> flawed. 
+
+** No, it requires that some such linearisation actually happens, and the
+   threads return.  ** Explain this better. 
+
+> Its testing was only presented rather informally and did not seem
+> like a robust testing technique, as it seems to boil down to "if it times
+> out it probably dead-locked". 
+
+That's the basic approach -- but it seems to work (once an appropriate timeout
+time has been found).  Also discuss the tradeoffs in choosing the timeout
+time.  Not hard to avoid false positives.
+
+> What might be novel is the second half of the paper about linearizability
+> testing for synchronization objects. While I am not an expert in the
+> literature on testing, I am not convinced these contributions are
+> substantial enough to justify publication, especially given the other faults
+> with the paper. This is aggravated by the lack of a dedicated related works
+> section and a detailed account of how the paper compares to the pre-existing
+> works. 
+
+** Can we improve related work?  I'm not aware of related work.  Both do search.
+
+> Moreover, the result in Sec. 6.2, that synchronization
+> linearizability is NP-complete, seems like a trivial result given that
+> synchronization linearizability subsumes standard linearizability, and
+> checking for linearizability is already known to be NP-complete. 
+
+** I would describe it as unsurprising rather than trivial -- say this
+   explicitly.  And it's a result that deserves mention.  But I think the
+   result in Section 6.5 is more surprising.
+
+> At this
+> point, I was also expecting some comparison with static analysis and model
+> checking techniques. The paper, however, only cites quite an old reference
+> (other than a reference to a work by the same author). Even just last year,
+> there has been a wealth of model checking techniques proposed for
+> linearizability. 
+
+** Is this relevant?  The point is that these are techniques that can be used
+   by typical software engineers (or students). 
+
+> Minor Comments:
+> 
+> Pg. 7 L. 21-33: The text here only explains what 'require' is, it does not
+> explain 'guard'. Even if it is just supposed to be some boolean function, it
+> would be best to briefly explain it. 
+
+We've said this.
+
+> 
+> Pg. 8 L. 28-31: 'Datatype' is probably not the correct terminology
+> here. 'Object' is probably the best terminology (and is used in the original
+> linearizability paper and subsequent literature on linearizability, but even
+> 'concurrent data structure' or 'concurrent algorithm' would be better
+> terminology). The use of datatype seems to be repeated throughout the
+> paper. It is surprising that the paper uses datatypes for 'concurrent
+> objects' datatypes, but use 'synchronisation object'. Note that
+> 'synchronisation objects' are just special cases of the objects already
+> called 'concurrent objects' in the literature. So it is unclear to me why
+> the discrepancy in the terminology was introduced in this paper. 
+
+I don't like the word "object" here, as it's too general, and used somewhat
+inconsistently.  We are using the word "datatype" for an object for which
+linearisability is the appropriate correctness criterion.  That would not
+include synchronisation objects.  We use "concurrent datatype" to mean an
+implementation of an abstract datatype that allows concurrency.  *** Either
+come up with a better term, or explain better. 
+
+> Pg. 10 L. 25-32: I would suggest to the authors to revise their definitions
+> so that the property 'linearizable' is not a unary property and instead is
+> phrased as 'linearizable w.r.t. to Spec', as you can only make sense of a
+> concurrent object 'o' being 'linearisable' if you also have its
+> 'Spec'. While stating linearisability as a unary property is common (as was
+> done in the original paper), I would say this is a fault in the
+> presentation. If 'Spec' is not taken into account in the definition
+> (i.e. linearisability is a unary property), then every concurrent object is
+> linearizable (per the classic result that every partial order admits a
+> refinement to a linear order) making linearizability the trivial property
+> 'True'. This is especially an issue here, as the paper admits that Spec may
+> be non-deterministic. 
+
+We've done this, and likewise in the definition of synchronisation
+linearisation. 
+
+
+=======================================================
+ 
+> Reviewer #3: Summary:
+> 
+> The paper presents a way of specifying and testing the correctness of
+> a synchronization object in concurrent programming.
+> 
+> Section 1 explains that a synchronization object defines a point at which
+> each thread waits until the other threads have reached that same point.
+> Once all the threads have reached that point, they can all continue.
+> This notion of synchronization object includes synchronous channels,
+> value exchangers, and barriers.
+> It also includes timed variants, stateful variants, and
+> termination-enforcing variants.
+> 
+> Section 2 introduces synchronisation linearisation and
+> synchronisation progressibility as the key correctness properties of
+> a synchronization object.
+> Part of the idea of synchronisation linearisation is well known from
+> linearisation.
+> Specifically, the behaviour is consistent with that the synchronisation
+> happens atomically at some point, called the synchronization point.
+> The extension is that in synchronisation linearisation,
+> the synchronization point is the _same_ across multiple threads.
+> 
+> Section 3 explains the relationship between linearization and
+> synchronisation linearisation. The idea is that
+> a synchronisation linearisation is a two-step linearization.
+> 
+> Sections 4-5 show how to adapt a method for testing for linearisation to
+> testing for synchronisation linearisation.
+> 
+> Section 6 shows how to test for synchronisation linearisation in a manner that
+> is more direct that in Section 4-5.
+> It considers the worst-case complexity of the problem.
+> 
+> Sections 7-8 describe an implementation of the testing techniques followed by
+> a report on experiments.
+> 
+> 
+> Evaluation:
+> 
+> The paper is easy to read and has many helpful examples and illustrations.
+> Overall, the paper has a main insight about synchronization and it follows up
+> with additional insights about complexity, testing, etc.
+> This paper is exactly the kind of paper that I expect and hope to see
+> in Science of Computer Programming.
+> I do have suggestions for improvement that I hope are doable, see below.
+> 
+> Section 1 does a good job of introducing the rich world of
+> synchronization objects.
+> 
+> In Section 2, the path from linearization to synchronization linearization
+> is clear.
+> 
+> In Section 3, the paper shows how to map
+> any synchronisation linearisation to a two-step linearization.
+> The description of this map (Figure 3) is 20 lines and a little complicated.
+> I got convinced that I would much rather work with
+> synchronisation linearisations that think about two-step linearizations.
+
+That's a fair comment!
+
+*** Say more here. ??? 
+
+> The proofs in Section 3 are given without specifying
+> a semantics mathematically that could formalize Figure 3.
+> The paper is careful about stating the main result Proposition 8 as
+> a proposition, rather than a theorem, presumably because of "no semantics".
+> I have landed on the view that the lack of formal semantics is okay because
+> Section 3 communicates a nontrivial insight clearly.
+> Others can formalize it.
+
+The semantics of Figure 3 is the set of legal histories that the object
+allows.  We've noted that.  Lemma 7 identifies the important properties of
+those histories. 
+
+> I like how the paper draws a straight line from the conceptual constructions in
+> Section 3 to the testing framework in Section 5.
+> 
+> In Section 6, the proof of NP-completeness for a fairly general case is
+> by reduction to a result for linearisation from 1997 by Gibbons and Korach.
+> This is done with a fairly minimal amount of detail that requires the reader to
+> think through some points, which is more work than "it is clear".
+> However, given that the main point is that the NP-completeness is what we
+> would expect (if we know the 1997 paper), I think all this is okay.
+
+Make clearer that it's an unsurprising result.
+
+> Major suggestions:
+> 
+> - Section 2: does the definition of synchronisation progressibility stem from
+> a known idea? The paper compares synchronisation progressibility to
+> lock freedom and concludes that they are quite different.
+> I would like to see more text about the origin story of
+> synchronisation progressibility.
+
+Relate to CSP FD checks (at least, under assumption 1 on page 14). -- related
+work section
+
+But it seems to be the natural condition to me.    
+
+> - P.16: "We show that there is no corresponding
+> linearisation specification Spec, i.e. such that
+> for every concurrent history h, h is synchronisation linearisable
+> with respect to SyncChanSpec if and only if
+> h is linearisable with respect to Spec":
+> add an explanation of why we here need both SyncChanSpec and Spec.
+> Perhaps SyncChanSpec and Spec could be the same thing?
+
+I don't really understand this.  SynChanSpec isn't a linearisation
+specification.  
+
+> I would like to see more text about why proving the stated property is
+> what we need to show why linearisation and synchronisation linearisation
+> are not equivalent in general.
+> I think that a key part of the value of the paper stems from
+> that the stated property is property is true.
+> To me, this means that the paper should have more text about it.
+> One additional idea could be to make it into a theorem.
+
+Consider this. 
+
+> - P.23, Section 3 ends with
+> "We believe that these techniques can be adapted to
+> all the other synchronisation objects we have considered":
+> I suggest that the paper already in Section 1 divides the many examples
+> into two buckets: the ones Section 3 can handle and the others.
+> This way, the reader can have a strong sense already from Section 1 about
+> how far the paper goes and where future work can begin.
+
+I don't really understand this.  Sections 3.1-3.2 deal with binary
+heterogeneous synchronisation objects.  Section 3.3 describes a number of
+variations -- but not all.  The last paragraph was intended to imply that
+dealing with the rest is straightforward.  I don't agree with the "two
+buckets" comment.  Maybe we should work out the details for the remaining
+examples, and make the last paragraph less vague (probably not including the
+details in the paper).
+
+> - In Section 6, I would like to see text about whether we should be surprised
+> that the stateless case can be solved in O(n^2) time.
+> Does something similar happen with linearization?
+> If not, then I think it is a big deal that can help motivate why
+> the concept of a synchronisation linearisation is an interesting one.
+
+Linearization in the stateless case doesn't seem very interesting.  It amounts
+to checking each invocation is correct, in isolation, so is O(n). 
+
+I think we should make the point earlier that linearisation normally
+corresponds to stateful objects. 
+
+I was a bit surprised that it was O(n^2) -- but is that worth saying? 
+
+> - Section 6 divides the overall problem into categories and gives
+> a complexity result for each one. I would like to see Section 6 end with
+> a table that has two columns, one for linearization and one for
+> synchronisation linearisation.
+> In the table, each row can be a category, like "stateful",
+> "stateless", "binary heterogeneous stateless", and
+> "binary homogeneous stateless".
+> I picture each entry in the table as the worst-case time complexity.
+> Such a table will hammer home some similarities and differences between
+> algorithms for linearization and for synchronisation linearisation.
+
+Except if we agree that linearisation isn't very interesting in the stateless
+case, then there's very little comparison to be made. 
+
+
+> - P.37: the paper lists three questions, good ones, indeed.
+> I would prefer that the author follows a particular point in
+> the SIGPLAN Empirical Evaluation Guidelines, namely the first one:
+> avoid "Claims not explicit".
+> This can be done by stating the _answers_ to the questions right away.
+> Like:
+> \item Question1? Answer1.
+> \item Question2? Answer2.
+> \item Question3? Answer3.
+> This enables the reader to know where the next five pages are going and
+> how the author would summarize them.
+> Indeed, I think those five pages in their current form has no such summary
+> and I think the best place to put the summary is with the questions.
+
+Consider this.  
+
+> Minor suggestions:
+> 
+> - P.8, "Our definition has much in common with the well
+> known notion of linearisation":
+> This makes me uncomfortable. Please be explicit about
+> any changes you make to the standard definition of linearisation.
+
+We've added a few words there, and a slightly fuller description at the start
+of Section 2.3.
+
+> - P.8: "is a execution identity" -> "is an execution identity".
+
+Done.
+
+> - Section 3, p.16, l.4: what is "linearisation specification"?
+> This is the first time the paper uses this term.
+
+That was a typo: we meant "linearisation specification *object*", now
+corrected. 
+
+> - P.20: "The two-step linearisation specification object can often be
+> significantly simplified from the template definition above":
+> Please add more text about this and the example of p.20.
+> What is the nature of the simplification? Why is it a simplification?
+> Why does it matter? (Let me add that if it doesn't matter, then remove it,
+> where "it" is p.20, l.40-56.)
+
+We've noted that this is formally a data refinement.  
+
+*** Does it matter? 
+
+
+> - P.24: the title of Section 5 is "Hacking the linearisability framework".
+> The author is clear on that he consider what follows to be a hack, but
+> the text also uses the word "adaptation".
+> I suggest that the title of Section 5 could be
+> "Adapting the linearisability framework", or something similar.
+> I emphasize that this is a minor suggestion.
+> The author can disagree and keep the title of Section 5.
+
+We've done this.
+
+============================
+
+Actions:
+
+Search for related work
+
+Read set linearizability
+
+Read  Nonblocking concurrent data structures with condition synchronization

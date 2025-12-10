@@ -8,7 +8,6 @@ operations.  We allow stateful synchronisation objects (which includes
 stateless objects as degenerate cases).  We generalise later in this
 section.
 
-
 We assume that the synchronisation object has two operations, each of which
 has a single parameter, with signatures as follows.
 %
@@ -91,10 +90,10 @@ class Spec{
 %
 The object has some local state, which persists between executions.  The
 |require| clause of |sync| specifies a precondition for the synchronisation to
-take place.  The values |res|\s1 and |res|\s2 represent the results that
-should be returned by the corresponding executions of~|op|\s1 and~|op|\s2,
-respectively.  The function |update| describes how the local state should be
-updated. 
+take place: that precondition is described by the boolean function~|guard|.
+The values |res|\s1 and |res|\s2 represent the results that should be returned
+by the corresponding executions of~|op|\s1 and~|op|\s2, respectively.  The
+function |update| describes how the local state should be updated.
 %%  We assume the specification object is deterministic: |f|$_1$, |f|$_2$
 %% and |update| are functions. 
 
@@ -163,9 +162,11 @@ each thread.
 We formalise the allowable behaviours captured by a particular synchronisation
 specification object.  Our definition has much in common with the well known
 notion of \emph{linearisation}~\cite{herlihy-wing}, used for specifying
-concurrent datatypes; so we start by reviewing that notion.  There are a
-number of equivalent ways of defining linearisation: we choose a way that will
-be convenient subsequently.
+concurrent datatypes: with linearisation, operation invocations appear to
+happen in a one-at-a-time order; for a synchronisation object, we want to
+capture that synchronisations appear to happen in a one-at-a-time order.  We
+start by reviewing linearisation.  There are a number of equivalent ways of
+defining it: we choose a way that will be convenient subsequently.
 
 A \emph{concurrent history} of an object~$o$ (either a concurrent datatype or
 a synchronisation object) records the calls and returns of operations on~$o$.
@@ -178,7 +179,7 @@ It is a sequence of events of the following forms:
   giving result~$y$.
 \end{itemize}
 %
-Here $i$ is a \emph{execution identity}, used to identify a particular
+Here $i$ is an \emph{execution identity}, used to identify a particular
 execution, and to link the $\call$ and corresponding~$\return$.  In order to
 be well formed, each execution identity must appear on at most one $\call$
 event and at most one $\return$ event; and for each event $\return.op^i\::y$,
@@ -231,11 +232,10 @@ This history is illustrated by the timeline in Figure~\ref{fig:lin-timeline}.
 
 %%%%%
 
-Linearisation is specified with respect to a specification object~$Spec$,
-with the same operations (and signatures) as the concurrent object in
-question. 
-A history of the specification object is a sequence of events of
-the form:
+Linearisation is specified with respect to a linearisation specification
+object~$Spec$, with the same operations (and signatures) as the concurrent
+object in question.  A history of the specification object is a sequence of
+events of the form:
 %
 \begin{itemize}
 \item $op^i(x)\::y$ representing an execution of operation~$op$ with
@@ -264,8 +264,8 @@ This history is illustrated by the ``$\cross$''s in
 Figure~\ref{fig:lin-timeline}.
 
 Let $h$ be a complete concurrent history, and let $h_s$ be a legal history of
-the specification object.  We say that $h$ and~$h_s$ \emph{correspond} if they
-contain the same executions, i.e., for each $\call.op^i(x)$ and
+the specification object~$Spec$.  We say that $h$ and~$h_s$ \emph{correspond}
+if they contain the same executions, i.e., for each $\call.op^i(x)$ and
 $\return.op^i\::y$ in $h$,\, $h_s$ contains $op^i(x)\::y$, and vice versa.  We
 say that $h_s$ is a \emph{linearisation} of~$h$ if there is some way of
 interleaving the two histories (i.e.~creating a history containing the events
@@ -273,8 +273,8 @@ of~$h$ and~$h_s$, preserving the order of events) such that each $op^i(x)\::y$
 occurs between $\call.op^i(x)$ and $\return.op^i\::y$.  Informally, this
 indicates that the executions of~$h$ appeared to take place in the order
 described by~$h_s$, and that this order is legal according to the
-specification object.
-%% We say that $h$ is \emph{linearisable} in this case.
+specification object.  We say that $h$ is \emph{linearisable} with respect
+to~$Spec$ in this case.
 
 Continuing the running example, $h_s$ is a linearisation of~$h$, as evidenced
 by the interleaving
@@ -296,26 +296,35 @@ subsequence of~$h$ formed by removing all $\call$ events corresponding to
 pending executions.
 
 We say that a (not necessarily complete) concurrent history~$h$ is
-\emph{linearisable} if there is an extension~$h'$ of~$h$ such that
-$complete(h')$ is linearisable.  Informally, the $\return$ events that are
-in~$h'$ but not~$h$ are for operation executions that have had an effect, but
-not returned in~$h$; the $\call$ events removed in $complete(h')$ are for
-operation executions that have not yet had an effect.
+\emph{linearisable} with respect to specification object~$Spec$ if there is an
+extension~$h'$ of~$h$ such that $complete(h')$ is linearisable with respect
+to~$Spec$.  Informally, the $\return$ events that are in~$h'$ but not~$h$ are
+for operation executions that have had an effect, but not returned in~$h$; the
+$\call$ events removed in $complete(h')$ are for operation executions that
+have not yet had an effect.
 
-We say that a concurrent object is
-linearisable if all of its histories are linearisable. 
+We say that a concurrent object is linearisable with respect to~$Spec$ if each
+of its histories is linearisable with respect to~$Spec$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Synchronisation linearisation}
 \label{sec:sync-lin}
 
-We now adapt the definition of linearisation to synchronisations.  For the
-moment, we consider only binary synchronisations.  We
-consider a concurrent history of the synchronisation object~$Sync$.  The
-history contains $\call$ and $\return$ events, as in the previous subsection;
-in the case of binary synchronisations, the events correspond to the
-operations~$\op_1$ and~$\op_2$.
+We now adapt the definition of linearisation to synchronisations.  With
+standard linearisation, operations appear to take place in a one-at-a-time
+order, each between the time at which the operation is invoked and when it
+returns.  With synchronisation linearisation, synchronisations appear to take
+place in a one-at-a-time order, with each synchronisation between the time
+that each of the operations is invoked and when it receives.  In each case,
+the order is one that satisfies the requirements captured by the specification
+object.  
+
+For the moment, we consider only binary synchronisations.  We consider a
+concurrent history of the synchronisation object~$Sync$.  The history contains
+$\call$ and $\return$ events, as in the previous subsection; in the case of
+binary synchronisations, the events correspond to the operations~$\op_1$
+and~$\op_2$.
 
 For example, the following is a complete history of the synchronous channel
 from earlier, and is illustrated in Figure~\ref{fig:sync-timeline}:
@@ -413,9 +422,11 @@ $\call.\op_1^{i_1}(x_1)$ and $\return.\op_1^{i_1}\::y_1$, and between
 $\call.\op_2^{i_2}(x_2)$ and $\return.\op_2^{i_2}\::y_2$.
 \end{definition}
 %
-% We say that $h$ is \emph{synchronisation linearisable} in this case.
-In~the running example, $h_s$ is a synchronisation linearisation of~$h$,
-as shown by the interleaving in Figure~\ref{fig:sync-timeline}.
+%% We say that $h$ is \emph{synchronisation linearisable} with respect to~$Spec$
+%% in this case.  
+In~the running example, $h_s$ is a synchronisation
+linearisation of~$h$, as shown by the interleaving in
+Figure~\ref{fig:sync-timeline}.
 
 \begin{definition}
 \label{def:sync-lin-objects}
@@ -424,9 +435,10 @@ legal history~$h_s$ of $Spec$, we say that $h_s$ is a \emph{synchronisation
   linearisation} of~$h$ if there is an extension~$h'$ of~$h$ such that $h_s$
 is a synchronisation linearisation of $complete(h')$.
 %
-We say that $h$ is synchronisation-linearisable in this case.  We say that a
-synchronisation object is synchronisation-linearisable if all of its histories
-are synchronisation-linearisable.
+We say that $h$ is synchronisation-linearisable with respect to~$Spec$ in this
+case.  We say that a synchronisation object is synchronisation-linearisable
+with respect to~$Spec$ if each of its histories is
+synchronisation-linearisable with respect to~$Spec$.
 \end{definition}
 
 Informally, the $\return$ events that are

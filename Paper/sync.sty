@@ -1,0 +1,63 @@
+%%% Maths macros
+
+\def\align{\begin{array}[t]{@{}l@{}}}
+\def\endalign{\end{array}}
+
+\def\seq#1{\langle #1 \rangle}
+\def\set#1{\{ #1 \}}
+\def\union{\cup}
+\def\cat{\mathbin{\widehat{\ }}}
+\def\s#1{$_{#1}$}
+\def\::{\mathord{\hspace{0.1mm}:\hspace{0.1mm}}}
+\def\range#1#2{[#1 \mathbin{..} #2)}
+\def\cross{\times}
+\def\implies{\Rightarrow}
+\def\midd{\;\mid\;}
+
+%%% Operation names, etc
+
+\def\call{\mathsf{call}}
+\def\return{\mathsf{return}}
+\def\op{{\sm{op}}}
+\def\sync{\sm{sync}}
+\def\send{\sm{send}}
+\def\receive{\sm{receive}}
+\def\sendWithin{\sm{sendWithin}}
+\def\receiveWithin{\sm{receiveWithin}}
+
+% tikz stuff
+
+\def\X{node {$\times$}}
+% Bullet at (#1,#2) with text #3 below
+\def\bulletAt(#1,#2)#3{%
+  \draw(#1,#2) node {$\bullet$}; \draw(#1,#2-0.4) node{\footnotesize #3};
+}
+% Cross at (#1,#2) with text #3 below
+\def\crossAt(#1,#2)#3{%
+  \draw(#1,#2) \X; \draw(#1,#2-0.4) node{\footnotesize #3};
+}
+%
+\def\loopAbove(#1)#2{%
+  \draw[->] (#1) .. controls ++(-0.4,+1.8) and ++(0.4,1.8) .. 
+  node[above] {#2} (#1);}
+\def\loopRight(#1)#2{%
+  \draw[->] (#1) .. controls ++(+1.5,-0.4) and ++(1.5,0.4) .. 
+  node[right] {#2} (#1);}
+%% \pgfplotscreateplotcyclelist{my mark list}{
+%% {blue,mark=*},
+%% {red,dashed, mark=square*},
+%% {brown,densely dotted,mark=triangle*},
+%% {dashdotted,mark=star}
+%% }
+
+\pgfplotscreateplotcyclelist{my mark list}{
+blue,every mark/.append style={solid,fill=\pgfplotsmarklistfill},mark=*\\
+red,every mark/.append style={dashed,fill=\pgfplotsmarklistfill},mark=square*\\
+brown!60!black,every mark/.append style={dotted,fill=\pgfplotsmarklistfill},mark=triangle*\\
+black,every mark/.append style={solid},mark=star\\
+}
+
+%%% Strict same-page environment
+\newenvironment{mysamepage}
+  {\par\nobreak\vfil\penalty0\vfilneg\vtop\bgroup}
+  {\par\xdef\tpd{\the\prevdepth}\egroup \prevdepth=\tpd}

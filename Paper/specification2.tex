@@ -3,7 +3,12 @@
 
 Above we considered heterogeneous binary synchronisations,
 i.e.~synchronisations between \emph{two} executions of \emph{different}
-operations, with a single mode of synchronisation.
+operations, with a single mode of synchronisation.  In this section, we
+generalise.  There are two aspects of this: defining the effect of a
+specification, via a synchronisation specification object; and defining which
+operations of the concrete synchronisation object can synchronise together,
+and relating them to the corresponding operation of the synchronisation
+specification object.  
 
 It is straightforward to generalise to synchronisations between an arbitrary
 number of operation executions, some of which might be executions of the same
@@ -24,34 +29,37 @@ Introduction, the corresponding specification object would be
 % [A](n: Int, f: (A,A) => A)
 \begin{scala}
 class CombiningBarrierSpec{
-  def sync(x£\s1£: A, ..., x£\s{\ss n}£: A) = {
+  def sync((id£\s1£,x£\s1£): (Int,A) ..., (id£\s{\ss n}£,x£\s{\ss n}£): (Int,A)) = {
     val result = f(x£\s1£, f(x£\s2£,...f(x£\s{{\ss{n}}-1}£, x£\s{\ss n}£)...)); (result,...,result)
   }
 }
 \end{scala}
 
-A history of the specification object will have corresponding events
-$\sm{sync}^{i_1, \ldots, i_k}(x_1, \ldots, x_k)\:: (y_1, \ldots, y_k)$.
-%
-The definition of synchronisation linearisation is an obvious adaptation of
-the earlier definition: in the interleaving of the complete history of the
-synchronisation history and the history of the specification object, each
-$\sm{sync}^{i_1, \ldots, i_k}(x_1, \ldots, x_k)\:: (y_1, \ldots, y_k)$ occurs
-between $\call.\op_1^{i_j}(x_j)$ and $\return.\op_j^{i_j}\::y_j$ for each $j =
-1, \ldots, k$.
-%% The definition of synchronisation-linearisability follows in the obvious
-%% way.
+We define the relationship between operations of the synchronisation object
+and of the synchronisation specification object via a \emph{synchronisation
+  relation}: this relates a sequence of operations of the synchronisation
+object to the corresponding operation of the synchronisation specification
+object.  For the combining barrier, the relation is
+\[
+\begin{align}
+\set{ ( 
+  \seq{ \sm{sync}((id_1,x_1)), \ldots, \sm{sync}((id_{\ss n},x_{\ss n})) },\;
+  \sm{sync}((id_1,x_1), \ldots, (id_{\ss n},x_{\ss n})) 
+) \;\mid\null \\
+\qquad id_1, \ldots id_{\ss n} \in \sm{Int}, x_1,\ldots,x_{\ss n} \in \sm A
+}.
+\end{align}
+\]
+(The former |sync|s represent the operation in |CombiningBarrier|,
+and the latter |sync| represents the operation of the same name in
+|Combining|\-|Barrier|\-|Spec|.) 
 
-Note that if several of the $\op_j$ are the same operation, there is a choice
-as to the order in which their parameters are passed to |sync|.  (However, in
-the case of the combining barrier, if |f| is associative and commutative, the
-order makes no difference.)
 
-It is also straightforward to adapt the definitions to deal with multiple
-modes of synchronisation: the specification object has a different operation
-for each mode.  For example, recall the |TimeoutChannel| from the
-Introduction, where sends and receives may timeout and return without
-synchronisation.  The corresponding specification object would be:
+For a synchronisation object with multiple modes of synchronisation, the
+synchronisation specification object has a different operation for each mode.
+For example, recall the |TimeoutChannel| from the Introduction, where sends
+and receives may timeout and return without synchronisation.  The
+corresponding specification object is:
 %
 \begin{scala}
 class TimeoutChannelSpec[A]{
@@ -62,12 +70,17 @@ class TimeoutChannelSpec[A]{
 \end{scala}
 %
 The operation $\sm{sync}_s$ corresponds to a send returning without
-synchronising; likewise $\sm{sync}_r$ corresponds to a receive returning
-without synchronising; and $\sm{sync}_{s,r}$ corresponds to a send and receive
-synchronising.  The formal definition of synchronisation linearisation is the
-obvious adaptation of the earlier definition: in particular |sync|\s{s} must
-occur between the call and return of a send that doesn't synchronise, and
-likewise for |sync|\s{r}.
+synchronising $\sm{sync}_r$ corresponds to a receive returning
+without synchronising, and $\sm{sync}_{s,r}$ corresponds to a send and receive
+synchronising, as captured by the synchronisation relation:
+\[
+\begin{align}
+\set{ ( \seq{ \sm{send}(x) },\, \sm{sync}_s(x) ) \midd x \in \sm A } \union{} 
+\set{ ( \seq{ \sm{receive}(()) },\, \sm{sync}_r(()) ) } \union{}  \\
+\set{ ( \seq{ \sm{send}(x), \sm{receive}(()) },\, \sm{sync}_{s,r}(x,()) ) \midd
+      x \in \sm A }.
+\end{align}
+\]
 
 As another example, the following is a specification object for a channel with
 a close operation.
@@ -86,7 +99,75 @@ class ClosableChannelSpec[A]{
 %
 A send and receive can synchronise corresponding to |sync|, but only before
 the channel is closed; or each may fail once the channel is closed,
-corresponding to |sendFail| and |receiveFail|. 
+corresponding to |sendFail| and |receiveFail|.  The synchronisation relation is
+\[
+\begin{align}
+\set{ ( \seq{\sm{close}(())}, \sm{close}(()) ) } \union
+\set{ ( \seq{ \sm{send}(x) },\, \sm{sendFail}(x) ) 
+  \midd x \in \sm A } \union{} \\
+\set{ ( \seq{ \sm{receive}(()) },\, \sm{receiveFail}(()) ) } \union 
+\set{ ( \seq{ \sm{send}(x), \sm{receive}(()) },\, \sm{sync}(x,()) ) \midd
+      x \in \sm A }.
+\end{align}
+\]
+
+A history of the specification object will have corresponding events
+$\sm{sync}^{i_1, \ldots, i_k}(x_1, \ldots, x_k)\:: (y_1, \ldots, y_k)$.
+%
+The definition of synchronisation linearisation is an obvious adaptation of
+the earlier definition: in the interleaving of the complete history of the
+synchronisation history and the history of the specification object, each
+$\sm{sync}^{i_1, \ldots, i_k}(x_1, \ldots, x_k)\:: (y_1, \ldots, y_k)$ occurs
+between $\call.\op_1^{i_j}(x_j)$ and $\return.\op_j^{i_j}\::y_j$ for each $j =
+1, \ldots, k$.
+%% The definition of synchronisation-linearisability follows in the obvious
+%% way.
+
+Note that if several of the $\op_j$ are the same operation, there is a choice
+as to the order in which their parameters are passed to |sync|.  (However, in
+the case of the combining barrier, if |f| is associative and commutative, the
+order makes no difference.)
+
+%% It is also straightforward to adapt the definitions to deal with multiple
+%% modes of synchronisation: the specification object has a different operation
+%% for each mode.  For example, recall the |TimeoutChannel| from the
+%% Introduction, where sends and receives may timeout and return without
+%% synchronisation.  The corresponding specification object would be:
+%% %
+%% \begin{scala}
+%% class TimeoutChannelSpec[A]{
+%%   def sync£\s s£(x: A) = false       // £send£ times out.
+%%   def sync£\s r£(u: Unit) = None  // £receive£ times out.
+%%   def sync£\s{s,r}£(x: A, u: Unit) = (true, Some(x))  // Synchronisation.
+%% }
+%% \end{scala}
+%% %
+%% The operation $\sm{sync}_s$ corresponds to a send returning without
+%% synchronising; likewise $\sm{sync}_r$ corresponds to a receive returning
+%% without synchronising; and $\sm{sync}_{s,r}$ corresponds to a send and receive
+%% synchronising.  The formal definition of synchronisation linearisation is the
+%% obvious adaptation of the earlier definition: in particular |sync|\s{s} must
+%% occur between the call and return of a send that doesn't synchronise, and
+%% likewise for |sync|\s{r}.
+
+%% As another example, the following is a specification object for a channel with
+%% a close operation.
+%% %
+%% \begin{mysamepage}
+%% \begin{scala}
+%% class ClosableChannelSpec[A]{
+%%   private var isClosed = false  // Is the channel closed? 
+%%   def close(u: Unit) = { isClosed = true; () }
+%%   def sync(x: A, u: Unit) = { require(!isClosed); ((), x) }
+%%   def sendFail(x: A) = { require(isClosed); throw new Closed }
+%%   def receiveFail(u: Unit) = { require(isClosed); throw new Closed }
+%% }
+%% \end{scala}
+%% \end{mysamepage}
+%% %
+%% A send and receive can synchronise corresponding to |sync|, but only before
+%% the channel is closed; or each may fail once the channel is closed,
+%% corresponding to |sendFail| and |receiveFail|. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

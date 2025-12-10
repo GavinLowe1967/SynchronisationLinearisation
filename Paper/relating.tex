@@ -19,12 +19,13 @@ equivalent in general.
 %% history~$h$,\, $h$ is synchronisation linearisable with respect to |SyncSpec|
 %% if and only if $h$ is linearisable with respect to |Spec|.
 %
-For example, consider the  synchronous channel from Section~\ref{sec:spec},
+For example, consider the synchronous channel from Section~\ref{sec:spec},
 where synchronisation linearisation is captured by |SyncChanSpec|.  We show
-that there is no corresponding linearisation specification |Spec|, i.e.~such
-that for every concurrent history~$h$,\, $h$ is synchronisation linearisable
-with respect to |SyncChanSpec| if and only if $h$ is linearisable with respect
-to |Spec|.  Suppose (for a contradiction) otherwise.  Consider the history
+that there is no corresponding linearisation specification object |Spec|,
+i.e.~such that for every concurrent history~$h$,\, $h$ is synchronisation
+linearisable with respect to |SyncChanSpec| if and only if $h$ is linearisable
+with respect to |Spec|.  Suppose (for a contradiction) otherwise.  Consider
+the history
 \begin{eqnarray*}
 h & = & \seq{ 
   \call.\send^1(3),\, \call.\receive^2(),\, 
@@ -238,14 +239,14 @@ object TwoStepLinSpec{
 %%   node[right] {$\overline\op_1(\sm t)$} (zero);
 %
 \draw (0,-4.5) node[draw] (one) {$\sm{One}(\sm t, \sm{x}_1)$};
-\draw[->] (zero) .. controls ++(0.3,-2.2) .. 
+\draw[->] (zero) .. controls ++(0.3,-2.25) .. 
   node[right] {%
     $\begin{array}{@{}c@{}}
     \sm{op}_1(\sm t, \sm{x}_1) \\ {[\sm{returns(t)} = \sm{None}]}
     \end{array}$} 
   (one); 
 %
-\draw[->] (one) .. controls ++(-0.3,2.2) .. 
+\draw[->] (one) .. controls ++(-0.3,2.25) .. 
   node[left] {$\sm{op}_2(\sm x_2)$} (zero);
 \end{tikzpicture}%
 \end{minipage}%
@@ -266,10 +267,14 @@ it writes the value for the corresponding $\overline\op_1$ into |returns|.
 
 %%%%%
 
-
-The following lemma identifies important properties of
-|Two|\-|Step|\-|LinSpec|.  It follows immediately from the
-definition.
+Formally, the object |TwoStepLinSpec| defines a set of legal histories, using
+events as in the previous subsection.  In particular, in each legal history,
+the precondition of each operation is satisfied, so the history indeed
+corresponds to the above automaton.
+%
+The following lemma identifies important properties of those histories.
+%% |Two|\-|Step|\-|LinSpec|.  
+It follows immediately from the definition.
 %
 \begin{lemma}
 \label{lem:TwoStepLinSpec-histories}
@@ -385,20 +390,22 @@ two-step-linearisable.
 
 The two-step linearisation specification object can often be significantly
 simplified from the template definition above.  Here is such a specification
-object for a synchronous channel.
+object for a synchronous channel.  (Formally, this is a data refinement,
+replacing the variable |state| with the variables |stateIx|, |threadID| and
+|value|, and replacing the array |returns| by the array |canReturn|.)
 %
 \begin{scala}
 object SyncChanTwoStepLinSpec{
-  private var state = 0            // Takes values 0, 1, cyclically. 
-  private var threadID = -1     // Current sender's thread ID when £state£ = 1.
-  private var value: A = _       // The current value being sent when £state£ = 1.
+  private var stateIx = 0            // Takes values 0, 1, cyclically. 
+  private var threadID = -1     // Current sender's thread ID when £stateIx£ = 1.
+  private var value: A = _       // The current value being sent when £stateIx£ = 1.
   private val canReturn =        // Which senders can return?
     new Array[Boolean](NumThreads) 
   def send(t: ThreadID, x: A): Unit = { 
-    require(state == 0 && !canReturn(t)); value = x; threadID = t; state = 1 }
+    require(stateIx == 0 && !canReturn(t)); value = x; threadID = t; stateIx = 1 }
   def receive(u: Unit): A = { 
-    require(state == 1); canReturn(threadID) = true; state = 0; value }
+    require(stateIx == 1); canReturn(threadID) = true; stateIx = 0; value }
   def £$\overline{\send}$£(t: ThreadID): Unit = { 
-    require(state == 0 && canReturn(t)); canReturn(t) = false }
+    require(stateIx == 0 && canReturn(t)); canReturn(t) = false }
 }
 \end{scala}
