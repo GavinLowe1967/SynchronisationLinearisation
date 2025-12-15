@@ -291,8 +291,8 @@ synchronisation object, the two-step linearisation specification object
 includes operations $\op_i$ and $\overline{\op}_i$.  For each maplet
 $\seq{\op_{i_i}(x_1), \ldots, \op_{i_a}(x_a)} \mapsto \sync(x_1,\ldots,x_a)$
 in the synchronisation abstraction function, the two-step linearisation
-specification object performs operations  as follows:
-(1)~$\op_{i_i}(x_1), \ldots, \op_{i_a}(x_a)$, in that order; (2) some
-$\overline\op_{i_i}$, which calls \sync\ on the synchronisation linearisation
-object and stores the results for other threads; (3)~the remaining
-$\overline\op_{i_j}$, in some order, which retrieve their results.
+specification object performs operations as follows: (1)~$\op_{i_i}(x_1),
+\ldots, \op_{i_a}(x_a)$, in that order; (2)~$\overline\op_{i_i}$, for
+some~$i$, which calls \sync\ on the synchronisation linearisation object and
+stores the results for other threads; (3)~the remaining $\overline\op_{i_j}$,
+in some order, which retrieve their results.

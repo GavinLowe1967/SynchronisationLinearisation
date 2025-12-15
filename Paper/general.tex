@@ -48,10 +48,10 @@ following order:
   their results.
 \end{enumerate}
 %
-No other operations will be linearised between the start of stage~1 until
+No other operations are be linearised between the start of stage~1 until
 after stage~2; but other operations may be linearised during stage~3.
 
-During stage~1, the two-step linearisabilty tester will record the prefix of
+During stage~1, the two-step linearisabilty tester  records the prefix of
 $\seq{\op_{i_i}(x_1), \ldots, \op_{i_a}(x_a)}$ performed so far.  This is done
 by defining a case class |Op|$_i$ corresponding to each such
 operation~|op|$_i$, as at the top of Figure~\ref{fig:schema}.
@@ -69,18 +69,18 @@ opsFor(state) &  = & \seq{\op_j(x_j) \midd \sm{Op}_j(t_j,x_j) \leftarrow state}.
 \end{eqnarray*}
 
 A schema (using pseudo-Scala) for the general construction is in
-Figure~\ref{fig:schema}.  The variable~|state| stores the sequence of |op|$_i$
-linearised so far: this satisfies an invariant that it is a prefix of an
-element of $\dom \A$.  For each thread~|t|,\, |returns(t)| stores the value to
-be returned by~|t| as part of its most recent uncompleted synchronisation, if
-any.
+Figure~\ref{fig:schema}.  The variable~|state| records the sequence of
+|op|$_i$ linearised so far: this satisfies an invariant that it is a prefix of
+an element of $\dom \A$.  For each thread~|t|,\, |returns(t)| stores the value
+to be returned by~|t| as part of its most recent uncompleted synchronisation,
+if any.
 
 %%%%%
 
 \begin{figure}
 \begin{scala}
 trait Op
-case class Op_i(t: ThreadID, x: A_i) //  for £$i = 1,...,n$.£
+case class Op£$_i$£(t: ThreadID, x: A£$_i$£) //  for £$i = 1,...,n$.£
 type State = List[Op]
 
 class TwoStepLinSpec{

@@ -398,19 +398,33 @@ general of a specification object with state.
 \begin{definition}
 Let $h$ be a complete history of the synchronisation object~$Sync$.  We say
 that a legal history~$h_s$ of~$Spec$ \emph{corresponds} to~$h$ if their
-identities agree; more precisely:
-%
+events agree; more precisely:
 \begin{itemize}
-\item For each |sync| event with identity~$(i_1,i_2)$ in~$h_s$,\, $h$ contains
-  an execution of~$\op_1$ with identity~$i_1$ and an execution of~$\op_2$ with
-  identity~$i_2$;
+\item For each  $\sync^{i_1, i_2}(x_1, x_2)\:: (y_1, y_2)$ in~$h_s$,\,
+  $h$ contains events $\call.\op_1^{i_1}(x_1)$,\,
+  $\return.\op_1^{i_1}\::y_1$\,, $\call.\op_2^{i_2}(x_2)$, and
+  $\return.\op_2^{i_2}\::y_2$.
 
-\item For each execution of~$\op_1$ with identity~$i_1$ in~$h$,\, $h_s$
-  contains a |sync| event with identity~$(i_1,i_2)$ for some~$i_2$;
+\item For each $\call.\op_1^{i_1}(x_1)$ and $\return.\op_1^{i_1}\::y_1$
+  in~$h$,\, $h_s$ contains an event $\sync^{i_1, i_2}(x_1, x_2)\:: (y_1, y_2)$
+  for some~$i_2$, $x_2$, and~$y_2$.
 
-\item For each execution of~$\op_2$ with identity~$i_2$ in~$h$,\, $h_s$
-  contains a |sync| event with identity~$(i_1,i_2)$ for some~$i_1$.
+\item For each $\call.\op_2^{i_2}(x_2)$ and $\return.\op_2^{i_2}\::y_2$
+  in~$h$,\, $h_s$ contains an event $\sync^{i_1, i_2}(x_1, x_2)\:: (y_1, y_2)$
+  for some~$i_1$, $x_1$, and~$y_1$.
 \end{itemize}
+%% %
+%% \begin{itemize}
+%% \item For each |sync| event with identity~$(i_1,i_2)$ in~$h_s$,\, $h$ contains
+%%   an execution of~$\op_1$ with identity~$i_1$ and an execution of~$\op_2$ with
+%%   identity~$i_2$;
+
+%% \item For each execution of~$\op_1$ with identity~$i_1$ in~$h$,\, $h_s$
+%%   contains a |sync| event with identity~$(i_1,i_2)$ for some~$i_2$;
+
+%% \item For each execution of~$\op_2$ with identity~$i_2$ in~$h$,\, $h_s$
+%%   contains a |sync| event with identity~$(i_1,i_2)$ for some~$i_1$.
+%% \end{itemize}
 \end{definition}
 
 \begin{definition}

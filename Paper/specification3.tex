@@ -2,8 +2,10 @@
 \subsection{Specifying liveness}
 \label{sec:progress}
 
-We now consider a liveness condition for synchronisation objects, which builds
-on synchronisation linearisability.  
+We now consider a liveness condition for synchronisation objects.  We assume
+that the synchronisation object in question satisfies synchronisation
+linearisability.
+
 %% We assume that each pending operation execution is scheduled infinitely often,
 %% unless it is blocked (for example, trying to obtain a lock); in other words,
 %% the scheduler is fair to each execution.  Under this assumption, our liveness
@@ -111,7 +113,15 @@ happen, we would expect those $\return$ events to eventually happen; if they
 do not, that is a failure of liveness.  Likewise, events
 $\return.\send^2\::()$ and $\return.\receive^3\::5$ are anticipated
 following~$h_s^2$.  Hence some return event is anticipated after~$h$
-(regardless of the synchronisation linearisation).
+(regardless of the synchronisation linearisation).  
+
+As another example, after the history 
+\begin{eqnarray*}
+h' & =  & \seq{\call.\send^1(4),
+  \call.\receive^2(()), \call.\receive^3(()), \return.\send^1\::() },
+\end{eqnarray*}
+some return event is anticipated, either $\return.\receive^2\::4$ or
+$\return.\receive^3\::4$, depending on which synchronisation happened. 
 
 We consider the semantics of the system to be described by a state machine.
 Some transitions in the state machine correspond to $\call$ and $\return$
@@ -132,10 +142,10 @@ $r$ will eventually happen.
 
 \begin{definition}
 We say that a system \emph{can fail to progress} after history~$h$ if some
-return event~$r$ is anticipated after~$h$, but $h$ can lead to a state where
-$r$ is refused.
+return event is anticipated after~$h$, but $h$ can lead to a state where
+every return event is refused.
 
-We say that a history is \emph{synchronisation-progressible} if, for very
+We say that a system is \emph{synchronisation-progressible} if, for every
 history~$h$, it cannot fail to progress after~$h$.
 \end{definition}
 
@@ -164,12 +174,28 @@ history~$h$, it cannot fail to progress after~$h$.
 %% progressible with respect to~$h_s$.
 %% \end{definition}
 
-For the earlier history~$h$, synchronisation progressibility requires that
-either: (1)~$\return.\send^1\::()$ and $\return.\receive^3\::4$ cannot be
-refused (corresponding to~$h_s^1$); or (2)~$\return.\send^2\::()$ and
-$\return.\receive^3\::5$ cannot be refused (corresponding to~$h_s^2$).  One of
-the synchronisations should happen, and then the relevant operations should be
-able to return in some order.
+For the earlier history~$h$, synchronisation progressibility requires that not
+all return events are refused, so necessarily one of $\return.\send^1\::()$,\,
+$\return.\receive^3\::4$,\, $\return.\send^2\::()$, or
+$\return.\receive^3\::5$ is not refused.
+%% either: (1)~$\return.\send^1\::()$ and $\return.\receive^3\::4$ cannot be
+%% refused (corresponding to~$h_s^1$); or (2)~$\return.\send^2\::()$ and
+%% $\return.\receive^3\::5$ cannot be refused (corresponding to~$h_s^2$).  
+One of the synchronisations should happen, and then one of the relevant
+operations should be able to return.  Subsequently, synchronisation
+progressibility requires that the other operation involved in the
+synchronisation is also able to return.
+
+%% NOTE.  Assume that a $\return$ event does not change the state of the
+%% object.  Then, if synchronisation progressibility is satisfied, then before
+%% the first $\return$ event, the other synchronising thread could have
+%% performed its final steps to the point where it was able to return.  Hence
+%% \emph{neither} $\return$ event is refused.  This matches the CSP
+%% definition. 
+
+For the earlier history~$h'$, synchronisation progressibility requires that
+one of the anticipated return events is not refused (although the other such
+event will be refused).
 
 On the other hand, for the history $\seq{\call.\send^1(4)}$, the only
 maximal synchronisation linearisation is $\seq{}$, for which there are no
@@ -266,3 +292,49 @@ argument holds for a spin lock, but requires assumption~\ref{assump:fair}.
 %% primitives, such as locks and semaphores, to be unfair: for example, a thread
 %% that is repeatedly trying to obtain a lock may repeatedly fail as other
 %% threads obtain the lock.
+
+
+%%%%% \subsubsection*{Locality}
+
+We now show that synchronisation progressibility satisfies locality.
+Consider a collection~$\O$ of objects, and associated synchronisation
+specification object~$Spec$, as in Section~\ref{sec:locality}.
+%
+\begin{lemma}
+\label{lem:progress-locality}
+Suppose that in~$\O$, some return event is anticipated after history~$h$.
+Then in some $o \in \O$, some return event is anticipated after history~$h
+\restrict o$.  
+\end{lemma}
+%
+\begin{proof}
+We argue by contradiction.  Suppose that for each $o \in \O$, it is not the
+case that some return event is anticipated after $h \restrict o$.  Then, for
+each~$o$, there is some maximum synchronisation~$h_s^o$ of~$h \restrict o$
+such that no return event of~$o$ is anticipated following~$h_s^o$.  We
+interleave the $h_s^o$, for $o \in \O$, to build a history~$h_s$ of~$Spec$, as
+in Lemma~\ref{lem:local}.  Then $h_s$ is a maximum synchronisation of~$h$.
+But no return event is anticipated following~$h_s$ (since none is anticipated
+for any $o \in \O$).  This gives a contradiction.
+\end{proof}
+
+%%%%%
+
+\begin{prop}
+A system $\O$ of synchronisation objects is synchronisation-progressible if
+each object $o \in \O$ is synchronisation-progressible.
+\end{prop}
+
+\begin{proof}
+The left-to-right direction is trivial. 
+
+For the right-to-left direction, suppose each $o \in \O$ is
+synchronisation-progressible.  Suppose, for a contradiction, $\O$ can fail to
+progress after some history~$h$.  Then some return event is anticipated
+after~$h$, but $h$ can lead to a state~$s$ where every return event is
+refused.  But then Lemma~\ref{lem:progress-locality} implies that for some $o
+\in \O$, some return event is anticipated after history $h \restrict o$.
+However, every return event of~$o$ is refused in its local state corresponding
+to~$s$.  This gives a contradiction.
+\end{proof}
+

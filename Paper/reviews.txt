@@ -1,14 +1,24 @@
 MONDAY:
 
-Check locality theorem and tidy up
+Check locality theorem and tidy up (Sec 2.5)
 
-Check progress section
+Check progress section (2.6)
 
 Locality result for progress.
 
 "Compatible"
 
 General result for testing, end of Section 3.
+
+===============
+
+Main changes:
+
+TO DO: set linearisability
+
+Locality
+
+Improved definition of progressibility.
 
 ===============
 
@@ -295,7 +305,8 @@ operation on the synchronisation specification object.
 > theory of linearizability in not mentioning whether the criterion satisfies
 > locality. 
 
-** Add this.
+We have now included a proof of locality for synchronisation linearisation
+(Section 2.5), and for synchronisation progressibility (Section 2.6). 
 
 > Now, I believe that a formal treatment of the fully general criterion
 > informally suggested in Sec. 2.4 will be weaker or, most likely, equivalent
