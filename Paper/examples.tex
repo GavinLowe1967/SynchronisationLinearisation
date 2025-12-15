@@ -82,13 +82,33 @@ bugs.  We therefore concentrate on the time taken to find bugs.  If the
 technique is fast to find bugs when they exist, then the failure to find bugs
 on other examples should give us reasonable confidence that none exists.
 
-Questions we want to answer include:
+We consider the following questions.
 \begin{itemize}
-\item Which works better, the direct algorithm or the two-step algorithm?  
+\item Which works better, the direct algorithm or the two-step algorithm?  The
+  experiments show that the direct algorithms are faster in most cases.
+  Further, the direct algorithms scale much better as the number of operation
+  executions per run increases.
+
 \item How should we choose parameters (number of threads to run, number of
-  iterations performed by each thread, etc.)\ for testing?  
-\item Is this approach effective at finding bugs?
+  iterations performed by each thread, etc.)\ for testing?  The experiments
+  suggest that, for both types of tester, it is best to use a  small
+  number of threads (typically two to four), each performing a small number of
+  operations (typically about four).    
+
+\item Is this approach effective at finding bugs?  The experiments suggest it
+  is.  For each of the incorrect examples we considered, each approach found
+  an error for synchronisation linearisation within about a second on average,
+  and somewhat faster on most examples.  For synchronisation progressibility,
+  they were typically a few hundred milliseconds slower.
 \end{itemize}
+
+%% Questions we want to answer include:
+%% \begin{itemize}
+%% \item Which works better, the direct algorithm or the two-step algorithm?  
+%% \item How should we choose parameters (number of threads to run, number of
+%%   iterations performed by each thread, etc.)\ for testing?  
+%% \item Is this approach effective at finding bugs?
+%% \end{itemize}
 
 The experiments were performed on a dedicated eight-core machine (two 2.40GHz
 Intel(R) Xeon(R) E5620 CPUs, with 12GB of RAM, but limited to 4GB of heap
@@ -269,6 +289,19 @@ guarantee.
 %% results, because they are uninteresting.
 
 % \framebox{Add experiments?}
+
+Recall that our approach is to interrupt threads after a suitable duration.
+This duration should be chosen so that if any threads have not returned by
+this point, then (almost certainly) they really are stuck.  Our informal
+experiments suggest that a duration of 100ms is appropriate (at least, on the
+architecture we were using): we have not observed any false positives with
+this duration, but did with a shorter duration of 80ms.  If an error is found
+(and the cause is not immediately apparent), it is straightforward to increase
+the duration and see whether the error still occurs.  Of course, a larger
+value for this duration does increase the time that a given number of runs
+will take: a tester may take the view that it's easiest to use a larger
+duration, and just leave the tests running.
+
 
 \begin{figure}
 \begin{center}

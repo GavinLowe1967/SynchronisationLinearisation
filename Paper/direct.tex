@@ -31,11 +31,7 @@ after a suitable duration, we interrupt any threads that have not yet
 returned.  The duration before the interrupts needs to be chosen so that if
 any threads have not returned by that point, then (almost certainly) they
 really are stuck: otherwise this approach it likely to produce false
-positives.  Our informal experiments suggest that a duration of 100ms is
-appropriate (at least, on the architecture we were using): we have not
-observed any false positives with this duration, but did with a shorter
-duration of 80ms.  This delay does significantly increase the time that a
-given number of runs will take.
+positives.  We discuss this point further in Section~\ref{sec:experiments}. 
 
 In the remainder of this section we consider algorithms for determining
 whether the resulting log history is synchronisation linearisable, and whether
@@ -47,15 +43,33 @@ extended to test for synchronisation progressibility.
 
 We then consider the complexity of this problem.  We show, in
 Section~\ref{sec:NP-complete}, that, for a \emph{stateful} synchronisation
-object, the problem of deciding whether a history is synchronisation
-linearisable is NP-complete in general.  However, we show that in the case of
-\emph{binary} synchronisations with a \emph{stateless} specification object,
-the problem can be solved in polynomial time: we consider the heterogeneous
-case in Section~\ref{sec:binary-heterogeneous}, and the homogeneous case in
-Section~\ref{sec:binary-homogeneous}.  Nevertheless, in
-Section~\ref{sec:non-binary-stateless} we show that for synchronisations of
+object, the problem of deciding whether a history is
+synchronisation-linearisable is NP-complete in general: this is not
+surprising, given a similar result for standard linearisation.
+
+Things are more interesting in the stateless case.  (In practice,
+linearisation is only ever considered in the stateful case; for a stateless
+object, deciding linearisability amounts to checking each operation execution
+in isolation, which can be decided in linear time.)  We show that in the case
+of \emph{binary} synchronisations with a \emph{stateless} specification
+object, synchronisation linearisability can be decided in polynomial time: we
+consider the heterogeneous case in Section~\ref{sec:binary-heterogeneous}, and
+the homogeneous case in Section~\ref{sec:binary-homogeneous}.  Nevertheless,
+in Section~\ref{sec:non-binary-stateless} we show that for synchronisations of
 three or more executions, the problem is again NP-complete, even in the
 stateless case.
+
+The table below summarises the complexity results for deciding synchronisation
+linearisation for a history of length~$n$.
+% 
+\begin{center}
+\begin{tabular}{cc}
+Stateful & NP-complete \\
+Stateless, binary, heterogeneous & $O(n^2)$ \\
+Stateless, binary, homogeneous & $O(n^4)$ \\
+Stateless, non-binary & NP-complete
+\end{tabular}
+\end{center}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -227,7 +241,7 @@ object VariableSyncSpec{
 }
 \end{scala}
 
-Let |ConcVariable| be a concurrent object that represents an integer variable.
+Let |ConcVariable| be a concurrent datatype that represents an integer variable.
 Given a history~$h$ of |ConcVariable|, we build a history~$h'$ of
 |VariableSync| as follows.  We replace every call or return of |get(x)| by
 (respectively) a call or return of |op|\s1|("get", x)|; and we do similarly

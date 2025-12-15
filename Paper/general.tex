@@ -1,0 +1,134 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{pgfplots}
+\usepackage{scalalistings}
+\usepackage{sync}
+\scalaMid
+%\def\R{\mathcal{R}}
+\def\dom{\mathop{\rm dom}}
+\def\spot{\bullet}
+\def\prefix{\le}
+
+\title{On the Construction of Two-Step Linearisation Testers}
+\author{Gavin}
+
+\begin{document}
+\maketitle
+
+This note describes a general construction for two-step linearisation testers,
+corresponding to the claim at the end of Section~3.2 of the main paper.
+
+Fix a synchronisation specification object |SyncSpec|, and synchronisation
+abstraction function~$\A$.  Let the operations of |SyncSpec| be
+\begin{scala}
+  def op£\s i£(x: A£\s i£): B£\s i \qquad for $i = 1,\ldots,n$.£
+\end{scala}
+Let
+\begin{eqnarray*}
+B & = & \bigcup_{i = 1,\ldots,n} \sm B_i.
+\end{eqnarray*}
+
+The two-step linearisation tester will have operations $\op_i$ and
+$\overline\op_i$ for $i = 1,\ldots,n$. 
+%
+The idea is that for a mapping 
+\[
+\seq{\op_{i_i}(x_1), \ldots, \op_{i_a}(x_a)}
+  \mapsto \sync(x_1,\ldots,x_a)  \in \A,
+\]
+corresponding to a synchronisation of arity~$a$, is linearised in the
+following order:
+\begin{enumerate}
+\item $\op_{i_1},\ldots,\op_{i_a}$, in order;
+
+\item $\overline\op_{i_i}$, for some~$i$, which will call
+  |SyncSpec.sync|$(x_1,\ldots,x_a)$, and store the results for other threads;
+
+\item The remaining $\overline\op_{i_j}$, in some order, which will retrieve
+  their results.
+\end{enumerate}
+%
+No other operations will be linearised between the start of stage~1 until
+after stage~2; but other operations may be linearised during stage~3.
+
+During stage~1, the two-step linearisabilty tester will record the prefix of
+$\seq{\op_{i_i}(x_1), \ldots, \op_{i_a}(x_a)}$ performed so far.  This is done
+by defining a case class |Op|$_i$ corresponding to each such
+operation~|op|$_i$, as at the top of Figure~\ref{fig:schema}.
+%
+%% \begin{scala}
+%% trait Op
+%% case class Op_i(t: ThreadID, x: A_i) £\quad for $i = 1,...,n$.£
+%% type State = List[Op]
+%% \end{scala}
+%
+The following function maps a |State| to the corresponding sequence of
+operations, for use with~$\A$.
+\begin{eqnarray*}
+opsFor(state) &  = & \seq{\op_j(x_j) \midd \sm{Op}_j(t_j,x_j) \leftarrow state}.
+\end{eqnarray*}
+
+A schema (using pseudo-Scala) for the general construction is in
+Figure~\ref{fig:schema}.  The variable~|state| stores the sequence of |op|$_i$
+linearised so far: this satisfies an invariant that it is a prefix of an
+element of $\dom \A$.  For each thread~|t|,\, |returns(t)| stores the value to
+be returned by~|t| as part of its most recent uncompleted synchronisation, if
+any.
+
+%%%%%
+
+\begin{figure}
+\begin{scala}
+trait Op
+case class Op_i(t: ThreadID, x: A_i) //  for £$i = 1,...,n$.£
+type State = List[Op]
+
+class TwoStepLinSpec{
+  private var state: State = List()
+  private val returns = Array.fill[Option[B]](NumThreads)(None) 
+
+  def op£\s i£(t: ThreadID, x: A£\s i£): Unit = { // for £$i = 1,...,n$£.
+    require(£$\exists ops \in \dom \A \spot opsFor(\sm{state}) \cat \seq{\op_i(x)} \prefix ops$£)
+    state = state :+  Op£\s i£(t,x) 
+  }
+
+  def £$\overline\op_i$£(t: ThreadID): B£\s i£ = { // for £$i = 1,...,n$£.
+    if(£$opsFor(\sm{state}) \in \dom \A$£){
+      val (y£\s 1£,...,y£$_{\ss a}$£) = SyncSpec.£$\A(opsFor(\sm{state}))$£
+      for(m <- 1 to a) returns(State(m).t) = Some(y£$_{\ss m}$£)
+      state = List()
+    }
+    else (require(state == List() && returns(t).isInstanceOf[Some])
+    val Some(y) = returns(t); returns(t) = None; y
+  }
+}
+\end{scala}
+\caption{A schema for the general construction of a two-step linearisability
+  tester.} 
+\label{fig:schema}
+\end{figure}
+
+%%%%%
+
+The operation $\op_i$ appends an appropriate |Op|$_i$ object to~|state|.  The
+precondition ensures that |state| still corresponds to a prefix of an element
+of $\dom \A$.  
+
+The operation $\overline\op_i$ proceeds as follows.  In the case that |state|
+corresponds to an element of $\dom \A$, it calls the corresponding operation
+on |SyncSpec|, stores each result in the corresponding entry of |returns|, and
+resets |state|.  Otherwise, it requires that some other operation has called
+the operation on |SyncSpec|, and that |state| holds its initial value.  In
+either case, the operation retrieves and clears the result from the
+appropriate entry in~|returns|.
+
+It is then straightforward to check that operations of |TwoStepLinSpec| can be
+linearised only as described earlier.  The proof that two-step linearisability
+corresponds to synchronisation linearisability is then much as in the proof
+for the binary case in the main paper. 
+
+The schema uses preudo-Scala.  For a concrete implementation, we need a
+separate implementation of $\op_i$ and $\overline\op_i$ for each~$i$.  Then
+each calculation involving~$\A$ can be implemented directly, for example using
+a case analysis.  
+\end{document}

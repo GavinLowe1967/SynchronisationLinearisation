@@ -255,18 +255,23 @@ In this paper, we consider what it means for such a synchronisation
 object to be correct.  We also present techniques for testing correctness of
 implementations.
 
-In Section~\ref{sec:spec} we describe how to specify a synchronisation object.
-The definition has similarities with the standard definition of
-\emph{linearisation} for concurrent
-datatypes~\cite{herlihy-wing,herlihy-shavit}, except that it talks about
-synchronisations between executions of operations, rather than single
-executions: we call the property \emph{synchronisation linearisation}.
-Informally, the synchronisations should appear to take place in a
-one-at-a-time order, consistent with the calls and returns of operations on
-the synchronisation object, and with results as defined by a
-\emph{synchronisation specification object}.  We also define a liveness
-condition, which we call \emph{synchronisation progressibility}: informally,
-executions don't get stuck when a synchronisation is possible.
+In Section~\ref{sec:spec} we describe how to specify a synchronisation object:
+we call the property \emph{synchronisation linearisation}.  The definition has
+similarities with that of
+\emph{linearisation}~\cite{herlihy-wing,herlihy-shavit}.  Linearisation is the
+standard correctness property for concurrent datatypes (by which we mean
+implementations of abstract dataypes, such as sets, mappings, stacks and
+queues, that support concurrent operations).  However, synchronisation
+linearisation talks about synchronisations between executions of operations,
+whereas linearisation talks about single executions.  Informally, the
+synchronisations should appear to take place in a one-at-a-time order,
+consistent with the calls and returns of operations on the synchronisation
+object, and with results as defined by a \emph{synchronisation specification
+  object}.  We also define a liveness condition, which we call
+\emph{synchronisation progressibility}: informally, executions don't get stuck
+when a synchronisation is possible.
+
+\framebox{cf set linearisation}.
 
 In Section~\ref{sec:relating} we consider the relationship between
 synchronisation linearisation and (standard) linearisation.  We show that
@@ -292,10 +297,13 @@ may correspond to two operations of the specification object.
 In Section~\ref{sec:direct} we show how synchronisation linearisation can be
 tested more directly: we describe algorithms that check whether a history of a
 synchronisation object is synchronisation linearisable.  We also present
-various complexity results: deciding whether a given history is
-synchronisation linearisable is NP-complete in general, but it can be decided
-in polynomial time in the case of binary (heterogeneous or homogeneous)
-stateless synchronisation objects.  
+various complexity results.  Deciding whether a given history is
+synchronisation linearisable is NP-complete in general, in the stateful case.
+However, it can be decided in polynomial time in the case of binary
+(heterogeneous or homogeneous) stateless synchronisation objects.  But moving 
+to synchronisations with arity greater than~2 is again NP-complete, even in
+the stateless case. 
+
 
 %% In Section~\ref{sec:modelChecking} we consider how the property of
 %% synchronisation linearisation can be analysed via model checking.

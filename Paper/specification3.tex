@@ -1,0 +1,268 @@
+
+\subsection{Specifying liveness}
+\label{sec:progress}
+
+We now consider a liveness condition for synchronisation objects, which builds
+on synchronisation linearisability.  
+%% We assume that each pending operation execution is scheduled infinitely often,
+%% unless it is blocked (for example, trying to obtain a lock); in other words,
+%% the scheduler is fair to each execution.  Under this assumption, our liveness
+The liveness condition can be stated informally as:
+%
+\begin{itemize}
+\item If some pending operation executions can synchronise (according to the
+  synchronisation specification object), then some such synchronisation should
+  happen;
+
+\item Once a particular execution has synchronised, it should eventually
+  return.
+\end{itemize}
+%
+Several different synchronisations might be possible.  For example,
+consider a synchronous channel, and suppose there are pending calls to
+|send(4)|, |send(5)| and |receive|.  Then the |receive| could synchronise with
+\emph{either} |send|, nondeterministically; subsequently, the |receive| should
+return the appropriate value, and the corresponding |send| should also return.
+In such cases, our liveness condition allows \emph{either} synchronisation to
+occur.
+%
+However, our liveness condition allows all pending executions to block if no
+synchronisation is possible.  For example, if every pending execution on a
+synchronous channel is a |send|, then clearly none can make progress.
+
+%% Note that our liveness condition is somewhat different from the condition of
+%% \emph{lock freedom} for concurrent datatypes~\cite{herlihy-shavit}.  That
+%% condition requires that, assuming operation executions collectively are
+%% scheduled infinitely often, then eventually some execution returns.  Lock
+%% freedom makes no assumption about scheduling being fair.  For example, if a
+%% particular thread holds a lock, then lock freedom allows the scheduler to
+%% never schedule that thread; in most cases, this will mean that no operation
+%% returns: any implementation that uses a lock in a non-trivial way is not
+%% lock-free.
+
+%% By contrast, our assumption, that each unblocked pending execution is
+%% scheduled infinitely often, reflects that modern schedulers \emph{are} fair,
+%% and do not starve any single execution.  For example, if a thread holds
+%% a lock,  and is not in a potentially unbounded loop or permanently blocked
+%% trying to obtain a second lock, then it will be scheduled sufficiently often,
+%% and so will eventually release the lock.  Thus our liveness condition can be
+%% satisfied by an implementation that uses locks.  
+
+%% However, our assumption does allow executions to be scheduled in an
+%% unfortunate order (as long as each is scheduled infinitely often), which may
+%% cause the liveness condition to fail.  It also allows other synchronisation
+%% primitives, such as locks and semaphores, to be unfair: for example, a thread
+%% that is repeatedly trying to obtain a lock may repeatedly fail as other
+%% threads obtain the lock.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The following definition identifies maximal sequences of synchronisations
+that could occur given a particular history of a synchronisation object.
+%
+\begin{definition}
+Given a history~$h$ of the synchronisation object and a legal history~$h_s$ of
+the specification object, we say that $h_s$ is a \emph{maximal synchronisation
+  linearisation} of~$h$ if:
+\begin{itemize}
+\item $h_s$ is a synchronisation linearisation of~$h$;
+
+\item no proper legal extension $h_s \cat \seq{e}$ of~$h_s$ is a
+  synchronisation linearisation of~$h$.
+\end{itemize}
+\end{definition}
+%
+% Note that a history may have multiple maximal synchronisation linearisations.
+For example, the following history of a synchronous channel
+\begin{eqnarray*}
+h & = &\seq{\call.\send^1(4), \call.\send^2(5), \call.\receive^3(())}
+\end{eqnarray*}
+has two maximal synchronisation linearisations
+\begin{eqnarray*}
+h_s^1 & = &  \seq{\sync^{1,3}(4,())\::((),4)}, \\
+h_s^2 & = & \seq{\sync^{2,3}(5,())\::((),5)},
+\end{eqnarray*}
+corresponding to the two possible synchronisations.  Each describes one
+possibility for all the synchronisations that might happen. 
+
+%%%%%
+
+The following definition captures the $\return$ events that we would expect to
+happen given a particular sequence of synchronisations.
+%
+\begin{definition}
+Consider a  history~$h$ of the synchronisation object.
+%
+\begin{itemize}
+\item Given a maximal synchronisation linearisation~$h_s$, we say that a
+  return event~$e$ is \emph{anticipated following~$h_s$} if $e$ does not
+  appear in~$h$, but the corresponding $\sync$ event appears in~$h_s$.
+
+\item We say that \emph{some return event is anticipated} if for every maximal
+  synchronisation linearisation~$h_s$, a return event is anticipated
+  following~$h_s$.
+\end{itemize}
+\end{definition}
+%
+For example, considering the above histories~$h$ and~$h_s^1$, the events
+$\return.\send^1\::()$ and $\return.\receive^3\::4$ are anticipated
+following~$h_s^1$: assuming $h_s^1$ describes the synchronisations that
+happen, we would expect those $\return$ events to eventually happen; if they
+do not, that is a failure of liveness.  Likewise, events
+$\return.\send^2\::()$ and $\return.\receive^3\::5$ are anticipated
+following~$h_s^2$.  Hence some return event is anticipated after~$h$
+(regardless of the synchronisation linearisation).
+
+We consider the semantics of the system to be described by a state machine.
+Some transitions in the state machine correspond to $\call$ and $\return$
+events; other transitions are internal, corresponding to steps taken by
+threads inside an operation.  A history corresponds to a path through the
+state machine, in the normal way.
+
+We adopt some terminology from CSP~\cite{awr:ucs}.
+We say that a state~$s$ is \emph{divergent} if it is possible to perform an
+infinite sequence of consecutive internal transitions from~$s$.  We say that a
+state is \emph{stable} if there is no internal transition from it.
+
+We say that the system \emph{refuses} a particular $\return$ event~$r$ in
+state~$s$ if either $s$ is divergent, or $s$ is stable and has no transition
+corresponding to $r$.  If the system does not refuse $r$ in state~$s$ or
+any subsequent state, then, under reasonable assumptions about the scheduler,
+$r$ will eventually happen.
+
+\begin{definition}
+We say that a system \emph{can fail to progress} after history~$h$ if some
+return event~$r$ is anticipated after~$h$, but $h$ can lead to a state where
+$r$ is refused.
+
+We say that a history is \emph{synchronisation-progressible} if, for very
+history~$h$, it cannot fail to progress after~$h$.
+\end{definition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% \begin{definition}
+%% Let $h$ be a history of the synchronisation object.  We say that $h$ is
+%% \emph{synchronisation progressible} if for every 
+%% % fair infinite
+%% execution following~$h$ with no new $\call$ events, there is a
+%% maximal synchronisation linearisation~$h_s$ of~$h$ such that every anticipated
+%% return event~$ret$ eventually happens.
+%% %
+%% We say that a synchronisation object is synchronisation progressible if all of
+%% its histories are synchronisation progressible.
+%% \end{definition}
+
+%% Given a history~$h$ of the synchronisation object and a maximal
+%% synchronisation linearisation~$h_s$, we say that $h$ is \emph{synchronisation
+%%   progressible} with respect to~$h_s$ if for every anticipated return
+%% event~$ret$, and for every fair infinite execution with no new $\call$ events,
+%% $ret$ eventually happens.
+
+%% We say that $h$ is \emph{synchronisation progressible} is there is some
+%% maximal synchronisation linearisation~$h_s$ such that $h$ is synchronisation
+%% progressible with respect to~$h_s$.
+%% \end{definition}
+
+For the earlier history~$h$, synchronisation progressibility requires that
+either: (1)~$\return.\send^1\::()$ and $\return.\receive^3\::4$ cannot be
+refused (corresponding to~$h_s^1$); or (2)~$\return.\send^2\::()$ and
+$\return.\receive^3\::5$ cannot be refused (corresponding to~$h_s^2$).  One of
+the synchronisations should happen, and then the relevant operations should be
+able to return in some order.
+
+On the other hand, for the history $\seq{\call.\send^1(4)}$, the only
+maximal synchronisation linearisation is $\seq{}$, for which there are no
+anticipated returns, and so synchronisation progressibility is trivially
+satisfied: it is fine for the $\send$ to get stuck in this case, since there
+is no $\receive$ with which it could synchronise.
+
+Synchronisation progressibility is defined in terms of a state machine.
+However, for a given synchronisation object, the state machine may depend upon
+the way scheduling is performed; hence, whether or not the synchronisation
+object is synchronisation-progressible might depend on assumptions about the
+scheduling.  
+%% Any claim of synchronisation progressibility necessarily makes 
+%% assumptions about the way scheduling is performed.
+Possible assumptions are as follows.
+%
+\begin{enumerate}
+\item\label{assump:some} The minimal possible assumption is that the scheduler
+  schedules \emph{some} thread whenever there is a thread that can take a
+  step.  Clearly, if no thread is scheduled, none will return.  Any reasonable
+  scheduler satisfies this property.
+
+\item\label{assump:spurious} Several concurrency primitives allow a thread to
+  suspend and wait for a signal.  However, some (e.g.~monitors in the JVM)
+  allow waiting threads to wake up and resume without a corresponding signal,
+  so called \emph{spurious wakeups}.  Code that uses such primitives is
+  expected to guard against spurious wakeups, typically by checking an
+  appropriate condition, and waiting again if it doesn't hold.  When analysing
+  such code for progressibility, we need to assume that spurious wakeups do
+  not happen so often that  no other thread is scheduled.  In other words,
+  we assume there is no infinite execution where one or more threads
+  repeatedly perform a spurious wakeup, check the condition, and wait again,
+  without any other threads being scheduled.  Spurious wakeups happen rarely
+  in practice, so this is a very reasonable assumption.
+
+\item\label{assump:fair} Some synchronisation objects may require an
+  assumption that scheduling is \emph{fair} between threads.  For example,
+  consider an object that uses a spin-lock~\cite[Chapter 7]{herlihy-shavit},
+  where a thread that is trying to acquire the lock spins, repeatedly checking
+  some condition, until no other thread holds the lock.  Consider a situation
+  where thread~$A$ is holding the lock, and thread~$B$ is spinning, waiting to
+  acquire the lock.  In this situation, we will need to assume that thread~$A$
+  is scheduled sufficiently often, so that it eventually releases the lock.
+  In other words, we assume there is no infinite execution where only
+  thread~$B$ is scheduled.  Most modern schedulers are fair in this sense.
+
+\item Some synchronisation objects may require synchronisation primitives,
+  such as locks and semaphores, to be fair.  Such an assumption might require
+  that there is no execution where one thread repeatedly fails to obtain a
+  lock, while other threads obtain the lock infinitely often.
+\end{enumerate}
+%
+In the examples we consider in Section~\ref{sec:experiments}, the
+implementations require assumptions~\ref{assump:some}
+and~\ref{assump:spurious} to satisfy synchronisation progressibility. 
+
+Our liveness condition is somewhat different from the condition of \emph{lock
+  freedom} for concurrent datatypes~\cite{herlihy-shavit}.  That condition
+requires that whenever there are pending operation executions, eventually some
+such execution returns.  However, this condition treats a thread that is
+blocked, trying to obtain a lock (whether a spin lock or not), as performing
+infinitely many steps.  Hence any object that uses a lock in a non-trivial way
+is not lock-free.
+
+%% , assuming operation executions collectively are
+%% scheduled infinitely often, then eventually some execution returns.  
+%% In particular, it would not be satisfied by 
+
+%%  Lock
+%% freedom makes no assumption about scheduling being fair.  For example, if a
+%% particular thread holds a lock, then lock freedom allows the scheduler to
+%% never schedule that thread; in most cases, this will mean that no operation
+%% returns: any implementation that uses a lock in a non-trivial way is not
+%% lock-free.
+
+By contrast, if a thread suspends, waiting to acquire a non-spin lock, we do
+not consider it to be taking steps.  In most cases,
+assumption~\ref{assump:some} will mean that the thread holding the lock will
+be scheduled sufficiently many times that it eventually releases the lock.
+Thus such an object can satisfy synchronisation progressibility.  A similar
+argument holds for a spin lock, but requires assumption~\ref{assump:fair}. 
+
+%% By contrast, our assumption, that each unblocked pending execution is
+%% scheduled infinitely often, reflects that modern schedulers \emph{are} fair,
+%% and do not starve any single execution.  For example, if a thread holds
+%% a lock,  and is not in a potentially unbounded loop or permanently blocked
+%% trying to obtain a second lock, then it will be scheduled sufficiently often,
+%% and so will eventually release the lock.  Thus our liveness condition can be
+%% satisfied by an implementation that uses locks.  
+
+%% However, our assumption does allow executions to be scheduled in an
+%% unfortunate order (as long as each is scheduled infinitely often), which may
+%% cause the liveness condition to fail.  It also allows other synchronisation
+%% primitives, such as locks and semaphores, to be unfair: for example, a thread
+%% that is repeatedly trying to obtain a lock may repeatedly fail as other
+%% threads obtain the lock.

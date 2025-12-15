@@ -5,11 +5,11 @@ In this section we describe how synchronisations can be formally specified.
 We start by considering \emph{heterogeneous binary} synchronisation,
 i.e.~where every synchronisation is between executions of \emph{two different}
 operations.  We allow stateful synchronisation objects (which includes
-stateless objects as degenerate cases).  We generalise later in this
-section.
+stateless objects as degenerate cases).  We generalise in
+Section~\ref{ssec:spec-variations}. 
 
-We assume that the synchronisation object has two operations, each of which
-has a single parameter, with signatures as follows.
+For the moment, we assume that the synchronisation object has two operations,
+each of which has a single parameter, as follows.
 %
 \begin{scala}
 def op£\s1£(x£\s1£: A£\s1£): B£\s1£
@@ -193,8 +193,8 @@ if they have the same execution identifier.  A concurrent history is
 event, i.e.~no execution is still pending at the end of the history.
 
 For example, consider the following complete concurrent history of a
-concurrent object that is intended to implement a queue, with operations |enq|
-and~|deq|.
+concurrent datatype that is intended to implement a queue, with operations
+|enq| and~|deq|.
 %
 \begin{eqnarray*}
 h & = & 
@@ -234,7 +234,7 @@ This history is illustrated by the timeline in Figure~\ref{fig:lin-timeline}.
 
 Linearisation is specified with respect to a linearisation specification
 object~$Spec$, with the same operations (and signatures) as the concurrent
-object in question.  A history of the specification object is a sequence of
+datatype in question.  A history of the specification object is a sequence of
 events of the form:
 %
 \begin{itemize}
@@ -303,8 +303,8 @@ for operation executions that have had an effect, but not returned in~$h$; the
 $\call$ events removed in $complete(h')$ are for operation executions that
 have not yet had an effect.
 
-We say that a concurrent object is linearisable with respect to~$Spec$ if each
-of its histories is linearisable with respect to~$Spec$.
+We say that a concurrent datatype is linearisable with respect to~$Spec$ if
+each of its histories is linearisable with respect to~$Spec$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -316,15 +316,15 @@ standard linearisation, operations appear to take place in a one-at-a-time
 order, each between the time at which the operation is invoked and when it
 returns.  With synchronisation linearisation, synchronisations appear to take
 place in a one-at-a-time order, with each synchronisation between the time
-that each of the operations is invoked and when it receives.  In each case,
+that each of the operations is invoked and when it returns.  In each case,
 the order is one that satisfies the requirements captured by the specification
 object.  
 
-For the moment, we consider only binary synchronisations.  We consider a
-concurrent history of the synchronisation object~$Sync$.  The history contains
-$\call$ and $\return$ events, as in the previous subsection; in the case of
-binary synchronisations, the events correspond to the operations~$\op_1$
-and~$\op_2$.
+For the moment, we consider only binary heterogeneous synchronisations; we
+generalise in the next section.  We consider a synchronisation object~$Sync$
+with two operations, $\op_1$ and~$\op_2$, as described earlier.  A concurrent
+history of~$Sync$ contains $\call$ and $\return$ events, as in the previous
+subsection, corresponding to the operations~$\op_1$ and~$\op_2$.
 
 For example, the following is a complete history of the synchronous channel
 from earlier, and is illustrated in Figure~\ref{fig:sync-timeline}:

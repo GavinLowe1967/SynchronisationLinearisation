@@ -280,14 +280,19 @@ before the channel was closed, in which case $\sm{returns(t)} \ne \sm{None}$.
 
 %%%%%%%%%%
 
-%% \framebox{***} I don't think it's worth discussing this.
 
-%% It is possible to perform a further optimisation in this case: we can capture
-%% a send that happens after the channel is closed by a \emph{single} transition,
-%% rather than two.  (The difference from the timeout channel is that these
-%% transitions happen from a different state, so the automaton is still
-%% deterministic.)  
+%% We believe that these techniques can be adapted to all the other
+%% synchronisation objects we have considered.
 
-We believe that these techniques can be adapted to all the other
-synchronisation objects we have considered.
-
+These techniques can be adapted to all other synchronisation objects of the
+form we are considering.  We sketch a generic approach; we omit the details
+because they are fiddly and uninteresting.  For each operation |op|$_i$ of the
+synchronisation object, the two-step linearisation specification object
+includes operations $\op_i$ and $\overline{\op}_i$.  For each maplet
+$\seq{\op_{i_i}(x_1), \ldots, \op_{i_a}(x_a)} \mapsto \sync(x_1,\ldots,x_a)$
+in the synchronisation abstraction function, the two-step linearisation
+specification object performs operations  as follows:
+(1)~$\op_{i_i}(x_1), \ldots, \op_{i_a}(x_a)$, in that order; (2) some
+$\overline\op_{i_i}$, which calls \sync\ on the synchronisation linearisation
+object and stores the results for other threads; (3)~the remaining
+$\overline\op_{i_j}$, in some order, which retrieve their results.

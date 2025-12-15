@@ -7,9 +7,9 @@ linearisation and standard linearisation.
 It is clear that synchronisation linearisation is equivalent to standard
 linearisation in the (rather trivial) case that no operations actually
 synchronise, so each operation of the synchronisation specification object
-corresponds to a single operation of the concurrent object.  Put another way:
-standard linearisation is an instance of synchronisation linearisation with
-just unary synchronisations.
+corresponds to a single operation of the concurrent datatype.  Put another
+way: standard linearisation is an instance of synchronisation linearisation
+with just unary synchronisations.
 
 However, linearisation and synchronisation linearisation are not
 equivalent in general.
@@ -21,11 +21,22 @@ equivalent in general.
 %
 For example, consider the synchronous channel from Section~\ref{sec:spec},
 where synchronisation linearisation is captured by |SyncChanSpec|.  We show
-that there is no corresponding linearisation specification object |Spec|,
-i.e.~such that for every concurrent history~$h$,\, $h$ is synchronisation
-linearisable with respect to |SyncChanSpec| if and only if $h$ is linearisable
-with respect to |Spec|.  Suppose (for a contradiction) otherwise.  Consider
-the history
+that this property does not correspond to standard linearisable. 
+%
+\begin{prop}
+The property of an implementation of a synchronous channel being
+synchronisation-linearisable with respect to |SyncChanSpec| cannot be captured
+as an instance of standard linearisability.
+\end{prop}
+%
+\begin{proof}
+Suppose, for a contradiction, otherwise, so there is a linearisation
+specification object |Spec| such that any implementation of a synchronous
+channel is synchronisation-linearisable with respect to |SyncChanSpec| if and
+only if it is linearisable with respect to~|Spec|.  That would imply that for
+every concurrent history~$h$,\, $h$ is synchronisation-linearisable with
+respect to |SyncChanSpec| if and only if $h$ is linearisable with respect to
+|Spec|.  Consider the history
 \begin{eqnarray*}
 h & = & \seq{ 
   \call.\send^1(3),\, \call.\receive^2(),\, 
@@ -53,7 +64,7 @@ is also linearised by~$h_s$, so $h'$ is linearisable with respect to~|Spec|.
 But then the assumption would imply that $h'$ is synchronisation linearisable
 with respect to~|SyncChanSpec|.  This is clearly false, because the operations
 do not overlap.  Hence no such linearisation specification~|Spec| exists.
-
+\end{proof}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -181,7 +192,9 @@ corresponding two-step linearisation specification object |Two|\-|StepLinSpec|
 such that synchronisation linearisation with respect to |Sync|\-|Spec| is
 equivalent to two-step linearisation with respect to
 |Two|\-|Step|\-|Lin|\-|Spec|.  The definition we choose is not the simplest
-possible, but it is convenient for the testing framework we use in
+possible (and the two-step linearisation specification object is certainly
+more complex than the synchronisation linearisation specification object) but
+it is convenient for the testing framework we use in
 Section~\ref{sec:testing-hacking}.
 
 The definition of |TwoStepLinSpec| is in Figure~\ref{fig:twosteplinspec}.  We
@@ -189,9 +202,6 @@ assume that each thread has an identity in some range $\range 0
 {\sm{NumThreads}}$.  For simplicity, we arrange for this identity to be
 included in the $\call$ events for operations~|op|\s1 and
 $\overline{\sm{op}}_1$.
-%%  (Alternatively, we
-%% could implement thread identities internally to the object, for example using
-%% the technique from~\cite[Appendix~A.2.4]{herlihy-shavit}.)
 
 %%%%%
 
@@ -354,7 +364,7 @@ of~$h''$ and~$h_s$; by construction, this is between
 $\call.\sm{op}_1^{i_1}(x_1)$ and~$\return.\sm{op}_1^{i_1} \:: y_1$, and
 between $\call.\sm{op}_2^{i_2}(x_2)$ and~$\return.\sm{op}_2^{i_2} \:: y_2$.
 %
-Hence $h_s$ is a synchronisation linearisation of~$h''$; and so $h$ is
+Hence $h_s'$ is a synchronisation linearisation of~$h''$; and so $h$ is
 synchronisation-linearisable.
 
 %%%%%
@@ -384,28 +394,28 @@ $\call.\sm{op}_1^{i_1}(x_1)$ and~$\return.\sm{op}_1^{i_1} \:: y_1$; and each
 $\sm{op}_2^{i_2}(x_2) \:: y_2$ is between $\call.\sm{op}_2^{i_2}(x_2)$
 and~$\return.\sm{op}_2^{i_2} \:: y_2$.
 %
-Hence $h_s$ is a two-step linearisation of $h''$; and so $h$ is
+Hence $h_s'$ is a two-step linearisation of $h''$; and so $h$ is
 two-step-linearisable.
 \end{proof}
 
-The two-step linearisation specification object can often be significantly
-simplified from the template definition above.  Here is such a specification
-object for a synchronous channel.  (Formally, this is a data refinement,
-replacing the variable |state| with the variables |stateIx|, |threadID| and
-|value|, and replacing the array |returns| by the array |canReturn|.)
-%
-\begin{scala}
-object SyncChanTwoStepLinSpec{
-  private var stateIx = 0            // Takes values 0, 1, cyclically. 
-  private var threadID = -1     // Current sender's thread ID when £stateIx£ = 1.
-  private var value: A = _       // The current value being sent when £stateIx£ = 1.
-  private val canReturn =        // Which senders can return?
-    new Array[Boolean](NumThreads) 
-  def send(t: ThreadID, x: A): Unit = { 
-    require(stateIx == 0 && !canReturn(t)); value = x; threadID = t; stateIx = 1 }
-  def receive(u: Unit): A = { 
-    require(stateIx == 1); canReturn(threadID) = true; stateIx = 0; value }
-  def £$\overline{\send}$£(t: ThreadID): Unit = { 
-    require(stateIx == 0 && canReturn(t)); canReturn(t) = false }
-}
-\end{scala}
+%% The two-step linearisation specification object can often be significantly
+%% simplified from the template definition above.  Here is such a specification
+%% object for a synchronous channel.  (Formally, this is a data refinement,
+%% replacing the variable |state| with the variables |stateIx|, |threadID| and
+%% |value|, and replacing the array |returns| by the array |canReturn|.)
+%% %
+%% \begin{scala}
+%% object SyncChanTwoStepLinSpec{
+%%   private var stateIx = 0            // Takes values 0, 1, cyclically. 
+%%   private var threadID = -1     // Current sender's thread ID when £stateIx£ = 1.
+%%   private var value: A = _       // The current value being sent when £stateIx£ = 1.
+%%   private val canReturn =        // Which senders can return?
+%%     new Array[Boolean](NumThreads) 
+%%   def send(t: ThreadID, x: A): Unit = { 
+%%     require(stateIx == 0 && !canReturn(t)); value = x; threadID = t; stateIx = 1 }
+%%   def receive(u: Unit): A = { 
+%%     require(stateIx == 1); canReturn(threadID) = true; stateIx = 0; value }
+%%   def £$\overline{\send}$£(t: ThreadID): Unit = { 
+%%     require(stateIx == 0 && canReturn(t)); canReturn(t) = false }
+%% }
+%% \end{scala}

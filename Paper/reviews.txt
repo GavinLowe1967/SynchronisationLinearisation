@@ -1,3 +1,17 @@
+MONDAY:
+
+Check locality theorem and tidy up
+
+Check progress section
+
+Locality result for progress.
+
+"Compatible"
+
+General result for testing, end of Section 3.
+
+===============
+
 Relate to set linearisation.
 
 Capture relationship between concrete and abstract ops as a relation that
@@ -5,6 +19,13 @@ relates a multiset of concrete operations to the corresponding abstract
 operation.  For example, for the synchronous channel:
 
 { ( { send(x), receive(()) }, sync(x,()) ) | x \in T }
+
+** What's the purpose of requiring state == Zero in \overline{op}_1 in Fig 3?
+   It ensures each op_1 and op_2 are consecutive, so maybe makes the
+   construction clearer.
+
+** In Prop 9, double-check the use of "h_s'" at the end of each part
+   (corrected from the submission). 
 
 Show locality/compositionality.
 
@@ -266,8 +287,9 @@ takes effect)."
 > subclass of synchronization objects described in the introduction to Sec
 > 2. 
 
-** We can make this more formal by specifying the relationship between
-   concrete and abstract operations. 
+We have made this more formal in Section 2.4, by defining which operations of
+the synchronisation object can synchronise together, and the corresponding
+operation on the synchronisation specification object. 
 
 > Their paper also has a notable omission from the point-of-view of the
 > theory of linearizability in not mentioning whether the criterion satisfies
@@ -292,14 +314,21 @@ takes effect)."
 > object with a single operation called sync. On its face, this does not have
 > the same interface as the original object. Note that this is not a
 > conservative generalization of standard linearizability, which keeps the
-> same interface in the specification. Meanwhile, the criteria I mention
+> same interface in the specification. 
+
+We have now described how to capture the relationship between operations of
+the synchronisation object and of the synchronisation specification object,
+via a "synchronisation relation" (Section 2.4).  
+
+> Meanwhile, the criteria I mention
 > above, including set linearizability, all use the same interface for the
 > concrete object and the specification. 
 
-** Define the relationship.  
-
-?? I find it easier to specify a synchronisation as a single abstract
-operation. 
+The earlier work considered the set of legal histories as "given" (which was
+appropriate in their context).  Here, part of our focus is in specifying what
+the legal histories are.  We think that encapsulating the specification in a
+synchronisation specification object, with an operation for each type of
+synchronisation, is the easiest way to do that.
 
 > The liveness property the paper proposes also seems inappropriate for
 > multiple reasons. I believe there are two main critical issues. The first is
@@ -308,9 +337,12 @@ operation.
 > extension of a trace s where all the calls that were pending in s have a
 > return, even though they might have diverged.
 
-*** I think the reviewer has misunderstood our intention.  We make assumptions
-    about scheduling that prevent the possibility of divergence.  ** Make this
-    clearer. 
+We don't fully understand that comment.  However, we think that the reviewer
+has misunderstood our intention, which was that progressibility is not
+satisfied by a system that might diverge.  But that misunderstanding reflects
+that the definition was not as clear as it might have been.  We have
+reformulated it, in terms of state machines.  In particular, it should now be
+clear that if the system can diverge, it is not progressible. 
 
 >  Second, it is a well-known
 > result that linearizability does not reflect liveness (i.e. it may be that s
@@ -319,16 +351,19 @@ operation.
 > linearizations satisfy some progress property, so it is inherently
 > flawed. 
 
-** No, it requires that some such linearisation actually happens, and the
-   threads return.  ** Explain this better. 
+We don't fully understand this.  What are s and t here?  We presume a
+concurrent object and its sequential specification.  Assuming so, this doesn't
+correspond to progressibility.  The property we define is that if the
+linearisation includes a synchronisation, then the relevant concrete
+operations must eventually return: in your terms, if t can make progress, then
+s must also make progress.
 
 > Its testing was only presented rather informally and did not seem
 > like a robust testing technique, as it seems to boil down to "if it times
 > out it probably dead-locked". 
 
-That's the basic approach -- but it seems to work (once an appropriate timeout
-time has been found).  Also discuss the tradeoffs in choosing the timeout
-time.  Not hard to avoid false positives.
+That's the basic approach -- but it seems to work!  We have discussed the
+choice of the timeout time further in Section 8.
 
 > What might be novel is the second half of the paper about linearizability
 > testing for synchronization objects. While I am not an expert in the
@@ -345,9 +380,9 @@ time.  Not hard to avoid false positives.
 > synchronization linearizability subsumes standard linearizability, and
 > checking for linearizability is already known to be NP-complete. 
 
-** I would describe it as unsurprising rather than trivial -- say this
-   explicitly.  And it's a result that deserves mention.  But I think the
-   result in Section 6.5 is more surprising.
+We agree that the result in Section 6.2 is unsurprising (but, nevertheless, we
+think it's worth stating).  We consider the result in Section 6.5 to be more
+surprising.
 
 > At this
 > point, I was also expecting some comparison with static analysis and model
@@ -365,9 +400,8 @@ time.  Not hard to avoid false positives.
 > explain 'guard'. Even if it is just supposed to be some boolean function, it
 > would be best to briefly explain it. 
 
-We've said this.
-
-> 
+We've now said this.
+ 
 > Pg. 8 L. 28-31: 'Datatype' is probably not the correct terminology
 > here. 'Object' is probably the best terminology (and is used in the original
 > linearizability paper and subsequent literature on linearizability, but even
@@ -379,12 +413,14 @@ We've said this.
 > called 'concurrent objects' in the literature. So it is unclear to me why
 > the discrepancy in the terminology was introduced in this paper. 
 
-I don't like the word "object" here, as it's too general, and used somewhat
-inconsistently.  We are using the word "datatype" for an object for which
-linearisability is the appropriate correctness criterion.  That would not
-include synchronisation objects.  We use "concurrent datatype" to mean an
-implementation of an abstract datatype that allows concurrency.  *** Either
-come up with a better term, or explain better. 
+We're using the term "concurrent datatype" to mean an implementation of an
+abstract datatype that supports concurrency -- and we've now said that.  These
+are the objects for which linearisation is the normal correctness criterion.
+In particular, synchronisation objects are *not* concurrent datatypes.  The
+term "concurrent object" would seem to a wider category, that includes both of
+these classes, so we don't want to use that term when we mean (what we're
+calling) "concurrent datatype".  We need some term for this subclass of
+concurrent objects, and "concurrent datatype" is the best we've come up with. 
 
 > Pg. 10 L. 25-32: I would suggest to the authors to revise their definitions
 > so that the property 'linearizable' is not a unary property and instead is
@@ -464,9 +500,11 @@ linearisation.
 > I got convinced that I would much rather work with
 > synchronisation linearisations that think about two-step linearizations.
 
-That's a fair comment!
-
-*** Say more here. ??? 
+That's a fair comment!  We've briefly acknowledged this at the start of
+Section 3.2.  This section is more a proof of possibility than a suggestion
+that this is the easiest way.  (Somewhat related to this point: we note in
+Section 6 that the direct algorithms tend to be easier to implement than the
+two-step approach.)
 
 > The proofs in Section 3 are given without specifying
 > a semantics mathematically that could formalize Figure 3.
@@ -477,8 +515,8 @@ That's a fair comment!
 > Others can formalize it.
 
 The semantics of Figure 3 is the set of legal histories that the object
-allows.  We've noted that.  Lemma 7 identifies the important properties of
-those histories. 
+allows.  We've now noted that.  Lemma 7 identifies the important properties of
+those histories.
 
 > I like how the paper draws a straight line from the conceptual constructions in
 > Section 3 to the testing framework in Section 5.
@@ -490,7 +528,9 @@ those histories.
 > However, given that the main point is that the NP-completeness is what we
 > would expect (if we know the 1997 paper), I think all this is okay.
 
-Make clearer that it's an unsurprising result.
+We've made clearer (in the Introduction, and at the start of Section 6) that
+it's an unsurprising result.  We consider the result in Section 6.5 to be more
+surprising. 
 
 > Major suggestions:
 > 
@@ -500,7 +540,7 @@ Make clearer that it's an unsurprising result.
 > I would like to see more text about the origin story of
 > synchronisation progressibility.
 
-Relate to CSP FD checks (at least, under assumption 1 on page 14). -- related
+*** Relate to CSP FD checks (at least, under assumption 1 on page 14). -- related
 work section
 
 But it seems to be the natural condition to me.    
@@ -513,8 +553,15 @@ But it seems to be the natural condition to me.
 > add an explanation of why we here need both SyncChanSpec and Spec.
 > Perhaps SyncChanSpec and Spec could be the same thing?
 
-I don't really understand this.  SynChanSpec isn't a linearisation
-specification.  
+We're asking whether the property of being synchronisation linearisable with
+respect to SyncChanSpec can be captured as an instance of linearisable.
+That's equivalent to asking whether there is a linearisation specification
+Spec such that an implementation is synchronisation-linearisable with
+respect to SyncChanSpec if and only if it is linearisable with respect to
+Spec.  And that's equivalent to the sentence you've quoted.  
+
+We've added a few words, and stated the result as a proposition.  We hope that
+makes it clearer.
 
 > I would like to see more text about why proving the stated property is
 > what we need to show why linearisation and synchronisation linearisation
@@ -524,8 +571,6 @@ specification.
 > To me, this means that the paper should have more text about it.
 > One additional idea could be to make it into a theorem.
 
-Consider this. 
-
 > - P.23, Section 3 ends with
 > "We believe that these techniques can be adapted to
 > all the other synchronisation objects we have considered":
@@ -534,13 +579,10 @@ Consider this.
 > This way, the reader can have a strong sense already from Section 1 about
 > how far the paper goes and where future work can begin.
 
-I don't really understand this.  Sections 3.1-3.2 deal with binary
-heterogeneous synchronisation objects.  Section 3.3 describes a number of
-variations -- but not all.  The last paragraph was intended to imply that
-dealing with the rest is straightforward.  I don't agree with the "two
-buckets" comment.  Maybe we should work out the details for the remaining
-examples, and make the last paragraph less vague (probably not including the
-details in the paper).
+We have now stated that more positively, that the techniques *can* be adapted
+to the other synchronisation objects.  We have sketched the general
+construction, but think it's best not to give the details explicitly, as
+they're fiddly and uninteresting. 
 
 > - In Section 6, I would like to see text about whether we should be surprised
 > that the stateless case can be solved in O(n^2) time.
@@ -548,13 +590,15 @@ details in the paper).
 > If not, then I think it is a big deal that can help motivate why
 > the concept of a synchronisation linearisation is an interesting one.
 
-Linearization in the stateless case doesn't seem very interesting.  It amounts
-to checking each invocation is correct, in isolation, so is O(n). 
+In practice, linearisation is only used with stateful objects.  Linearisation
+in the stateless case would amount to checking each invocation is correct in
+isolation, so is O(n).  We've noted this in the introduction to Section 6.
 
-I think we should make the point earlier that linearisation normally
-corresponds to stateful objects. 
+??? Is this the best place? 
 
-I was a bit surprised that it was O(n^2) -- but is that worth saying? 
+We can't decide if the O(n^2) result is surprising, so we haven't said
+anything: different people find different things surprising.  It's not
+out-of-line with the O(n) result for stateless linearisation.
 
 > - Section 6 divides the overall problem into categories and gives
 > a complexity result for each one. I would like to see Section 6 end with
@@ -567,9 +611,12 @@ I was a bit surprised that it was O(n^2) -- but is that worth saying?
 > Such a table will hammer home some similarities and differences between
 > algorithms for linearization and for synchronisation linearisation.
 
-Except if we agree that linearisation isn't very interesting in the stateless
-case, then there's very little comparison to be made. 
-
+Given that linearisation is only applied to stateful objects, in practice, we
+don't think such a comparison table really makes sense.  At most, it would
+have two rows, "stateless" and "stateful", because the different subcategories
+of statelessness don't have analogues for linearisation.  However, we have
+added a summary table for synchronisation linearisation at the end of the
+introduction to Section 6. 
 
 > - P.37: the paper lists three questions, good ones, indeed.
 > I would prefer that the author follows a particular point in
@@ -585,7 +632,7 @@ case, then there's very little comparison to be made.
 > Indeed, I think those five pages in their current form has no such summary
 > and I think the best place to put the summary is with the questions.
 
-Consider this.  
+We have done this.  Thanks for the suggestion.
 
 > Minor suggestions:
 > 
@@ -611,13 +658,15 @@ corrected.
 > significantly simplified from the template definition above":
 > Please add more text about this and the example of p.20.
 > What is the nature of the simplification? Why is it a simplification?
+
+Formally, it's a data refinement.
+
 > Why does it matter? (Let me add that if it doesn't matter, then remove it,
 > where "it" is p.20, l.40-56.)
 
-We've noted that this is formally a data refinement.  
-
-*** Does it matter? 
-
+We think you're right that it doesn't really matter: the result here is a
+theoretical one, rather than aiming to be particularly efficient or clear.
+We've removed that paragraph.
 
 > - P.24: the title of Section 5 is "Hacking the linearisability framework".
 > The author is clear on that he consider what follows to be a hack, but
