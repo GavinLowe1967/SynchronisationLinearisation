@@ -9,14 +9,56 @@ easy to write; and the testers normally find errors quickly.  We have also
 studied the complexity of algorithms for deciding whether a history is
 synchronisation linearisable. 
 
+
+\subsection{Related work}
+\label{sec:related}
+
+As noted in the Introduction, our notion of synchronisation linearisation is
+equivalent to \emph{set linearisation}~\cite{Neiger-1994}, although no formal
+definition was given.  The same property was rediscovered by Hemed et
+al.~\cite{HRV-2015}, and called \emph{concurrency-aware linearisation} (CAL).
+They define a concurrency-aware trace (CA-trace) to be a history of
+\emph{sets} of operation executions, where each set represents operation
+executions that seem to take effect simultaneously (such as those in a
+synchronisation), and define CAL in terms of those CA traces.  They assume a
+given set of correct CA-traces, rather than allowing an independent
+specification, such as with the synchronisation specification objects we use.
+They verify an exchanger object with respect to CAL, and then use this result
+in a modular verification of an elimination stack~\cite{HSY-2004}.
+
+\framebox{Interval linearizability}
+
+\framebox{Scherer and Scott}
+
+Scherer et al.~\cite{SLS-2009} consider a setting where an operation may be
+linearised in several steps, similar to our two-step linearisation.  Their
+interest is in partial concurrent datatypes, where an operation may have a
+nontrivial precondition.  Such an operation is linearised by (1)~an initial
+request (where the operation registers itself); (2)~some number of
+unsuccessful follow-ups (where the precondition is found not to be satisfied);
+(3)~a successful follow-up (where the precondition holds, and the operation
+takes effect).
+
 Our analysis technique in this paper has been software testing of
 implementations of synchronisation objects.  However, one can also apply model
 checking to the problem.  The companion paper~\cite{gavin:SCL-CSP} analyses a
 library of communication primitives (including a closeable channel with timed
 operations, and alternation), using CSP~\cite{awr:ucs} and its model checker
-FDR~\cite{fdr3}.  An error is identified on a previous version of the library;
+FDR~\cite{fdr3}.  Synchronisation linearisation is captured by presenting a
+generic way of capturing the traces (equivalent to histories in this paper)
+that satisfy the property.  Synchronisation linearisation is a safety
+property, so is tested in the traces model.  It turns out that testing against
+the same specification, but in the failures-divergences model, captures
+synchronisation progressibility.  The library includes several different
+synchronisation objects that are analysed in this way.
+An error is identified on a previous version of the library;
 but the revised version is shown to be synchronisation linearisable and
 progressible.
+
+\subsection*{Acknowledgements}
+
+We would like to thank the anonymous reviewers for their useful comments and
+suggestions. 
 
 \bibliographystyle{elsarticle-num}
 %\bibliographystyle{alpha}

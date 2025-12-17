@@ -67,11 +67,29 @@ For each interface, we have implemented a tester using the two-step approach
 from Section~\ref{sec:lin-testing}, and also a tester using the direct
 algorithm from Section~\ref{sec:direct}.
 
-For each interface, we have produced a correct implementation.  For most
-interfaces, we have also implemented one or more faulty versions that fail to
-achieve either synchronisation linearisation or progressibility.  The faulty
-versions mostly have realistic mistakes: a few are genuine bugs; others are
-similar to bugs we have seen from students.
+For each interface, we have produced a correct implementation.  Most
+implementations are quite short, about 30 lines of code on average.  An
+exception is the implementation of a synchronous channel from the SCL
+library~\cite{gavin:SCL-CSP} (which supports closing, timeouts and
+alternation), which is a few hundred lines.  However, as noted in the
+Introduction, despite most implementations begin quite short, they can be hard
+to get right.
+
+For most interfaces, we have also implemented one or more faulty versions that
+fail to achieve either synchronisation linearisation or progressibility.  The
+faulty versions mostly have realistic mistakes: a few are genuine bugs; others
+are similar to bugs we have seen from students.  Some of the bugs are caused
+by an operation failing to wait for the previous synchronisation to finish,
+which can lead to interference between the two synchronisations.  Other bugs
+allow threads to run in an unexpected order (because of unfortunate
+scheduling), which falsifies the intended logic.  A particularly subtle bug
+concerns a previous implementation of the channel in SCL: here, if three
+threads ran concurrently, one sending, one receiving, and one closing the
+channel, it was possible for the receiver to return as if it had synchronised,
+then for the closing to take effect, and then for the receiver to find the
+channel closed and signal a failure; this is an error, since either both
+threads should think they synchronised, or neither.  
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -144,7 +162,9 @@ point represents a particular number $p$ of worker threads (given in the key),
 and a particular number of operation executions per run by each thread (given
 on the $X$-axis).
 %, with 100 observations.  
-The $Y$-axis gives the time in milliseconds.
+The $Y$-axis gives the time in milliseconds.  (The graph for the two-step
+tester applied to a barrier omits a plot for $p = 10$, with times of around
+5000ms, which does not fit on the axes.)
 
 %scala -cp .:/home/gavin/Scala/Util  experiments.BugParametersExperiment --doAll --samples 100
 \input{BPNall}

@@ -65,12 +65,13 @@ This definition is designed so that an even number of workers with contiguous
 identities will not deadlock. 
 
 |SyncChanSpec| is the synchronisation specification object from earlier.  The
-way executions synchronise is captured by the function |matching|.  This is a
-partial function whose domain defines which operation executions can
-synchronise together, and, in that case, the value each should return: here
-|send(x)| and |receive| can synchronise, giving a result as defined by the
-synchronisation specification object.  (Alternatively, the call to
-|SyncChanSpec.sync| could be in-lined.)
+way executions synchronise is captured by the function |matching|, which is
+analogous to the synchronisation abstraction function from
+Section~\ref{ssec:spec-variations}.  This is a partial function whose domain
+defines which operation executions can synchronise together, and, in that
+case, the value each should return: here |send(x)| and |receive| can
+synchronise, giving a result as defined by the synchronisation specification
+object.  (Alternatively, the call to |SyncChanSpec.sync| could be in-lined.)
 
 The function |doTest| performs a single test.  This uses a
 |BinaryStatelessTester| object from the testing framework, which encapsulates

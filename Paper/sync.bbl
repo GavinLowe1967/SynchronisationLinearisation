@@ -51,6 +51,16 @@ M.~Herlihy, J.~M. Wing, Linearizability: a correctness condition for concurrent
   objects, ACM Transactions on Programming Languages and Systems 12~(3) (1990)
   463--492.
 
+\bibitem{Neiger-1994}
+G.~Neiger, Set linearizability (brief announcement), in: Proceedings of the
+  13th Symposium on Principles of Distributed Computing, ACM Press, 1994, p.
+  396.
+
+\bibitem{HRV-2015}
+N.~Hemed, N.~Rinetzky, V.~Vafeiadis, Modular verification of concurrency-aware
+  linearizability, in: Proceedings of the 29th Symposium on Principles of
+  Distributed Computing, Vol. 9363 of LNCS, Springer, 2015, pp. 371--387.
+
 \bibitem{wing-gong}
 J.~M. Wing, C.~Gong, Testing and verifying concurrent objects, Journal of
   Parallel and Distributed Computing 17 (1993) 164--182.
@@ -58,6 +68,9 @@ J.~M. Wing, C.~Gong, Testing and verifying concurrent objects, Journal of
 \bibitem{gavin:lin-testing}
 G.~Lowe, Testing for linearizability, Concurrency and Computation: Practice and
   Experience 29~(14) (2016).
+
+\bibitem{awr:ucs}
+A.~W. Roscoe, Understanding Concurrent Systems, Springer, 2010.
 
 \bibitem{faulty-pri-queue}
 H.~Sundell, P.~Tsigas, Fast and lock-free concurrent priority queues for
@@ -92,12 +105,17 @@ G.~Lowe, Testing Synchronisation Objects, available via
 A.~Georges, D.~Buytaert, L.~Eeckhout, Statistically rigorous {Java} performance
   evaluation, in: Proceedings of OOPSLA '07, 2007.
 
-\bibitem{gavin:SCL-CSP}
-G.~Lowe, Analysing a library of concurrency primitives using {CSP}, submitted
-  for publication (2025).
+\bibitem{HSY-2004}
+D.~Hendler, N.~Shavit, L.~Yerushalmi, A scalable lock-free stack algorithm, in:
+  SPAA, 2004.
 
-\bibitem{awr:ucs}
-A.~W. Roscoe, Understanding Concurrent Systems, Springer, 2010.
+\bibitem{SLS-2009}
+W.~N. {Scherer III}, D.~Lea, M.~L. Scott, Scalable synchronous queues.,
+  Communicatons of the ACM 52~(5) (2009) 100--111.
+
+\bibitem{gavin:SCL-CSP}
+G.~Lowe, Analysing a library of concurrency primitives using {CSP}, Formal
+  Aspects of Computing (2026).
 
 \bibitem{fdr3}
 T.~Gibson-Robinson, P.~Armstrong, A.~Boulgakov, A.~W. Roscoe, {FDR3}: a

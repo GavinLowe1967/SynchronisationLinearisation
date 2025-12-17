@@ -1,34 +1,78 @@
-MONDAY:
+Actions
 
-Check locality theorem and tidy up (Sec 2.5)
+2. G to include general construction, resend to J - done
 
-Check progress section (2.6)
+3. J to read that, locality, progressibility.
 
-Locality result for progress.
+1. G Ask for extension - three weeks? - done
 
-"Compatible"
+4. Aim to complete draft of everything except related work and atomic broadcast
+  this week; read over the break; complete in new year.
 
-General result for testing, end of Section 3.
+=======================================================
+
+DRAFT reply to reviewers.
+
+Dear reviewers
+
+Thank you very much for your useful comments.  We discuss here how we have
+addressed them. 
+
+Thank you in particular to the reviewer who pointed out the relationship
+between our notion of synchronisation linearisation and set linearisation.  We
+have now acknowledged that relationship, and compared the definitions. 
+
+We have presented a way to formalise the relationship between operations of
+the synchronisation object and the operation of the synchronisation
+specification object, defining which operation of the specification object
+corresponds to which operations of the synchronisation object (Section 2.4).
+
+We have shown that both synchronisation linearisation and synchronisation
+progressibility satisfy locality (Sections 2.5 and 2.6). 
+
+We have improved the definition of synchronisation progressibility (Section
+2.6), as this seems to have been misunderstood.  We have described the
+semantics of the system in terms of a state machine, and formalised the
+definition using that semantics.
+
+We have presented a general construction for a two-step linearisation
+specification object, given a synchronisation specification object (Section
+3.4).
+
+==================================================================
+TO DO LIST
+
+
+Make liveness subsection into a section? 
+
+***  related work
+
+- compare more with Neiger, HRV, in particular locality. 
+
+- A Linearizability-based Hierarchy for Concurrent Specifications.  Armando
+Castañeda, Sergio Rajsbaum, and Michel Raynal.  Communications of the ACM.
+Vol. 66 No. 1, Pages: 86-97, 2023.
+https://cacm.acm.org/research/a-linearizability-based-hierarchy-for-concurrent-specifications/.
+
+- Castañeda, A., Rajsbaum, S., and Raynal, M. Unifying concurrent objects and
+  distributed tasks: interval-linearizability. J. ACM 65, 6 (2018), Article
+  45.
+
+- Castaneda, A., Rajsbaum, S., Raynal, M.: Specifying concurrent problems:
+beyond linearizability and up to tasks. In: DISC (2015)
+
+- Rinberg, A. and Keidar, I. Intermediate value linearizability: a
+  quantitative correctness criterion. In Proceedings of 34th Int'l
+  Sym. Distributed Computing. LIPICs 179 (2020), 2:1–2:17.
+
+- use ~/ViewAbstraction/Paper/examples4.tex
+
+*** Atomic broadcast.
+
 
 ===============
 
-Main changes:
-
-TO DO: set linearisability
-
-Locality
-
-Improved definition of progressibility.
-
-===============
-
-Relate to set linearisation.
-
-Capture relationship between concrete and abstract ops as a relation that
-relates a multiset of concrete operations to the corresponding abstract
-operation.  For example, for the synchronous channel:
-
-{ ( { send(x), receive(()) }, sync(x,()) ) | x \in T }
+MISC POINTS
 
 ** What's the purpose of requiring state == Zero in \overline{op}_1 in Fig 3?
    It ensures each op_1 and op_2 are consecutive, so maybe makes the
@@ -37,20 +81,10 @@ operation.  For example, for the synchronous channel:
 ** In Prop 9, double-check the use of "h_s'" at the end of each part
    (corrected from the submission). 
 
-Show locality/compositionality.
+** Consider lattice problem from CACM paper in our setting.
 
 Observation: the composition of k identical stateless synchronisation objects
-has the same external behaviour as a single one. 
-
-Clarify the term "linearisation point".  We use it abstractly, rather than
-representing a concrete step in the code. 
-
-Talk about our experience of students trying to test synchronisation objects. 
-
-Add Atomic Broadcast
-
-Note that (non-unary) synchronisations are necessarily not wait-free, lock-free
-or obstruction-free.
+has the same external behaviour as a single one.  
 
 ============
 
@@ -109,24 +143,27 @@ or obstruction-free.
 > have been appropriate to describe qualitatively what kinds of bugs were
 > introduced into the implementations of the synchronization objects. 
 
-*** Consider this.  I think it's common for synchronisation objects to be
-    quite short in terms of lines of code, but still quite tricky to get
-    right.  
+It's true that more implementations are short -- but they're still difficult
+to get right!
 
-*** Discuss bugs.  Typically unexpected orders of threads running.  
+We have given some some information about the lines of code; but we don't
+think a full list would be interesting or a good use of space.
+
+We have also added a discussion of the nature of some of the bugs. 
 
 > Although sometimes the difference in time between the direct and two-step
 > methods is rather large, it might make sense to put both techniques on the
 > same scale to make them easier to compare. 
 
-*** Consider this. (pp 39, 40; figs 10, 11).  I don't think it would work for
-    the barrier, but it would for the others.
+We've done this.  (It required omitting one plot, which we note in the text.)
 
 > Lacking a more comprehensive dataset of implementations to analyze, I also
 > question how representative of the class of all synchronization objects the
 > ones chosen here are. 
 
-*** I'm not sure that is answerable. 
+We are unable to think of any others that are significantly different.  That's
+clearly not a completely convincing argument; but it does suggest that we have
+at least got a good representation.
 
 > Reviewer #3: Mark as appropriate with an X:
 > 
@@ -161,7 +198,7 @@ or obstruction-free.
 > techniques were well-argued. Please see the extended answer below for a more
 > detailed discussion on this point. 
 
-***
+*** Include further comparison. 
 
 > Reviewer #3: Mark as appropriate with an X:
 > 
@@ -231,63 +268,11 @@ or obstruction-free.
 
 *** Compare with set linearizability.  It does look similar.
 
-[Random thoughts below.]
-
-A Linearizability-based Hierarchy for Concurrent Specifications.  Armando
-Castañeda, Sergio Rajsbaum, and Michel Raynal.  Communications of the ACM.
-Vol. 66 No. 1, Pages: 86-97, 2023.
-
-Reference: 
-https://cacm.acm.org/research/a-linearizability-based-hierarchy-for-concurrent-specifications/.
-Also look at refs 20 and 30 from there (set linearizability); 8 (interval
-linearizability); 33 (intermediate value; not relevant, but shows willing).
-
-20: 
-30: https://dl.acm.org/doi/pdf/10.1145/197917.198176
-
-Hemed, N., Rinetzky, N., and Vafeiadis, V. Modular verification of concurrency-aware linearizability. In Proceedings of 29th Symp. Distributed Computing. Springer LNCS 9363 (2015), 371–387.
-978-3-662-48653-5.pdf
-
-I think they don't consider the question of how to specify a synchronisation
+*** I think they don't consider the question of how to specify a synchronisation
 object.  They just assume the allowed histories are given.  These seems to be
 one of our contributions.  
 
-Maybe show that the algorithm in Figure 3 does not satisfy our property, and
-that our testing mechanism can detect this. 
 
-I think the set-linearizable version of the lattice problem can be specified
-in our setting by
-
-class Spec{
-  private var state: Set[L] = {}
-  def sync_j(x_1: L, ... x_j: L): (L,...,L) = {
-    state = state \union {x_1,...,x_j); val ub = \sqcup state; (ub,...,ub)
-  }
-}
-
-where sync_j synchronises j threads, and there is a sync_j for each j = 1,.... 
-
-Interval linearizability: 
-Castañeda, A., Rajsbaum, S., and Raynal, M. Unifying concurrent objects and
-distributed tasks: interval-linearizability. J. ACM 65, 6 (2018), Article 45. 
-Castaneda, A., Rajsbaum, S., Raynal, M.: Specifying concurrent problems: beyond
-linearizability and up to tasks. In: DISC (2015)
-
-Also look at
-Scherer III, W.N., Scott, M.L.: Nonblocking concurrent data structures with con-
-dition synchronization. In: Guerraoui, R. (ed.) DISC 2004. LNCS, vol. 3274,
-pp. 174–187. Springer, Heidelberg (2004)
-978-3-540-30186-8_13.pdf
-Sounds a bit like two-step linearizability.
-
-"Scherer and Scott~\cite{...} consider a setting where an operation may be
-linearised in several steps, similar to our two-step linearisation.  Their
-interest is in partial concurrent datatypes, where an operation may have a
-nontrivial precondition.  Such an operation is linearised by (1)~an initial
-request (where the operation registers itself); (2)~some number of
-unsuccessful follow-ups (where the precondition is found not to be satisfied);
-(3)~a successful follow-up (where the precondition holds, and the operation
-takes effect)."
 
 > The formal treatment of synchronization objects is not satisfactory. While
 > Sec. 2.1-2.3 are satisfactory in their formalism, they only handle a small

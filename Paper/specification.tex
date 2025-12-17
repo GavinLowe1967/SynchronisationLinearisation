@@ -61,6 +61,11 @@ The specification object might have private state, which can be accessed and
 updated within~|sync|.  Note that executions of |sync| occur
 \emph{sequentially}.  
 
+Informally, the synchronisation specification object can be seen as an
+idealised description of the effects of the synchronisation, as if---instead
+of calling $\op_1$ and~$\op_2$---the two threads had jointly called |sync|,
+each supplying one parameter, and each taking one component of the result.
+
 In general, |sync| could be nondeterministic, and so allow several different
 results.  However, in all our examples, |sync| will be deterministic; and we
 will require it to be deterministic when we consider testing, from
@@ -205,7 +210,7 @@ h & = &
     \end{align}
 \end{eqnarray*}
 %
-This history is illustrated by the timeline in Figure~\ref{fig:lin-timeline}. 
+This history is illustrated by the timeline in Figure~\ref{fig:lin-timeline}.
 
 %%%%%
 
@@ -287,6 +292,9 @@ by the interleaving
   \end{align}
 \]
 as illustrated in  Figure~\ref{fig:lin-timeline}.
+The points at which the events of~$h_s$ are inserted into~$h$ can be thought
+of as the points where each operation has an effect; we refer to these as
+\emph{linearisation points}. 
 
 A concurrent history might not be complete, i.e.~it might have some pending
 executions that have been called but have not returned.  An \emph{extension}
@@ -389,11 +397,18 @@ h_s & = &
 The history is illustrated by the ``$\cross$''s in
 Figure~\ref{fig:sync-timeline}: each event corresponds to the synchronisation
 of two operations, so is depicted by two ``$\cross$''s on the corresponding
-operations, linked by a dashed vertical line.  This particular synchronisation
-specification object is stateless, so in fact any permutation of this history
-would also be legal (but not all such permutations will be compatible with the
-history of the synchronisation object); but the same will not be true in
-general of a specification object with state.
+operations, linked by a dashed vertical line.  
+%
+This particular synchronisation specification object is stateless, so in fact
+any permutation of the history~$h_s$ would also be legal (but not all such
+permutations will be compatible with the history of the synchronisation
+object); but the same will not be true in general of a specification object
+with state.
+%
+The points at which the events of~$h_s$ are inserted into~$h$ can be thought
+of as the points where each synchronisation takes place; we refer to these as
+\emph{synchronisation points}. 
+
 %
 \begin{definition}
 Let $h$ be a complete history of the synchronisation object~$Sync$.  We say

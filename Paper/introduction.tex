@@ -24,7 +24,10 @@ to take place in a one-at-a-time order, consistent with the calls and returns
 of operations on the object, and giving correct results.  We also define a
 liveness condition, which we call \emph{synchronisation progressibility}:
 informally, executions of operations don't get stuck when a synchronisation is
-possible.
+possible.  We show that synchronisation linearisation can be reduced to a
+variant of standard linearisation, which we call \emph{two-step
+  linearisation}, where each operation of the synchronisation object is
+linearised in \emph{two} steps.
 
 We consider testing of implementations of synchronisation objects.  The basic
 idea is to run several threads that use the object, record the history of
@@ -38,7 +41,8 @@ present experimental results.
 \begin{keyword}
 Concurrent programming \sep
 synchronisation \sep specification \sep linearisation \sep synchronisation
-linearisation \sep synchronisation progressibility \sep testing.
+linearisation \sep synchronisation progressibility \sep two-step linearisation
+\sep testing.
 \end{keyword}
 \end{frontmatter}
 
@@ -48,15 +52,15 @@ linearisation \sep synchronisation progressibility \sep testing.
 
 In many concurrent programs, it is necessary at some point for two or more
 threads to \emph{synchronise}: each of the threads waits until the other
-threads have reached the synchronisation point before continuing; in addition,
-the threads can exchange or combine data.  Reasoning about programs can be
-easier when synchronisations are used: it helps to keep threads in consistent
-stages of the program, and so makes it easier to reason about the states of
-different threads. (The word ``synchronisation'' is used in a couple of
-different ways within concurrent programming: we use it in the sense just
-described, where every thread waits for the others, rather than for more
-general coordination between threads, such as via a semaphore which allows
-asynchrony between a signal and the receipt of the signal.)
+threads have reached a particular point before continuing; in addition, the
+threads can exchange or combine data.  Reasoning about programs can be easier
+when synchronisations are used: it helps to keep threads in consistent stages
+of the program, and so makes it easier to reason about the states of different
+threads. (The word ``synchronisation'' is used in a couple of different ways
+within concurrent programming: we use it in the sense just described, where
+every thread waits for the others, rather than for more general coordination
+between threads, such as via a semaphore which allows asynchrony between a
+signal and the receipt of the signal.)
 
 We study synchronisations in this paper: we describe how synchronisations can
 be specified, and what it means for such a specification to be satisfied.  We
@@ -266,12 +270,23 @@ linearisation talks about synchronisations between executions of operations,
 whereas linearisation talks about single executions.  Informally, the
 synchronisations should appear to take place in a one-at-a-time order,
 consistent with the calls and returns of operations on the synchronisation
-object, and with results as defined by a \emph{synchronisation specification
-  object}.  We also define a liveness condition, which we call
-\emph{synchronisation progressibility}: informally, executions don't get stuck
-when a synchronisation is possible.
+object.
+%%  and with results as defined by a \emph{synchronisation specification
+%%   object}.
+We present a way to specify what sequences of synchronisations and what
+return values are consider correct, via a \emph{synchronisation specification
+  object}.
 
-\framebox{cf set linearisation}.
+In fact, our property of synchronisation linearisation turns out to be the
+same as \emph{set linearisation}~\cite{Neiger-1994}, also known as
+\emph{concurrency-aware linearisation}~\cite{HRV-2015}.  We compare these
+approaches with our own in Section~\ref{sec:related}.  We prefer the name
+``synchronisation linearisation'' here, because it best describes our
+intention.
+
+We also define a liveness condition, which we call \emph{synchronisation
+  progressibility}: informally, executions don't get stuck when a
+synchronisation is possible.
 
 In Section~\ref{sec:relating} we consider the relationship between
 synchronisation linearisation and (standard) linearisation.  We show that
@@ -283,7 +298,12 @@ to \emph{two} operations of the object used to specify linearisation; we call
 this \emph{two-step linearisation}.
 
 We then consider testing of synchronisation object implementations.  Our
-techniques are based on the techniques for testing (standard)
+experience from teaching students is that they often do not have a clear idea
+about how to test a synchronisation object (we suspect the same is true of
+other programmers).  Yet, implementing synchronisation objects is
+tricky---subtle bugs are fairly common---and so good tests are important.
+
+Our testing techniques are based on the techniques for testing (standard)
 linearisation~\cite{wing-gong,gavin:lin-testing}, which we review in
 Section~\ref{sec:lin-testing}: the basic idea is to record a history of
 threads using the object, and then to check whether that history is
@@ -314,7 +334,7 @@ Section~\ref{sec:implementation}; the framework supports both two-step
 linearisation and the direct algorithms.  In Section~\ref{sec:experiments} we
 describe experiments to determine the effectiveness of the testing techniques:
 both find errors in faulty implementations of synchronisation objects very
-quickly.  We sum up in Section~\ref{sec:conc}.
+quickly.  We sum up and discuss related work in Section~\ref{sec:conc}.
 
 We consider our main contributions to be as follows.
 %

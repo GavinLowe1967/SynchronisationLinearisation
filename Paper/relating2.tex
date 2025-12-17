@@ -1,5 +1,11 @@
-\subsection{Generalisations}
+\subsection{Variations}
 \label{ssec:relating-variations}
+
+We now discuss some variations on the case of binary heterogeneous
+synchronisations in the previous section.  We give a general construction in
+the next section, but we consider the constructions in this section to be
+easier to understand: to a certain extent, this section can be seen as
+providing stepping stones towards that general construction. 
 
 The results of the previous subsections carry across to non-binary, fixed
 arity synchronisations, in a straightforward way.  For a $k$-way
@@ -10,9 +16,6 @@ $\overline{\sm{op}}_{k-1}$.  The definition of two-step linearisation is then
 the obvious adaptation of the binary case: each operation |op|\s{i} of the
 synchronisation object is linearised by the composition of |op|\s{i} and
 $\overline{\op}_i$ of the specification object, for $i = 1, \ldots, k-1$.
-
-%% Each of the first $k - 1$ |op| operations takes a thread identity as a
-%% parameter.
 
 The construction of the previous subsection is easily adapted to the case of
 $k$-way synchronisations for $k > 2$.  The specification object encodes an
@@ -28,8 +31,6 @@ $k = 4$.
     $\begin{array}{c}
       \overline{\op}_i(t) [\sm{returns}_i(t) \ne \sm{None}] \\ (i = 1,2,3,4)
     \end{array}$}
-  %% $\overline{\op}_1,\, \overline{\op}_2,\, 
-  %%  \overline{\op}_3,\, \overline{\op}_4$}
   (zero);
 %
 \draw (zero)++(6,0) node[draw] (one) {$\sm{One}(\sm{t}_1, \sm{x}_1)$};
@@ -43,16 +44,7 @@ $k = 4$.
   {$\sm{Three}(\sm{t}_1, \sm{x}_1, \sm{t}_2, \sm{x}_2, \sm{t}_3, \sm{x}_3)$};
 \draw[->] (two)  -- node[above] {$\sm{op}_3(\sm{t}_3, \sm{x}_3)$} (three); 
 %
-%% \draw (three)++(0,-2) node[draw] (threeX) 
-%%   {$\sm{ThreeX}(\sm{y}_1, \sm{y}_2, \sm{y}_3)$};
-\draw[->] (three)  -- node[left] {$\sm{op}_4(\sm{x}_4)$} (zero); 
-%
-%% \draw (threeX)++(-4,0) node[draw] (twoX) {$\sm{TwoX}(\sm{y}_1, \sm{y}_2)$};
-%% \draw[->] (threeX)  -- node[above] {$\overline{\sm{op}}_3()$} (twoX); 
-%% %
-%% \draw (twoX)++(-3.5,0) node[draw] (oneX) {$\sm{OneX}(\sm{y}_1)$};
-%% \draw[->] (twoX)  -- node[above] {$\overline{\sm{op}}_2()$} (oneX);
-%% \draw [->] (oneX)  -- node[below] {$\overline{\sm{op}}_1()$} (zero);
+\draw[->] (three)  -- node[left] {$\sm{op}_4(\sm{x}_4)$} (zero);
 \end{tikzpicture}
 \end{center}
 %
@@ -131,40 +123,15 @@ class TwoStepHomoLinSpec{
   }
 }
 \end{scala}
-%% \end{minipage}
-%% \hfill 
-%
-%% \begin{minipage}{37.8mm}
-%% \begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
-%% \draw (0,0) node[draw] (zero) {$\sm{Zero}$};
-%% \draw[->] (zero) ++ (-1.5, 0) -- (zero);
-%% \loopAbove(zero){$\begin{array}{c}
-%%   \overline\op(\sm t) \\ {[\sm{returns(t)} \ne \sm{None}]}
-%%   \end{array}$}
-%% %
-%% \draw (0,-4) node[draw] (one) {$\sm{One}(\sm t_1, \sm{x}_1)$};
-%% \draw[->] (zero) .. controls ++(0.3,-2) .. 
-%%   node[right] {$\sm{op}(\sm t_1, \sm{x}_1)$} (one); 
-%% %
-%% \draw[->] (one) .. controls ++(-0.3,2) .. 
-%%   node[left] {$\sm{op}(\sm t_2, \sm x_2)$} (zero);
-%% \end{tikzpicture}%
-%% \vspace{40mm}
-%% \end{minipage}%
-%\end{trivlist}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Mixed arity
-
 
 Recall that some operations have multiple modes of synchronisations: different
 executions of the operation may have synchronisations with different arities.
 For example, in a timeout channel, an execution of the |send| and |receive|
 operations may synchronise with an execution of the other operation, or may
 timeout corresponding to a unary synchronisation.
-%
-%% We illustrate how to test for synchronisation linearisation of objects with
-%% mixed modes of synchronisation via an example.
 
 \begin{window}[0,r,{
 \begin{minipage}{52.9mm}
@@ -201,31 +168,6 @@ it happens from the |One| state, there has been no corresponding |receive|,
 and so the execution returns~|false|, indicating a timeout.
 \end{window}
 
-%% \begin{figure}
-%% \begin{center}
-%% \begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
-%% \draw (0,0) node[draw] (zero) {$\sm{Zero}$};
-%% \draw[->] (zero) ++ (-1.5, 0) -- (zero);
-%% % self-loop on Zero
-%% \loopAbove(zero){$\begin{array}{@{}c@{}}
-%%       \receive()\::\sm{None}, \\ 
-%%       \overline{\send}(\sm t)\::\sm{true} [\sm{returns(t)} \ne \sm{None}]
-%%     \end{array}$}
-%% %%%%%% One
-%% \draw (0,-5) node[draw] (one) {$\sm{One}(\sm t, \sm{x})$};
-%% \draw[->] (zero) .. controls ++(0.3,-2.5) .. 
-%%   node[right] {$\send(\sm t, \sm{x})$} (one); 
-%% \draw[->] (one) .. controls ++(-0.3,2.5) .. 
-%%   node[left] {$\begin{array}[t]{r@{}}
-%%    \receive()\::\sm{Some(x)}, \\ \overline{\send}(\sm t)\::\sm{false}
-%%     \end{array}$} (zero);
-%% \end{tikzpicture}
-%% \end{center}
-%% \caption{Automaton for capturing two-step linearisation for a timeout
-%%   channel.}
-%% \label{fig:two-step-timeout-chan}
-%% \end{figure}
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Stateful
@@ -236,7 +178,6 @@ the specification object.  Different transitions may be available
 based upon that state.  However, it can be clearer and simpler to introduce
 different named states into the automaton.
 
-%Figure~\ref{fig:two-step-closeable-chan} 
 The figure below gives the specification automaton for a closeable channel.
 %
 %\begin{figure}
@@ -280,19 +221,138 @@ before the channel was closed, in which case $\sm{returns(t)} \ne \sm{None}$.
 
 %%%%%%%%%%
 
+\subsection{The general construction}
+\label{ssec:relating-general}
+
+We now give a general construction to show how two-step linearisation can
+capture synchronisation linearisation. 
+%
+Fix a synchronisation object~|SyncObj|, a synchronisation specification object
+|SyncSpec|, and synchronisation abstraction function~$\A$.  Let the operations
+of the |SyncObj| be
+\begin{scala}
+  def op£\s i£(x: A£\s i£): B£\s i \qquad for $i = 1,\ldots,n$.£
+\end{scala}
+
+The two-step linearisation tester has operations $\op_i$ and
+$\overline\op_i$ for $i = 1,\ldots,n$. 
+%
+The idea is that for a mapping 
+\[
+\seq{\op_{i_i}(x_1), \ldots, \op_{i_a}(x_a)}
+  \mapsto \sync(x_1,\ldots,x_a)  \in \A,
+\]
+corresponding to a synchronisation of arity~$a$, is linearised in the
+following order:
+\begin{enumerate}
+\item $\op_{i_1},\ldots,\op_{i_a}$, in order;
+
+\item $\overline\op_{i_i}$, for some~$i$, which  calls
+  |SyncSpec.sync|$(x_1,\ldots,x_a)$, and stores the results for other threads;
+
+\item The remaining $\overline\op_{i_j}$, in some order, which  retrieve
+  their results.
+\end{enumerate}
+%
+No other operation occurs between the start of stage~1 until after
+stage~2; but other operations may occur during stage~3.
+
+During stage~1, the two-step linearisabilty tester  records the prefix of
+$\seq{\op_{i_i}(x_1), \ldots, \op_{i_a}(x_a)}$ performed so far.  This is done
+by defining a case class |Op|$_i$ corresponding to each such
+operation~|op|$_i$, as at the top of Figure~\ref{fig:schema}.
+%
+%% \begin{scala}
+%% trait Op
+%% case class Op_i(t: ThreadID, x: A_i) £\quad for $i = 1,...,n$.£
+%% type State = List[Op]
+%% \end{scala}
+%
+The following function maps such a sequence to the corresponding sequence of
+operations, for use with~$\A$.
+\begin{eqnarray*}
+\opsFor(state) &  = & \seq{\op_j(x_j) \midd \sm{Op}_j(t_j,x_j) \leftarrow state}.
+\end{eqnarray*}
+
+A schema (using pseudo-Scala) for the general construction is in
+Figure~\ref{fig:schema}.  The variable~|state| records the sequence of
+|op|$_i$ linearised so far: this satisfies an invariant that it is a prefix of
+an element of $\dom \A$.  For each thread~|t|,\, |returns(t)| stores the value
+to be returned by~|t| as part of its most recent uncompleted synchronisation,
+if any. % , where $B = \bigcup\nolimits_{i = 1,\ldots,n} \sm B_i$.
+
+%%%%%
+
+\begin{figure}
+\begin{scala}
+trait Op
+case class Op£$_i$£(t: ThreadID, x: A£$_i$£) //  for £$i = 1,...,n$.£
+type State = List[Op]
+type B = £$\bigcup\nolimits_{i = 1,\ldots,n} \sm B_i$£
+
+class TwoStepLinSpec{
+  private var state: State = List()
+  private val returns = Array.fill[Option[B]](NumThreads)(None) 
+
+  def op£\s i£(t: ThreadID, x: A£\s i£): Unit = { // for £$i = 1,...,n$£.
+    require(£$\exists ops \in \dom \A \spot \opsFor(\sm{state}) \cat \seq{\op_i(x)} \prefix ops$£)
+    state = state :+  Op£\s i£(t,x) 
+  }
+
+  def £$\overline\op_i$£(t: ThreadID): B£\s i£ = { // for £$i = 1,...,n$£.
+    if(£$\opsFor(\sm{state}) \in \dom \A$£){
+      val (y£\s 1£,...,y£$_{\ss a}$£) = SyncSpec.£$\A(\opsFor(\sm{state}))$£
+      for(m <- 1 to a) returns(State(m).t) = Some(y£$_{\ss m}$£)
+      state = List()
+    }
+    else (require(state == List() && returns(t).isInstanceOf[Some])
+    val Some(y) = returns(t); returns(t) = None; y
+  }
+}
+\end{scala}
+\caption{A schema for the general construction of a two-step linearisability
+  tester.} 
+\label{fig:schema}
+\end{figure}
+
+%%%%%
+
+The operation $\op_i$ appends an appropriate |Op|$_i$ object to~|state|.  The
+precondition ensures that |state| still corresponds to a prefix of an element
+of $\dom \A$.  
+
+The operation $\overline\op_i$ proceeds as follows.  In the case that |state|
+corresponds to an element of $\dom \A$, it calls the corresponding operation
+on |SyncSpec|, stores each result in the corresponding entry of |returns|, and
+resets |state|.  Otherwise, it requires that some other operation has called
+the operation on |SyncSpec|, and that |state| holds its initial value.  In
+either case, the operation retrieves and clears its result from the
+appropriate entry in~|returns|.
+
+It is then straightforward to check that operations of |TwoStepLinSpec| can be
+linearised only as described earlier.  The proof that two-step linearisability
+corresponds to synchronisation linearisability is then much as in the proof
+for the binary case in Proposition~\ref{prop:two-step-lin}. 
+
+Figure~\ref{fig:schema} uses preudo-Scala.  For a concrete implementation, we
+need a separate implementation of $\op_i$ and $\overline\op_i$ for each~$i$.
+Then each calculation involving~$\A$ can be implemented directly, for example
+using a case analysis.
+
+
 
 %% We believe that these techniques can be adapted to all the other
 %% synchronisation objects we have considered.
 
-These techniques can be adapted to all other synchronisation objects of the
-form we are considering.  We sketch a generic approach; we omit the details
-because they are fiddly and uninteresting.  For each operation |op|$_i$ of the
-synchronisation object, the two-step linearisation specification object
-includes operations $\op_i$ and $\overline{\op}_i$.  For each maplet
-$\seq{\op_{i_i}(x_1), \ldots, \op_{i_a}(x_a)} \mapsto \sync(x_1,\ldots,x_a)$
-in the synchronisation abstraction function, the two-step linearisation
-specification object performs operations as follows: (1)~$\op_{i_i}(x_1),
-\ldots, \op_{i_a}(x_a)$, in that order; (2)~$\overline\op_{i_i}$, for
-some~$i$, which calls \sync\ on the synchronisation linearisation object and
-stores the results for other threads; (3)~the remaining $\overline\op_{i_j}$,
-in some order, which retrieve their results.
+%% These techniques can be adapted to all other synchronisation objects of the
+%% form we are considering.  We sketch a generic approach; we omit the details
+%% because they are fiddly and uninteresting.  For each operation |op|$_i$ of the
+%% synchronisation object, the two-step linearisation specification object
+%% includes operations $\op_i$ and $\overline{\op}_i$.  For each maplet
+%% $\seq{\op_{i_i}(x_1), \ldots, \op_{i_a}(x_a)} \mapsto \sync(x_1,\ldots,x_a)$
+%% in the synchronisation abstraction function, the two-step linearisation
+%% specification object performs operations as follows: (1)~$\op_{i_i}(x_1),
+%% \ldots, \op_{i_a}(x_a)$, in that order; (2)~$\overline\op_{i_i}$, for
+%% some~$i$, which calls \sync\ on the synchronisation linearisation object and
+%% stores the results for other threads; (3)~the remaining $\overline\op_{i_j}$,
+%% in some order, which retrieve their results.

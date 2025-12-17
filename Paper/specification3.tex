@@ -1,4 +1,3 @@
-
 \subsection{Specifying liveness}
 \label{sec:progress}
 
@@ -276,7 +275,11 @@ not consider it to be taking steps.  In most cases,
 assumption~\ref{assump:some} will mean that the thread holding the lock will
 be scheduled sufficiently many times that it eventually releases the lock.
 Thus such an object can satisfy synchronisation progressibility.  A similar
-argument holds for a spin lock, but requires assumption~\ref{assump:fair}. 
+argument holds for a spin lock, but requires assumption~\ref{assump:fair}.
+
+In fact, any synchronisation object without unary synchronisations is
+necessarily not lock-free: if a particular operation is unable to synchronise,
+then it will never return. 
 
 %% By contrast, our assumption, that each unblocked pending execution is
 %% scheduled infinitely often, reflects that modern schedulers \emph{are} fair,

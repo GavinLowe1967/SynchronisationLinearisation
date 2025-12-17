@@ -6,45 +6,46 @@ Database file #1: sync.bib
 Warning--empty pages in JCSP
 Warning--empty pages in sufrin:CSO
 Warning--empty pages in GBE2007
-You've used 23 entries,
+Warning--empty pages in HSY-2004
+You've used 27 entries,
             2952 wiz_defined-function locations,
-            802 strings with 7896 characters,
-and the built_in function-call counts, 6104 in all, are:
-= -- 548
-> -- 168
-< -- 2
-+ -- 71
-- -- 48
-* -- 334
-:= -- 812
-add.period$ -- 24
-call.type$ -- 23
-change.case$ -- 20
+            831 strings with 8464 characters,
+and the built_in function-call counts, 7484 in all, are:
+= -- 667
+> -- 202
+< -- 5
++ -- 85
+- -- 58
+* -- 416
+:= -- 973
+add.period$ -- 28
+call.type$ -- 27
+change.case$ -- 23
 chr.to.int$ -- 0
-cite$ -- 26
-duplicate$ -- 206
-empty$ -- 791
-format.name$ -- 61
-if$ -- 1653
+cite$ -- 31
+duplicate$ -- 265
+empty$ -- 975
+format.name$ -- 74
+if$ -- 2035
 int.to.chr$ -- 0
-int.to.str$ -- 23
-missing$ -- 25
-newline$ -- 78
-num.names$ -- 25
-pop$ -- 177
+int.to.str$ -- 27
+missing$ -- 30
+newline$ -- 90
+num.names$ -- 29
+pop$ -- 219
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 449
+skip$ -- 557
 stack$ -- 0
-substring$ -- 244
-swap$ -- 31
-text.length$ -- 2
+substring$ -- 301
+swap$ -- 50
+text.length$ -- 5
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
-warning$ -- 3
-while$ -- 42
-width$ -- 25
-write$ -- 192
-(There were 3 warnings)
+warning$ -- 4
+while$ -- 51
+width$ -- 29
+write$ -- 227
+(There were 4 warnings)
