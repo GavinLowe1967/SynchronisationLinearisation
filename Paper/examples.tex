@@ -84,8 +84,8 @@ which can lead to interference between the two synchronisations.  Other bugs
 allow threads to run in an unexpected order (because of unfortunate
 scheduling), which falsifies the intended logic.  A particularly subtle bug
 concerns a previous implementation of the channel in SCL: here, if three
-threads ran concurrently, one sending, one receiving, and one closing the
-channel, it was possible for the receiver to return as if it had synchronised,
+threads run concurrently, one sending, one receiving, and one closing the
+channel, it is possible for the receiver to return as if it has synchronised,
 then for the closing to take effect, and then for the receiver to find the
 channel closed and signal a failure; this is an error, since either both
 threads should think they synchronised, or neither.  
@@ -174,9 +174,11 @@ small number of worker threads (typically two to four), each performing a
 fairly small number of operations per run (typically about four).
 
 Some bugs are exhibited only when the number of threads exceeds the arity of a
-synchronisation: for the ABC problem, two different synchronisations
-interfere; for the closeable channel, the closing of the channel interferes
-with a synchronisation.  We therefore recommend including enough threads to
+synchronisation: for example, in the ABC problem, two different
+synchronisations interfere to produce the error.
+%% ; for the closeable channel, the closing of the channel interferes
+%% with a synchronisation.
+We therefore recommend including enough threads to
 find such bugs.
 
 On the other hand, the number of operations performed by each thread should
@@ -320,7 +322,7 @@ this duration, but did with a shorter duration of 80ms.  If an error is found
 the duration and see whether the error still occurs.  Of course, a larger
 value for this duration does increase the time that a given number of runs
 will take: a tester may take the view that it's easiest to use a larger
-duration, and just leave the tests running.
+duration, and just leave the tests running for longer.
 
 
 \begin{figure}

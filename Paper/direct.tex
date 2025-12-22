@@ -1,4 +1,4 @@
-\section{Direct testing of synchronisation linearisation and progressability}
+\section{Direct testing of synchronisation linearisation and progressibility}
 \label{sec:direct}
 
 We now consider how to test for synchronisation linearisation more directly.
@@ -22,9 +22,9 @@ order to find failures of progress, it is necessary that not all executions
 can synchronise: we have examples of incorrect synchronisation objects where
 (for example) if there are two executions of $\op_1$ and one of~$\op_2$, then
 it's possible that \emph{neither} execution of~$\op_1$ returns, signifying
-a failure of progressability; but if there were a second execution
+a failure of progressibility; but if there were a second execution
 of~$\op_2$, it would unblock both executions of~$\op_1$, so all executions
-would return, and the failure of progressability would be missed.
+would return, and the failure of progressibility would be missed.
 
 Instead, we run threads performing operations, typically chosen at random; and
 after a suitable duration, we interrupt any threads that have not yet
@@ -35,7 +35,7 @@ positives.  We discuss this point further in Section~\ref{sec:experiments}.
 
 In the remainder of this section we consider algorithms for determining
 whether the resulting log history is synchronisation linearisable, and whether
-it is synchronisation progressable.  These algorithms again assume that the
+it is synchronisation progressible.  These algorithms again assume that the
 synchronisation specification object is deterministic.  In
 Section~\ref{sec:algorithm-dfs} we present a general algorithm for this
 problem, based on depth-first search.  We also show how the algorithm can be

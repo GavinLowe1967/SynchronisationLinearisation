@@ -74,9 +74,10 @@ We now show that binary heterogeneous synchronisation linearisation
 corresponds to a small adaptation of linearisation, where one of the
 operations on the synchronisation object corresponds to \emph{two} operations
 of the linearisation specification object.  We define below what we mean by
-this.  We prove the correspondence in the next subsection.  We generalise to
-synchronisations of more than two threads, and to the homogeneous case in
-Section~\ref{ssec:relating-variations}.  
+this.  We prove the correspondence in the next subsection.  We consider some
+variations, including synchronisations of more than two threads, and the
+homogeneous case in Section~\ref{ssec:relating-variations}.  We prove the
+general case in Section~\ref{ssec:relating-general}.
 
 Given a synchronisation object with signature
 \begin{scala}
@@ -371,7 +372,7 @@ synchronisation-linearisable.
 
 \textbf{($\Leftarrow$).}\quad
 %
-Let $h$ be a history of |SyncObj| that is synchronisation linearisable with
+Let $h$ be a history of |SyncObj| that is synchronisation-linearisable with
 respect to |SyncSpec|.  By assumption, there is an extension $h'$ of~$h$, and
 a legal history~$h_s$ of |SyncSpec| such that $h_s$ is a synchronisation
 linearisation of $h'' = complete(h')$.

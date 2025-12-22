@@ -233,7 +233,7 @@ signature, where a dequeue returns the value |None| to indicate the
 termination case.
 %
 \begin{scala}
-class TerminatingQueue[A](n: Int){ // £n£ is the number of threads   
+class TerminatingQueue[A](n: Int){ // £n£ is the number of threads.   
   def enqueue(x: A): Unit
   def dequeue: Option[A]
 }
@@ -279,7 +279,8 @@ return values are consider correct, via a \emph{synchronisation specification
 
 In fact, our property of synchronisation linearisation turns out to be the
 same as \emph{set linearisation}~\cite{Neiger-1994}, also known as
-\emph{concurrency-aware linearisation}~\cite{HRV-2015}.  We compare these
+\emph{concurrency-aware linearisation}~\cite{HRV-2015}, where a set of
+operation executions appear to take place at the same time.  We compare these
 approaches with our own in Section~\ref{sec:related}.  We prefer the name
 ``synchronisation linearisation'' here, because it best describes our
 intention.

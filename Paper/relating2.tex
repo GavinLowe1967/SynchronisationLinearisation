@@ -49,10 +49,10 @@ $k = 4$.
 \end{center}
 %
 The final |op| operation, |op|\s4 in the above figure, applies the |sync|
-method of the synchronisation specification object to the parameters $\sm x_1,
-\ldots, \sm x_k$ to obtain the results $\sm y_1, \ldots, \sm y_k$; it stores
-the first $k-1$ in appropriate |returns|\s{i} arrays, and returns $\sm y_k$
-itself.  In the case $k=4$, it has definition:
+operation of the synchronisation specification object to the parameters $\sm
+x_1, \ldots, \sm x_k$ to obtain the results $\sm y_1, \ldots, \sm y_k$; it
+stores the first $k-1$ in appropriate |returns|\s{i} arrays, and returns $\sm
+y_k$ itself.  In the case $k=4$, it has definition:
 %
 \begin{scala}
   def op£\s4£(x£\s4£: A£\s4£): B£\s4£ = {
@@ -134,14 +134,14 @@ operations may synchronise with an execution of the other operation, or may
 timeout corresponding to a unary synchronisation.
 
 \begin{window}[0,r,{
-\begin{minipage}{52.9mm}
+\begin{minipage}{53.2mm}
 \begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
 \draw (0,0) node[draw] (zero) {$\sm{Zero}$};
 \draw[->] (zero) ++ (-1.5, 0) -- (zero);
 % self-loop on Zero
 \loopAbove(zero){$\begin{array}{@{}c@{}}
       \receive()\::\sm{None}, \\ 
-      \overline{\send}(\sm t)\::\sm{true} [\sm{returns(t)} \ne \sm{None}]
+      \overline{\send}(\sm t)\::\sm{true} \, [\sm{returns(t)} \ne \sm{None}]
     \end{array}$}
 %%%%%% One
 \draw (0,-5) node[draw] (one) {$\sm{One}(\sm t, \sm{x})$};
@@ -292,7 +292,8 @@ type B = £$\bigcup\nolimits_{i = 1,\ldots,n} \sm B_i$£
 
 class TwoStepLinSpec{
   private var state: State = List()
-  private val returns = Array.fill[Option[B]](NumThreads)(None) 
+  private val returns = new Array[Option[B]](NumThreads)
+  for(i <- 0 until NumThreads) returns(i) = None
 
   def op£\s i£(t: ThreadID, x: A£\s i£): Unit = { // for £$i = 1,...,n$£.
     require(£$\exists ops \in \dom \A \spot \opsFor(\sm{state}) \cat \seq{\op_i(x)} \prefix ops$£)
@@ -302,7 +303,7 @@ class TwoStepLinSpec{
   def £$\overline\op_i$£(t: ThreadID): B£\s i£ = { // for £$i = 1,...,n$£.
     if(£$\opsFor(\sm{state}) \in \dom \A$£){
       val (y£\s 1£,...,y£$_{\ss a}$£) = SyncSpec.£$\A(\opsFor(\sm{state}))$£
-      for(m <- 1 to a) returns(State(m).t) = Some(y£$_{\ss m}$£)
+      for(m <- 1 to a) returns(state(m).t) = Some(y£$_{\ss m}$£)
       state = List()
     }
     else (require(state == List() && returns(t).isInstanceOf[Some])

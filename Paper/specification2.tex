@@ -80,9 +80,9 @@ class TimeoutChannelSpec[A]{
 }
 \end{scala}
 %
-The operation |sendTO| corresponds to a send timing out (and so not
-synchronising), |receiveTO| corresponds to a receive timing out, and
-|sync| corresponds to a send and receive synchronising.  This is
+The operation |sendTO| corresponds to a |send| timing out (and so not
+synchronising), |receiveTO| corresponds to a |receive| timing out, and
+|sync| corresponds to a |send| and |receive| synchronising.  This is
 formalised by the synchronisation abstraction function:
 \[
 \begin{align}
@@ -119,7 +119,7 @@ The synchronisation abstraction function is
 \set{ \seq{ \sm{receive}() } \mapsto \sm{receiveFail}()  }.
 \end{align}
 \]
-A send and receive can synchronise corresponding to |sync|, but only before
+A |send| and |receive| can synchronise corresponding to |sync|, but only before
 the channel is closed; or each may fail once the channel is closed,
 corresponding to |sendFail| and |receiveFail|.  
 
@@ -158,8 +158,8 @@ interleaving $h$ and~$h_s$ such that each event $sync^{i_1, \ldots, i_k}(x_1,
 and $\return.op_j^{i_j}\::y_j$, for each~$j$. 
 \end{definition}
 
-The definition of synchronisation-linearisability follows in the obvious
-way.
+The definition of synchronisation linearisability then follows precisely as in
+Definition~\ref{def:sync-lin-objects}.
 
 %% %
 %% The definition of synchronisation linearisation is an obvious adaptation of
@@ -238,9 +238,10 @@ combine the abstraction functions into a single abstraction function~$\A$, by
 taking their union.
 
 We show that synchronisation linearisation satisfies a locality property: the
-objects~$\O$ are synchronisation-linearisable if and only if each individual
-object is synchronisation-linearisable.  This is an important result, as it
-allows for compositional development and verification.  
+combined objects~$\O$ are  synchronisation-linearisable if and only if each
+individual object is synchronisation-linearisable.  This is an important
+result, as it allows for compositional development and verification.
+(Neiger~\cite{Neiger-1994} states a similar result.)
 
 \begin{lemma}
 \label{lem:local}
@@ -289,11 +290,10 @@ there is an extension $h_o'$ of $h \restrict o$ such that $complete(h_o')$ is
 synchronisation-linearisable with respect to $Spec_o$ and~$\A_o$.
 %
 Let $h'$ be an extension of~$h$, adding the events in each~$h_o'$ but
-not~$h_o$ in the same order (but interleaving events from different of
-different objects arbitrarily).  Then $complete(h') \restrict o =
-complete(h_o')$, for each~$o$.
+not~$h_o$ in the same order (but interleaving events from different objects
+arbitrarily).  Then $complete(h') \restrict o = complete(h_o')$, for each~$o$.
 %
-Then $complete(h')$ is a complete history of~$\O$, and by
+Also, $complete(h')$ is a complete history of~$\O$, and by
 Lemma~\ref{lem:local}, $complete(h')$ is synchronisation-linearisable with
 respect to~$Spec$ and~$\A$, as required.
 \end{proof}

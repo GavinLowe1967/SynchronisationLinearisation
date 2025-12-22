@@ -1,22 +1,59 @@
-Actions
+TO DO LIST
 
-2. G to include general construction, resend to J - done
+Make liveness subsection into a section? 
 
-3. J to read that, locality, progressibility.
+***  related work
 
-1. G Ask for extension - three weeks? - done
+- compare more with Neiger, HRV?
 
-4. Aim to complete draft of everything except related work and atomic broadcast
-  this week; read over the break; complete in new year.
+- A Linearizability-based Hierarchy for Concurrent Specifications.  Armando
+Castañeda, Sergio Rajsbaum, and Michel Raynal.  Communications of the ACM.
+Vol. 66 No. 1, Pages: 86-97, 2023.
+https://cacm.acm.org/research/a-linearizability-based-hierarchy-for-concurrent-specifications/.
+
+- Castañeda, A., Rajsbaum, S., and Raynal, M. Unifying concurrent objects and
+  distributed tasks: interval-linearizability. J. ACM 65, 6 (2018), Article
+  45.
+
+- Castaneda, A., Rajsbaum, S., Raynal, M.: Specifying concurrent problems:
+beyond linearizability and up to tasks. In: DISC (2015)
+
+- Rinberg, A. and Keidar, I. Intermediate value linearizability: a
+  quantitative correctness criterion. In Proceedings of 34th Int'l
+  Sym. Distributed Computing. LIPICs 179 (2020), 2:1–2:17.
+
+- use ~/ViewAbstraction/Paper/examples4.tex
+
+"compositional linearizability"
+
+*** Atomic broadcast.
+
+*** Check pagination.
 
 =======================================================
+
+MISC POINTS
+
+** What's the purpose of requiring state == Zero in \overline{op}_1 in Fig 3?
+   It ensures each op_1 and op_2 are consecutive, so maybe makes the
+   construction clearer.
+
+** In Prop 9, double-check the use of "h_s'" at the end of each part
+   (corrected from the submission). 
+
+** Consider lattice problem from CACM paper in our setting.
+
+Observation: the composition of k identical stateless synchronisation objects
+has the same external behaviour as a single one.  
+
+=======================================
 
 DRAFT reply to reviewers.
 
 Dear reviewers
 
-Thank you very much for your useful comments.  We discuss here how we have
-addressed them. 
+Thank you very much for your useful comments.  We describe here the main
+changes in this version.  We discuss specific comments inline below.
 
 Thank you in particular to the reviewer who pointed out the relationship
 between our notion of synchronisation linearisation and set linearisation.  We
@@ -39,54 +76,8 @@ We have presented a general construction for a two-step linearisation
 specification object, given a synchronisation specification object (Section
 3.4).
 
-==================================================================
-TO DO LIST
+** Atomic broadcast.
 
-
-Make liveness subsection into a section? 
-
-***  related work
-
-- compare more with Neiger, HRV, in particular locality. 
-
-- A Linearizability-based Hierarchy for Concurrent Specifications.  Armando
-Castañeda, Sergio Rajsbaum, and Michel Raynal.  Communications of the ACM.
-Vol. 66 No. 1, Pages: 86-97, 2023.
-https://cacm.acm.org/research/a-linearizability-based-hierarchy-for-concurrent-specifications/.
-
-- Castañeda, A., Rajsbaum, S., and Raynal, M. Unifying concurrent objects and
-  distributed tasks: interval-linearizability. J. ACM 65, 6 (2018), Article
-  45.
-
-- Castaneda, A., Rajsbaum, S., Raynal, M.: Specifying concurrent problems:
-beyond linearizability and up to tasks. In: DISC (2015)
-
-- Rinberg, A. and Keidar, I. Intermediate value linearizability: a
-  quantitative correctness criterion. In Proceedings of 34th Int'l
-  Sym. Distributed Computing. LIPICs 179 (2020), 2:1–2:17.
-
-- use ~/ViewAbstraction/Paper/examples4.tex
-
-*** Atomic broadcast.
-
-
-===============
-
-MISC POINTS
-
-** What's the purpose of requiring state == Zero in \overline{op}_1 in Fig 3?
-   It ensures each op_1 and op_2 are consecutive, so maybe makes the
-   construction clearer.
-
-** In Prop 9, double-check the use of "h_s'" at the end of each part
-   (corrected from the submission). 
-
-** Consider lattice problem from CACM paper in our setting.
-
-Observation: the composition of k identical stateless synchronisation objects
-has the same external behaviour as a single one.  
-
-============
 
 > Reviewer's Responses to Questions
 > 
@@ -266,13 +257,11 @@ at least got a good representation.
 > linearizability such as interval linearizability and compositional
 > linearizability. 
 
-*** Compare with set linearizability.  It does look similar.
+Thank you for the pointers.  We have acknowledged the relationship with set
+linearisability, in the Introduction and at the end of Section 2.3.
 
-*** I think they don't consider the question of how to specify a synchronisation
-object.  They just assume the allowed histories are given.  These seems to be
-one of our contributions.  
-
-
+We consider our definition of synchronisation linearisation to be clearer than
+that of concurrency-aware linearisation, although that is a personal opinion.
 
 > The formal treatment of synchronization objects is not satisfactory. While
 > Sec. 2.1-2.3 are satisfactory in their formalism, they only handle a small
@@ -303,7 +292,13 @@ We have now included a proof of locality for synchronisation linearisation
 > of the pre-existing advances on linearizability and of a dedicated related
 > works section. 
 
-** Add comparison. 
+As noted above, we acknowledge that we have re-discovered set linearisability,
+and that this lessens the contribution of Section 2.  However, we believe that
+this style of capturing specifications is a useful contribution.  Further, the
+liveness property is, we believe, novel. 
+
+We disagree with you that Section 3 is a non-contribution.  We believe that
+all the material from the start of Section 3.1 onwards is new. 
 
 > A different concern is that the specifications here are rather unusual in
 > that an object with reasonable operations, say send and receive, becomes an
@@ -314,7 +309,7 @@ We have now included a proof of locality for synchronisation linearisation
 
 We have now described how to capture the relationship between operations of
 the synchronisation object and of the synchronisation specification object,
-via a "synchronisation relation" (Section 2.4).  
+via a "synchronisation abstraction function" (Section 2.4).
 
 > Meanwhile, the criteria I mention
 > above, including set linearizability, all use the same interface for the
@@ -337,8 +332,8 @@ We don't fully understand that comment.  However, we think that the reviewer
 has misunderstood our intention, which was that progressibility is not
 satisfied by a system that might diverge.  But that misunderstanding reflects
 that the definition was not as clear as it might have been.  We have
-reformulated it, in terms of state machines.  In particular, it should now be
-clear that if the system can diverge, it is not progressible. 
+reformulated it, in terms of state machines.  In particular, it is now
+explicit that if the system can diverge, it is not progressible.
 
 >  Second, it is a well-known
 > result that linearizability does not reflect liveness (i.e. it may be that s
@@ -358,8 +353,8 @@ s must also make progress.
 > like a robust testing technique, as it seems to boil down to "if it times
 > out it probably dead-locked". 
 
-That's the basic approach -- but it seems to work!  We have discussed the
-choice of the timeout time further in Section 8.
+That's the basic approach -- but it works!  We have discussed the choice of
+the timeout time further in Section 8.
 
 > What might be novel is the second half of the paper about linearizability
 > testing for synchronization objects. While I am not an expert in the
@@ -536,10 +531,16 @@ surprising.
 > I would like to see more text about the origin story of
 > synchronisation progressibility.
 
-*** Relate to CSP FD checks (at least, under assumption 1 on page 14). -- related
-work section
+From memory, we came up with the property via our work using CSP and FDR to
+check for synchronisation linearisation.  If you take the CSP refinement check
+for synchronisation linearisation, which is in the traces model, but instead
+test it in the failures-divergences model, then you get synchronisation
+progressibility.  However, it just seems to us to be the obvious liveness
+property corresponding to synchronisation linearisation, namely that expected
+returns actually happen.
 
-But it seems to be the natural condition to me.    
+We've briefly mentioned that result concerning CSP in the related work
+section. 
 
 > - P.16: "We show that there is no corresponding
 > linearisation specification Spec, i.e. such that
@@ -575,10 +576,8 @@ makes it clearer.
 > This way, the reader can have a strong sense already from Section 1 about
 > how far the paper goes and where future work can begin.
 
-We have now stated that more positively, that the techniques *can* be adapted
-to the other synchronisation objects.  We have sketched the general
-construction, but think it's best not to give the details explicitly, as
-they're fiddly and uninteresting. 
+We have now given a general construction (Section 3.4) that shows that the
+techniques *can* be adapted to all the other synchronisation objects.
 
 > - In Section 6, I would like to see text about whether we should be surprised
 > that the stateless case can be solved in O(n^2) time.
@@ -590,11 +589,13 @@ In practice, linearisation is only used with stateful objects.  Linearisation
 in the stateless case would amount to checking each invocation is correct in
 isolation, so is O(n).  We've noted this in the introduction to Section 6.
 
-??? Is this the best place? 
-
 We can't decide if the O(n^2) result is surprising, so we haven't said
 anything: different people find different things surprising.  It's not
-out-of-line with the O(n) result for stateless linearisation.
+out-of-line with the O(n) result for stateless linearisation.  
+
+We find the difference between the cases of binary and non-binary
+synchronisations (polynomial and NP-complete, respectively) to be more
+surprising. 
 
 > - Section 6 divides the overall problem into categories and gives
 > a complexity result for each one. I would like to see Section 6 end with
@@ -673,13 +674,3 @@ We've removed that paragraph.
 > The author can disagree and keep the title of Section 5.
 
 We've done this.
-
-============================
-
-Actions:
-
-Search for related work
-
-Read set linearizability
-
-Read  Nonblocking concurrent data structures with condition synchronization

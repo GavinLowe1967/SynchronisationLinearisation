@@ -69,6 +69,10 @@ J.~M. Wing, C.~Gong, Testing and verifying concurrent objects, Journal of
 G.~Lowe, Testing for linearizability, Concurrency and Computation: Practice and
   Experience 29~(14) (2016).
 
+\bibitem{HSY-2004}
+D.~Hendler, N.~Shavit, L.~Yerushalmi, A scalable lock-free stack algorithm, in:
+  SPAA, 2004.
+
 \bibitem{awr:ucs}
 A.~W. Roscoe, Understanding Concurrent Systems, Springer, 2010.
 
@@ -101,21 +105,17 @@ G.~Lowe, Testing Synchronisation Objects, available via
   \url{https://www.cs.ox.ac.uk/people/gavin.lowe/UnderstandingSynchronisation/}
   (2025).
 
+\bibitem{gavin:SCL-CSP}
+G.~Lowe, Analysing a library of concurrency primitives using {CSP}, Formal
+  Aspects of ComputingForthcoming (2026).
+
 \bibitem{GBE2007}
 A.~Georges, D.~Buytaert, L.~Eeckhout, Statistically rigorous {Java} performance
   evaluation, in: Proceedings of OOPSLA '07, 2007.
 
-\bibitem{HSY-2004}
-D.~Hendler, N.~Shavit, L.~Yerushalmi, A scalable lock-free stack algorithm, in:
-  SPAA, 2004.
-
 \bibitem{SLS-2009}
-W.~N. {Scherer III}, D.~Lea, M.~L. Scott, Scalable synchronous queues.,
+W.~N. {Scherer III}, D.~Lea, M.~L. Scott, Scalable synchronous queues,
   Communicatons of the ACM 52~(5) (2009) 100--111.
-
-\bibitem{gavin:SCL-CSP}
-G.~Lowe, Analysing a library of concurrency primitives using {CSP}, Formal
-  Aspects of Computing (2026).
 
 \bibitem{fdr3}
 T.~Gibson-Robinson, P.~Armstrong, A.~Boulgakov, A.~W. Roscoe, {FDR3}: a

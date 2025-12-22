@@ -57,19 +57,19 @@ object ChanTester extends Tester{
 
 The |worker| function defines a worker thread that performs operations on the
 channel~|c|.  The function also takes parameters representing the thread's
-identity and a log object.  Here, each worker with an even identity performs
-10 |receive|s: the call |log(me, c.receive(), Receive)| logs the
-call, performs the |receive|, and then logs the return.  Similarly, each
-worker with an odd identity performs 10 |send|s of random values.
-This definition is designed so that an even number of workers with contiguous
-identities will not deadlock. 
+identity and a log object that logs representations of |send|s and |receive|s.
+Here, each worker with an even identity performs 10 |receive|s: the statement
+|log(me, c.receive(), Receive)| logs the call, performs the |receive|, and
+then logs the return.  Similarly, each worker with an odd identity performs 10
+|send|s of random values.  This definition is designed so that an even number
+of workers with contiguous identities will not deadlock.
 
 |SyncChanSpec| is the synchronisation specification object from earlier.  The
 way executions synchronise is captured by the function |matching|, which is
 analogous to the synchronisation abstraction function from
 Section~\ref{ssec:spec-variations}.  This is a partial function whose domain
 defines which operation executions can synchronise together, and, in that
-case, the value each should return: here |send(x)| and |receive| can
+case, the value each should return: here |send(x)| and |receive()| can
 synchronise, giving a result as defined by the synchronisation specification
 object.  (Alternatively, the call to |SyncChanSpec.sync| could be in-lined.)
 
@@ -119,7 +119,7 @@ history for an exchanger.  Here executions~2 and~3 have correctly synchronised
 and exchanged their values, 76 and~58.  Execution~1 has received execution~0's
 value,~13.  However, execution~0 has received execution~3's value, rather than
 execution~1's.  This does not, of course, identify what the bug is; but it does
-give some indication as to what has gone wrong, namely that execution~1 has been
+give some indication as to what has gone wrong, namely that execution~0 has been
 delayed and so failed to pick up the correct value. 
 
 Similarly, if a tester finds a failure of synchronisation progressibility, it

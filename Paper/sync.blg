@@ -5,40 +5,40 @@ The style file: elsarticle-num.bst
 Database file #1: sync.bib
 Warning--empty pages in JCSP
 Warning--empty pages in sufrin:CSO
-Warning--empty pages in GBE2007
 Warning--empty pages in HSY-2004
+Warning--empty pages in GBE2007
 You've used 27 entries,
             2952 wiz_defined-function locations,
-            831 strings with 8464 characters,
-and the built_in function-call counts, 7484 in all, are:
-= -- 667
+            832 strings with 8474 characters,
+and the built_in function-call counts, 7510 in all, are:
+= -- 674
 > -- 202
 < -- 5
 + -- 85
 - -- 58
-* -- 416
-:= -- 973
+* -- 417
+:= -- 976
 add.period$ -- 28
 call.type$ -- 27
-change.case$ -- 23
+change.case$ -- 24
 chr.to.int$ -- 0
 cite$ -- 31
-duplicate$ -- 265
-empty$ -- 975
+duplicate$ -- 266
+empty$ -- 976
 format.name$ -- 74
-if$ -- 2035
+if$ -- 2043
 int.to.chr$ -- 0
 int.to.str$ -- 27
 missing$ -- 30
 newline$ -- 90
 num.names$ -- 29
-pop$ -- 219
+pop$ -- 218
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 557
+skip$ -- 559
 stack$ -- 0
-substring$ -- 301
+substring$ -- 303
 swap$ -- 50
 text.length$ -- 5
 text.prefix$ -- 0
@@ -47,5 +47,5 @@ type$ -- 0
 warning$ -- 4
 while$ -- 51
 width$ -- 29
-write$ -- 227
+write$ -- 228
 (There were 4 warnings)

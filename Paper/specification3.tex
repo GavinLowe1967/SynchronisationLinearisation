@@ -1,9 +1,10 @@
 \subsection{Specifying liveness}
 \label{sec:progress}
 
-We now consider a liveness condition for synchronisation objects.  We assume
-that the synchronisation object in question satisfies synchronisation
-linearisability.
+We now consider a liveness condition for synchronisation objects.  Fix a
+synchronisation object |SyncObj| and a synchronisation specification object
+|SyncSpec|.  We assume that |SyncObj| is synchronisation-linearisable with
+respect to~|SyncSpec|.
 
 %% We assume that each pending operation execution is scheduled infinitely often,
 %% unless it is blocked (for example, trying to obtain a lock); in other words,
@@ -144,8 +145,9 @@ We say that a system \emph{can fail to progress} after history~$h$ if some
 return event is anticipated after~$h$, but $h$ can lead to a state where
 every return event is refused.
 
-We say that a system is \emph{synchronisation-progressible} if, for every
-history~$h$, it cannot fail to progress after~$h$.
+We say that a system is \emph{synchronisation-progressible} (with respect to
+the synchronisation specification object) if, for every history~$h$, it cannot
+fail to progress after~$h$.
 \end{definition}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -325,7 +327,7 @@ for any $o \in \O$).  This gives a contradiction.
 
 \begin{prop}
 A system $\O$ of synchronisation objects is synchronisation-progressible if
-each object $o \in \O$ is synchronisation-progressible.
+and only if each object $o \in \O$ is synchronisation-progressible.
 \end{prop}
 
 \begin{proof}

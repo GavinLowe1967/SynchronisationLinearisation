@@ -194,13 +194,13 @@ Let $h$ be a complete history of a binary heterogeneous synchronisation
 object, and let $h_l$ be a corresponding log history for the same object.  Let
 |SyncSpec| be a synchronisation specification object, and |TwoStepSyncSpec|
 the corresponding two-step synchronisation specification object, constructed
-as in Section~\ref{sec:twoStepLinSpec}.  Suppose $h$ is synchronisation
-linearisable with respect to |SyncSpec|.  Then $h_l$ is linearisable with
-respect to |TwoStepSyncSpec|.
+as in Section~\ref{sec:twoStepLinSpec}.  Suppose $h$ is
+synchronisation-linearisable with respect to |SyncSpec|.  Then $h_l$ is
+linearisable with respect to |TwoStepSyncSpec|.
 \end{prop}
 %
 \begin{proof}
-Since $h$ is synchronisation linearisable, there is a legal history~$h_s$ of
+Since $h$ is synchronisation-linearisable, there is a legal history~$h_s$ of
 |SyncSpec| such that $h_s$ is a synchronisation linearisation of $h$.
 Consider the interleaving of $h_s$ and~$h$, that demonstrates this, and
 interleave $h_l$ with it, consistent with the interleaving of~$h$ and~$h_l$
@@ -290,11 +290,9 @@ by each).  For a binary homogeneous synchronisation, this approach might not
 work if every worker does more than one operation: one worker might end up
 with two operations to perform, when all others have terminated; instead, we
 arrange for an even number of workers to each perform a single operation.
-%\framebox{Generalisations}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% \framebox{Improve below}
 
 \paragraph{Variable-arity synchronisations}
 
