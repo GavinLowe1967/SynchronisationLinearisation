@@ -27,7 +27,8 @@ $(EXDIR)/TwoFamiliesTester.class $(EXDIR)/OneFamilyTester.class
 BINARY_HOMO_TESTERS = $(EXDIR)/ExchangerTester.class
 
 NON_BINARY_TESTERS = $(EXDIR)/ABCTester.class $(EXDIR)/BarrierTester.class	\
-$(EXDIR)/TimeoutChannelTester.class $(EXDIR)/TimeoutExchangerTester.class
+$(EXDIR)/TimeoutChannelTester.class $(EXDIR)/TimeoutExchangerTester.class	\
+$(EXDIR)/AtomicBroadcastTester.class
 
 NON_BINARY_STATEFUL_TESTERS = $(EXDIR)/ABCCounterTester.class			\
 $(EXDIR)/BarrierCounterTester.class $(EXDIR)/TerminatingQueueTester.class	\
@@ -43,7 +44,8 @@ $(EXDIR)/ResignableBarrierTwoStepTester.class					\
 $(EXDIR)/TerminatingQueueTwoStepTester.class					\
 $(EXDIR)/TimeoutChannelTwoStepTester.class					\
 $(EXDIR)/CloseableChannelTwoStepTester.class					\
-$(EXDIR)/FilterChanTwoStepTester.class $(EXDIR)/OneFamilyTwoStepTester.class
+$(EXDIR)/FilterChanTwoStepTester.class $(EXDIR)/OneFamilyTwoStepTester.class	\
+$(EXDIR)/AtomicBroadcastTwoStepTester.class
 
 TESTERSX = $(BINARY_HETERO_TESTERS) $(BINARY_STATEFUL_TESTERS)			\
 $(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS) $(NON_BINARY_STATEFUL_TESTERS)	\
@@ -55,7 +57,7 @@ EXPERIMENTS = $(EXPDIR)/Experiment.class $(EXPDIR)/ParameterExperiment.class	\
 $(EXPDIR)/BugFinderExperiment.class $(EXPDIR)/BugParametersExperiment.class	\
 $(EXPDIR)/ProgressExperiment.class $(EXPDIR)/TwoStepExperiment.class
 
-all:	$(TESTERS) $(EXPERIMENTS)
+all:	$(TESTERS) $(EXPERIMENTS) $(OBDIR)/AtomicBroadcast.class
 
 clean:
 	rm $(DIR)/*.class $(EXDIR)/*.class $(OBDIR)/*.class; fsc -shutdown
@@ -134,6 +136,10 @@ $(EXDIR)/TimeoutExchangerTester.class: $(OBDIR)/TimeoutExchanger.class
 
 $(EXDIR)/ABCTwoStepTester.class: $(OBDIR)/ABC.class $(DIR)/TwoStepLinSpec3.class 
 
+$(EXDIR)/AtomicBroadcastTester.class: $(OBDIR)/AtomicBroadcast.class
+
+$(EXDIR)/AtomicBroadcastTwoStepTester.class: $(OBDIR)/AtomicBroadcast.class
+
 # Non-binary stateful
 
 $(NON_BINARY_STATEFUL_TESTERS): $(DIR)/StatefulTester.class
@@ -166,7 +172,6 @@ $(DIR)/TwoStepHomoLinSpec.class: SynchronisationTesting/TwoStepHomoLinSpec.scala
 $(DIR)/TwoStepLinSpec3.class: SynchronisationTesting/TwoStepLinSpec3.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationTesting/TwoStepLinSpec3.scala
 
-
 $(DIR)/%.class:     SynchronisationTesting/%.scala
 	$(FSC) $<
 
@@ -183,6 +188,9 @@ $(OBDIR)/Barrier.class: SynchronisationObjects/Barrier.scala
 
 $(OBDIR)/MenWomen.class: SynchronisationObjects/MenWomen.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationObjects/MenWomen.scala
+
+$(OBDIR)/AtomicBroadcast.class: SynchronisationObjects/AtomicBroadcast.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationObjects/AtomicBroadcast.scala
 
 $(OBDIR)/%.class:     SynchronisationObjects/%.scala
 	$(FSC) $<
@@ -231,17 +239,25 @@ $(EXDIR)/FilterChanTwoStepTester.class: SynchronisationTesters/FilterChanTwoStep
 $(EXDIR)/OneFamilyTwoStepTester.class: SynchronisationTesters/OneFamilyTwoStepTester.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/OneFamilyTwoStepTester.scala
 
-#### Other testers
+
+$(EXDIR)/AtomicBroadcastTwoStepTester.class: SynchronisationTesters/AtomicBroadcastTwoStepTester.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/AtomicBroadcastTwoStepTester.scala
+
+#### Other testers that need SCL
 
 $(EXDIR)/CloseableChanTester.class: SynchronisationTesters/CloseableChanTester.scala
 	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/CloseableChanTester.scala
 
+$(EXDIR)/AtomicBroadcastTester.class: SynchronisationTesters/AtomicBroadcastTester.scala
+	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/AtomicBroadcastTester.scala
 
 # $(OBDIR)/ChanTester.class: SynchronisationTesters/ChanTester.scala
 # 	fsc -deprecation -cp $(CPSCL) SynchronisationTesters/ChanTester.scala
 
 $(EXDIR)/ChanTester.class:  SynchronisationTesters/ChanTester.scala
 	fsc -cp $(CPSCL) SynchronisationTesters/ChanTester.scala
+
+#### Default recipes for testers and experiments
 
 $(EXDIR)/%.class:     SynchronisationTesters/%.scala
 	$(FSC) $<
