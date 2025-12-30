@@ -2,9 +2,12 @@ package synchronisationTester
 
 import scala.util.Random
 import synchronisationTesting.{HistoryLog,StatelessTester}
-import synchronisationObject.{AtomicBroadcastT, AtomicBroadcast}
+import synchronisationObject.{
+  AtomicBroadcastT, AtomicBroadcast, FaultyAtomicBroadcast}
 
 object AtomicBroadcastTester extends Tester{
+  type AB = AtomicBroadcastT[Int]
+
   /** The number of receivers involved in each synchronisation. */
   var n = 3
 
@@ -29,7 +32,7 @@ object AtomicBroadcastTester extends Tester{
   } 
 
   /** A worker. */
-  def worker(ab: AtomicBroadcastT[Int])(me: Int, log: HistoryLog[LogEvent]) = {
+  def worker(ab: AB)(me: Int, log: HistoryLog[LogEvent]) = {
     for(i <- 0 until iters)
       if(me == n){ val x = Random.nextInt(100); log(me, ab.send(x), Send(x)) }
       else log(me, ab.receive(), Receive(me))
@@ -43,12 +46,20 @@ object AtomicBroadcastTester extends Tester{
     case Receive(id) => es.length == n-id && isIncreasing(es.tail, id+1)
   }
 
+
+  val Default = 0; val Faulty = 1
+  var choice = Default
+  var timeout = -1
+
   /** Do a single test. */
   def doTest = {
-    val ab = new AtomicBroadcast[Int](n)
+    val ab: AB = choice match{
+      case Default => new AtomicBroadcast[Int](n)
+      case Faulty => new FaultyAtomicBroadcast[Int](n)
+    }
     val tester = new StatelessTester[LogEvent](
       worker(ab), n+1, List(n+1), matching, suffixMatching)
-    tester()
+    if(progressCheck) tester(timeout) else tester()
   }
 
   def main(args: Array[String]) = {
@@ -57,6 +68,10 @@ object AtomicBroadcastTester extends Tester{
       case "-n" => n = args(i+1).toInt; i += 2
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--iters" => iters = args(i+1).toInt; i += 2
+      case "--faulty" => choice = Faulty; i += 1
+      case "--progressCheck" => 
+        progressCheck = true; timeout = args(i+1).toInt; i += 2
+     // case "--timing" => timing = true; i += 1
     }
 
     runTests(reps, false)

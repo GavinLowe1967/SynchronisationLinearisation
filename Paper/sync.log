@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2024.3.15)  19 DEC 2025 11:00
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2024.3.15)  30 DEC 2025 09:32
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -711,7 +711,7 @@ Missing character: There is no ; in font nullfont!
 Missing character: There is no ; in font nullfont!
 Missing character: There is no ; in font nullfont!
  [32] [33]) (./direct.tex [34] [35] [36] [37] [38] [39])
-(./implementation.tex [40] [41]) (./examples.tex [42] [43] (./BPNall.tex
+(./implementation.tex [40] [41]) (./examples.tex [42] [43] [44] (./BPNall.tex
 Package pgfplots info on input line 28: Using 'lua backend=false' for axis: xmo
 de=log unsupported (yet).
 Missing character: There is no ! in font nullfont!
@@ -1152,65 +1152,60 @@ Missing character: There is no a in font nullfont!
 Missing character: There is no c in font nullfont!
 Missing character: There is no k in font nullfont!
 )
-[44] [45] (./scalingExperiment.tex) [46] [47] [48]) (./conc.tex [49]
-(./sync.bbl [50]
+(./scalingExperiment.tex) [45] [46] [47] [48]) (./conc.tex [49] (./sync.bbl
+[50]
 Underfull \hbox (badness 10000) in paragraph at lines 104--107
 \T1/cmtt/m/n/10 cs . ox . ac . uk / people / gavin . lowe / UnderstandingSynchr
 onisation/$
  []
 
-[51])) [52] (./sync.aux
-
-Package natbib Warning: Citation(s) may have changed.
-(natbib)                Rerun to get citations correct.
-
-) ) 
+[51])) [52] (./sync.aux) ) 
 Here is how much of TeX's memory you used:
  26415 strings out of 483183
  655349 string characters out of 5966292
- 1203349 words of memory out of 5000000
+ 1291673 words of memory out of 5000000
  40992 multiletter control sequences out of 15000+600000
  551976 words of font info for 66 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  73i,20n,127p,786b,2674s stack positions out of 5000i,500n,10000p,200000b,80000s
- </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt1000.60
-0pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/tcsl0900.6
-00pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/ecss1000.
-600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/eccc1000
-.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm100
-0.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsl09
-00.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/ecss0
-700.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/ecss
-0800.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/ecr
-m0600.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/ec
-ss0900.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/e
-csx0900.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/
-ecrm0700.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec
-/ectt0800.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/e
-c/ecrm0800.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/
-ec/ecti1000.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen
-/ec/ecbx1000.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknappe
-n/ec/ecti0800.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknapp
-en/ec/ecrm1000.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jknap
-pen/ec/ecrm1440.600pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.p
-fb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></us
-r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share
-/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texliv
-e/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf
--dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/f
-onts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/typ
-e1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cm
-r9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb
-></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/
-share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/t
-exlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/
-texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-
-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb>
-Output written on sync.pdf (52 pages, 504524 bytes).
+ </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/
+jknappen/ec/ectt1000.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour
+/jknappen/ec/tcsl0900.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfou
+r/jknappen/ec/ecss1000.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfo
+ur/jknappen/ec/eccc1000.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljf
+our/jknappen/ec/tcrm1000.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/lj
+four/jknappen/ec/ecsl0900.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/l
+jfour/jknappen/ec/ecss0700.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/
+ljfour/jknappen/ec/ecss0800.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk
+/ljfour/jknappen/ec/ecrm0600.600pk> </home/gavin/.texlive2019/texmf-var/fonts/p
+k/ljfour/jknappen/ec/ecss0900.600pk> </home/gavin/.texlive2019/texmf-var/fonts/
+pk/ljfour/jknappen/ec/ecsx0900.600pk> </home/gavin/.texlive2019/texmf-var/fonts
+/pk/ljfour/jknappen/ec/ecrm0700.600pk> </home/gavin/.texlive2019/texmf-var/font
+s/pk/ljfour/jknappen/ec/ectt0800.600pk> </home/gavin/.texlive2019/texmf-var/fon
+ts/pk/ljfour/jknappen/ec/ecrm0800.600pk> </home/gavin/.texlive2019/texmf-var/fo
+nts/pk/ljfour/jknappen/ec/ecti1000.600pk> </home/gavin/.texlive2019/texmf-var/f
+onts/pk/ljfour/jknappen/ec/ecbx1000.600pk> </home/gavin/.texlive2019/texmf-var/
+fonts/pk/ljfour/jknappen/ec/ecti0800.600pk> </home/gavin/.texlive2019/texmf-var
+/fonts/pk/ljfour/jknappen/ec/ecrm1000.600pk> </home/gavin/.texlive2019/texmf-va
+r/fonts/pk/ljfour/jknappen/ec/ecrm1440.600pk></usr/share/texlive/texmf-dist/fon
+ts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/pub
+lic/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8
+.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></
+usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/sha
+re/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texli
+ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fo
+nts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
+nts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.p
+fb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></u
+sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb>
+Output written on sync.pdf (52 pages, 503981 bytes).
 PDF statistics:
  881 PDF objects out of 1000 (max. 8388607)
  253 compressed objects within 3 object streams

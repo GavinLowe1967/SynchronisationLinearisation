@@ -16,20 +16,21 @@ timeout exchanger, closeable channel, and terminating queue).
 \begin{center}
 \begin{tabular}{lccc}
 Category            & Arity & Stateful? & Heterogeneous? \\ \hline
-Synchronous channel & 2     & N         & Y \\
-Filter channel      & 2     & N         & Y \\
-Men and women        & 2     & N         & Y \\
-Exchanger           & 2     & N         & N \\
-Counter channel     & 2     & Y         & Y \\
-Two families        & 2     & Y         & Y \\
-One family          & 2     & Y         & N \\
-ABC                 & 3     & N         & Y \\
+Synchronous channel & $2$     & N         & Y \\
+Filter channel      & $2$     & N         & Y \\
+Men and women        & $2$     & N         & Y \\
+Exchanger           & $2$     & N         & N \\
+Counter channel     & $2$     & Y         & Y \\
+Two families        & $2$     & Y         & Y \\
+One family          & $2$     & Y         & N \\
+ABC                 & $3$     & N         & Y \\
 Barrier             & $n$   & N         & N \\
 Enrollable barrier  & $1\mathord{..} n$, 1 & Y & N \\
-Timeout channel     & 2, 1  & N         & Y \\
-Timeout exchanger   & 2, 1  & N         & N \\
-Closeable channel   & 2, 1  & Y         & Y \\
-Terminating queue   & 1, $n$ & Y        & N  
+Timeout channel     & $2$, $1$  & N         & Y \\
+Timeout exchanger   & $2$, $1$  & N         & N \\
+Closeable channel   & $2$, $1$  & Y         & Y \\
+Terminating queue   & $1$, $n$ & Y        & N  \\
+Atomic broadcast    & $n+1$ & N         & N 
 \end{tabular}
 \end{center}
 \caption{Example interfaces of synchronisation objects.  \label{fig:examples}}
@@ -62,6 +63,9 @@ synchronisation involves one thread of each type.
 %% Finally, the \emph{timeout exchanger} is a timed version of the exchanger: if
 %% a thread fails to exchange data with another thread, it can timeout and return
 %% an appropriate result.
+%
+The \emph{atomic broadcast} problem allows a single sender to broadcast a
+message to $n$~receivers synchronously. 
 
 For each interface, we have implemented a tester using the two-step approach
 from Section~\ref{sec:lin-testing}, and also a tester using the direct
