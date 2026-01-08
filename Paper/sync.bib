@@ -167,14 +167,12 @@
 }
 
 
-
 @Article{gavin:SCL-CSP,
   author = 	 {Gavin Lowe},
   title = 	 {Analysing a Library of Concurrency Primitives using {CSP}},
   journal = 	 {Formal Aspects of Computing},
   year = 	 2026,
   note = 	 {Forthcoming}}
-
 
 @Article{H78,
   author = 	 {C. A. R. Hoare},
@@ -262,3 +260,154 @@
   volume = 	 52,
   number = 	 5,
   pages = 	 {100-111}}
+
+
+@Article{CRR-2023,
+  author =	 {Armando {Casta\~neda} and Sergio Rajsbaum and Michel Raynal},
+  title =	 {A Linearizability-based Hierarchy for Concurrent
+                  Specificaitons},
+  journal =	 {Communications of the ACM},
+  year =	 2023,
+  volume =	 66,
+  number =	 1,
+  pages =	 {86--97}
+}
+
+@Article{CRR-2018,
+  author =	 {Armando {Casta\~neda} and Sergio Rajsbaum and Michel Raynal},
+  title =	 {Unifying concurrent objects and distributed tasks:
+                  interval-linearizability},
+  journal =	 {Journal of the ACM},
+  year =	 2018,
+  volume =	 65,
+  note = {\url{https://dl.acm.org/doi/pdf/10.1145/3266457}},
+  number =	 6
+}
+
+@TechReport{strict-lin,
+  author = 	 {Aguilera, M.K. and Frølund, S},
+  title = 	 {Strict linearizability and the power of aborting},
+  institution =  {Hewlett-Packard Labs},
+  year = 	 2003,
+  number = 	 {HPL-2003-241}}
+
+@InProceedings{recoverable-lin,
+  author =	 {Attiya, H. and Ben-Baruch, O. and Hendler, D.},
+  title =	 {Nesting-Safe Recoverable Linearizability: Modular
+                  Constructions for Non-Volatile Memory},
+  booktitle =	 {Proceedings of the ACM Symposium on Principles of
+                  Distributed Computing},
+  note = {\url{https://dl.acm.org/doi/pdf/10.1145/3212734.3212753}},
+  year =	 2018,
+  pages =	 {7--16}
+}
+
+@InProceedings{durable-lin,
+  author =	 {Izraelevitz, J. and Mendes, H. and Scott, M.},
+  title =	 {Linearizability of persistent memory objects Under a
+                  full-system-crash failure model},
+  booktitle = {Proceedings of the 30th International Symposium on
+                  Distributed Computing (DISC 2016)},
+  year =	 2016,
+  volume =	 9888,
+  series =	 {LNCS},
+  pages =	 {313--327},
+  publisher = {Springer}}
+
+
+
+@Article{IV-lin,
+  author =	 {Arik Rinberg and Idit Keidar},
+  title =	 {Intermediate Value Linearizability: A Quantitative
+                  Correctness Criterion},
+  journal =	 {Journal of the ACM},
+  year =	 2023,
+  volume =	 70,
+  number =	 2,
+  pages =	 {1--21},
+  note = {\url{https://dl.acm.org/doi/pdf/10.1145/3584699}}
+}
+
+@InProceedings{local-lin,
+  author =	 {Andreas Haas and Thomas A. Henzinger and Andreas Holzer and
+                  Christoph M. Kirsch and Michael Lippautz and Hannes Payer
+                  and Ali Sezgin and Ana Sokolova and Helmut Veith},
+  title =	 {Local Linearizability for Concurrent Container-Type Data
+                  Structures},
+  booktitle =	 {27th International Conference on Concurrency Theory (CONCUR
+                  2016)},
+  year =	 2016,
+  pages =	 {6:1--6:16}
+}
+
+
+@Misc{knossos,
+  title = 	 {Knossos},
+  howpublished = {\url{https://github.com/jepsen-io/knossos}}}
+
+
+
+@Misc{porcupine,
+  author = 	 {Anish Athalye},
+  title = 	 {Testing Distributed Systems for Linearizability},
+  year = 	 2017,
+  note = 	 {\url{https://}\linebreak[1]\url{anishathalye.com/testing-}\linebreak[1]\url{distributed-systems-}\linebreak[1]\url{for-}\linebreak[1]\url{linearizability}}}
+
+@Article{AHHJR,
+  author =       {Parosh Abdullah and Fr\'ed\'eric Haziza and Luk\'a\v{s}
+                  Hol\'ik and Bengt Jonsson and Ahmed Rezine},
+  title =        {An integrated specification and verification technique for
+                  highly concurrent data structures},
+  journal =      {International Journal on Software Tools for Technology
+                  Transfer},
+  year =         2017,
+  volume =       19,
+  pages =        {549--563}
+}
+
+@Article{CHSV2015,
+  author =       {S. Chakraborty and T. A. Henzinger and A. Sezgin and
+                  V. Vafeiadis},
+  title =        {Aspect-oriented linearizability proofs},
+  journal =      {Logical Methods in Computer Science},
+  year =         2015,
+  volume =       11,
+  number =       1
+}
+
+@InProceedings{DHK15,
+  author =       {M. Dodds and A. Haas and C. Kirsch},
+  title =        {A scalable, correct time-stamped stack},
+  booktitle = {Proceedings of POPL 2015},
+  year =         2015,
+  pages =        {233--246},
+  publisher = {ACM}}
+
+@InProceedings{HSV13,
+  author =       {T. A. Henzinger and A. Sezgin and V. Vafeiadis},
+  title =        {Aspect-Oriented Linearization Proofs},
+  booktitle = {Proceedings of CONCUR 2013},
+  year =         2013,
+  volume =       8052,
+  series =       {LNCS},
+  pages =        {242--256},
+  publisher = {Springer}}
+
+
+@Article{BEEH18,
+  author =       {A. Bouajjani and M. Emmi and C. Enea and J. Hamza},
+  title =        {On reducing linearizability to state reachability},
+  journal =      {Information and Computation},
+  year =         2018,
+  volume =       261,
+  pages =        {383--400}}
+
+@Article{dongol-derrick,
+  author = 	 {Brijesh Dongol and John Derrick},
+  title = 	 {Verifying Linearisability: A Comparative Survey},
+  journal = 	 {ACM Computing Surtveys},
+  year = 	 2015,
+  volume = 	 48,
+  number = 	 2,
+  pages = 	 {19:1--19:43}}
+

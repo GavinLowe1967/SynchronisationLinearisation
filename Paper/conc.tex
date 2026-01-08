@@ -1,10 +1,13 @@
 \section{Conclusions}
 \label{sec:conc}
 
-In this paper we have studied synchronisation objects.  We have proposed the
-correctness conditions of synchronisation linearisation and synchronisation
-progressibility.  We have shown how to reduce synchronisation linearisation to
-standard synchronisation, where some operations are linearised in two steps.
+In this paper we have studied synchronisation objects.  We have identified
+synchronisation linearisation as the appropriate safety condition, and
+presented a way to specify allowed synchronisations, via synchronisation
+specification objects.  We have proposed the liveness condition of
+synchronisation progressibility.  We have shown how to reduce synchronisation
+linearisation to standard synchronisation, where some operations are
+linearised in two steps.
 
 We have studied how to carry our testing on implementations
 of synchronisation objects.  The approach is effective: the testing code is
@@ -12,9 +15,71 @@ easy to write; and the testers normally find errors quickly.  We have also
 studied the complexity of algorithms for deciding whether a history is
 synchronisation linearisable. 
 
+Our approach assumes that each operation execution involves at most one
+synchronisation.  We describe here a synchronisation object that does not fit
+this pattern. 
+%
+In our implementation of a barrier synchronisation object~\cite{SCL}, threads
+are arranged into a binary heap, with a |Signal| object, following the
+signature in Figure~\ref{fig:Signal}, between each parent and child.  The
+child thread calls |signalUpAndWait|, and the parent thread alternates between
+calls of |waitForSignalUp| and |signalDown|.  Each call to |waitForSignalUp|
+blocks until the child calls |signalUpAndWait|; and each call to
+|signalUpAndWait| blocks until the parent calls |signalDown|.  Hence
+|signal|\-|Up|\-|And|\-|Wait| synchronises with \emph{both} of the parent's
+invocations.  Figure~\ref{fig:Signal} gives a timeline illustrating two
+synchronisations.  
+%% In the barrier object, the |Signal| objects are used to
+%% send signals up the heap, each indicating that all the threads in the relevant
+%% subheap have called the |sync| operation, and then to send signals back down
+%% the heap, to indicate that all calls of |sync| can return.
+%
+We believe that we could adapt the notion of interval
+linearisation~\cite{CRR-2018}, described in the next subsection, to our style
+of specification using a specification object and abstraction function, and
+also extend our testing algorithms to such cases.
+
+%%%%%
+
+\begin{figure}
+\begin{scala}
+  class Signal{
+    def signalUpAndWait(): Unit
+    def waitForSignalUp(): Unit
+    def signalDown(): Unit
+  }
+\end{scala}
+\def\eSet#1{node{$\set{\begin{align}#1}\end{align}$}}
+%%%%%
+\begin{center}
+\begin{tikzpicture}[xscale = 0.9]
+\draw(-0.8,0) node[left]{child:}; \draw(-0.8,-1) node[left]{parent:};
+\draw[|-|] (0,0) -- node[above] {\scalastyle signalUpAndWait} (9.0,0);
+\draw[|-|] (-0.5,-1) -- node[above] {\scalastyle waitForSignalUp} (3.5,-1);
+\draw[|-|] (5,-1) -- node[above] {\scalastyle signalDown} (8.5,-1);
+\draw (1.75,0) \X; \draw (1.75,-1) \X; \draw[dashed] (1.75,0) -- (1.75,-1);
+\draw (6.75,0) \X; \draw (6.75,-1) \X; \draw[dashed] (6.75,0) -- (6.75,-1);
+%% \draw (0.5,-2) \X;
+%% \draw (0.5,-2.5) \eSet{\call.\sm{sUAW}, \\ \call.\sm{wFSU}};
+%% \draw (3.0,-2) \X; \draw (3.0,-2.5) \eSet{\return.\sm{wFSU}};
+%% \draw (5.5,-2) \X; \draw (5.5,-2.5) \eSet{\call.\sm{sD}};
+%% \draw (8.0,-2) \X; 
+%% \draw (8.0,-2.5)  \eSet{\return.\sm{sD},\\ \return.\sm{sUAW}};
+\end{tikzpicture}
+\end{center}
+\caption{The signature of a {\scalashape Signal} object (top); and a timeline for
+  a history (bottom).}
+%% ; and a corresponding interval-sequential history (with
+%%   names abbreviated) (bottom).}
+\label{fig:Signal}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Related work}
 \label{sec:related}
+
+\paragraph{Variations of linearisation}
 
 %% As noted in the Introduction, our notion of synchronisation linearisation is
 %% equivalent to \emph{set linearisation}~\cite{Neiger-1994}, although no formal
@@ -29,16 +94,60 @@ synchronisation linearisable.
 
 As noted earlier, synchronisation linearisation is equivalent to Neiger's set
 linearisation~\cite{Neiger-1994}, and Hemed et al.'s concurrency-aware
-linearisation~\cite{HRV-2015}.  
+linearisation~\cite{HRV-2015}.  We review here a few other variants of
+linearisation. 
 
 %% Hemed et al.\ verify an exchanger object with
 %% respect to CAL, and then use this result in a modular verification of an
 %% elimination stack~\cite{HSY-2004}.
 
-\framebox{Interval linearizability}
+Casta\~neda et al.\ define \emph{interval linearisation} \cite{CRR-2023,
+  CRR-2018} as a further generalisation of set linearisation.  This allows
+them to capture the behaviour of objects where a particular operation
+execution can interact at multiple points with other operations, for example
+being involved in multiple synchronisations, like the |Signal| object
+of Figure~\ref{fig:Signal}.
+%
+An \emph{interval-sequential history} is an alternating
+sequence of sets of \call\ events and sets of \return\ events, where each
+\return\ event matches a previous \call\ event.   The following is an
+interval-sequential history corresponding to the timeline in
+Figure~\ref{fig:Signal}. 
+\[
+\seq{
+\begin{align}
+  \set{\call.\sm{signalUpAndWait}, \call.\sm{waitForSignalUp}},\;
+  \set{\return.\sm{waitForSignalUp}}, \\
+  \set{\call.\sm{signalDown}},\;
+  \set{\return.\sm{signalDown}, \return.\sm{signalUpAndWait}}
+}.
+\end{align}
+\]
+%% Figure~\ref{fig:Signal} gives an interval-sequential history for a |Signal|
+%% object.
+An \emph{interval-sequential specification} is a prefix-closed set of
+interval-sequential histories.  An interval-sequential history~$h_s$
+\emph{respects} a history~$h$ of the concurrent object if, for all operations
+$op_1$ and~$op_2$, if $\return.op_1$ is before $\call.op_2$ in~$h$, then
+in~$h_s$, every set containing $\call.op_1$ or $\return.op_1$ is before every
+set containing $\call.op_2$ or $\return.op_2$.  The definition of interval
+linearisation then follows in the obvious way. 
+%%  It would be interesting to adapt the definition of interval linearisation
+%% to our style of specification using a specification object and abstraction
+%% function, and then to similarly adapt our testing algorithms.
 
-\framebox{Scherer and Scott}
+%% Casta\~neda et al.~\cite{CRR-2018} prove a completeness result for interval
+%% linearisation: Let $Spec$ be a non-empty prefix-closed set of well formed
+%% histories, defining the histories of a concurrent object that are considered
+%% correct; then $Spec$ can be captured as an interval-linearisability
+%% specification.
+%
+%% Goubault, E., Ledent, J., and Mimram, S. Concurrent specifications beyond
+%% linearizability. In Proceedings of. 22nd Intern Conf. on Principles of
+%% Distributed Systems. LIPICS 125 (2018), 28:1–28:16.  Generalises this result.
 
+
+% \framebox{Scherer and Scott}
 Scherer et al.~\cite{SLS-2009} consider a setting where an operation may be
 linearised in several steps, similar to our two-step linearisation.  Their
 interest is in partial concurrent datatypes, where an operation may have a
@@ -48,12 +157,61 @@ unsuccessful follow-ups (where the precondition is found not to be satisfied);
 (3)~a successful follow-up (where the precondition holds, and the operation
 takes effect).
 
+Intermediate-value linearisability~\cite{IV-lin} is a relaxation of
+linearisation for objects where queries return results from an ordered domain.
+It requires that every history~$h$ must lie between two histories~$h_1$
+and~$h_2$ of the specification object, with corresponding sequences of call
+and return events, but where the returned values may be different: every value
+returned by a query in~$h$ must be between the values returned by the
+corresponding queries in~$h_1$ and~$h_2$.
+
+% Refs 1, 4 from previous -- probably not.
+
+Local linearisability~\cite{local-lin} concerns container objects with
+disjoint operations to insert values, remove values, or observe values in the
+container; the condition requires that, for each thread~$t$, the restriction
+of a history to insertion operations of~$t$, and removal or observation
+operations of values inserted by~$t$ is linearisable with respect to a
+suitable sequential specification.
+
+Linearisability has been extended to deal with system crashes in a number of
+ways, including strict linearisability~\cite{strict-lin}, nesting-safe
+recoverable linearisability~\cite{recoverable-lin}, and durable
+linearisability~\cite{durable-lin}. 
+
+%% Strict linearisability~\cite{strict-lin} limits the effects of an operation
+%% that crashes.  % ref~1 of \cite{CRR-2023}.  
+
+% Nesting-safe recoverable
+%% linearisability~\cite{recoverable-lin} extends linearisation to consider
+%% the case where an operation crashes and is subsequently recovered.   ref 4
+%% of \cite{CRR-2023}.  https://dl.acm.org/doi/pdf/10.1145/3212734.3212753
+
+%% Durable linearisability: ref 25 of \cite{CRR-2023}.
+%% https://www.cs.rochester.edu/u/scott/papers/2016_DISC_persistence.pdf
+
+%%%%%
+
+\paragraph{Testing}
+
+We are not aware of any prior work testing the correctness of synchronisation
+objects.  
+%
+Linearisation testing has been described previously
+in~\cite{wing-gong,gavin:lin-testing}.  Specific implementations include
+Knossos~\cite{knossos} and Porcupine~\cite{porcupine}.
+
+
+%%%%%
+
+\paragraph{Verification}
+
 Our analysis technique in this paper has been software testing of
 implementations of synchronisation objects.  However, one can also apply model
 checking to the problem.  The companion paper~\cite{gavin:SCL-CSP} analyses a
 library of communication primitives (including a closeable channel with timed
 operations, and alternation), using CSP~\cite{awr:ucs} and its model checker
-FDR~\cite{fdr3}.  Synchronisation linearisation is captured by presenting a
+FDR~\cite{fdr3}.  Synchronisation linearisation is specified via a
 generic way of capturing the traces (equivalent to histories in this paper)
 that satisfy the property.  Synchronisation linearisation is a safety
 property, so is tested in the traces model.  It turns out that testing against
@@ -63,6 +221,14 @@ synchronisation objects that are analysed in this way.
 An error is identified on a previous version of the library;
 but the revised version is shown to be synchronisation linearisable and
 progressible.
+
+There have been many approaches to verifying standard linearisation,
+e.g.~\cite{HSV13, CHSV2015, DHK15, BEEH18, AHHJR}.  Dongol and
+Derrick~\cite{dongol-derrick} survey much of this work.  It would be
+interesting to try to adapt some of these techniques to synchronisation
+linearisation.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection*{Acknowledgements}
 

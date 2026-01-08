@@ -113,13 +113,84 @@ G.~Lowe, Analysing a library of concurrency primitives using {CSP}, Formal
 A.~Georges, D.~Buytaert, L.~Eeckhout, Statistically rigorous {Java} performance
   evaluation, in: Proceedings of OOPSLA '07, 2007.
 
+\bibitem{CRR-2018}
+A.~{Casta\~neda}, S.~Rajsbaum, M.~Raynal, Unifying concurrent objects and
+  distributed tasks: interval-linearizability, Journal of the ACM 65~(6),
+  \url{https://dl.acm.org/doi/pdf/10.1145/3266457} (2018).
+
+\bibitem{CRR-2023}
+A.~{Casta\~neda}, S.~Rajsbaum, M.~Raynal, A linearizability-based hierarchy for
+  concurrent specificaitons, Communications of the ACM 66~(1) (2023) 86--97.
+
 \bibitem{SLS-2009}
 W.~N. {Scherer III}, D.~Lea, M.~L. Scott, Scalable synchronous queues,
   Communicatons of the ACM 52~(5) (2009) 100--111.
+
+\bibitem{strict-lin}
+M.~Aguilera, S.~Frølund, Strict linearizability and the power of aborting,
+  Tech. Rep. HPL-2003-241, Hewlett-Packard Labs (2003).
+
+\bibitem{recoverable-lin}
+H.~Attiya, O.~Ben-Baruch, D.~Hendler, Nesting-safe recoverable linearizability:
+  Modular constructions for non-volatile memory, in: Proceedings of the ACM
+  Symposium on Principles of Distributed Computing, 2018, pp. 7--16,
+  \url{https://dl.acm.org/doi/pdf/10.1145/3212734.3212753}.
+
+\bibitem{durable-lin}
+J.~Izraelevitz, H.~Mendes, M.~Scott, Linearizability of persistent memory
+  objects under a full-system-crash failure model, in: Proceedings of the 30th
+  International Symposium on Distributed Computing (DISC 2016), Vol. 9888 of
+  LNCS, Springer, 2016, pp. 313--327.
+
+\bibitem{IV-lin}
+A.~Rinberg, I.~Keidar, Intermediate value linearizability: A quantitative
+  correctness criterion, Journal of the ACM 70~(2) (2023) 1--21,
+  \url{https://dl.acm.org/doi/pdf/10.1145/3584699}.
+
+\bibitem{local-lin}
+A.~Haas, T.~A. Henzinger, A.~Holzer, C.~M. Kirsch, M.~Lippautz, H.~Payer,
+  A.~Sezgin, A.~Sokolova, H.~Veith, Local linearizability for concurrent
+  container-type data structures, in: 27th International Conference on
+  Concurrency Theory (CONCUR 2016), 2016, pp. 6:1--6:16.
+
+\bibitem{knossos}
+Knossos, \url{https://github.com/jepsen-io/knossos}.
+
+\bibitem{porcupine}
+A.~Athalye, Testing distributed systems for linearizability,
+  \url{https://}\linebreak[1]\url{anishathalye.com/testing-}\linebreak[1]\url{distributed-systems-}\linebreak[1]\url{for-}\linebreak[1]\url{linearizability}
+  (2017).
 
 \bibitem{fdr3}
 T.~Gibson-Robinson, P.~Armstrong, A.~Boulgakov, A.~W. Roscoe, {FDR3}: a
   parallel refinement checker for {CSP}, International Journal on Software
   Tools for Technology Transfer (2015).
+
+\bibitem{HSV13}
+T.~A. Henzinger, A.~Sezgin, V.~Vafeiadis, Aspect-oriented linearization proofs,
+  in: Proceedings of CONCUR 2013, Vol. 8052 of LNCS, Springer, 2013, pp.
+  242--256.
+
+\bibitem{CHSV2015}
+S.~Chakraborty, T.~A. Henzinger, A.~Sezgin, V.~Vafeiadis, Aspect-oriented
+  linearizability proofs, Logical Methods in Computer Science 11~(1) (2015).
+
+\bibitem{DHK15}
+M.~Dodds, A.~Haas, C.~Kirsch, A scalable, correct time-stamped stack, in:
+  Proceedings of POPL 2015, ACM, 2015, pp. 233--246.
+
+\bibitem{BEEH18}
+A.~Bouajjani, M.~Emmi, C.~Enea, J.~Hamza, On reducing linearizability to state
+  reachability, Information and Computation 261 (2018) 383--400.
+
+\bibitem{AHHJR}
+P.~Abdullah, F.~Haziza, L.~Hol\'ik, B.~Jonsson, A.~Rezine, An integrated
+  specification and verification technique for highly concurrent data
+  structures, International Journal on Software Tools for Technology Transfer
+  19 (2017) 549--563.
+
+\bibitem{dongol-derrick}
+B.~Dongol, J.~Derrick, Verifying linearisability: A comparative survey, ACM
+  Computing Surtveys 48~(2) (2015) 19:1--19:43.
 
 \end{thebibliography}

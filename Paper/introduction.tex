@@ -17,17 +17,19 @@
 \begin{abstract}
 We study \emph{synchronisation objects}: objects that allow two or more
 threads to synchronise, each waiting until the other threads have reached a
-particular point, and maybe exchanging data.  We define a correctness
+particular point, and maybe exchanging data.  We consider the  correctness
 condition for such synchronisation objects, which we call
-\emph{synchronisation linearisation}: informally, the synchronisations appear
-to take place in a one-at-a-time order, consistent with the calls and returns
-of operations on the object, and giving correct results.  We also define a
-liveness condition, which we call \emph{synchronisation progressibility}:
-informally, executions of operations don't get stuck when a synchronisation is
-possible.  We show that synchronisation linearisation can be reduced to a
-variant of standard linearisation, which we call \emph{two-step
-  linearisation}, where each operation of the synchronisation object is
-linearised in \emph{two} steps.
+\emph{synchronisation linearisation}, although it turns out to be equivalent
+to the existing property of set linearisation: informally, the
+synchronisations appear to take place in a one-at-a-time order, consistent
+with the calls and returns of operations on the object, and giving correct
+results.  We present a general technique for capturing the requirements of
+particular specification objects.  We also define a liveness condition, which
+we call \emph{synchronisation progressibility}: informally, executions of
+operations do not get stuck when a synchronisation is possible.  We show that
+synchronisation linearisation can be reduced to a variant of standard
+linearisation, which we call \emph{two-step linearisation}, where each
+operation of the synchronisation object is linearised in \emph{two} steps.
 
 We consider testing of implementations of synchronisation objects.  The basic
 idea is to run several threads that use the object, record the history of
@@ -281,13 +283,13 @@ In fact, our property of synchronisation linearisation turns out to be the
 same as \emph{set linearisation}~\cite{Neiger-1994}, also known as
 \emph{concurrency-aware linearisation}~\cite{HRV-2015}, where a set of
 operation executions appear to take place at the same time.  We compare these
-approaches with our own in Section~\ref{sec:related}.  We prefer the name
+approaches with our own in Section~\ref{sec:sync-lin}.  We prefer the name
 ``synchronisation linearisation'' here, because it best describes our
 intention.
 
-We also define a liveness condition, which we call \emph{synchronisation
-  progressibility}: informally, executions don't get stuck when a
-synchronisation is possible.
+We define a liveness condition in Section~\ref{sec:progress}, which we call
+\emph{synchronisation progressibility}: informally, executions don't get stuck
+when a synchronisation is possible.
 
 In Section~\ref{sec:relating} we consider the relationship between
 synchronisation linearisation and (standard) linearisation.  We show that
@@ -342,8 +344,11 @@ We consider our main contributions to be as follows.
 \begin{itemize}
 \item An exploration of the range of different synchronisation objects;
 
-\item A general technique for specifying synchronisation objects, capturing
-  both safety and liveness properties;
+\item A general technique for specifying synchronisation objects within the
+  framework of synchronisation linearisation (also known as set
+  linearisation);
+
+\item The extension of safety correctness conditions to include liveness;
 
 \item A study of the relationship between synchronisation linearisation and
   standard linearisation;

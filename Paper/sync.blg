@@ -7,45 +7,46 @@ Warning--empty pages in JCSP
 Warning--empty pages in sufrin:CSO
 Warning--empty pages in HSY-2004
 Warning--empty pages in GBE2007
-You've used 27 entries,
+Warning--empty year in knossos
+You've used 42 entries,
             2952 wiz_defined-function locations,
-            832 strings with 8474 characters,
-and the built_in function-call counts, 7510 in all, are:
-= -- 674
-> -- 202
-< -- 5
-+ -- 85
-- -- 58
-* -- 417
-:= -- 976
-add.period$ -- 28
-call.type$ -- 27
-change.case$ -- 24
+            924 strings with 11082 characters,
+and the built_in function-call counts, 12512 in all, are:
+= -- 1163
+> -- 358
+< -- 13
++ -- 147
+- -- 105
+* -- 734
+:= -- 1610
+add.period$ -- 43
+call.type$ -- 42
+change.case$ -- 43
 chr.to.int$ -- 0
-cite$ -- 31
-duplicate$ -- 266
-empty$ -- 976
-format.name$ -- 74
-if$ -- 2043
+cite$ -- 47
+duplicate$ -- 446
+empty$ -- 1549
+format.name$ -- 134
+if$ -- 3371
 int.to.chr$ -- 0
-int.to.str$ -- 27
-missing$ -- 30
-newline$ -- 90
-num.names$ -- 29
-pop$ -- 218
+int.to.str$ -- 42
+missing$ -- 42
+newline$ -- 135
+num.names$ -- 43
+pop$ -- 327
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 559
+skip$ -- 921
 stack$ -- 0
-substring$ -- 303
-swap$ -- 50
-text.length$ -- 5
+substring$ -- 580
+swap$ -- 105
+text.length$ -- 13
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
-warning$ -- 4
-while$ -- 51
-width$ -- 29
-write$ -- 228
-(There were 4 warnings)
+warning$ -- 5
+while$ -- 90
+width$ -- 44
+write$ -- 359
+(There were 5 warnings)

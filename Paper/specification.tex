@@ -38,9 +38,10 @@ synchronisation objects in Section~\ref{sec:sync-lin}.  We generalise to other
 classes of synchronisation objects in Section~\ref{ssec:spec-variations}.  In
 Section~\ref{sec:locality}, we show that our definition satisfies
 \emph{locality}: a collection of objects satisfies synchronisation
-linearisability if and only if each individual object does.   We
-present our liveness property, synchronisation progressibility, in
-Section~\ref{sec:progress}.
+linearisability if and only if each individual object does.   
+%% We
+%% present our liveness property, synchronisation progressibility, in
+%% Section~\ref{sec:progress}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -489,8 +490,31 @@ The same property was rediscovered by Hemed et al.~\cite{HRV-2015}, and called
 \emph{concurrency-aware linearisation} (CAL).  They define a concurrency-aware
 trace (CA-trace) to be a history of \emph{sets} of operation executions, where
 each set represents operation executions that seem to take effect
-simultaneously (such as those in a synchronisation).  They then define CAL in
-terms of those CA traces, in a way that is equivalent to our definition.
+simultaneously (such as those in a synchronisation).  For the example of
+Figure~\ref{fig:sync-timeline}, the CA-trace would be
+\[
+\begin{align}
+\seq{ \set{\sm{send}^1(8)\::(), \sm{receive}^3(())\::8},
+  \set{ \sm{send}^5(9)\::(), \sm{receive}^4(())\::9 }, \\
+\qquad
+  \set{ \sm{send}^2(8)\::(), \sm{receive}^6(())\::8 } }.
+\end{align}
+\]
+%% (Compared with our approach, applying a synchronisation abstraction function
+%% to such a CA-trace would produce a history of a synchronisation specification
+%% object.)  
+Hemed et al.~define a complete history~$h$ to \emph{agree} with a CA-trace
+$h_s$ if, for all operations $op_1$ and~$op_2$, if $\return.op_1$ is before
+$\call.op_2$ in~$h$, then in~$h_s$, the set that contains~$op_1$ is before the
+set that contains~$op_2$.  (This is equivalent to a definition, similar to
+ours, based on interleaving~$h$ and~$h_s$.)  They define a concurrent object
+to be CA-linearisable with respect to a set $S$ of CA-traces if, for every
+history~$h$ of the object, there is an extension~$h'$ of~$h$ and a history
+$h_s \in S$ such that $complete(h')$ agrees with~$h_s$.  This is equivalent to
+our definition when $S$ is taken to be the inverse image under the
+synchronisation abstraction function of all histories of the synchronisation
+specification object.
+%
 Unlike us, they do not provide a way of specifying correct CA-traces,
 comparable to out synchronisation specification objects: they simply assume a
 given set of correct CA-traces.  They verify an exchanger object with respect
