@@ -3,17 +3,16 @@
 
 In this paper we have studied synchronisation objects.  We have identified
 synchronisation linearisation as the appropriate safety condition, and
-presented a way to specify allowed synchronisations, via synchronisation
-specification objects.  We have proposed the liveness condition of
-synchronisation progressibility.  We have shown how to reduce synchronisation
-linearisation to standard synchronisation, where some operations are
-linearised in two steps.
+presented a way to specify allowed synchronisations, via a synchronisation
+specification object and synchronisation abstraction function.  We have
+proposed the liveness condition of synchronisation progressibility.  We have
+shown how to reduce synchronisation linearisation to standard linearisation,
+where some operations are linearised in two steps.
 
-We have studied how to carry our testing on implementations
-of synchronisation objects.  The approach is effective: the testing code is
-easy to write; and the testers normally find errors quickly.  We have also
-studied the complexity of algorithms for deciding whether a history is
-synchronisation linearisable. 
+We have studied how to test implementations of synchronisation objects.  The
+approach is effective: the testing code is easy to write; and the testers
+normally find errors quickly.  We have also studied the complexity of
+algorithms for deciding whether a history is synchronisation-linearisable.
 
 Our approach assumes that each operation execution involves at most one
 synchronisation.  We describe here a synchronisation object that does not fit
@@ -101,8 +100,8 @@ linearisation.
 %% respect to CAL, and then use this result in a modular verification of an
 %% elimination stack~\cite{HSY-2004}.
 
-Casta\~neda et al.\ define \emph{interval linearisation} \cite{CRR-2023,
-  CRR-2018} as a further generalisation of set linearisation.  This allows
+Casta\~neda et al.\ define \emph{interval linearisation} \cite{CRR-2018,
+  CRR-2023} as a further generalisation of set linearisation.  This allows
 them to capture the behaviour of objects where a particular operation
 execution can interact at multiple points with other operations, for example
 being involved in multiple synchronisations, like the |Signal| object
@@ -130,8 +129,11 @@ interval-sequential histories.  An interval-sequential history~$h_s$
 \emph{respects} a history~$h$ of the concurrent object if, for all operations
 $op_1$ and~$op_2$, if $\return.op_1$ is before $\call.op_2$ in~$h$, then
 in~$h_s$, every set containing $\call.op_1$ or $\return.op_1$ is before every
-set containing $\call.op_2$ or $\return.op_2$.  The definition of interval
-linearisation then follows in the obvious way. 
+set containing $\call.op_2$ or $\return.op_2$.  A complete history~$h$ is
+interval-linearisable with respect to an interval-sequential specification~$S$
+if there is a history~$h_s \in S$ with the same events and such that $h_s$
+respects~$h$.  The definition of interval linearisation then follows in the
+normal way.
 %%  It would be interesting to adapt the definition of interval linearisation
 %% to our style of specification using a specification object and abstraction
 %% function, and then to similarly adapt our testing algorithms.
@@ -219,11 +221,11 @@ the same specification, but in the failures-divergences model, captures
 synchronisation progressibility.  The library includes several different
 synchronisation objects that are analysed in this way.
 An error is identified on a previous version of the library;
-but the revised version is shown to be synchronisation linearisable and
+but the revised version is shown to be synchronisation-linearisable and
 progressible.
 
 There have been many approaches to verifying standard linearisation,
-e.g.~\cite{HSV13, CHSV2015, DHK15, BEEH18, AHHJR}.  Dongol and
+e.g.~\cite{HSV13, CHSV2015, DHK15, BEEH18, AHHJR, lincheck}.  Dongol and
 Derrick~\cite{dongol-derrick} survey much of this work.  It would be
 interesting to try to adapt some of these techniques to synchronisation
 linearisation.

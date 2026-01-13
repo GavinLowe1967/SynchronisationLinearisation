@@ -34,7 +34,7 @@ really are stuck: otherwise this approach it likely to produce false
 positives.  We discuss this point further in Section~\ref{sec:experiments}. 
 
 In the remainder of this section we consider algorithms for determining
-whether the resulting log history is synchronisation linearisable, and whether
+whether the resulting log history is synchronisation-linearisable, and whether
 it is synchronisation progressible.  These algorithms again assume that the
 synchronisation specification object is deterministic.  In
 Section~\ref{sec:algorithm-dfs} we present a general algorithm for this
@@ -78,7 +78,7 @@ Stateless, non-binary & NP-complete
 \label{sec:algorithm-dfs}
 
 We describe an algorithm for deciding whether a given complete history~$h$ is
-synchronisation linearisable with respect to a given synchronisation
+synchronisation-linearisable with respect to a given synchronisation
 specification object.  We transform the problem into a graph-search algorithm
 as follows.
 
@@ -200,7 +200,7 @@ pending executions.
 \label{sec:NP-complete}
 
 Consider the problem of testing whether a given concurrent history is
-synchronisation linearisable with respect to a given synchronisation
+synchronisation-linearisable with respect to a given synchronisation
 specification object.  We show that this problem is NP-complete in general.
 
 We make use of a result from~\cite{gibbons-korach} concerning the complexity
@@ -260,7 +260,7 @@ former is NP-complete; hence the latter is also.
 The result of the previous subsection used a \emph{stateful} specification
 object.  We now consider the \emph{stateless} case.  We show that for binary
 heterogeneous synchronisations, the problem of deciding whether a history is
-synchronisation linearisable can be decided in quadratic time.  We consider
+synchronisation-linearisable can be decided in quadratic time.  We consider
 the homogeneous case in the next subsection.
 
 So consider a binary heterogeneous synchronisation object, whose specification
@@ -339,7 +339,7 @@ used for other examples in this category.
 \label{sec:non-binary-stateless}
 
 It turns out that for synchronisations of arity greater than~2, the problem of
-deciding whether a history is synchronisation linearisable is NP-complete in
+deciding whether a history is synchronisation-linearisable is NP-complete in
 general, even in the stateless case.  We prove this fact by reduction from the
 following problem, which is known to be NP-complete~\cite{Karp1972}.
 %
@@ -352,7 +352,7 @@ each member of~$X$, $Y$ and~$Z$ is included in precisely one element of~$U$.
 
 Suppose we are given an instance $(X, Y, Z, T)$ of the above problem.  We
 construct a synchronisation specification and a corresponding history~$h$ such
-that $h$ is synchronisation linearisable if and only if a total matching
+that $h$ is synchronisation-linearisable if and only if a total matching
 exists.  The synchronisations are between operations as follows:
 \begin{scala}
   def op£\s1£(x: X): Unit

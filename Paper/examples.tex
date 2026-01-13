@@ -30,7 +30,7 @@ Timeout channel     & $2$, $1$  & N         & Y \\
 Timeout exchanger   & $2$, $1$  & N         & N \\
 Closeable channel   & $2$, $1$  & Y         & Y \\
 Terminating queue   & $1$, $n$ & Y        & N  \\
-Atomic broadcast    & $n+1$ & N         & N 
+Atomic broadcast    & $n+1$ & Both         & N 
 \end{tabular}
 \end{center}
 \caption{Example interfaces of synchronisation objects.  \label{fig:examples}}
@@ -56,7 +56,7 @@ execution should synchronise with a thread of the opposite family, but with a
 are $n$~threads, each of which calls an operation $n-1$~times, and each time
 should synchronise with a \emph{different} thread.
 %
-Finally, the \emph{ABC} problem can be thought of as a ternary version of the
+The \emph{ABC} problem can be thought of as a ternary version of the
 men and women problem: there are three types of threads, A, B and C; each
 synchronisation involves one thread of each type.
 %
@@ -64,8 +64,10 @@ synchronisation involves one thread of each type.
 %% a thread fails to exchange data with another thread, it can timeout and return
 %% an appropriate result.
 %
-The \emph{atomic broadcast} problem allows a single sender to broadcast a
-message to $n$~receivers synchronously. 
+Finally, the \emph{atomic broadcast} problem allows a single sender to
+broadcast a message to $n$~receivers synchronously (this example is both
+heterogeneous and homogeneous, because each receiver synchronises with both
+the sender and other receivers).
 
 For each interface, we have implemented a tester using the two-step approach
 from Section~\ref{sec:lin-testing}, and also a tester using the direct
@@ -76,7 +78,7 @@ implementations are quite short, about 30 lines of code on average.  An
 exception is the implementation of a synchronous channel from the SCL
 library~\cite{gavin:SCL-CSP} (which supports closing, timeouts and
 alternation), which is a few hundred lines.  However, as noted in the
-Introduction, despite most implementations begin quite short, they can be hard
+Introduction, despite most implementations being quite short, they can be hard
 to get right.
 
 For most interfaces, we have also implemented one or more faulty versions that
@@ -142,7 +144,7 @@ deadlock.  We performed a number of \emph{runs} of a tester on the
 synchronisation object.  In each run, a particular number of threads performed
 a particular number of operation calls on the synchronisation object; the
 relevant algorithm was then used to decide whether the log history was
-synchronisation linearisable or two-step linearisable.
+synchronisation-linearisable or two-step linearisable.
 
 Each \emph{observation} performed multiple runs until an error was detected,
 and recorded the time taken.  Each observation was performed as a separate
@@ -159,19 +161,24 @@ excessively long experiments.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%
+%scala -cp .:/home/gavin/Scala/Util  experiments.BugParametersExperiment --doAll --samples 100
+\input{BPNall}
+%
+
 We start with the second of the questions above, how to choose parameters for
 testing.  Each of the graphs in Figures~\ref{fig:params-experiment-1}
-and~\ref{fig:params-experiment-2} concerns a particular tester.  Each data
-point represents a particular number $p$ of worker threads (given in the key),
-and a particular number of operation executions per run by each thread (given
-on the $X$-axis).
+and~\ref{fig:params-experiment-2} concerns a particular tester.  
+Each data point represents a particular number $p$ of worker threads (given in
+the key), and a particular number of operation executions per run by each
+thread (given on the $X$-axis).
 %, with 100 observations.  
 The $Y$-axis gives the time in milliseconds.  (The graph for the two-step
 tester applied to a barrier omits a plot for $p = 10$, with times of around
 5000ms, which does not fit on the axes.)
 
 %scala -cp .:/home/gavin/Scala/Util  experiments.BugParametersExperiment --doAll --samples 100
-\input{BPNall}
+%\input{BPNall}
 
 The experiments suggest that both types of tester work best with a fairly
 small number of worker threads (typically two to four), each performing a

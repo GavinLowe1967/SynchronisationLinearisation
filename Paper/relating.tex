@@ -16,7 +16,7 @@ equivalent in general.
 %% : we show that, given a synchronisation linearisation
 %% specification object |SyncSpec|, it is not always possible to find a
 %% linearisation specification |Spec| such that for every concurrent
-%% history~$h$,\, $h$ is synchronisation linearisable with respect to |SyncSpec|
+%% history~$h$,\, $h$ is synchronisation-linearisable with respect to |SyncSpec|
 %% if and only if $h$ is linearisable with respect to |Spec|.
 %
 For example, consider the synchronous channel from Section~\ref{sec:spec},
@@ -61,7 +61,7 @@ h' & = & \seq{
 \end{eqnarray*}
 %
 is also linearised by~$h_s$, so $h'$ is linearisable with respect to~|Spec|.
-But then the assumption would imply that $h'$ is synchronisation linearisable
+But then the assumption would imply that $h'$ is synchronisation-linearisable
 with respect to~|SyncChanSpec|.  This is clearly false, because the operations
 do not overlap.  Hence no such linearisation specification~|Spec| exists.
 \end{proof}
@@ -173,7 +173,7 @@ the specification object.
 \end{tikzpicture}
 \end{center}
 
-The definition of two-step linearisation of a synchronistion object then
+The definition of two-step linearisation of a synchronisation object then
 follows from this definition of two-step linearisation of complete histories,
 analogously to as in Definition~\ref{def:sync-lin-objects}.
 
@@ -315,9 +315,9 @@ Let |SyncObj| be a binary heterogeneous synchronisation object, |SyncSpec| a
 corresponding synchronisation specification object, and let |TwoStepLinSpec|
 be built from |SyncSpec| as above.  Then each history~$h$ of |SyncObj| is
 two-step linearisable with respect to |Two|\-|Step|\-|LinSpec| if and only if
-it is synchronisation linearisable with respect to |SyncSpec|.  Hence
+it is synchronisation-linearisable with respect to |SyncSpec|.  Hence
 |SyncObj| is two-step linearisable with respect to |Two|\-|Step|\-|LinSpec| if
-and only if it is synchronisation linearisable with respect to |SyncSpec|.
+and only if it is synchronisation-linearisable with respect to |SyncSpec|.
 \end{prop}
 %%%%%%
 \begin{proof}

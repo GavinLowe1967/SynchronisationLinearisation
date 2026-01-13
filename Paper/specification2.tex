@@ -161,61 +161,48 @@ and $\return.op_j^{i_j}\::y_j$, for each~$j$.
 The definition of synchronisation linearisability then follows precisely as in
 Definition~\ref{def:sync-lin-objects}.
 
-%% %
-%% The definition of synchronisation linearisation is an obvious adaptation of
-%% the earlier definition: in the interleaving of the complete history of the
-%% synchronisation history and the history of the specification object, each
-%% $\sm{sync}^{i_1, \ldots, i_k}(x_1, \ldots, x_k)\:: (y_1, \ldots, y_k)$ occurs
-%% between $\call.\op_1^{i_j}(x_j)$ and $\return.\op_j^{i_j}\::y_j$ for each $j =
-%% 1, \ldots, k$.
-%% %% The definition of synchronisation-linearisability follows in the obvious
-%% %% way.
+%%%%%%%%%% 
 
-%% Note that if several of the $\op_j$ are the same operation, there is a choice
-%% as to the order in which their parameters are passed to |sync|.  (However, in
-%% the case of the combining barrier, if |f| is associative and commutative, the
-%% order makes no difference.)
+\label{sec:set-lin-comparison}
+As noted in the Introduction, our notion of synchronisation linearisation is
+equivalent to \emph{set linearisation}~\cite{Neiger-1994}, although no formal
+definition was given there. 
 
-%% It is also straightforward to adapt the definitions to deal with multiple
-%% modes of synchronisation: the specification object has a different operation
-%% for each mode.  For example, recall the |TimeoutChannel| from the
-%% Introduction, where sends and receives may timeout and return without
-%% synchronisation.  The corresponding specification object would be:
-%% %
-%% \begin{scala}
-%% class TimeoutChannelSpec[A]{
-%%   def sync£\s s£(x: A) = false       // £send£ times out.
-%%   def sync£\s r£(u: Unit) = None  // £receive£ times out.
-%%   def sync£\s{s,r}£(x: A, u: Unit) = (true, Some(x))  // Synchronisation.
-%% }
-%% \end{scala}
-%% %
-%% The operation $\sm{sync}_s$ corresponds to a send returning without
-%% synchronising; likewise $\sm{sync}_r$ corresponds to a receive returning
-%% without synchronising; and $\sm{sync}_{s,r}$ corresponds to a send and receive
-%% synchronising.  The formal definition of synchronisation linearisation is the
-%% obvious adaptation of the earlier definition: in particular |sync|\s{s} must
-%% occur between the call and return of a send that doesn't synchronise, and
-%% likewise for |sync|\s{r}.
+The same property was rediscovered by Hemed et al.~\cite{HRV-2015}, and called
+\emph{concurrency-aware linearisation} (CAL).  They define a concurrency-aware
+trace (CA-trace) to be a history of \emph{sets} of operation executions, where
+each set represents operation executions that seem to take effect
+simultaneously (such as those in a synchronisation).  For the example of
+Figure~\ref{fig:sync-timeline}, the CA-trace would be
+\[
+\begin{align}
+\seq{ \set{\sm{send}^1(8)\::(), \sm{receive}^3(())\::8},
+  \set{ \sm{send}^5(9)\::(), \sm{receive}^4(())\::9 }, \\
+\qquad
+  \set{ \sm{send}^2(8)\::(), \sm{receive}^6(())\::8 } }.
+\end{align}
+\]
+%% (Compared with our approach, applying a synchronisation abstraction function
+%% to such a CA-trace would produce a history of a synchronisation specification
+%% object.)  
+Hemed et al.~define a complete history~$h$ to \emph{agree} with a CA-trace
+$h_s$ if, for all operations $op_1$ and~$op_2$, if $\return.op_1$ is before
+$\call.op_2$ in~$h$, then in~$h_s$, the set that contains~$op_1$ is before the
+set that contains~$op_2$.  (This is equivalent to a definition, similar to
+ours, based on interleaving~$h$ and~$h_s$.)  They define a concurrent object
+to be CA-linearisable with respect to a set $S$ of CA-traces if, for every
+history~$h$ of the object, there is an extension~$h'$ of~$h$ and a history
+$h_s \in S$ such that $complete(h')$ agrees with~$h_s$.  This is equivalent to
+our definition when $S$ is taken to be the inverse image under the
+synchronisation abstraction function of all histories of the synchronisation
+specification object.
+%
+Unlike us, they do not provide a way of specifying correct CA-traces,
+comparable to our synchronisation specification objects: they simply assume a
+given set of correct CA-traces.  They verify an exchanger object with respect
+to CAL, and then use this result in a modular verification of an elimination
+stack~\cite{HSY-2004}.
 
-%% As another example, the following is a specification object for a channel with
-%% a close operation.
-%% %
-%% \begin{mysamepage}
-%% \begin{scala}
-%% class ClosableChannelSpec[A]{
-%%   private var isClosed = false  // Is the channel closed? 
-%%   def close(u: Unit) = { isClosed = true; () }
-%%   def sync(x: A, u: Unit) = { require(!isClosed); ((), x) }
-%%   def sendFail(x: A) = { require(isClosed); throw new Closed }
-%%   def receiveFail(u: Unit) = { require(isClosed); throw new Closed }
-%% }
-%% \end{scala}
-%% \end{mysamepage}
-%% %
-%% A send and receive can synchronise corresponding to |sync|, but only before
-%% the channel is closed; or each may fail once the channel is closed,
-%% corresponding to |sendFail| and |receiveFail|. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -251,11 +238,11 @@ and only if $h \restrict o$ is synchronisation-linearisable (with respect to
 $Spec_o$ and $\A_o$), for each~$o \in \O$.
 %% , and $h_s$ a legal history~$h_s$ of~$Spec$.  Then $h_s$ is a
 %% synchronisation linearisation of~$h$ if and only if $h_s \restrict Spec_o$
-%% is a synchronisation linearisable of $h \restrict o$, for each~$o$.
+%% is a synchronisation-linearisable of $h \restrict o$, for each~$o$.
 \end{lemma}
 
 \begin{proof}
-The left-to-right implication is trivial.  
+The left-to-right implication is straightforward.  
 
 For the right-to-left implication, suppose that $h \restrict o$ is
 synchronisation-linearisable, for each~$o$.  That means that there is a legal
@@ -282,15 +269,15 @@ respect to~$Spec_o$ and $\A_o$), for each $o \in \O$.
 \end{prop}
 %
 \begin{proof}
-The left-to-right implication is again trivial.  
+The left-to-right implication is again straightforward.  
 
 For the right-to-left implication, consider a (not necessarily complete)
 history~$h$ of~$\O$.  For each $o$, since $o$ is synchronisation-linearisable,
 there is an extension $h_o'$ of $h \restrict o$ such that $complete(h_o')$ is
 synchronisation-linearisable with respect to $Spec_o$ and~$\A_o$.
 %
-Let $h'$ be an extension of~$h$, adding the events in each~$h_o'$ but
-not~$h_o$ in the same order (but interleaving events from different objects
+Let $h'$ be an extension of~$h$, adding the events in each~$h_o'$ but not~$h
+\restrict o$ in the same order (but interleaving events from different objects
 arbitrarily).  Then $complete(h') \restrict o = complete(h_o')$, for each~$o$.
 %
 Also, $complete(h')$ is a complete history of~$\O$, and by

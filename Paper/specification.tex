@@ -455,7 +455,7 @@ $\call.\op_1^{i_1}(x_1)$ and $\return.\op_1^{i_1}\::y_1$, and between
 $\call.\op_2^{i_2}(x_2)$ and $\return.\op_2^{i_2}\::y_2$.
 \end{definition}
 %
-%% We say that $h$ is \emph{synchronisation linearisable} with respect to~$Spec$
+%% We say that $h$ is \emph{synchronisation-linearisable} with respect to~$Spec$
 %% in this case.  
 In~the running example, $h_s$ is a synchronisation
 linearisation of~$h$, as shown by the interleaving in
@@ -480,43 +480,3 @@ not returned in~$h$; the $\call$ events removed in $complete(h')$ are for
 operation executions that have not yet synchronised.
 
 
-
-
-As noted in the Introduction, our notion of synchronisation linearisation is
-equivalent to \emph{set linearisation}~\cite{Neiger-1994}, although no formal
-definition was given there. 
-
-The same property was rediscovered by Hemed et al.~\cite{HRV-2015}, and called
-\emph{concurrency-aware linearisation} (CAL).  They define a concurrency-aware
-trace (CA-trace) to be a history of \emph{sets} of operation executions, where
-each set represents operation executions that seem to take effect
-simultaneously (such as those in a synchronisation).  For the example of
-Figure~\ref{fig:sync-timeline}, the CA-trace would be
-\[
-\begin{align}
-\seq{ \set{\sm{send}^1(8)\::(), \sm{receive}^3(())\::8},
-  \set{ \sm{send}^5(9)\::(), \sm{receive}^4(())\::9 }, \\
-\qquad
-  \set{ \sm{send}^2(8)\::(), \sm{receive}^6(())\::8 } }.
-\end{align}
-\]
-%% (Compared with our approach, applying a synchronisation abstraction function
-%% to such a CA-trace would produce a history of a synchronisation specification
-%% object.)  
-Hemed et al.~define a complete history~$h$ to \emph{agree} with a CA-trace
-$h_s$ if, for all operations $op_1$ and~$op_2$, if $\return.op_1$ is before
-$\call.op_2$ in~$h$, then in~$h_s$, the set that contains~$op_1$ is before the
-set that contains~$op_2$.  (This is equivalent to a definition, similar to
-ours, based on interleaving~$h$ and~$h_s$.)  They define a concurrent object
-to be CA-linearisable with respect to a set $S$ of CA-traces if, for every
-history~$h$ of the object, there is an extension~$h'$ of~$h$ and a history
-$h_s \in S$ such that $complete(h')$ agrees with~$h_s$.  This is equivalent to
-our definition when $S$ is taken to be the inverse image under the
-synchronisation abstraction function of all histories of the synchronisation
-specification object.
-%
-Unlike us, they do not provide a way of specifying correct CA-traces,
-comparable to out synchronisation specification objects: they simply assume a
-given set of correct CA-traces.  They verify an exchanger object with respect
-to CAL, and then use this result in a modular verification of an elimination
-stack~\cite{HSY-2004}.

@@ -52,6 +52,8 @@ specification object, given a synchronisation specification object (Section
 We have added atomic broadcast to our list of examples (which hadn't occurred
 to us before).
 
+We have added a section discussing related work. 
+
 (We've moved the definition of progressibility into its own section, so some
 section numbers below are out of date.)
 
@@ -111,7 +113,7 @@ section numbers below are out of date.)
 > have been appropriate to describe qualitatively what kinds of bugs were
 > introduced into the implementations of the synchronization objects. 
 
-It's true that more implementations are short -- but they're still difficult
+It's true that most implementations are short -- but they're still difficult
 to get right!
 
 We have given some some information about the lines of code; but we don't

@@ -120,11 +120,22 @@ A.~{Casta\~neda}, S.~Rajsbaum, M.~Raynal, Unifying concurrent objects and
 
 \bibitem{CRR-2023}
 A.~{Casta\~neda}, S.~Rajsbaum, M.~Raynal, A linearizability-based hierarchy for
-  concurrent specificaitons, Communications of the ACM 66~(1) (2023) 86--97.
+  concurrent specifications, Communications of the ACM 66~(1) (2023) 86--97.
 
 \bibitem{SLS-2009}
 W.~N. {Scherer III}, D.~Lea, M.~L. Scott, Scalable synchronous queues,
   Communicatons of the ACM 52~(5) (2009) 100--111.
+
+\bibitem{IV-lin}
+A.~Rinberg, I.~Keidar, Intermediate value linearizability: A quantitative
+  correctness criterion, Journal of the ACM 70~(2) (2023) 1--21,
+  \url{https://dl.acm.org/doi/pdf/10.1145/3584699}.
+
+\bibitem{local-lin}
+A.~Haas, T.~A. Henzinger, A.~Holzer, C.~M. Kirsch, M.~Lippautz, H.~Payer,
+  A.~Sezgin, A.~Sokolova, H.~Veith, Local linearizability for concurrent
+  container-type data structures, in: 27th International Conference on
+  Concurrency Theory (CONCUR 2016), 2016, pp. 6:1--6:16.
 
 \bibitem{strict-lin}
 M.~Aguilera, S.~Frølund, Strict linearizability and the power of aborting,
@@ -141,17 +152,6 @@ J.~Izraelevitz, H.~Mendes, M.~Scott, Linearizability of persistent memory
   objects under a full-system-crash failure model, in: Proceedings of the 30th
   International Symposium on Distributed Computing (DISC 2016), Vol. 9888 of
   LNCS, Springer, 2016, pp. 313--327.
-
-\bibitem{IV-lin}
-A.~Rinberg, I.~Keidar, Intermediate value linearizability: A quantitative
-  correctness criterion, Journal of the ACM 70~(2) (2023) 1--21,
-  \url{https://dl.acm.org/doi/pdf/10.1145/3584699}.
-
-\bibitem{local-lin}
-A.~Haas, T.~A. Henzinger, A.~Holzer, C.~M. Kirsch, M.~Lippautz, H.~Payer,
-  A.~Sezgin, A.~Sokolova, H.~Veith, Local linearizability for concurrent
-  container-type data structures, in: 27th International Conference on
-  Concurrency Theory (CONCUR 2016), 2016, pp. 6:1--6:16.
 
 \bibitem{knossos}
 Knossos, \url{https://github.com/jepsen-io/knossos}.
@@ -188,6 +188,13 @@ P.~Abdullah, F.~Haziza, L.~Hol\'ik, B.~Jonsson, A.~Rezine, An integrated
   specification and verification technique for highly concurrent data
   structures, International Journal on Software Tools for Technology Transfer
   19 (2017) 549--563.
+
+\bibitem{lincheck}
+N.~Koval, A.~Fedorov, M.~Sokolova, D.~Tsitelov, D.~Alistarh, Lincheck: A
+  practical framework for testing concurrent data structures on {JVM}, in:
+  Computer Aided Verification (CAV 2023), Vol. 13964 of Lecture Notes in
+  Computer Science, Springer, 2023, pp. 156--169,
+  \url{https://doi.org/10.1007/978-3-031-37706-8_8}.
 
 \bibitem{dongol-derrick}
 B.~Dongol, J.~Derrick, Verifying linearisability: A comparative survey, ACM

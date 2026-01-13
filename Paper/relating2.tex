@@ -93,7 +93,7 @@ similarly.  Suppose we have a synchronisation object with a single operation
 {\bfseries\scalastyle def}~{\scalastyle op(x: A): B}.  
 All executions of~|op| have to be treated similarly,
 so we associate \emph{each} with two operations |op| and $\overline{\sm{op}}$
-of the specification object.  The specification object is below, and encodes
+of the specification object.  The specification object is in Figure~\ref{fig:TwoStepHomoLinSpec}, and encodes
 the automaton on the right.
 The second execution of |op| in any synchronisation (from the |One| state of the
 automaton) writes the results of the execution into the |returns| array.
@@ -103,6 +103,7 @@ Each execution of $\overline{\sm{op}}$ returns the stored value.
 %% \begin{trivlist}
 %% \item[]
 %\begin{minipage}{92mm}
+\begin{figure}
 \begin{scala}
 class TwoStepHomoLinSpec{
   private var state: State = Zero
@@ -123,7 +124,10 @@ class TwoStepHomoLinSpec{
   }
 }
 \end{scala}
-
+\caption{A two-step synchronisation specification object for homogeneous
+  synchronisations.}
+\label{fig:TwoStepHomoLinSpec}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Mixed arity
 
@@ -257,7 +261,7 @@ following order:
 No other operation occurs between the start of stage~1 until after
 stage~2; but other operations may occur during stage~3.
 
-During stage~1, the two-step linearisabilty tester  records the prefix of
+During stage~1, the two-step linearisability tester  records the prefix of
 $\seq{\op_{i_i}(x_1), \ldots, \op_{i_a}(x_a)}$ performed so far.  This is done
 by defining a case class |Op|$_i$ corresponding to each such
 operation~|op|$_i$, as at the top of Figure~\ref{fig:schema}.
@@ -335,7 +339,7 @@ linearised only as described earlier.  The proof that two-step linearisability
 corresponds to synchronisation linearisability is then much as in the proof
 for the binary case in Proposition~\ref{prop:two-step-lin}. 
 
-Figure~\ref{fig:schema} uses preudo-Scala.  For a concrete implementation, we
+Figure~\ref{fig:schema} uses pseudo-Scala.  For a concrete implementation, we
 need a separate implementation of $\op_i$ and $\overline\op_i$ for each~$i$.
 Then each calculation involving~$\A$ can be implemented directly, for example
 using a case analysis.

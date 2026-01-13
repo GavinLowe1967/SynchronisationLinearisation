@@ -17,10 +17,10 @@
 \begin{abstract}
 We study \emph{synchronisation objects}: objects that allow two or more
 threads to synchronise, each waiting until the other threads have reached a
-particular point, and maybe exchanging data.  We consider the  correctness
+particular point, and maybe exchanging data.  We consider the correctness
 condition for such synchronisation objects, which we call
 \emph{synchronisation linearisation}, although it turns out to be equivalent
-to the existing property of set linearisation: informally, the
+to the previously described property of set linearisation: informally, the
 synchronisations appear to take place in a one-at-a-time order, consistent
 with the calls and returns of operations on the object, and giving correct
 results.  We present a general technique for capturing the requirements of
@@ -279,12 +279,12 @@ We present a way to specify what sequences of synchronisations and what
 return values are consider correct, via a \emph{synchronisation specification
   object}.
 
-In fact, our property of synchronisation linearisation turns out to be the
-same as \emph{set linearisation}~\cite{Neiger-1994}, also known as
+In fact, our property of synchronisation linearisation turns out to be
+equivalent to \emph{set linearisation}~\cite{Neiger-1994}, also known as
 \emph{concurrency-aware linearisation}~\cite{HRV-2015}, where a set of
 operation executions appear to take place at the same time.  We compare these
-approaches with our own in Section~\ref{sec:sync-lin}.  We prefer the name
-``synchronisation linearisation'' here, because it best describes our
+approaches with our own in Section~\ref{sec:set-lin-comparison}.  We prefer
+the name ``synchronisation linearisation'' here, because it best describes our
 intention.
 
 We define a liveness condition in Section~\ref{sec:progress}, which we call
@@ -319,9 +319,9 @@ may correspond to two operations of the specification object.
 
 In Section~\ref{sec:direct} we show how synchronisation linearisation can be
 tested more directly: we describe algorithms that check whether a history of a
-synchronisation object is synchronisation linearisable.  We also present
+synchronisation object is synchronisation-linearisable.  We also present
 various complexity results.  Deciding whether a given history is
-synchronisation linearisable is NP-complete in general, in the stateful case.
+synchronisation-linearisable is NP-complete in general, in the stateful case.
 However, it can be decided in polynomial time in the case of binary
 (heterogeneous or homogeneous) stateless synchronisation objects.  But moving 
 to synchronisations with arity greater than~2 is again NP-complete, even in
@@ -354,7 +354,7 @@ We consider our main contributions to be as follows.
   standard linearisation;
 
 \item Algorithms for deciding whether a history of a synchronisation object is
-  synchronisation linearisable, together with related complexity results;
+  synchronisation-linearisable, together with related complexity results;
 
 \item A testing framework for synchronisation objects, and an experimental
   assessment of its effectiveness.

@@ -2,7 +2,7 @@
 \label{sec:lin-testing}
 
 In the following two sections, we describe techniques for testing whether the
-implementation of a synchronisation object is synchronisation linearisable
+implementation of a synchronisation object is synchronisation-linearisable
 with respect to a synchronisation specification object.
 %
 The techniques are influenced by the techniques for testing (standard)
@@ -237,11 +237,11 @@ construction.  Hence $h_{2s}$ is a linearisation of~$h_l$.
 %% events.  Then the log history is linearisable with respect to |TwoStepLinSpec|
 %% if and only if the history~$h$ is two-step linearisable with respect to
 %% |TwoStepLinSpec|.  But Proposition~\ref{prop:two-step-lin} then shows that
-%% this holds if and only if $h$ is synchronisation linearisable.  In particular,
+%% this holds if and only if $h$ is synchronisation-linearisable.  In particular,
 %% this shows that errors are detected providing the logging is fast enough.
 
 %% We now show that delays in logging do not introduce false errors.  Consider a
-%% history~$h$ that is synchronisation linearisable, and consider the
+%% history~$h$ that is synchronisation-linearisable, and consider the
 %% corresponding log history~$h_l$.  Now build a history~$h'$ so that each
 %% operation is extended so that: (1)~each call of~$\op_1$ or~$\op_2$ is
 %% immediately before the $\call.\op_1$ or $\call.\op_2$ event in~$h_l$; (2)~each
@@ -270,7 +270,7 @@ construction.  Hence $h_{2s}$ is a linearisation of~$h_l$.
 %% \end{tikzpicture}
 %% \end{center}
 %% %
-%% Now $h$ is synchronisation linearisable; and hence $h'$ is also (since each
+%% Now $h$ is synchronisation-linearisable; and hence $h'$ is also (since each
 %% operation in $h'$ is an extension of the corresponding operation in~$h$).  But
 %% then Proposition~\ref{prop:two-step-lin} implies that $h'$ is two-step
 %% linearisable with respect to |TwoStepLinSpec|.  Hence $h_l$ is linearisable
