@@ -31,25 +31,15 @@ class NondetStatefulTester[Op,S](
 
   /** Test if the invocations represented by es can synchronise given state
     * `spec` of the specification.  `ops` is the `Op`s associated with `es`.
-    * Optionally return the resulting state of the specification. */
+    * Return all possible resulting states of the specification. */
   protected def canSync(spec: S, es: List[CallEvent1], ops: List[Op])
       : List[S] = {
     if(specMatching(spec).isDefinedAt(ops)){
       try{
         val srs = specMatching(spec)(ops); var result = List[S]()
-        for((spec1, rets0) <- srs){
-          // Compare rets0 and es.map(_.ret.result)
-          assert(rets0.length == es.length)
-          var rets = rets0; var es1 = es
-          // assert(es1.head.ret != null)
-          while(rets.nonEmpty && rets.head == es1.head.ret.result){
-            rets = rets.tail; es1 = es1.tail
-            // assert(es1.isEmpty || es1.head.ret != null)
-          }
-          if(rets.isEmpty){ // es.map(_.ret.result) == rets
-            if(verbose) println(s"Sync of $es with $spec")
-            result ::= spec1
-          }
+        for((spec1, expected) <- srs; if equalResults(expected, es)){
+          if(verbose) println(s"Sync of $es with $spec")
+          result ::= spec1
         } // end of for loop
         result
       }

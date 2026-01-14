@@ -147,6 +147,17 @@ abstract class StatefulTesterBase[Op,S](
     * specification object, and the call events involved. */
   type SyncInfo = (S, SyncEs)
 
+  /** Do the return values corresponding to `es` match the expected values in
+    * `expected`, i.e. `es.map(_.ret.result) == expected`?  */
+  @inline protected def equalResults(expected: List[Any], es: List[CallEvent1])
+      : Boolean = {
+    assert(expected.length == es.length); var rets = expected; var es1 = es
+    while(rets.nonEmpty && rets.head == es1.head.ret.result){
+      rets = rets.tail; es1 = es1.tail
+    }
+    rets.isEmpty
+  }
+
   /* Base classes provide the following two functions. */
 
   /** All possible synchronisations between invocations from `calls` given state

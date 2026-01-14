@@ -36,16 +36,8 @@ class StatefulTester[Op,S](
       : Option[S] = {
     if(specMatching(spec).isDefinedAt(ops)){
       try{
-        val (spec1, rets0) = specMatching(spec)(ops)
-        // Compare rets and es.map(_.ret.result)
-        assert(rets0.length == es.length)
-        var rets = rets0; var es1 = es
-        // assert(es1.head.ret != null)
-        while(rets.nonEmpty && rets.head == es1.head.ret.result){
-          rets = rets.tail; es1 = es1.tail
-          // assert(es1.isEmpty || es1.head.ret != null)
-        }
-        if(rets.isEmpty){ // es.map(_.ret.result) == rets
+        val (spec1, expected) = specMatching(spec)(ops)
+        if(equalResults(expected, es)){
           if(verbose) println(s"Sync of $es with $spec")
           Some(spec1)
         }
@@ -83,5 +75,4 @@ class StatefulTester[Op,S](
     }
     result
   }
-
 }
