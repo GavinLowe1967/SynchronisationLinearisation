@@ -45,7 +45,8 @@ $(EXDIR)/TerminatingQueueTwoStepTester.class					\
 $(EXDIR)/TimeoutChannelTwoStepTester.class					\
 $(EXDIR)/CloseableChannelTwoStepTester.class					\
 $(EXDIR)/FilterChanTwoStepTester.class $(EXDIR)/OneFamilyTwoStepTester.class	\
-$(EXDIR)/AtomicBroadcastTwoStepTester.class
+$(EXDIR)/AtomicBroadcastTwoStepTester.class					\
+$(EXDIR)/TerminatingQueueArrayTest.class
 
 TESTERSX = $(BINARY_HETERO_TESTERS) $(BINARY_STATEFUL_TESTERS)			\
 $(BINARY_HOMO_TESTERS) $(NON_BINARY_TESTERS) $(NON_BINARY_STATEFUL_TESTERS)	\
@@ -57,7 +58,8 @@ EXPERIMENTS = $(EXPDIR)/Experiment.class $(EXPDIR)/ParameterExperiment.class	\
 $(EXPDIR)/BugFinderExperiment.class $(EXPDIR)/BugParametersExperiment.class	\
 $(EXPDIR)/ProgressExperiment.class $(EXPDIR)/TwoStepExperiment.class
 
-all:	$(TESTERS) $(EXPERIMENTS) $(DIR)/NondetStatefulTester.class $(OBDIR)/TerminatingQueueArray.class $(EXDIR)/TerminatingQueueArrayTest.class
+all:	$(TESTERS) $(EXPERIMENTS) 
+# $(DIR)/NondetStatefulTester.class $(OBDIR)/TerminatingQueueArray.class $(EXDIR)/TerminatingQueueArrayTest.class
 
 clean:
 	rm $(DIR)/*.class $(EXDIR)/*.class $(OBDIR)/*.class; fsc -shutdown
@@ -74,7 +76,9 @@ $(DIR)/HistoryLog.class: $(DIR)/Log.class
 
 $(DIR)/Tester.class: $(DIR)/HistoryLog.class $(DIR)/ThreadUtil.class
 
-$(DIR)/BinaryTester.class $(DIR)/BinaryStatefulTester.class $(DIR)/StatelessTester.class $(DIR)/StatefulTester.class: $(DIR)/Tester.class
+$(DIR)/BinaryTester.class $(DIR)/BinaryStatefulTester.class $(DIR)/StatelessTester.class $(DIR)/StatefulTesterBase.class: $(DIR)/Tester.class
+
+$(DIR)/NondetStatefulTester.class $(DIR)/StatefulTester.class: $(DIR)/StatefulTesterBase.class
 
 $(DIR)/BinaryStatelessTester.class: $(DIR)/BinaryTester.class $(DIR)/FordFulkerson.class
 
@@ -152,6 +156,7 @@ $(EXDIR)/TerminatingQueueTester.class: $(OBDIR)/TerminatingQueue.class
 
 $(EXDIR)/CloseableChanTester.class: $(OBDIR)/CloseableChan.class
 
+$(EXDIR)/TerminatingQueueArrayTest.class: $(DIR)/NondetStatefulTester.class $(OBDIR)/TerminatingQueueArray.class
 
 ##### Recipes for compilation
 

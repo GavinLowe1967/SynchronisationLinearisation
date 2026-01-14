@@ -118,13 +118,13 @@ object TerminatingQueueArrayTest extends Tester{
       case "-p" => p = args(i+1).toInt; i += 2
       case "--reps" => reps = args(i+1).toInt; i += 2
       case "--faulty" => faulty = true; i += 1
-      case "--doASAP" => doASAP = true; i += 1
-
+      case "--doASAP" => doASAP = true; i += 1 // Seems to help
     }
 
-    var r = 0
+    var r = 0; val start = java.lang.System.nanoTime
     while(r < reps && doTest){ if(r%100 == 0) print("."); r += 1 }
-    println()
+    val duration = (java.lang.System.nanoTime - start)/1_000_000 // ms
+    println(); println(s"$duration ms")
   }
 }
 
