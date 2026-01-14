@@ -57,7 +57,7 @@ EXPERIMENTS = $(EXPDIR)/Experiment.class $(EXPDIR)/ParameterExperiment.class	\
 $(EXPDIR)/BugFinderExperiment.class $(EXPDIR)/BugParametersExperiment.class	\
 $(EXPDIR)/ProgressExperiment.class $(EXPDIR)/TwoStepExperiment.class
 
-all:	$(TESTERS) $(EXPERIMENTS) $(OBDIR)/AtomicBroadcast.class
+all:	$(TESTERS) $(EXPERIMENTS) $(DIR)/NondetStatefulTester.class $(OBDIR)/TerminatingQueueArray.class $(EXDIR)/TerminatingQueueArrayTest.class
 
 clean:
 	rm $(DIR)/*.class $(EXDIR)/*.class $(OBDIR)/*.class; fsc -shutdown
