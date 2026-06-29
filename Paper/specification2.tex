@@ -162,7 +162,7 @@ $h_s$ contains an event of the form $sync^{i_1, \ldots, i_k}(x_1,
 Recall that in~$h$, each execution identity is unique to a matching pair of
 $\call$ and $\return$ events; and in~$h_s$, each execution identity is unique
 to a single event.  Hence the above bullet points define a bijection between
-matching$\call$ and $\return$ events and the corresponding $sync$ event.
+matching $\call$ and $\return$ events and the corresponding $sync$ event.
 
 Then $h_s$ is a synchronisation linearisation of~$h$ if there is some way of
 interleaving $h$ and~$h_s$ such that each event $sync^{i_1, \ldots, i_k}(x_1,
@@ -173,12 +173,14 @@ and $\return.op_j^{i_j}\::y_j$, for each~$j$.
 The definition of synchronisation linearisability then follows precisely as in
 Definition~\ref{def:sync-lin-objects}.
 
-%%%%%%%%%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\paragraph{Comparison with set linearisation.} 
 
 \label{sec:set-lin-comparison}
 As noted in the Introduction, our notion of synchronisation linearisation is
-equivalent to \emph{set linearisation}~\cite{Neiger-1994}, although no formal
-definition was given there. 
+essentially equivalent to \emph{set linearisation}~\cite{Neiger-1994},
+although no formal definition was given there.
 
 The same property was rediscovered by Hemed et al.~\cite{HRV-2015}, and called
 \emph{concurrency-aware linearisation} (CAL).  They define a concurrency-aware
@@ -194,30 +196,27 @@ Figure~\ref{fig:sync-timeline}, the CA-trace would be
   \set{ \sm{send}^2(8)\::(), \sm{receive}^6(())\::8 } }.
 \end{align}
 \]
+(We have adapted Hemed et al.'s definition to our notation.  In fact, they do
+not use execution identities, but instead use thread identities to identify
+matching calls and returns; we consider the difference unimportant.)
+
 %% (Compared with our approach, applying a synchronisation abstraction function
 %% to such a CA-trace would produce a history of a synchronisation specification
 %% object.)  
 Hemed et al.~define a complete history~$h$ to \emph{agree} with a CA-trace~$T$
 if, for all operations $op_1$ and~$op_2$, if $\return.op_1$ is before
 $\call.op_2$ in~$h$, then in~$T$, the set that contains~$op_1$ is before the
-set that contains~$op_2$.  (This is equivalent to a definition, similar to
-ours, based on interleaving~$h$ and~$T$.)  They define a concurrent object to
-be CA-linearisable with respect to a set $S$ of CA-traces if, for every
-history~$h$ of the object, there is an extension~$h'$ of~$h$ and a
-CA-trace $T \in S$ such that $complete(h')$ agrees with~$T$.  This is
-equivalent to our definition when $S$ is taken to be the inverse image under
-the synchronisation abstraction function of all histories of the
-synchronisation specification object.
-
-Given an abstraction function $\A$, we can extend it to CA-traces as follows.
-If $\A(\seq{op_1(x_1), \ldots, op_k(x_k) }) = sync(x_1,\ldots,x_k)$,
-then define 
+set that contains~$op_2$.  We now compare this definition to our
+interleaving-based definition of synchronisation linearisation of~$h$.
+%
+Given an abstraction function $\A$, if $\A(\seq{op_1(x_1), \ldots, op_k(x_k)
+}) = sync(x_1,\ldots,x_k)$, then define
 \begin{eqnarray*}
 \hat\A(\set{ op_1^{i_1}(x_1)\::y_1, \ldots, op_k^{i_k}(x_k)\::y_k }) & = &
   sync^{i_1,\ldots,i_k}(x_1,\ldots,x_k)\::(y_1, \ldots, y_k).
 \end{eqnarray*}
 Then extend $\hat\A$ to CA-traces by pointwise application.
-
+%
 \begin{lemma}
 \label{lem:CA-traces}
 Let $h$ be a complete history of a synchronisation object.  Then $h$ agrees
@@ -226,20 +225,21 @@ linearisation of~$h$.
 \end{lemma}
 %
 \begin{proof}
-For the left-to-right direction, suppose $h$ agrees with~$T$.  We interleave
-$T$ with $h$, by working through $T$ in order, and inserting each set~$X$
-from~$T$ either immediately after the last $\call$ event for an operation
-in~$X$, or after the previous set from~$T$, whichever is later.  By
+For the left-to-right direction, suppose $h$ agrees with~$T$.  We first
+interleave $T$ with $h$, by working through $T$ in order, and inserting each
+set~$X$ from~$T$ either immediately after the last $\call$ event for an
+operation in~$X$, or after the previous set from~$T$, whichever is later.  By
 construction, this interleaving preserves the order of~$T$, and ensures each
 set is after all the corresponding $\call$ events.  We show that each set is
 before all the relevant $\return$ events.  Suppose not, in particular that
-some event $\return.op_1$ is before the corresponding set~$X$.  Consider the
+some $\return.op_1$ event is before the corresponding set~$X$.  Consider the
 first set~$Y$ in the contiguous sequence of sets that includes~$X$ ($Y$~might
 be~$X$ itself).  Then $Y$ is immediately after the call of some operation
 $op_2 \in Y$, so we have an interleaving of the following form (omitting
 parameters, execution identities and return values):
 \[
-\ldots, \return.op_1, \ldots, \call.op_2, Y = \set{op_2,\ldots}, \ldots,
+\ldots, \return.op_1, \ldots, \call.op_2, Y = \set{op_2,\ldots}, \set{\ldots},
+  \ldots, \set{\ldots},
   X = \set{op_1,\ldots}, \ldots .
 \] 
 But then the return of~$op_1$ is before the call of~$op_2$, but the set
@@ -251,42 +251,99 @@ interleaving of $h$ and $\hat\A(T)$.  This interleaving shows that
 $\hat\A(T)$ is a synchronisation linearisation of~$h$.
 
 For the right-to-left direction, consider the interleaving of $h$ and
-$\hat\A(T)$ that shows the synchronisation linearisation.  If a
-$\return.op_1$ event is before a $\call.op_2$ event in~$h$, then necessarily,
-the synchronisation event for $op_1$ is before that for~$op_2$ in the
-interleaving.  Hence the set that contains~$op_1$ is before the set that
-contains~$op_2$ in~$T$.  Thus $h$ agrees with~$T$.
+$\hat\A(T)$ that shows the synchronisation linearisation.  Replace each
+synchronisation event from $\hat\A(T)$ by the corresponding member of~$T$.  If
+a $\return.op_1$ event is before a $\call.op_2$ event in~$h$, then
+necessarily, the synchronisation event for $op_1$ is before that for~$op_2$ in
+the former interleaving.  Hence the set that contains~$op_1$ is before the set
+that contains~$op_2$ in both the latter interleaving and in~$T$.  Thus $h$
+agrees with~$T$.
 \end{proof}
 
 %%%%%
 
-\begin{lemma}
+Hemed et al.\ define a concurrent object to be CA-linearisable with respect to
+a set $\T$ of CA-traces if, for every history~$h$ of the object, there is an
+extension~$h'$ of~$h$ and a CA-trace $T \in \T$ such that $complete(h')$
+agrees with~$T$.  This is equivalent to our definition when $\T$ is the
+inverse image under the synchronisation abstraction function of all histories
+of the synchronisation specification object.
+%
+\begin{prop}
+\label{prop:set-lin}
 Suppose a synchronisation specification object~$Spec$, abstraction
-function~$\A$, and set of CA-traces~$S$ are such that
+function~$\A$, and set of CA-traces~$\T$ are such that
 \begin{eqnarray*}
-S & = & \set{ T \;\mid\; \mbox{$\hat\A(T)$ is a history of~$Spec$ }}.
+\T & = & \set{ T \;\mid\; \mbox{$\hat\A(T)$ is a history of~$Spec$ }}.
 \end{eqnarray*}
-Then a synchronisation object~$o$ is CA-linearisable with respect to~$S$ if
+Then a synchronisation object~$o$ is CA-linearisable with respect to~$\T$ if
 and only if it is synchronisation linearisable with respect to $Spec$
 and~$\A$.
-\end{lemma}
+\end{prop}
 %
 \begin{proof}
 For the right-to-left direction, suppose $o$ is synchronisation linearisable
 with respect to $Spec$ and~$\A$.  Consider a history $h$ of~$o$.  Then there
 is an extension $h'$ of~$h$, and a history~$h_s$ of $Spec$ such that $h_s$ is
 a synchronisation linearisation of~$complete(h')$.  But, by assumption, there
-is some $T \in S$ such that $\hat\A(T) = h_s$ (necessarily, each event
+is some $T \in \T$ such that $\hat\A(T) = h_s$ (necessarily, each event
 in~$h_s$ is in the range of~$\A$; and so $h_s$ is in the range of~$\hat\A$).
 Hence $complete(h')$ agrees with $T$, by Lemma~\ref{lem:CA-traces}, and so $h$
-is CA-linearisable with respect to~$S$.
+is CA-linearisable with respect to~$\T$.
 
 The proof for the left-to-right direction is very similar.
 \end{proof}
 
+%%%%%
 
+The above result does not quite show equivalence between our approach and set
+linearisation.  Hemed et al.\ allow a synchronisation object to be specified
+by an \emph{arbitrary} set~$\T$ of CA-traces, for example
+\begin{eqnarray*} 
+\T & = & \set{ \seq{ \set{ \send^1(8)\::(), \receive^3(())\::8 } } }.
+\end{eqnarray*}
+This insists on \emph{particular} values for the execution identities, and so
+would not allow a synchronisation of, say, $\send^4(8)\::()$ and
+$\receive^2(())\::8$.  (Recall that they actually use thread identities rather
+than our execution identities; so they admit specifications that allow only
+particular threads to synchronise.)  Being able to make such restrictive
+specifications dues not seem to be particularly useful (but is convenient
+in~\cite{HRV-2015}).
 
+Set linearisation is equivalent to synchronisation linearisation if we assume
+that the set $\T$ is independent of execution identities, as follows:
+\[
+\begin{align}
+\forall T_1, T_2, op_1, \ldots, op_k, x_1, \ldots, x_k, y_1, \ldots, y_k,
+  i_i, \ldots, i_k, i_1', \ldots i_k' \spot \\
+\quad \mbox{if $i_i, \ldots, i_k$ are distinct and $i_1', \ldots i_k'$ are
+  distinct, then} \\
+\qquad T_1 \cat \seq{\set{op_1^{i_1}(x_1)\::y_1,\ldots,op_k^{i_k}(x_k)\::y_k}} \cat T_2
+  \in \T \Leftrightarrow \\
+\qquad T_1 \cat \seq{\set{op_1^{i_1'}(x_1)\::y_1,\ldots,op_k^{i_k'}(x_k)\::y_k}} \cat T_2
+  \in \T .
+\end{align}
+\]
+We say that a set $\set{op_1^{i_1}(x_1)\::y_1,\ldots,op_k^{i_k}(x_k)\::y_k}$
+\emph{matches} $\sync_j(x_1,\ldots,x_k)$ if
+$\A(\seq{op_1(x_1)\::y_1,\ldots,op_k(x_k)\::y_k}) = \sync_j(x_1,\ldots,x_k)$.
+It is then straightforward to define a synchronisation specification object
+|Spec|$(\T)$ (using pseudo-Scala) that satisfies the requirements for
+Proposition~\ref{prop:set-lin}:
 %
+\begin{scala}
+class Spec(var £$\T$£: Set[CA-trace]){
+  def sync£\sub j£(£$x_1,\ldots,x_k$£) = { // for each £$\sync_j$£
+    require(£$\exists T \in \T \spot head(T)$ \emph{matches} $\sync_j(x_1,\ldots,x_k)$£)
+    val X = £$head(T)$£; let X = £$\set{op_1^{i_1}(x_1)\::y_1,\ldots,op_k^{i_k}(x_k)\::y_k}$£
+    £$\T$£ = £$\set{T' \;\mid\; \seq{X} \cat T' \in \T}$£
+    (£$y_1,\ldots,y_k$£)
+}
+\end{scala}
+
+%%%%%
+
+
 Unlike us, they do not provide a way of specifying correct CA-traces,
 comparable to our synchronisation specification objects: they simply assume a
 given set of correct CA-traces.  They verify an exchanger object with respect

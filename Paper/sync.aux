@@ -34,105 +34,108 @@
 \citation{Neiger-1994}
 \citation{HRV-2015}
 \newlabel{sec:set-lin-comparison}{{2.4}{15}}
+\@writefile{toc}{\contentsline {paragraph}{Comparison with set linearisation.}{15}\protected@file@percent }
 \newlabel{lem:CA-traces}{{5}{15}}
+\citation{HRV-2015}
+\newlabel{prop:set-lin}{{6}{16}}
 \citation{HSY-2004}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Locality}{16}\protected@file@percent }
-\newlabel{sec:locality}{{2.5}{16}}
 \citation{Neiger-1994}
-\newlabel{lem:local}{{7}{17}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Locality}{17}\protected@file@percent }
+\newlabel{sec:locality}{{2.5}{17}}
+\newlabel{lem:local}{{7}{18}}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Specifying liveness}{18}\protected@file@percent }
 \newlabel{sec:progress}{{3}{18}}
 \citation{awr:ucs}
-\citation{herlihy-shavit}
-\citation{herlihy-shavit}
 \newlabel{assump:some}{{1}{20}}
-\newlabel{assump:spurious}{{2}{20}}
-\newlabel{assump:fair}{{3}{20}}
-\newlabel{lem:progress-locality}{{12}{21}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Comparing synchronisation linearisation and standard linearisation}{21}\protected@file@percent }
-\newlabel{sec:relating}{{4}{21}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Two-step linearisation}{22}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Proving the relationship}{24}\protected@file@percent }
-\newlabel{sec:twoStepLinSpec}{{4.2}{24}}
+\citation{herlihy-shavit}
+\citation{herlihy-shavit}
+\newlabel{assump:spurious}{{2}{21}}
+\newlabel{assump:fair}{{3}{21}}
+\newlabel{lem:progress-locality}{{12}{22}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Comparing synchronisation linearisation and standard linearisation}{22}\protected@file@percent }
+\newlabel{sec:relating}{{4}{22}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Two-step linearisation}{23}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces The {\sffamily  \color  {ScalaColour}TwoStepLinSpec} object.}}{25}\protected@file@percent }
 \newlabel{fig:twosteplinspec}{{3}{25}}
-\newlabel{lem:TwoStepLinSpec-histories}{{15}{25}}
-\newlabel{prop:two-step-lin}{{16}{25}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Variations}{26}\protected@file@percent }
-\newlabel{ssec:relating-variations}{{4.3}{26}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces A two-step synchronisation specification object for homogeneous synchronisations.}}{28}\protected@file@percent }
-\newlabel{fig:TwoStepHomoLinSpec}{{4}{28}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}The general construction}{29}\protected@file@percent }
-\newlabel{ssec:relating-general}{{4.4}{29}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces A schema for the general construction of a two-step linearisability tester.}}{30}\protected@file@percent }
-\newlabel{fig:schema}{{5}{30}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Proving the relationship}{25}\protected@file@percent }
+\newlabel{sec:twoStepLinSpec}{{4.2}{25}}
+\newlabel{lem:TwoStepLinSpec-histories}{{15}{26}}
+\newlabel{prop:two-step-lin}{{16}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Variations}{27}\protected@file@percent }
+\newlabel{ssec:relating-variations}{{4.3}{27}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces A two-step synchronisation specification object for homogeneous synchronisations.}}{29}\protected@file@percent }
+\newlabel{fig:TwoStepHomoLinSpec}{{4}{29}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}The general construction}{30}\protected@file@percent }
+\newlabel{ssec:relating-general}{{4.4}{30}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces A schema for the general construction of a two-step linearisability tester.}}{31}\protected@file@percent }
+\newlabel{fig:schema}{{5}{31}}
 \citation{wing-gong,gavin:lin-testing}
 \citation{wing-gong,gavin:lin-testing}
 \citation{faulty-pri-queue}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Linearisability testing}{31}\protected@file@percent }
-\newlabel{sec:lin-testing}{{5}{31}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Adapting the linearisability framework}{32}\protected@file@percent }
-\newlabel{sec:testing-hacking}{{6}{32}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Illustration of two-step linearisation testing. The operation executions are represented by the horizontal lines with labels above (denoted ``$h$'' in Proposition\nobreakspace  {}18\hbox {}). The log entries are represented by the bullets with labels below (denoted ``$h_l$'' in Proposition\nobreakspace  {}18\hbox {}). Linearisation points are represented by crosses with labels below: the penultimate row, labelled ``$h_s$'', is a synchronisation linearisation; the bottom row, labelled ``$h_{2s}$'', is a linearisation of the two-step synchronisation object. Execution identifiers and null arguments and returns are omitted, for clarity.}}{33}\protected@file@percent }
-\newlabel{fig:twostep-timeline}{{6}{33}}
-\newlabel{prop:twostep-testing}{{18}{33}}
-\@writefile{toc}{\contentsline {paragraph}{Variable-arity synchronisations}{34}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Figure showing why two-step linearisation cannot be used for a timeout channel. Conventions are as in Figure\nobreakspace  {}6\hbox {}.}}{35}\protected@file@percent }
-\newlabel{fig:two-step-timeout-channel}{{7}{35}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Direct testing of synchronisation linearisation and progressibility}{36}\protected@file@percent }
-\newlabel{sec:direct}{{7}{36}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}The general case}{37}\protected@file@percent }
-\newlabel{sec:algorithm-dfs}{{7.1}{37}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.1.1}Partial-order reduction}{38}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Linearisability testing}{32}\protected@file@percent }
+\newlabel{sec:lin-testing}{{5}{32}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Adapting the linearisability framework}{33}\protected@file@percent }
+\newlabel{sec:testing-hacking}{{6}{33}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Illustration of two-step linearisation testing. The operation executions are represented by the horizontal lines with labels above (denoted ``$h$'' in Proposition\nobreakspace  {}18\hbox {}). The log entries are represented by the bullets with labels below (denoted ``$h_l$'' in Proposition\nobreakspace  {}18\hbox {}). Linearisation points are represented by crosses with labels below: the penultimate row, labelled ``$h_s$'', is a synchronisation linearisation; the bottom row, labelled ``$h_{2s}$'', is a linearisation of the two-step synchronisation object. Execution identifiers and null arguments and returns are omitted, for clarity.}}{34}\protected@file@percent }
+\newlabel{fig:twostep-timeline}{{6}{34}}
+\newlabel{prop:twostep-testing}{{18}{34}}
+\@writefile{toc}{\contentsline {paragraph}{Variable-arity synchronisations}{35}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Figure showing why two-step linearisation cannot be used for a timeout channel. Conventions are as in Figure\nobreakspace  {}6\hbox {}.}}{36}\protected@file@percent }
+\newlabel{fig:two-step-timeout-channel}{{7}{36}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Direct testing of synchronisation linearisation and progressibility}{37}\protected@file@percent }
+\newlabel{sec:direct}{{7}{37}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}The general case}{38}\protected@file@percent }
+\newlabel{sec:algorithm-dfs}{{7.1}{38}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.1.1}Partial-order reduction}{39}\protected@file@percent }
 \citation{gibbons-korach}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Complexity}{39}\protected@file@percent }
-\newlabel{sec:NP-complete}{{7.2}{39}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Complexity}{40}\protected@file@percent }
+\newlabel{sec:NP-complete}{{7.2}{40}}
 \citation{ford-fulkerson}
 \citation{edmonds_1965}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}The binary heterogeneous stateless case}{40}\protected@file@percent }
-\newlabel{sec:binary-heterogeneous}{{7.3}{40}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}The binary homogeneous stateless case}{40}\protected@file@percent }
-\newlabel{sec:binary-homogeneous}{{7.4}{40}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}The binary heterogeneous stateless case}{41}\protected@file@percent }
+\newlabel{sec:binary-heterogeneous}{{7.3}{41}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}The binary homogeneous stateless case}{41}\protected@file@percent }
+\newlabel{sec:binary-homogeneous}{{7.4}{41}}
 \citation{Karp1972}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.5}The non-binary stateless case}{41}\protected@file@percent }
-\newlabel{sec:non-binary-stateless}{{7.5}{41}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.5}The non-binary stateless case}{42}\protected@file@percent }
+\newlabel{sec:non-binary-stateless}{{7.5}{42}}
 \citation{testing-manual}
-\@writefile{toc}{\contentsline {section}{\numberline {8}Implementation}{42}\protected@file@percent }
-\newlabel{sec:implementation}{{8}{42}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces A simple tester for a synchronous channel. }}{43}\protected@file@percent }
-\newlabel{fig:ChanTester}{{8}{43}}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces A faulty history for an exchanger, showing a failure of synchronisation linearisability. The left-hand column gives an index for each operation execution.}}{44}\protected@file@percent }
-\newlabel{fig:exchanger-error}{{9}{44}}
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces A faulty history for a synchronous channel, showing a failure of progressibility.}}{44}\protected@file@percent }
-\newlabel{fig:progress-error}{{10}{44}}
-\@writefile{toc}{\contentsline {section}{\numberline {9}Experiments}{44}\protected@file@percent }
-\newlabel{sec:experiments}{{9}{44}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Implementation}{43}\protected@file@percent }
+\newlabel{sec:implementation}{{8}{43}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces A simple tester for a synchronous channel. }}{44}\protected@file@percent }
+\newlabel{fig:ChanTester}{{8}{44}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces A faulty history for an exchanger, showing a failure of synchronisation linearisability. The left-hand column gives an index for each operation execution.}}{45}\protected@file@percent }
+\newlabel{fig:exchanger-error}{{9}{45}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces A faulty history for a synchronous channel, showing a failure of progressibility.}}{45}\protected@file@percent }
+\newlabel{fig:progress-error}{{10}{45}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}Experiments}{45}\protected@file@percent }
+\newlabel{sec:experiments}{{9}{45}}
 \citation{gavin:SCL-CSP}
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Example interfaces of synchronisation objects. }}{45}\protected@file@percent }
-\newlabel{fig:examples}{{11}{45}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Example interfaces of synchronisation objects. }}{46}\protected@file@percent }
+\newlabel{fig:examples}{{11}{46}}
 \citation{GBE2007}
-\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Effect of choices of parameters for testers for a synchronous channel the ABC problem, and a barrier.}}{47}\protected@file@percent }
-\newlabel{fig:params-experiment-1}{{12}{47}}
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Effect of choices of parameters for testers for a closeable channel.}}{48}\protected@file@percent }
-\newlabel{fig:params-experiment-2}{{13}{48}}
-\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces The effect of increasing the number of threads on the time to find bugs.}}{49}\protected@file@percent }
-\newlabel{fig:scalingExperiment}{{14}{49}}
-\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Times to find bugs affecting synchronisation linearisation.}}{50}\protected@file@percent }
-\newlabel{fig:bugFindingExperiment}{{15}{50}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Effect of choices of parameters for testers for a synchronous channel the ABC problem, and a barrier.}}{48}\protected@file@percent }
+\newlabel{fig:params-experiment-1}{{12}{48}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Effect of choices of parameters for testers for a closeable channel.}}{49}\protected@file@percent }
+\newlabel{fig:params-experiment-2}{{13}{49}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces The effect of increasing the number of threads on the time to find bugs.}}{50}\protected@file@percent }
+\newlabel{fig:scalingExperiment}{{14}{50}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Times to find bugs affecting synchronisation linearisation.}}{51}\protected@file@percent }
+\newlabel{fig:bugFindingExperiment}{{15}{51}}
 \citation{SCL}
 \citation{CRR-2018}
-\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Times to find bugs affecting synchronisation progressibility.}}{51}\protected@file@percent }
-\newlabel{fig:progressBugFindingExperiment}{{16}{51}}
-\@writefile{toc}{\contentsline {section}{\numberline {10}Conclusions}{51}\protected@file@percent }
-\newlabel{sec:conc}{{10}{51}}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Times to find bugs affecting synchronisation progressibility.}}{52}\protected@file@percent }
+\newlabel{fig:progressBugFindingExperiment}{{16}{52}}
+\@writefile{toc}{\contentsline {section}{\numberline {10}Conclusions}{52}\protected@file@percent }
+\newlabel{sec:conc}{{10}{52}}
 \citation{Neiger-1994}
 \citation{HRV-2015}
 \citation{CRR-2018,CRR-2023}
-\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces The signature of a {\sffamily  \color  {ScalaColour}Signal} object (top); and a timeline for a history (bottom).}}{52}\protected@file@percent }
-\newlabel{fig:Signal}{{17}{52}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.1}Related work}{52}\protected@file@percent }
-\newlabel{sec:related}{{10.1}{52}}
-\@writefile{toc}{\contentsline {paragraph}{Variations of linearisation}{52}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces The signature of a {\sffamily  \color  {ScalaColour}Signal} object (top); and a timeline for a history (bottom).}}{53}\protected@file@percent }
+\newlabel{fig:Signal}{{17}{53}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.1}Related work}{53}\protected@file@percent }
+\newlabel{sec:related}{{10.1}{53}}
+\@writefile{toc}{\contentsline {paragraph}{Variations of linearisation}{53}\protected@file@percent }
 \citation{SLS-2009}
 \citation{IV-lin}
 \citation{local-lin}
@@ -147,8 +150,8 @@
 \citation{fdr3}
 \citation{HSV13,CHSV2015,DHK15,BEEH18,AHHJR,lincheck}
 \citation{dongol-derrick}
-\@writefile{toc}{\contentsline {paragraph}{Testing}{53}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Verification}{53}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Testing}{54}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Verification}{54}\protected@file@percent }
 \bibstyle{elsarticle-num}
 \bibdata{sync}
 \bibcite{H78}{{1}{}{{}}{{}}}

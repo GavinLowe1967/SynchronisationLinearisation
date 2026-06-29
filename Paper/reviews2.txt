@@ -1,0 +1,694 @@
+Handling editor's comments:
+> 
+> Based on the reviewers' evaluation please:
+> 1. Double-check correctness of the definition 4
+
+We are confident in the definition.  We have provided some clarification
+corresponding to the reviewer's misunderstanding.
+
+> 2. Check potential inaccuracies in the comparison with set linearizability /
+> CA linearizability
+
+We have provided a detailed comparison.  
+
+> 3. Provide a proof of equivalence between two-step linearizability and set linearizability in the general case
+> 4. Consider a change in terminology from "configurations" to "possibilities," with the missing citations added
+> 5. Consider removal of the crash linearizability citations and correction of the discussion of deductive verification for non-atomic linearizability
+> 6. Improve the the level of formalization in the paper
+
+*** I don't understand this point. 
+
+> 7. Introduce examples to increase readability and understendability
+> 8. Make the study more mature by e.g. experimentation
+
+*** I don't understand this point. 
+
+> 
+> Finally, consult the reviews for all the details on requests and do you best to satisfy all of them.
+> 
+>  
+> 
+> ======================================
+> 
+> Reviewer's Responses to Questions
+> 
+> 1. Are the objectives and the rationale of the study clearly stated?
+> 
+> Reviewer #1: Yes, the introduction does a good job at motivating the work.
+> 
+> Reviewer #3: Yes
+> 
+> Reviewer #4: The objectives and rationale are clear
+> 
+> 2. If applicable, is the application/theory/method/study reported in sufficient detail to allow for its replicability and/or reproducibility?
+> 
+> Reviewer #1: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here:
+> 
+> Reviewer #3: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here:
+> 
+> Reviewer #4: Mark as appropriate with an X:
+> 
+> Yes [] No [X] N/A []
+> 
+> Provide further comments here: broken link:
+> https://www.cs.ox.ac.uk/people/gavin.lowe/UnderstandingSynchronisation
+
+Apologies.  That is now fixed.
+
+> 3. If applicable, are statistical analyses, controls, sampling mechanism, and statistical reporting (e.g., P-values, CIs, effect sizes) appropriate and well described?
+> 
+> Reviewer #1: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here:
+> 
+> Reviewer #3: Mark as appropriate with an X:
+> 
+> Yes [] No [] N/A [X]
+> 
+> Provide further comments here:
+> 
+> Reviewer #4: Mark as appropriate with an X:
+> 
+> Yes [] No [] N/A [X]
+> 
+> Provide further comments here:
+> 
+> 4. Could the manuscript benefit from additional tables or figures, or from improving or removing (some of the) existing ones?
+> 
+> Reviewer #1: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here:
+> 
+> Reviewer #3: Mark as appropriate with an X:
+> 
+> Yes [] No [X] N/A []
+> 
+> Provide further comments here:
+> 
+> Reviewer #4: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here: Something in Sec 7 to illustrate removing
+> synch-edges from an ASPA linearisation
+
+****
+
+> 
+> 5. If applicable, are the interpretation of results and study conclusions supported by the data?
+> 
+> Reviewer #1: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here:
+> 
+> Reviewer #3: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here:
+> 
+> Reviewer #4: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here: yes - they are honest about it, but it is quite weak
+> 
+> 6. Have the authors clearly emphasized the strengths of their study/theory/methods/argument?
+> 
+> Reviewer #1: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here:
+> 
+> Reviewer #3: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here:
+> 
+> Reviewer #4: Mark as appropriate with an X:
+> 
+> Yes [] No [X] N/A []
+> 
+> Provide further comments here: It is not clear what their technique is good
+> for that other techniques arent
+
+???
+
+
+> 
+> 7. Have the authors clearly stated the limitations of their study/theory/methods/argument?
+> 
+> Reviewer #1: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here:
+> 
+> Reviewer #3: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here:
+> 
+> Reviewer #4: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here: again they are upfornt about this.
+> 
+> 8. Does the manuscript structure, flow or writing need improving (e.g., the addition of subheadings, shortening of text, reorganization of sections, or moving details from one section to another)?
+> 
+> Reviewer #1: Mark as appropriate with an X:
+> 
+> Yes [] No [X] N/A []
+> 
+> Provide further comments here:
+> 
+> Reviewer #3: Mark as appropriate with an X:
+> 
+> Yes [] No [X] N/A []
+> 
+> Provide further comments here:
+> 
+> Reviewer #4: Mark as appropriate with an X:
+> 
+> Yes [X] No [] N/A []
+> 
+> Provide further comments here: see reviewer comments to author
+> 
+> 9. Could the manuscript benefit from language editing?
+> 
+> Reviewer #1: No
+> 
+> Reviewer #3: No
+> 
+> Reviewer #4: No
+> 
+
+> ======================================
+> 
+> ​Reviewers' comments to authors:
+> 
+> 
+> Reviewer #1: # Summary
+> 
+> Overall, the revision does a good job of addressing the concerns raised in
+> the previous round. Beyond the main contribution to testing, the paper
+> offers a valuable exploration of set linearizability that goes beyond prior
+> work. However, several issues remain, some potentially serious, that I
+> believe should be addressed in a further revision. Specifically, I would
+> hope the revision addresses: 
+> 
+> - The potentially serious error in Definition 4
+> - The inaccuracies in the comparison with set linearizability / CA linearizability
+> - The LTSs for two-step linearizability
+> - A proof of equivalence between two-step linearizability and set linearizability in the general case
+> - A change in terminology from "configurations" to "possibilities," with the missing citations added
+> - Removal of the crash linearizability citations and correction of the discussion of deductive verification for non-atomic linearizability
+> 
+> I detail the issues below.
+> 
+> ---
+> 
+> # Major Issues
+> 
+> ## 1. Definition 4 Appears Incorrect
+> 
+> I have two surface-level concerns and one substantive one.
+> 
+> First, the phrasing "contains an execution of $op_j(x_j)^{i_j}\!:\!y_j$" and
+> "for each execution $op_j(x_j)^{i_j}\!:\!y_j$" conflates the events that
+> appear in non-atomic and atomic traces. This should follow the pattern of
+> Definition 1, where events are separated into call and return, rather than
+> relying on the undefined shorthand of "an execution of
+> $op_j(x_j)^{i_j}\!:\!y_j$."
+
+Ok, we've done that.
+
+> Second, the clause "necessarily the abstraction function $\mathcal{A}$
+> relates operations as in the previous bullet point" needs to be made
+> precise. As written, the relationship between $op_j$ and $sync$ is
+> insufficiently specified. 
+
+And we've done that.
+
+> More seriously, I believe the definition as written is incorrect. Consider
+> three operations $op_1, op_2, op_3$ and the given abstraction mapping. The
+> interleaving 
+
+Which "given abstraction mapping"?  We assume
+
+  {<op1, op2, op3> |-> sync } 
+
+i.e. a ternary synchronisation between the three operations.
+
+> call.op1  call.op2  call.op3  sync  return.op1  return.op2
+> return.op3\mathit{call.op_1} \;\; \mathit{call.op_2} \;\; \mathit{call.op_3}
+> \;\; sync \;\; \mathit{return.op_1} \;\; \mathit{return.op_2} \;\;
+> \mathit{return.op_3}
+
+(You seem to have written the interleaving twice: we assume this was
+unintentional.)
+
+> appears to be admitted as a valid proof of synchronization linearizability,
+> which seems incorrect.
+
+That seems fine to us -- but maybe we've misunderstood your intended
+abstraction mapping. 
+
+However, the example below is clearer to us. 
+
+> The issue becomes sharper with a second example. Suppose we have $op_1,
+> op_2, op_3$ and $sync_1, sync_2$ with the mappings $\langle op_1, op_2
+> \rangle \mapsto sync_1$ and $\langle op_2, op_3 \rangle \mapsto
+> sync_2$. Then both of the following are admitted: 
+> 
+> call.op1  call.op2  call.op3  sync1  sync2  return.op1  return.op2
+> return.op3\mathit{call.op_1} \;\; \mathit{call.op_2} \;\; \mathit{call.op_3}
+> \;\; sync_1 \;\; sync_2 \;\; \mathit{return.op_1} \;\; \mathit{return.op_2}
+> \;\; \mathit{return.op_3}
+
+You have omitted the execution identities.  Putting them in, we get (e.g.):
+
+call.op1^1  call.op2^2  call.op3^3  sync1^{1,2}  sync2^{2,3}  return.op1^1
+return.op2^2  return.op3^3
+
+But here the execution identity "2" appears twice in the sequential history,
+which isn't allowed.
+
+> call.op1  call.op2  sync1  return.op1  call.op3  sync2  return.op2
+> return.op3\mathit{call.op_1} \;\; \mathit{call.op_2} \;\; sync_1 \;\;
+> \mathit{return.op_1} \;\; \mathit{call.op_3} \;\; sync_2 \;\;
+> \mathit{return.op_2} \;\; \mathit{return.op_3} 
+
+The same issue arises here.
+
+> However, the trace $sync_1 \;\; sync_2$ should correspond to something like:
+> 
+> $\mathit{call.op_1} \;\; \mathit{call.op_2} \;\; \mathit{return.op_1} \;\;
+> \mathit{return.op_2} \;\; \mathit{call.op_2} \;\; \mathit{call.op_3} \;\;
+> \mathit{return.op_2} \;\; \mathit{return.op_3}$ 
+
+Here the two "call.op_2" events would have different execution identities, as
+would the sync_1 and sync_2 events. 
+
+However, we admit that the definition could have been clearer on this point.
+We have added a few lines of explanation clarifying that there is a bijection
+between the call/return events and the sync events. 
+
+> which neither of the two traces above can match.
+
+> ## 2. Inaccurate Comparison with CA Linearizability (p. 14, ll. 14-36)
+> 
+> The claim that the authors' definition is "equivalent to [CA
+> linearizability] when $S$ is taken to be the inverse image under the
+> synchronisation abstraction function of all histories of the synchronisation
+> specification object" is not quite right. The abstraction function maps
+> operation names and arguments to operation names and arguments; it does not
+> account for return values. 
+
+That's not quite right, because the synchronisation specification object can
+define the return values.  However, the two definitions aren't quite
+equivalent because CA linearisation allows specifications that, e.g., allow
+threads A and B to synchronise, but not threads A and C (essentially because
+the specification is in terms of an *arbitrary* set of CA-traces).  
+
+We have given a more detailed comparison, in particular showing that they are
+equivalent when the set-linearisation specification doesn't impose
+thread-specific conditions like in the previous paragraph.
+
+> Additional work would be needed to construct a
+> function with the correct domain and codomain. A hand-wavy statement that
+> acknowledges its own imprecision would be acceptable, but as written, the
+> claim appears precise while being incorrect. 
+> 
+> The statement that CA linearizability "do[es] not provide a way of
+> specifying correct CA-traces" is unfair. Section 4 of the CA linearizability
+> paper does present a specification approach. Furthermore, subsequent work on
+> interval-sequential linearizability introduces automata-based and
+> distributed-task-based specifications, and the line of work on compositional
+> linearizability provides both LTS-based and predicate-based approaches. In
+> any case, it is well understood how a specification given by sets of
+> sequences of events corresponds to traces generated by an LTS, which is what
+> justifies studying only the set of traces to begin with (even in Herlihy and
+> Wing's original paper). 
+
+****** Consider this.  I think we provide a more convenient framework for
+       producing the specifications. 
+
+
+> ## 3. LTSs for Two-Step Linearizability Need Clarification
+> 
+> The LTS on p. 24 (ll. 8-18) is difficult to follow because the transitions
+> specify only the preconditions on `returns(t)`, not the effects. As
+> presented, there is no indication that `returns(t)` would ever differ from
+> `None`. The state of `TwoStepLinSpec` comprises both the `Zero`/`One`
+> component and the `returns` mapping, yet only the former appears in the
+> transition rules. The authors should revise the LTS to make the effects on
+> `returns` explicit. This concern is even more pressing for the examples in
+> Section 4.3, where the underlying code is not always provided. 
+
+*** Add "sets returns(t)".  I don't think it's sensible to try to fit more into
+   the figure.
+
+*** Look at later cases.  
+
+> Regarding Figure 5: much of the notation ($\leq$ for prefixing,
+> $\hat{\phantom{x}}$ for concatenation, $\bullet$ for scoping, $:+$ for
+> appending, or at least those are my guesses) is not explained. The text
+> should define these symbols. It would also help to explain what a case class
+> is. 
+
+*** Do this, probably in footnotes.  
+
+*** case classes/objects first appear in Figure 3.  "The use of case classes
+    and objects allows for pattern matching." 
+
+> Similarly, the explanation on ll. 49-56 is hard to follow. The notation
+> $\langle \,|\, \rangle$ (apparently for filtering or subsequence extraction)
+> is undefined, and the meaning of `Op_j(t_j, x_j) <- state`—including the
+> type of `state`—has not been introduced. The phrase "the following function
+> maps such a sequence" refers to a sequence that has not yet been
+> defined. This paragraph appears to be missing several sentences. 
+
+*** Look at these.
+
+> ## 4. Proof of Equivalence (p. 29)
+> 
+> If the authors must omit one of the two proofs (the heterogeneous binary
+> case or the general case), I suggest omitting the binary case, since it
+> follows as a corollary of the general result. In any case, the general case
+> is different enough from the binary case, even in the construction, as to
+> warrant proof. 
+
+*** I'll write out the proof on paper, and then decide whether we should
+    include it. 
+
+> ## 5. Terminology: "Configurations" → "Possibilities" (p. 36)
+> 
+> What the authors call a *configuration* (including their notion of *edges*)
+> is known in the linearizability literature as a *possibility*; see Herlihy
+> and Wing's original paper or the recent modernization by Jayanti et al. For
+> the generalization to non-atomic settings (including set linearizability),
+> see the JACM version of "A Compositional Theory of Linearizability." I
+> suggest renaming "configuration" to "possibility" to align with established
+> terminology, and citing both Herlihy and Wing (for originating the concept)
+> and the compositional linearizability work (for generalizing it). 
+
+*** I don't like the word "possibility".  But look at the paper.
+
+> This change would also highlight the fact that the claim "Any path from the
+> initial configuration to a target configuration clearly represents an
+> interleaving of a history of the specification object with $h$, as required
+> for synchronisation linearisation" is not as self-evident as the word
+> "clearly" suggests. Citing the above papers would help account for the
+> missing justification. 
+
+*** Maybe give more explanation.
+
+> ## 6. Linearizability with Crashes (p. 52, ll. 32-35)
+> 
+> Since the paper does not consider crashes, the purpose of mentioning crash
+> linearizability is unclear. If the intent is to survey extensions, many
+> other variants deserve equal mention (e.g., linearizability for higher-order
+> computation, weak memory, memory footprints, liveness, hyperproperties,
+> etc.). The current list also cites only three works in the crash setting,
+> despite a much larger body of literature. I suggest removing this
+> discussion. 
+
+*** I'm content with this.
+
+> ## 7. Comparison with Deductive Verification (pp. 52-53, ll. 55-10)
+> 
+> The sentence "It would be interesting to try to adapt some of these
+> techniques to synchronization linearization" should be revised. Reference
+> [13] already provides a verification technique for set linearizability but
+> is not cited in this context. Moreover, the two papers titled "A
+> Compositional Theory of Linearizability" present techniques for verifying
+> compositional linearizability, which generalizes both set linearizability
+> and interval-sequential linearizability. The text should acknowledge that
+> deductive techniques for these settings already exist. 
+
+*** Look at these
+ 
+> # Minor Issues
+> 
+> 1. **Disjointness assumption (p. 15, ll. 44-50).** Please state explicitly
+> that the operations of both the concrete objects and the specifications are
+> assumed to be mutually disjoint across objects. 
+> 
+> 2. **Compositionality claim (p. 15, ll. 53-55).** The statement "This is an
+> important result, as it allows for compositional development and
+> verification" overstates the role of locality. Without a suitable contextual
+> refinement property (à la Filipovic et al.) or a compositional
+> characterization (such as that of compositional linearizability), locality
+> alone does not enable compositional development and verification. A more
+> qualified phrasing would be appropriate. 
+
+*** Look at these.
+
+> 
+> 3. **Figure 11.** I believe "Both" belongs in the heterogeneous column and
+> "N" in the stateful column. 
+
+*** Fix this
+
+> 
+> 4. **Figures 12 and 13.** The axes are not labeled in the figures
+> themselves. I suggest adding axis labels to the figures (or at minimum to
+> the captions) so that they are self-contained and to make it easier for the
+> reader to process them. 
+
+*** Labelling the axes just takes up too much space.  But adding text to the
+    caption would work. 
+
+
+==============================================================
+
+> Reviewer #3: The authors have taken good care of my suggestions. I am also
+> happy to see that the other reviews led to some significant improvements. 
+
+==============================================================
+ 
+> Reviewer #4: This paper describes a technique called synchronisation
+> linearisation for determining the correctness of runs of concurrent object
+> threads. This introduces notations such as specification objects, and
+> conversion of synchronisation linearisation into a form of two-step
+> linearisation. Liveness is captured by a notion of progressibility. A
+> framework and implementation for using this to test concurrent code is
+> presented. 
+> The paper finishes with some comparisons between your approach and so-called
+> "direct" testing. 
+> 
+> A lot of the proofs in the paper are semi-formal at best - with concepts
+> that are complex and subtle. Are there any plans to formalise these to some
+> extent?
+
+*** I'm not sure what to make of that.
+
+> In particular, the notion of a "legal" history depends on the semantics of
+> the various specifications, here presented using some subset of Scala. To
+> what extent could that subset be given a formal semantics? 
+> 
+
+*** Isn't the semantics obvious?  Be more explicit that the semantics is a
+    sequence of operation executions (with preconditions statisfied). 
+
+> The paper starts with a lot of examples - this is helpful. Some other useful
+> examples are also given. However Sec 7 needs an example when talking about
+> removing certain synchronisation edges from an ASPA linearisation. 
+
+*** Try to come up with example
+
+> Another problem is that the material is complex and could do with better
+> presentation, use of language, and an improved flow of the key ideas
+> (c.f. the Sec7/9 confusion alluded to in the Detailed comments). 
+> 
+> The real issue with this paper is, despite some interesting ideas, that it
+> is not clear what has actually been achieved over and above the current
+> state of the art. 
+
+*** ???
+
+> 
+> At the very least this material needs more research/experimental work to
+> identfiy its strengths and best use cases. 
+
+*** There's rather a lot of experimental work reported in Section 9.
+
+> 
+> 
+> Detailed comments:
+> 
+> p13, defn of TimeoutChannelSpec: here we see a spec that consists of three
+> "functions" (predicates) that are each partial in some sense. 
+
+*** I don't understand this.  Each operation is total.  
+
+> 
+> p14, 1st para., the "sync abs function" is not a function, in that, for any
+> value v in A, and any receive(), 
+> send(v) can result in both sendTO(v) and sync(v). This raises the issue of
+> how you ensure/check sensible uses of this? 
+
+*** No.  The sync abs function is a function that takes a *sequence* of
+    operations.  Here, when applied to the singleton sequence containing
+    send(v) we get sendTO(v); and when applied to the sequence containing
+    send(x) *and* receive(), we get sync(v). 
+
+> 
+> p16 Lemma 5 - statement is clear. The proof L-2-R is straightforward. The
+> proof R-2-L, once I understood what is going on, also seems it should be
+> OK. However, line 19 says if a call/return event e is followed by s_1..s_k
+> of h_(s_0), we insert those s1..sk after e. My reading of this is that then
+> the entire history of object o is copied in after the first call
+> event. Surely we need to limit the s_i here to those with the same
+> *identity* as event e? 
+
+*** s_1,...,s_k are the synchronisation events (from h_s), after e in h_o^I,
+    but before the next call or return event.  Make that clearer.
+
+> p17, definition 7 - I would interpret the term "proper legal extension" of
+> h_s as h_s ^ e_s where e_s is not empty. In the definition you use <e>, a
+> singleton. I assume this is because the focus is on a single synch object? 
+
+*** The fact that no one-step extension is a sync lin of h implies that no
+    longer extension is a sync lin of h.  Try to phrase this better.
+
+> p19 - line 50 - "unary synchronisation" - perhaps remind the reader what
+> these are? 
+
+*** Do this.  But I think it should be "any synchronisation with at least one
+    non-trivial synchronisation (i.e. between at least two threads)".
+
+> p22 - here the 2-step linearisation is described with an example. The
+> example satisfies the requirements in the four bullet points. However, the
+> example also satisfies the following property: op^i2_2(x):y occurs between
+> op^i1_1(x):() and \bar{op}^i1_1():y . Is this also necessary, or just an
+> example? 
+
+*** Look at this
+
+> p24 - The definition of TwoStepLinSpec makes it clear that op2 does occur
+> between op1 and \bar{op1}. Why don't you state this as part of the
+> definition on p22? Lemma 13 and Prop 14 don;t seem to rely on the relation
+> position of \bar{op1} in any way. 
+
+*** Look at this.
+
+> 
+> p26 - a k-way version is introduced. However it seems to prescribe the order
+> of all operations. Shouldn't op1, op2 and op3 be able to occur in any order,
+> with only op4 required to be last? Thinking about this, the goal is to
+> perform a linearisation, so the order of the operations has to be
+> specified. You should state this explicitly here. 
+
+*** Try to explain this better.  There is no harm in forcing op_1,op_2,op_3 to
+    occur in this order; and it reduces the search space over allowing them to
+    happen in an arbitrary order. 
+
+> p26 the"homogeneous case" is mentioned with a binary case example that is
+> completely uninformative. We have one op, but what are the (t_i,x_i). Why do
+> (t1,x1) and (t2,x2) alternate? what happens if (t3,x3) is included? By
+> itself? Or does that force the existence of (t4, x4) ? We shouldn't have to
+> carefully read TwoStepHomoLinSpec (p27) carefully to figure things out. 
+
+*** Try to explain this better.  Maybe give the signature of the spec object. 
+
+> p28, line 38, the first op in the mapping is op_{i_i}. Should it be op_{i_1}
+> ? Step one afterwards uses op_{i_1}, while op_{i_i} is then used in step 2. 
+
+*** The first one is a typo.
+
+> p31, lns 23,24 "This is not a use for which the framework was intended, so
+> we consider it a hack." I have no idea what this means? I assume the
+> referent of "framework" is the linearisation testing framework, but this is
+> the first use of that phrase, and previous use of "testing framework" are
+> just mentions of it. What was the intended use of the framework, and what is
+> it about the proposed use that makes it "hack-like"? 
+
+*** Say "linearisation testing framework".  Maybe remove the word "hack" (but
+    it seems like a standard usage).
+
+> p31, line 37/38 \bar{op}_1(t) should be \bar{op}_1(t_1) ?
+
+*** Yes
+
+> 
+> subsection "Variable-arity synchronisations." (pp33-35) raises a serious
+> limitation of the approach just developed. An alternative approach is given
+> but is dismissed as being "too convoluted". The state diagram on p35 isn't
+> that convoluted. The problem here is that you now proceed into Section 7
+> with a technique that can't handle timeouts. Even if the direct testing
+> approach in Section 7 can handle timeouts, you have no prior theory that
+> models/specifies it. 
+
+*** It's not dismissed; just not recommended.  Maybe just say that the
+    approaches in the following section are easier.  
+
+> 
+> Lets see what Section 7 says.....
+> 
+> 
+> para bridging pp35-36: describes what appears to be a very fragile test
+> process that needs careful tuning. It starts with the phrase "Instead, we
+> run threads...". Seems like something you do. Why is discussion of this then
+> deferred to Sec 9? Why not now? What follows describes a different approach,
+> so why have this paragraph here at all? 
+> 
+> ** Having read Sec9, you should say more about the direct method here - they
+> way you introduce it makes it sound tricky, but the Sec9 results seem pretty
+> good. 
+
+*** Think about this.  The later discussion really does live in the
+    "experiments" section.  Maybe just say here that our experience is that
+    this is straightforward, and omit the reference to Sec 9. 
+
+> p37, Def 17, Lemma 18 - looks fine.
+> 
+> p38 - 2nd paragraph "removing synchronisation edges...". Please give an
+> example of this .
+
+*** Try to come up with a good example. 
+
+> 
+> 7.2 Complexity - I'm not a complexity expert - I'll skip this.
+> 
+> Sec 8 Implementation - looks fine
+> 
+> Sec 9 Experiments.
+> 
+> p44, lines 34-5, refers to the (problematic?) direct algorithm in Sec 7. It
+> now makes sense, but Sec. 7 should state that the direct algorithm is being
+> used as a comparison, rather than as a technique proposed by you.
+
+*** No, the direct algorithm is our algorithm.  Make this clear earlier.  This
+    seems to be the point that the reviewer has not understood here. 
+
+> 
+> p49 - This seems to conclude your approach is not better than the direct
+> approach for linearisation testing.
+
+*** That was our conclusion, that our direct algorithms are better. 
+
+> 
+> Sec 10.
+> What does your approach do that other approaches can't?
+> What does your approach do easier/faster than other approaches?
+> 
