@@ -1,27 +1,4 @@
-TO DO LIST
-
-- Jonathan to comment on locality proofs, new definition of progressibility,
-  general construction for two-step linearisation, and atomic broadcast
-  example. 
-
-- Jonathan to look for related work about testing.
-
-- Jonathan to review comparison with set linearisation (abstract,
-  introduction, end of Section 2.3). 
-
-- Jonathan to review discussion of Signal objects (third paragraph of
-  conclusions). 
-
-- Jonathan to review related work section.
-
-- Jonathan to review response to reviewers.
-
-- Check pagination.  Probably move TwoStepHomoLinSpec into a figure. 
-
-
-=======================================
-
-DRAFT reply to reviewers.
+Reply to reviewers.
 
 Dear reviewers
 

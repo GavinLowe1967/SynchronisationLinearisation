@@ -142,16 +142,28 @@ history $h_s$ of~$Spec$ corresponds to $h$ if:
 \begin{itemize}
 \item
 For each event $sync^{i_1, \ldots, i_k}(x_1, \ldots, x_k)\:: (y_1, \ldots,
-y_k)$ in~$h_s$, there is some maplet $\seq{ op_1(x_1), \ldots, op_k(x_k) } \mapsto
-sync(x_1,\ldots,x_k)$ in~$\A$ such that, for
-each~$j$, $h$ contains an execution of $op_j(x_j)^{i_j}\:: y_j$.
+y_k)$ in~$h_s$, there is some maplet $\seq{ op_1(x_1), \ldots, op_k(x_k) }
+\mapsto sync(x_1,\ldots,x_k)$ in~$\A$ such that, for each~$j$, $h$ contains
+events $\call.op_j^{i_j}(x_j)$ and $\return.op_j^{i_j}\:: y_j$.
+% an execution of $op_j(x_j)^{i_j}\:: y_j$.
 
-\item For each execution $op_j(x_j)^{i_j}\:: y_j$ in~$h$,\, $h_s$ contains
-  some event of the form $sync^{i_1, \ldots, i_k}(x_1, \ldots, x_k)\:: (y_1,
-  \ldots, y_k)$ (necessarily the abstraction function~$\A$ relates operations
-  as in the previous bullet point).
+\item For each pair of events $\call.op_j^{i_j}(x_j)$ and
+  $\return.op_j^{i_j}\:: y_j$
+%execution $op_j(x_j)^{i_j}\:: y_j$ 
+in~$h$, there is some maplet $\seq{ op_1(x_1), \ldots, op_k(x_k) }
+\mapsto sync(x_1,\ldots,x_k)$ in~$\A$ (i.e.~where the events from~$h$ match
+the $j$th component)  such that
+$h_s$ contains an event of the form $sync^{i_1, \ldots, i_k}(x_1,
+\ldots, x_k)\:: (y_1, \ldots, y_k)$.
+%%  (necessarily the abstraction function~$\A$
+%% relates operations as in the previous bullet point).
 \end{itemize}
 %
+Recall that in~$h$, each execution identity is unique to a matching pair of
+$\call$ and $\return$ events; and in~$h_s$, each execution identity is unique
+to a single event.  Hence the above bullet points define a bijection between
+matching$\call$ and $\return$ events and the corresponding $sync$ event.
+
 Then $h_s$ is a synchronisation linearisation of~$h$ if there is some way of
 interleaving $h$ and~$h_s$ such that each event $sync^{i_1, \ldots, i_k}(x_1,
 \ldots, x_k)\:: (y_1, \ldots, y_k)$ is between $\call.op_j^{i_j}(x_j)$
@@ -170,8 +182,8 @@ definition was given there.
 
 The same property was rediscovered by Hemed et al.~\cite{HRV-2015}, and called
 \emph{concurrency-aware linearisation} (CAL).  They define a concurrency-aware
-trace (CA-trace) to be a history of \emph{sets} of operation executions, where
-each set represents operation executions that seem to take effect
+trace (CA-trace)~$T$ to be a sequence of \emph{sets} of operation executions,
+where each set represents operation executions that seem to take effect
 simultaneously (such as those in a synchronisation).  For the example of
 Figure~\ref{fig:sync-timeline}, the CA-trace would be
 \[
@@ -185,17 +197,95 @@ Figure~\ref{fig:sync-timeline}, the CA-trace would be
 %% (Compared with our approach, applying a synchronisation abstraction function
 %% to such a CA-trace would produce a history of a synchronisation specification
 %% object.)  
-Hemed et al.~define a complete history~$h$ to \emph{agree} with a CA-trace
-$h_s$ if, for all operations $op_1$ and~$op_2$, if $\return.op_1$ is before
-$\call.op_2$ in~$h$, then in~$h_s$, the set that contains~$op_1$ is before the
+Hemed et al.~define a complete history~$h$ to \emph{agree} with a CA-trace~$T$
+if, for all operations $op_1$ and~$op_2$, if $\return.op_1$ is before
+$\call.op_2$ in~$h$, then in~$T$, the set that contains~$op_1$ is before the
 set that contains~$op_2$.  (This is equivalent to a definition, similar to
-ours, based on interleaving~$h$ and~$h_s$.)  They define a concurrent object
-to be CA-linearisable with respect to a set $S$ of CA-traces if, for every
-history~$h$ of the object, there is an extension~$h'$ of~$h$ and a history
-$h_s \in S$ such that $complete(h')$ agrees with~$h_s$.  This is equivalent to
-our definition when $S$ is taken to be the inverse image under the
-synchronisation abstraction function of all histories of the synchronisation
-specification object.
+ours, based on interleaving~$h$ and~$T$.)  They define a concurrent object to
+be CA-linearisable with respect to a set $S$ of CA-traces if, for every
+history~$h$ of the object, there is an extension~$h'$ of~$h$ and a
+CA-trace $T \in S$ such that $complete(h')$ agrees with~$T$.  This is
+equivalent to our definition when $S$ is taken to be the inverse image under
+the synchronisation abstraction function of all histories of the
+synchronisation specification object.
+
+Given an abstraction function $\A$, we can extend it to CA-traces as follows.
+If $\A(\seq{op_1(x_1), \ldots, op_k(x_k) }) = sync(x_1,\ldots,x_k)$,
+then define 
+\begin{eqnarray*}
+\hat\A(\set{ op_1^{i_1}(x_1)\::y_1, \ldots, op_k^{i_k}(x_k)\::y_k }) & = &
+  sync^{i_1,\ldots,i_k}(x_1,\ldots,x_k)\::(y_1, \ldots, y_k).
+\end{eqnarray*}
+Then extend $\hat\A$ to CA-traces by pointwise application.
+
+\begin{lemma}
+\label{lem:CA-traces}
+Let $h$ be a complete history of a synchronisation object.  Then $h$ agrees
+with a CA-trace $T$ if and only if $\hat\A(T)$ is a synchronisation
+linearisation of~$h$. 
+\end{lemma}
+%
+\begin{proof}
+For the left-to-right direction, suppose $h$ agrees with~$T$.  We interleave
+$T$ with $h$, by working through $T$ in order, and inserting each set~$X$
+from~$T$ either immediately after the last $\call$ event for an operation
+in~$X$, or after the previous set from~$T$, whichever is later.  By
+construction, this interleaving preserves the order of~$T$, and ensures each
+set is after all the corresponding $\call$ events.  We show that each set is
+before all the relevant $\return$ events.  Suppose not, in particular that
+some event $\return.op_1$ is before the corresponding set~$X$.  Consider the
+first set~$Y$ in the contiguous sequence of sets that includes~$X$ ($Y$~might
+be~$X$ itself).  Then $Y$ is immediately after the call of some operation
+$op_2 \in Y$, so we have an interleaving of the following form (omitting
+parameters, execution identities and return values):
+\[
+\ldots, \return.op_1, \ldots, \call.op_2, Y = \set{op_2,\ldots}, \ldots,
+  X = \set{op_1,\ldots}, \ldots .
+\] 
+But then the return of~$op_1$ is before the call of~$op_2$, but the set
+containing $op_1$ is not before the set containing~$op_2$, which contradicts
+the assumption that $h$ agrees with~$T$. 
+  
+Finally, we can replace each set~$X$ from~$T$ by $\hat\A(X)$ to form an
+interleaving of $h$ and $\hat\A(T)$.  This interleaving shows that
+$\hat\A(T)$ is a synchronisation linearisation of~$h$.
+
+For the right-to-left direction, consider the interleaving of $h$ and
+$\hat\A(T)$ that shows the synchronisation linearisation.  If a
+$\return.op_1$ event is before a $\call.op_2$ event in~$h$, then necessarily,
+the synchronisation event for $op_1$ is before that for~$op_2$ in the
+interleaving.  Hence the set that contains~$op_1$ is before the set that
+contains~$op_2$ in~$T$.  Thus $h$ agrees with~$T$.
+\end{proof}
+
+%%%%%
+
+\begin{lemma}
+Suppose a synchronisation specification object~$Spec$, abstraction
+function~$\A$, and set of CA-traces~$S$ are such that
+\begin{eqnarray*}
+S & = & \set{ T \;\mid\; \mbox{$\hat\A(T)$ is a history of~$Spec$ }}.
+\end{eqnarray*}
+Then a synchronisation object~$o$ is CA-linearisable with respect to~$S$ if
+and only if it is synchronisation linearisable with respect to $Spec$
+and~$\A$.
+\end{lemma}
+%
+\begin{proof}
+For the right-to-left direction, suppose $o$ is synchronisation linearisable
+with respect to $Spec$ and~$\A$.  Consider a history $h$ of~$o$.  Then there
+is an extension $h'$ of~$h$, and a history~$h_s$ of $Spec$ such that $h_s$ is
+a synchronisation linearisation of~$complete(h')$.  But, by assumption, there
+is some $T \in S$ such that $\hat\A(T) = h_s$ (necessarily, each event
+in~$h_s$ is in the range of~$\A$; and so $h_s$ is in the range of~$\hat\A$).
+Hence $complete(h')$ agrees with $T$, by Lemma~\ref{lem:CA-traces}, and so $h$
+is CA-linearisable with respect to~$S$.
+
+The proof for the left-to-right direction is very similar.
+\end{proof}
+
+
+
 %
 Unlike us, they do not provide a way of specifying correct CA-traces,
 comparable to our synchronisation specification objects: they simply assume a
