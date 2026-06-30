@@ -343,10 +343,13 @@ class Spec(var £$\T$£: Set[CA-trace]){
 
 %%%%%
 
-
-Unlike us, they do not provide a way of specifying correct CA-traces,
-comparable to our synchronisation specification objects: they simply assume a
-given set of correct CA-traces.  They verify an exchanger object with respect
+Hemed et al.\ define the set of correct CA-traces directly, or via Hoare
+triples.  We believe that our own approach, using a synchronisation
+specification object, provides a more clear and straightforward approach.
+%% Unlike us, they do not provide a way of specifying correct CA-traces,
+%% comparable to our synchronisation specification objects: they simply assume a
+%% given set of correct CA-traces.
+They verify an exchanger object with respect
 to CAL, and then use this result in a modular verification of an elimination
 stack~\cite{HSY-2004}.
 

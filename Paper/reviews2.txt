@@ -19,6 +19,9 @@ We have provided a detailed comparison.
 *** I don't understand this point. 
 
 > 7. Introduce examples to increase readability and understendability
+
+We have added examples where suggested by the reviewers, e.g. Figure 8. 
+
 > 8. Make the study more mature by e.g. experimentation
 
 *** I don't understand this point. 
@@ -104,9 +107,8 @@ Apologies.  That is now fixed.
 > Provide further comments here: Something in Sec 7 to illustrate removing
 > synch-edges from an ASPA linearisation
 
-****
+We have added an example (Figure 8).
 
-> 
 > 5. If applicable, are the interpretation of results and study conclusions supported by the data?
 > 
 > Reviewer #1: Mark as appropriate with an X:
@@ -308,9 +310,10 @@ The same issue arises here.
 Here the two "call.op_2" events would have different execution identities, as
 would the sync_1 and sync_2 events. 
 
-However, we admit that the definition could have been clearer on this point.
-We have added a few lines of explanation clarifying that there is a bijection
-between the call/return events and the sync events. 
+However, we admit that the definition could have been clearer on this point:
+thanks for highlighting this.  We have added a few lines of explanation
+clarifying that there is a bijection between the call/return events and the
+sync events.
 
 > which neither of the two traces above can match.
 
@@ -340,7 +343,12 @@ thread-specific conditions like in the previous paragraph.
 > 
 > The statement that CA linearizability "do[es] not provide a way of
 > specifying correct CA-traces" is unfair. Section 4 of the CA linearizability
-> paper does present a specification approach. Furthermore, subsequent work on
+> paper does present a specification approach.
+
+Yes: what we wrote didn't really reflect what we had intended.  Our point is
+that we consider our approach to be more clear and straightforward.  
+
+> Furthermore, subsequent work on
 > interval-sequential linearizability introduces automata-based and
 > distributed-task-based specifications, and the line of work on compositional
 > linearizability provides both LTS-based and predicate-based approaches. In
@@ -349,9 +357,9 @@ thread-specific conditions like in the previous paragraph.
 > justifies studying only the set of traces to begin with (even in Herlihy and
 > Wing's original paper). 
 
-****** Consider this.  I think we provide a more convenient framework for
-       producing the specifications. 
-
+That's true; and in a theoretical setting it makes sense to just assume a set
+of traces.  But in practical applications, it's useful to have a
+straightforward way to define those traces.
 
 > ## 3. LTSs for Two-Step Linearizability Need Clarification
 > 
@@ -411,6 +419,10 @@ thread-specific conditions like in the previous paragraph.
 > terminology, and citing both Herlihy and Wing (for originating the concept)
 > and the compositional linearizability work (for generalizing it). 
 
+We don't really like the word "possibility"; we suspect that the word
+"configuration" is more common.  However, we're now just calling them "nodes",
+as there's no real need to introduce a new term.
+
 *** I don't like the word "possibility".  But look at the paper.
 
 > This change would also highlight the fact that the claim "Any path from the
@@ -420,7 +432,9 @@ thread-specific conditions like in the previous paragraph.
 > "clearly" suggests. Citing the above papers would help account for the
 > missing justification. 
 
-*** Maybe give more explanation.
+We have given an illustrative example (Figure 8) of the search graph.  And we
+have added explanation to justify the relationship between paths and
+interleavings. 
 
 > ## 6. Linearizability with Crashes (p. 52, ll. 32-35)
 > 
@@ -514,7 +528,9 @@ thread-specific conditions like in the previous paragraph.
 > examples are also given. However Sec 7 needs an example when talking about
 > removing certain synchronisation edges from an ASPA linearisation. 
 
-*** Try to come up with example
+We have added an example (Figure 8).  (The example doesn't produce as many
+trimmed edges as we would have liked.  But any larger example would have led
+to an over-cluttered diagram.)
 
 > Another problem is that the material is complex and could do with better
 > presentation, use of language, and an improved flow of the key ideas
@@ -692,3 +708,5 @@ thread-specific conditions like in the previous paragraph.
 > What does your approach do that other approaches can't?
 > What does your approach do easier/faster than other approaches?
 > 
+
+In abstract, mention two classes of algorithms.  And in contributions.

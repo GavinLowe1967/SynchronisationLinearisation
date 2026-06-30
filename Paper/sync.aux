@@ -6,6 +6,7 @@
 \citation{HSY2004,herlihy-shavit}
 \citation{andrews,JCSP,SCL}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{2}\protected@file@percent }
+\newlabel{sec:intro}{{1}{2}}
 \citation{andrews,SCL}
 \citation{sufrin:CSO,SCL}
 \citation{HSY2004,herlihy-shavit}
@@ -18,6 +19,7 @@
 \@writefile{toc}{\contentsline {section}{\numberline {2}Specifying synchronisations}{6}\protected@file@percent }
 \newlabel{sec:spec}{{2}{6}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Synchronisation specification objects}{7}\protected@file@percent }
+\newlabel{sec:sync-spec-objects}{{2.1}{7}}
 \citation{herlihy-wing}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Linearisation}{8}\protected@file@percent }
 \newlabel{sec:specification-linearisability}{{2.2}{8}}
@@ -87,55 +89,55 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.1}The general case}{38}\protected@file@percent }
 \newlabel{sec:algorithm-dfs}{{7.1}{38}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {7.1.1}Partial-order reduction}{39}\protected@file@percent }
+\newlabel{sec:POR}{{7.1.1}{39}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Illustration of the search graph for a history of a synchrous channel with a sequence counter. Each node is as in the text, with the sets $pending$ and $synchronised$ denoted by the relevant sets of operation identities, and the specification object denoted by the value of the counter. Each \rm  \textsf  {Call} edge concerning an operation with identity\nobreakspace  {}$j$ is labelled $\mbox  {\sf  {\small  call}}^j$, and likewise for \rm  \textsf  {Return} edges; each \rm  \textsf  {Synchronisation} edge concerning operations with identities\nobreakspace  {}$j$ and\nobreakspace  {}$k$ is labelled $\mbox  {\small  \sffamily  \color  {ScalaColour}sync}^{j,k}$. Edges struck through in red are removed by the partial-order reduction of Section\nobreakspace  {}7.1.1\hbox {}.}}{40}\protected@file@percent }
+\newlabel{fig:direct-alg-graph}{{8}{40}}
 \citation{gibbons-korach}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Complexity}{40}\protected@file@percent }
-\newlabel{sec:NP-complete}{{7.2}{40}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Complexity}{41}\protected@file@percent }
+\newlabel{sec:NP-complete}{{7.2}{41}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}The binary heterogeneous stateless case}{42}\protected@file@percent }
+\newlabel{sec:binary-heterogeneous}{{7.3}{42}}
 \citation{ford-fulkerson}
 \citation{edmonds_1965}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}The binary heterogeneous stateless case}{41}\protected@file@percent }
-\newlabel{sec:binary-heterogeneous}{{7.3}{41}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}The binary homogeneous stateless case}{41}\protected@file@percent }
-\newlabel{sec:binary-homogeneous}{{7.4}{41}}
 \citation{Karp1972}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.5}The non-binary stateless case}{42}\protected@file@percent }
-\newlabel{sec:non-binary-stateless}{{7.5}{42}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}The binary homogeneous stateless case}{43}\protected@file@percent }
+\newlabel{sec:binary-homogeneous}{{7.4}{43}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.5}The non-binary stateless case}{43}\protected@file@percent }
+\newlabel{sec:non-binary-stateless}{{7.5}{43}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Implementation}{44}\protected@file@percent }
+\newlabel{sec:implementation}{{8}{44}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces A simple tester for a synchronous channel. }}{45}\protected@file@percent }
+\newlabel{fig:ChanTester}{{9}{45}}
 \citation{testing-manual}
-\@writefile{toc}{\contentsline {section}{\numberline {8}Implementation}{43}\protected@file@percent }
-\newlabel{sec:implementation}{{8}{43}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces A simple tester for a synchronous channel. }}{44}\protected@file@percent }
-\newlabel{fig:ChanTester}{{8}{44}}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces A faulty history for an exchanger, showing a failure of synchronisation linearisability. The left-hand column gives an index for each operation execution.}}{45}\protected@file@percent }
-\newlabel{fig:exchanger-error}{{9}{45}}
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces A faulty history for a synchronous channel, showing a failure of progressibility.}}{45}\protected@file@percent }
-\newlabel{fig:progress-error}{{10}{45}}
-\@writefile{toc}{\contentsline {section}{\numberline {9}Experiments}{45}\protected@file@percent }
-\newlabel{sec:experiments}{{9}{45}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces A faulty history for an exchanger, showing a failure of synchronisation linearisability. The left-hand column gives an index for each operation execution.}}{46}\protected@file@percent }
+\newlabel{fig:exchanger-error}{{10}{46}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces A faulty history for a synchronous channel, showing a failure of progressibility.}}{46}\protected@file@percent }
+\newlabel{fig:progress-error}{{11}{46}}
 \citation{gavin:SCL-CSP}
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Example interfaces of synchronisation objects. }}{46}\protected@file@percent }
-\newlabel{fig:examples}{{11}{46}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Example interfaces of synchronisation objects. }}{47}\protected@file@percent }
+\newlabel{fig:examples}{{12}{47}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}Experiments}{47}\protected@file@percent }
+\newlabel{sec:experiments}{{9}{47}}
 \citation{GBE2007}
-\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Effect of choices of parameters for testers for a synchronous channel the ABC problem, and a barrier.}}{48}\protected@file@percent }
-\newlabel{fig:params-experiment-1}{{12}{48}}
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Effect of choices of parameters for testers for a closeable channel.}}{49}\protected@file@percent }
-\newlabel{fig:params-experiment-2}{{13}{49}}
-\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces The effect of increasing the number of threads on the time to find bugs.}}{50}\protected@file@percent }
-\newlabel{fig:scalingExperiment}{{14}{50}}
-\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Times to find bugs affecting synchronisation linearisation.}}{51}\protected@file@percent }
-\newlabel{fig:bugFindingExperiment}{{15}{51}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Effect of choices of parameters for testers for a synchronous channel the ABC problem, and a barrier.}}{50}\protected@file@percent }
+\newlabel{fig:params-experiment-1}{{13}{50}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Effect of choices of parameters for testers for a closeable channel.}}{51}\protected@file@percent }
+\newlabel{fig:params-experiment-2}{{14}{51}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces The effect of increasing the number of threads on the time to find bugs.}}{51}\protected@file@percent }
+\newlabel{fig:scalingExperiment}{{15}{51}}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Times to find bugs affecting synchronisation linearisation.}}{52}\protected@file@percent }
+\newlabel{fig:bugFindingExperiment}{{16}{52}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Times to find bugs affecting synchronisation progressibility.}}{53}\protected@file@percent }
+\newlabel{fig:progressBugFindingExperiment}{{17}{53}}
 \citation{SCL}
 \citation{CRR-2018}
-\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Times to find bugs affecting synchronisation progressibility.}}{52}\protected@file@percent }
-\newlabel{fig:progressBugFindingExperiment}{{16}{52}}
-\@writefile{toc}{\contentsline {section}{\numberline {10}Conclusions}{52}\protected@file@percent }
-\newlabel{sec:conc}{{10}{52}}
 \citation{Neiger-1994}
 \citation{HRV-2015}
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces The signature of a {\sffamily  \color  {ScalaColour}Signal} object (top); and a timeline for a history (bottom).}}{54}\protected@file@percent }
+\newlabel{fig:Signal}{{18}{54}}
+\@writefile{toc}{\contentsline {section}{\numberline {10}Conclusions}{54}\protected@file@percent }
+\newlabel{sec:conc}{{10}{54}}
 \citation{CRR-2018,CRR-2023}
-\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces The signature of a {\sffamily  \color  {ScalaColour}Signal} object (top); and a timeline for a history (bottom).}}{53}\protected@file@percent }
-\newlabel{fig:Signal}{{17}{53}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {10.1}Related work}{53}\protected@file@percent }
-\newlabel{sec:related}{{10.1}{53}}
-\@writefile{toc}{\contentsline {paragraph}{Variations of linearisation}{53}\protected@file@percent }
 \citation{SLS-2009}
 \citation{IV-lin}
 \citation{local-lin}
@@ -145,13 +147,14 @@
 \citation{wing-gong,gavin:lin-testing}
 \citation{knossos}
 \citation{porcupine}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.1}Related work}{55}\protected@file@percent }
+\newlabel{sec:related}{{10.1}{55}}
+\@writefile{toc}{\contentsline {paragraph}{Variations of linearisation}{55}\protected@file@percent }
 \citation{gavin:SCL-CSP}
 \citation{awr:ucs}
 \citation{fdr3}
 \citation{HSV13,CHSV2015,DHK15,BEEH18,AHHJR,lincheck}
 \citation{dongol-derrick}
-\@writefile{toc}{\contentsline {paragraph}{Testing}{54}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Verification}{54}\protected@file@percent }
 \bibstyle{elsarticle-num}
 \bibdata{sync}
 \bibcite{H78}{{1}{}{{}}{{}}}
@@ -162,6 +165,8 @@
 \bibcite{DK-go}{{6}{}{{}}{{}}}
 \bibcite{HSY2004}{{7}{}{{}}{{}}}
 \bibcite{herlihy-shavit}{{8}{}{{}}{{}}}
+\@writefile{toc}{\contentsline {paragraph}{Testing}{56}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Verification}{56}\protected@file@percent }
 \bibcite{SCL}{{9}{}{{}}{{}}}
 \bibcite{alting-barrier}{{10}{}{{}}{{}}}
 \bibcite{herlihy-wing}{{11}{}{{}}{{}}}

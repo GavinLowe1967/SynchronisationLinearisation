@@ -82,7 +82,7 @@ synchronisation-linearisable with respect to a given synchronisation
 specification object.  We transform the problem into a graph-search algorithm
 as follows.
 
-We define a search graph, where each node is a \emph{configuration}
+We define a search graph, where each node is a 4-tuple
 comprising:
 %
 \begin{itemize}
@@ -99,13 +99,13 @@ comprising:
   linearised so far.
 \end{itemize}
 %
-From such a configuration, there are edges to configurations as follows:
+From such a node, there are edges  as follows:
 %
 \def\edgeFont#1{\rm\textsf{#1}}
 \begin{description}
 \item[\edgeFont{Synchronisation}.] If some set of executions in $pending$ can
   synchronise, giving the same results as required by the
-  specification~$spec$, then there is an edge to a configuration where the
+  specification~$spec$, then there is an edge to a node where the
   synchronising executions are moved into $linearised$, and $spec$ is updated
   corresponding to the synchronisation;
 
@@ -118,22 +118,134 @@ From such a configuration, there are edges to configurations as follows:
   where that execution is removed from $linearised$, and $i$ is advanced.
 \end{description}
 %
-The initial configuration has $i$ at the start of the log, $pending$ and
+The initial node has $i$ at the start of the log, $pending$ and
 $linearised$ empty, and $spec$ the initial state of the specification object.
-Target configurations have $i$ at the end of the log, and $pending$ and
+Target nodes have $i$ at the end of the log, and $pending$ and
 $linearised$ empty.
 
-Any path from the initial configuration to a target configuration clearly
-represents an interleaving of a history of the specification object with~$h$,
-as required for synchronisation linearisation.  We can therefore search this
-graph using a standard algorithm.  Our implementation uses depth-first search.
+Figure~\ref{fig:direct-alg-graph} illustrates the search graph for the
+following history of a |SyncChanCounter| (Section~\ref{sec:intro}), testing
+for linearisation against |Sync|\-|Chan|\-|Counter|\-|Spec|
+(Section~\ref{sec:sync-spec-objects}): 
+\[
+\begin{align}
+\seq{ 
+ \call.\send^A(4),\; \call.\receive^B(),\; \call.\send^C(5),\; 
+ \call.\receive^D(),
+ \\
+\quad
+ \return.\send^A\::1,\; \return.\receive^B\::(4,1),\; \return.\send^C\::2,\;
+ \return.\receive^D\:: (5,2) }.
+\end{align}
+\]
+
+%%%%%%%%%%
+
+\begin{figure}[htpb]
+\def\strikeout(#1){\draw[red] (#1)+(-0.62,-0.1) -- ++(-0.52,-0.8);}
+\begin{center}\tikzstyle{every node}=[font=\footnotesize]
+\begin{tikzpicture}[xscale = 4,yscale = 1.2]
+\draw (0,0) node (0) {$(0, \set{}, \set{}, 0)$};
+%
+\draw (0)  + (0,-1) node (1) {$(1, \set{A}, \set{}, 0)$};
+\draw[->] (0) --  node[left]{$\call^A$}(1);
+%
+\draw (1) + (0,-1) node (2) {$(2, \set{A,B}, \set{}, 0)$};
+\draw[->] (1) --  node[left]{$\call^B$} (2);
+%
+\draw (2) + (0,-1) node (3) {$(2, \set{}, \set{A,B}, 1)$};
+\draw[->] (2) --  node[left]{$\sync^{A,B}$} (3);
+\draw (2) + (1,-1) node (3A) {$(3, \set{A,B,C}, \set{}, 0)$};
+\draw[->] (2) --  node[above]{$\call^C$} (3A);
+%
+\draw (3) + (0,-1) node (4) {$(3, \set{C}, \set{A,B}, 1)$};
+\draw[->] (3) --  node[left]{$\call^C$} (4);
+%
+\draw[->] (3A) --  node[left,near start]{$\sync^{A,B}$} (4);
+%\draw[red] (3A)+(-0.62,-0.1) -- ++(-0.52,-0.8);
+\strikeout(3A)
+\draw (3A) + (0,-1) node (4A) {$(4, \set{A,B,C,D}, \set{}, 0)$};
+\draw[->] (3A) -- node[right]{$\call^D$} (4A);
+%
+\draw (4) + (0,-1) node (5) {$(4, \set{C,D}, \set{A,B}, 1)$};
+\draw[->] (4) --  node[left]{$\call^D$} (5);
+%
+\draw (5) + (1,-1) node (5A) {$(5, \set{C,D}, \set{B}, 1)$};
+\draw[->] (5) -- node[above] {$\return^A$} (5A);
+%%%%% return^A from here
+%
+\draw[->] (4A) -- node[left,near start]{$\sync^{A,B}$} (5);
+\strikeout(4A)
+%\draw (4A) + (0,-1) node (5A) {$(4, \set{A,B}, \set{C,D}, 
+%
+\draw (5) + (0,-1) node (6) {$(4, \set{}, \set{A,B,C,D}, 2)$};
+\draw[->] (5) --  node[left]{$\sync^{C,D}$} (6);
+%
+\draw (6) + (0,-1) node (7) {$(5, \set{}, \set{B,C,D}, 2)$};
+\draw[->] (6) --  node[left]{$\return^A$} (7);
+\draw[->] (5A) -- node[left,near start]{$\sync^{C,D}$} (7);
+\strikeout(5A)
+%
+\draw (5A) + (0,-1) node (6A) {$(6, \set{C,D}, \set{}, 1)$};
+\draw[->] (5A) -- node[right]{$\return^B$} (6A);
+%
+\draw (7) + (0,-1) node (8) {$(6, \set{}, \set{C,D}, 2)$};
+\draw[->] (7) --  node[left]{$\return^B$} (8);
+\draw[->] (6A) -- node[left,near start]{$\sync^{C,D}$} (8);
+\strikeout(6A)
+%
+\draw (8) + (0,-1) node (9) {$(7, \set{}, \set{D}, 2)$};
+\draw[->] (8) --  node[left]{$\return^C$} (9);
+%
+\draw (9) + (0,-1) node (10) {$(8, \set{}, \set{}, 2)$};
+\draw[->] (9) --  node[left]{$\return^D$} (10);
+\end{tikzpicture}
+\end{center}
+\caption{Illustration of the search graph for a history of a synchrous channel
+  with a sequence counter.  Each node is as in the text, with the
+  sets $pending$ and $synchronised$ denoted by the relevant sets of operation
+  identities, and the specification object denoted by the value of the
+  counter.  Each \edgeFont{Call} edge concerning an operation with
+  identity~$j$ is labelled $\call^j$, and likewise for \edgeFont{Return}
+  edges; each \edgeFont{Synchronisation} edge concerning operations with
+  identities~$j$ and~$k$ is labelled $\sync^{j,k}$.  Edges struck through in
+  red are removed by the partial-order reduction of Section~\ref{sec:POR}.}
+\label{fig:direct-alg-graph} 
+\end{figure}
+
+%%%%%%%%%%
+
+Any path from the initial node to a target node represents
+an interleaving of the given history~$h$ with a history of the specification
+object, as required for synchronisation linearisation: the \edgeFont{Call} and
+\edgeFont{Return} edges are in the same order as the corresponding $\call$ and
+$\return$ events in the log; the sub-path of \edgeFont{Synchronisation} edges
+corresponds to a legal history of the synchronisation specification object;
+each \edgeFont{Synchronisation} edge is between the corresponding
+\edgeFont{Call} and \edgeFont{Return} edges, by construction.  For example, the
+vertical path in Figure~\ref{fig:direct-alg-graph} corresponds to the
+following interleaving:
+\[
+\begin{align}
+\seq{ 
+ \call.\send^A(4),\; \call.\receive^B(),\; \sync^{A,B}(4,())\:: (1, (4,1)),\\
+\quad \call.\send^C(5),\;  \call.\receive^D(),\; \sync^{C,D}(5,())\:: (2, (5,2)),
+ \\
+\quad
+ \return.\send^A\::1,\; \return.\receive^B\::(4,1),\; \return.\send^C\::2,\;
+ \return.\receive^D\:: (5,2) }.
+\end{align}
+\]
+
+We can therefore search this graph using a standard algorithm.  Our
+implementation uses depth-first search.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %\subsubsection{Progress}
 
 It is straightforward to adapt the search algorithm to also test for progress.
-We change the definition of a target configuration to have $i$ at the end of
+We change the definition of a target node to have $i$ at the end of
 the log, $linearised$ empty, and such that no set of executions in $pending$
 can synchronise: this ensures that we are dealing with a \emph{maximal}
 synchronisation linearisation.  
@@ -141,6 +253,7 @@ synchronisation linearisation.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsubsection{Partial-order reduction}
+\label{sec:POR}
 
 We have investigated a form of partial-order reduction, which we call
 \emph{ASAP linearisation}.  The idea is that we try to linearise executions
@@ -186,7 +299,9 @@ Our approach, then, is to trim the search graph by removing
 linearisation: after a \edgeFont{call} edge, we attempt to linearise a
 synchronisation corresponding to that call, and then, if successful, to
 linearise an arbitrary sequence of other synchronisations; but we do not
-otherwise allow synchronisations.
+otherwise allow synchronisations.  In Figure~\ref{fig:direct-alg-graph}, the
+edges removed by this partial-order reduction are struck through in red; note
+that in each case, these edges were parts of alternatives to the main path.  
 
 Our experience is that this tactic is moderately successful.  In some cases,
 it can reduce the total time to check histories by over~30\%;
