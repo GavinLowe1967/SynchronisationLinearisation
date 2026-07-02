@@ -198,10 +198,11 @@ more complex than the synchronisation linearisation specification object) but
 it is convenient for the testing framework we use in
 Section~\ref{sec:testing-hacking}.
 
-The definition of |TwoStepLinSpec| is in Figure~\ref{fig:twosteplinspec}.  We
-assume that each thread has an identity in some range $\range 0
-{\sm{NumThreads}}$.  For simplicity, we arrange for this identity to be
-included in the $\call$ events for operations~|op|\s1 and
+The definition of |TwoStepLinSpec| is in
+Figure~\ref{fig:twosteplinspec}.\footnote{The use of case classes and objects
+  allows for pattern matching.}  We assume that each thread has an identity in
+some range $\range 0 {\sm{NumThreads}}$.  For simplicity, we arrange for this
+identity to be included in the $\call$ events for operations~|op|\s1 and
 $\overline{\sm{op}}_1$.
 
 %%%%%
@@ -238,13 +239,14 @@ object TwoStepLinSpec{
 %%%%%
 
 \begin{window}[0,r,{%
-\begin{minipage}{54mm} % {45mm}
+\begin{minipage}{56mm} % {45mm}
 \begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.44]
 \draw (0,0) node[draw] (zero) {$\sm{Zero}$};
 \draw[->] (zero) ++ (-1.5, 0) -- (zero);
 %\draw (zero)++(0.2,0) node (zz) {};
 \loopAbove(zero){$\begin{array}{c}
-  \overline\op_1(\sm t) \, {[\sm{returns(t)} \ne \sm{None}]}
+  \overline\op_1(\sm t) \, {[\sm{returns(t)} \ne \sm{None}]} \\ 
+  \mbox{clears {\scalastyle returns(t)}}
   \end{array}$}
 %% \draw[->] (zero) .. controls ++(1.2,+1.0) and ++(1.2,-1.0) .. 
 %%   node[right] {$\overline\op_1(\sm t)$} (zero);
@@ -252,13 +254,15 @@ object TwoStepLinSpec{
 \draw (0,-4.5) node[draw] (one) {$\sm{One}(\sm t, \sm{x}_1)$};
 \draw[->] (zero) .. controls ++(0.3,-2.25) .. 
   node[right] {%
-    $\begin{array}{@{}c@{}}
+    $\begin{alignc}
     \sm{op}_1(\sm t, \sm{x}_1) \\ {[\sm{returns(t)} = \sm{None}]}
-    \end{array}$} 
+    \end{alignc}$} 
   (one); 
 %
 \draw[->] (one) .. controls ++(-0.3,2.25) .. 
-  node[left] {$\sm{op}_2(\sm x_2)$} (zero);
+  node[left] 
+  {$\begin{alignc}\sm{op}_2(\sm x_2) \\ \mbox{sets $\sm{returns(t)}$}\end{alignc}$} 
+  (zero);
 \end{tikzpicture}%
 \end{minipage}%
 },]
@@ -274,7 +278,8 @@ next operation execution by the same thread).
 record the value that should be returned by an $\overline{\sm{op}}_1$
 execution by each thread.  Each execution of $\op_2$ calls |SyncSpec.sync| to
 obtain the values that should be returned for synchronisation linearisation;
-it writes the value for the corresponding $\overline\op_1$ into |returns|.
+it writes the value for the corresponding $\overline\op_1$ into |returns|
+(details elided in the automaton).
 
 %%%%%
 
@@ -316,14 +321,14 @@ corresponding synchronisation specification object, and let |TwoStepLinSpec|
 be built from |SyncSpec| as above.  Then each history~$h$ of |SyncObj| is
 two-step linearisable with respect to |Two|\-|Step|\-|LinSpec| if and only if
 it is synchronisation-linearisable with respect to |SyncSpec|.  Hence
-|SyncObj| is two-step linearisable with respect to |Two|\-|Step|\-|LinSpec| if
+|SyncObj| is two-step-linearisable with respect to |Two|\-|Step|\-|LinSpec| if
 and only if it is synchronisation-linearisable with respect to |SyncSpec|.
 \end{prop}
 %%%%%%
 \begin{proof}
 \textbf{($\implies$).}\quad
 %
-Let $h$ be a concurrent history of |SyncObj| that is two-step linearisable
+Let $h$ be a concurrent history of |SyncObj| that is two-step-linearisable
 with respect to |Two|\-|Step|\-|LinSpec|.  By assumption, there is an
 extension $h'$ of~$h$, and a legal history~$h_s$ of |TwoStepLinSpec| such that
 $h_s$ is a  two-step linearisation of $h'' = complete(h')$.

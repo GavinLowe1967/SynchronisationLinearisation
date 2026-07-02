@@ -144,7 +144,7 @@ for linearisation against |Sync|\-|Chan|\-|Counter|\-|Spec|
 \begin{figure}[htpb]
 \def\strikeout(#1){\draw[red] (#1)+(-0.62,-0.1) -- ++(-0.52,-0.8);}
 \begin{center}\tikzstyle{every node}=[font=\footnotesize]
-\begin{tikzpicture}[xscale = 4,yscale = 1.2]
+\begin{tikzpicture}[xscale = 4,yscale = 1.2, >= angle 60]
 \draw (0,0) node (0) {$(0, \set{}, \set{}, 0)$};
 %
 \draw (0)  + (0,-1) node (1) {$(1, \set{A}, \set{}, 0)$};
@@ -301,7 +301,7 @@ synchronisation corresponding to that call, and then, if successful, to
 linearise an arbitrary sequence of other synchronisations; but we do not
 otherwise allow synchronisations.  In Figure~\ref{fig:direct-alg-graph}, the
 edges removed by this partial-order reduction are struck through in red; note
-that in each case, these edges were parts of alternatives to the main path.  
+that in each case, there are remaining edges that lead to the same node.
 
 Our experience is that this tactic is moderately successful.  In some cases,
 it can reduce the total time to check histories by over~30\%;

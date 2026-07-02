@@ -2,6 +2,8 @@
 
 \def\align{\begin{array}[t]{@{}l@{}}}
 \def\endalign{\end{array}}
+\def\alignc{\begin{array}[t]{@{}c@{}}}
+\def\endalignc{\end{array}}
 
 \def\seq#1{\langle #1 \rangle}
 \def\set#1{\{ #1 \}}
@@ -15,7 +17,7 @@
 \def\midd{\;\mid\;}
 \def\restrict{{\mid}}
 \def\dom{\mathop{\rm dom}}
-\def\spot{\bullet}
+\def\spot{\mathrel{\scriptstyle\bullet}}
 \def\prefix{\le}
 
 
@@ -31,6 +33,7 @@
 \def\receiveWithin{\sm{receiveWithin}}
 \def\A{\mathcal{A}}
 \def\O{\mathcal{O}}
+\def\opFor{\mathop{\it opFor}}
 \def\opsFor{\mathop{\it opsFor}}
 \def\T{\mathcal{T}}
 
@@ -49,6 +52,9 @@
 \def\loopAbove(#1)#2{%
   \draw[->] (#1) .. controls ++(-0.4,+1.8) and ++(0.4,1.8) .. 
   node[above] {#2} (#1);}
+\def\loopBelow(#1)#2{%
+  \draw[->] (#1) .. controls ++(-0.4,-1.8) and ++(0.4,-1.8) .. 
+  node[below] {#2} (#1);}
 \def\loopRight(#1)#2{%
   \draw[->] (#1) .. controls ++(+1.5,-0.4) and ++(1.5,0.4) .. 
   node[right] {#2} (#1);}

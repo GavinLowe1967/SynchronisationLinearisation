@@ -372,10 +372,9 @@ straightforward way to define those traces.
 > `returns` explicit. This concern is even more pressing for the examples in
 > Section 4.3, where the underlying code is not always provided. 
 
-*** Add "sets returns(t)".  I don't think it's sensible to try to fit more into
-   the figure.
-
-*** Look at later cases.  
+We have updated the automata with information about when entries in "returns"
+are updated.  However, it's not possible to give full details without the
+diagrams becoming over-cluttered. 
 
 > Regarding Figure 5: much of the notation ($\leq$ for prefixing,
 > $\hat{\phantom{x}}$ for concatenation, $\bullet$ for scoping, $:+$ for
@@ -383,19 +382,25 @@ straightforward way to define those traces.
 > should define these symbols. It would also help to explain what a case class
 > is. 
 
-*** Do this, probably in footnotes.  
-
-*** case classes/objects first appear in Figure 3.  "The use of case classes
-    and objects allows for pattern matching." 
+We've added an explanation of the prefixing operator and :+ here.  We've added
+an explanation of concatenation earlier, where we first use it.  We consider
+\bullet to be a standard separator between the range and body of a
+quantification (but we've made the bullet a bit smaller).  And we've added a
+brief explanation of case classes (or, at least, the relevant fact that they
+allow for pattern matching) where we first use them (Fig. 3).
 
 > Similarly, the explanation on ll. 49-56 is hard to follow. The notation
 > $\langle \,|\, \rangle$ (apparently for filtering or subsequence extraction)
 > is undefined, and the meaning of `Op_j(t_j, x_j) <- state`—including the
 > type of `state`—has not been introduced. The phrase "the following function
 > maps such a sequence" refers to a sequence that has not yet been
-> defined. This paragraph appears to be missing several sentences. 
+> defined. This paragraph appears to be missing several sentences.
 
-*** Look at these.
+We thought this was standard notation for a sequence comprehension, as in,
+e.g., Haskell.  It's like a set comprehension, but for a sequence.  We've
+defined it a different way.  But it's just a way of relating the
+*representation* of the operations so far (Op_i values) to the operations
+themselves (op_i values).
 
 > ## 4. Proof of Equivalence (p. 29)
 > 
@@ -405,8 +410,14 @@ straightforward way to define those traces.
 > is different enough from the binary case, even in the construction, as to
 > warrant proof. 
 
-*** I'll write out the proof on paper, and then decide whether we should
-    include it. 
+We've now given a proof for the general case.
+
+We think it's still appropriate to include the proof for the binary case.
+It's somewhat more straightforward (the general case requires a lot of fiddly
+notation).  Also, the binary case doesn't actually follow from this general
+case, because in the binary case, only one of the threads performs a
+\overline{op} (for efficiency).
+
 
 > ## 5. Terminology: "Configurations" → "Possibilities" (p. 36)
 > 
@@ -710,3 +721,15 @@ to an over-cluttered diagram.)
 > 
 
 In abstract, mention two classes of algorithms.  And in contributions.
+
+
+==================================
+TO DO
+
+** Check definition of two-step linearisability where every op is done in two
+   steps.  -- DONE, by treatment of homogenous case. 
+
+** Proof of Prop 14 is missing some t parameters. 
+
+** Check two-step-linearisable is hyphenated throughout
+
