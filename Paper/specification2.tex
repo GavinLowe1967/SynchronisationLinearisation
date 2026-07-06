@@ -92,6 +92,9 @@ formalised by the synchronisation abstraction function:
       x \in \sm A }.
 \end{align}
 \]
+Thus either operation can be linearised on its own, corresponding to a
+timeout; or the the operations can be linearised together, corresponding to a
+synchronisation. 
 
 As another example, the following is a specification object for a channel with
 a close operation.
@@ -346,13 +349,14 @@ class Spec(var £$\T$£: Set[CA-trace]){
 
 Hemed et al.\ define the set of correct CA-traces directly, or via Hoare
 triples.  We believe that our own approach, using a synchronisation
-specification object, provides a more clear and straightforward approach.
+specification object, is clearer and more straightforward.
 %% Unlike us, they do not provide a way of specifying correct CA-traces,
 %% comparable to our synchronisation specification objects: they simply assume a
 %% given set of correct CA-traces.
-They verify an exchanger object with respect
-to CAL, and then use this result in a modular verification of an elimination
-stack~\cite{HSY-2004}.
+
+%% They verify an exchanger object with respect
+%% to CAL, and then use this result in a modular verification of an elimination
+%% stack~\cite{HSY-2004}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -364,8 +368,9 @@ So far, we have implicitly assumed a single synchronisation object.  However,
 a program may employ multiple synchronisation objects.  Consider a set of
 independent synchronisation objects~$\O$.  Given a history~$h$ and an
 object~$o$, we write $h \restrict o$ for the restriction of $h$ to events
-of~$o$.  We assume that the objects are independent, so $h$ is a history
-of~$\O$ if and only if $h \restrict o$ is a history of~$o$ for each~$o$. 
+of~$o$.  We assume that the objects have disjoint operations and are
+independent, so $h$ is a history of~$\O$ if and only if $h \restrict o$ is a
+history of~$o$ for each~$o$.
 
 We assume that each synchronisation object~$o$ has its own synchronisation
 specification object $Spec_o$ and abstraction function~$\A_o$.  We can combine
@@ -376,9 +381,12 @@ combine the abstraction functions into a single abstraction function~$\A$, by
 taking their union.
 
 We show that synchronisation linearisation satisfies a locality property: the
-combined objects~$\O$ are  synchronisation-linearisable if and only if each
+combined objects~$\O$ are synchronisation-linearisable if and only if each
 individual object is synchronisation-linearisable.  This is an important
-result, as it allows for compositional development and verification.
+result, as it means that if multiple synchronisation objects are independently
+developed and each shown to be synchronisation-linearisable, then the
+composition is also synchronisation-linearisable.
+% allows for compositional development and verification.
 (Neiger~\cite{Neiger-1994} states a similar result.)
 
 \begin{lemma}

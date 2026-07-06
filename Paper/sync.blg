@@ -5,48 +5,48 @@ The style file: elsarticle-num.bst
 Database file #1: sync.bib
 Warning--empty pages in JCSP
 Warning--empty pages in sufrin:CSO
-Warning--empty pages in HSY-2004
 Warning--empty pages in GBE2007
 Warning--empty year in knossos
-You've used 43 entries,
+Warning--empty pages in HSY-2004
+You've used 41 entries,
             2952 wiz_defined-function locations,
-            932 strings with 11377 characters,
-and the built_in function-call counts, 13040 in all, are:
-= -- 1215
-> -- 374
-< -- 15
-+ -- 153
-- -- 110
-* -- 772
-:= -- 1670
-add.period$ -- 44
-call.type$ -- 43
-change.case$ -- 45
+            921 strings with 10899 characters,
+and the built_in function-call counts, 12252 in all, are:
+= -- 1138
+> -- 357
+< -- 11
++ -- 146
+- -- 105
+* -- 732
+:= -- 1582
+add.period$ -- 42
+call.type$ -- 41
+change.case$ -- 42
 chr.to.int$ -- 0
-cite$ -- 48
-duplicate$ -- 468
-empty$ -- 1607
-format.name$ -- 140
-if$ -- 3511
+cite$ -- 46
+duplicate$ -- 429
+empty$ -- 1508
+format.name$ -- 133
+if$ -- 3288
 int.to.chr$ -- 0
-int.to.str$ -- 43
-missing$ -- 43
-newline$ -- 138
-num.names$ -- 44
-pop$ -- 337
+int.to.str$ -- 41
+missing$ -- 42
+newline$ -- 132
+num.names$ -- 42
+pop$ -- 316
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 960
+skip$ -- 891
 stack$ -- 0
-substring$ -- 614
-swap$ -- 116
-text.length$ -- 15
+substring$ -- 592
+swap$ -- 99
+text.length$ -- 11
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 5
-while$ -- 94
-width$ -- 45
-write$ -- 370
+while$ -- 88
+width$ -- 43
+write$ -- 349
 (There were 5 warnings)

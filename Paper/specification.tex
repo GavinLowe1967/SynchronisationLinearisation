@@ -399,10 +399,15 @@ h_s & = &
  \sm{sync}^{5,4}(9,()) \:: ((), 9), \;
  \sm{sync}^{2,6}(8,()) \:: ((), 8) } .
 \end{eqnarray*}
-The history is illustrated by the ``$\cross$''s in
+%
+A synchronisation specification object provides a convenient way to define a
+set of legal histories: the precondition of each operation must be satisfied;
+and the specification object specifies what values are returned.
+%
+The above history is illustrated by the ``$\cross$''s in
 Figure~\ref{fig:sync-timeline}: each event corresponds to the synchronisation
 of two operations, so is depicted by two ``$\cross$''s on the corresponding
-operations, linked by a dashed vertical line.  
+operations, linked by a dashed vertical line.
 %
 This particular synchronisation specification object is stateless, so in fact
 any permutation of the history~$h_s$ would also be legal (but not all such

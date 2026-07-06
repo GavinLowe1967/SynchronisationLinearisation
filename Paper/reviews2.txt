@@ -11,12 +11,28 @@ corresponding to the reviewer's misunderstanding.
 
 We have provided a detailed comparison.  
 
-> 3. Provide a proof of equivalence between two-step linearizability and set linearizability in the general case
-> 4. Consider a change in terminology from "configurations" to "possibilities," with the missing citations added
-> 5. Consider removal of the crash linearizability citations and correction of the discussion of deductive verification for non-atomic linearizability
+> 3. Provide a proof of equivalence between two-step linearizability and set
+  linearizability in the general case
+
+We have done that (Section 4.4).
+
+> 4. Consider a change in terminology from "configurations" to
+  "possibilities," with the missing citations added
+
+We don't like the term "possibilities".  But we decided to just use the term
+"nodes" (of the search graph).  In fact, the papers mentioned by the reviewer
+don't seem to use the term "possibility".
+
+> 5. Consider removal of the crash linearizability citations and correction of
+  the discussion of deductive verification for non-atomic linearizability
+
+We've done that.
+
 > 6. Improve the the level of formalization in the paper
 
-*** I don't understand this point. 
+We don't understand this point.  We consider the formality of the proofs to be
+similar to the majority of other papers in the field.  Sometimes too much
+formality makes a proof less clear.
 
 > 7. Introduce examples to increase readability and understendability
 
@@ -24,7 +40,8 @@ We have added examples where suggested by the reviewers, e.g. Figure 8.
 
 > 8. Make the study more mature by e.g. experimentation
 
-*** I don't understand this point. 
+We don't understand this point.  There is a lot of experimentation in Section
+9.
 
 > 
 > Finally, consult the reviews for all the details on requests and do you best to satisfy all of them.
@@ -434,8 +451,6 @@ We don't really like the word "possibility"; we suspect that the word
 "configuration" is more common.  However, we're now just calling them "nodes",
 as there's no real need to introduce a new term.
 
-*** I don't like the word "possibility".  But look at the paper.
-
 > This change would also highlight the fact that the claim "Any path from the
 > initial configuration to a target configuration clearly represents an
 > interleaving of a history of the specification object with $h$, as required
@@ -447,6 +462,7 @@ We have given an illustrative example (Figure 8) of the search graph.  And we
 have added explanation to justify the relationship between paths and
 interleavings. 
 
+
 > ## 6. Linearizability with Crashes (p. 52, ll. 32-35)
 > 
 > Since the paper does not consider crashes, the purpose of mentioning crash
@@ -457,27 +473,37 @@ interleavings.
 > despite a much larger body of literature. I suggest removing this
 > discussion. 
 
-*** I'm content with this.
+We have followed that suggestion.
+
 
 > ## 7. Comparison with Deductive Verification (pp. 52-53, ll. 55-10)
 > 
 > The sentence "It would be interesting to try to adapt some of these
 > techniques to synchronization linearization" should be revised. Reference
 > [13] already provides a verification technique for set linearizability but
-> is not cited in this context. Moreover, the two papers titled "A
+> is not cited in this context. 
+
+We previously discussed this in Section 2.4; but we agree that it fits better
+here. 
+
+> Moreover, the two papers titled "A
 > Compositional Theory of Linearizability" present techniques for verifying
 > compositional linearizability, which generalizes both set linearizability
 > and interval-sequential linearizability. The text should acknowledge that
 > deductive techniques for these settings already exist. 
 
-*** Look at these
+We have added a reference to this. 
+
+*********
  
 > # Minor Issues
 > 
 > 1. **Disjointness assumption (p. 15, ll. 44-50).** Please state explicitly
 > that the operations of both the concrete objects and the specifications are
 > assumed to be mutually disjoint across objects. 
-> 
+
+Ok.
+
 > 2. **Compositionality claim (p. 15, ll. 53-55).** The statement "This is an
 > important result, as it allows for compositional development and
 > verification" overstates the role of locality. Without a suitable contextual
@@ -486,22 +512,22 @@ interleavings.
 > alone does not enable compositional development and verification. A more
 > qualified phrasing would be appropriate. 
 
-*** Look at these.
+Ok.
 
-> 
 > 3. **Figure 11.** I believe "Both" belongs in the heterogeneous column and
 > "N" in the stateful column. 
 
-*** Fix this
+Yes, thanks.
 
-> 
 > 4. **Figures 12 and 13.** The axes are not labeled in the figures
 > themselves. I suggest adding axis labels to the figures (or at minimum to
 > the captions) so that they are self-contained and to make it easier for the
 > reader to process them. 
 
-*** Labelling the axes just takes up too much space.  But adding text to the
-    caption would work. 
+Labelling the axes just takes up too much space, and not leave enough space
+for the plots themselves.  We've added explanation in the caption of Figure 13
+(previously Figure 12) (we had previously given this information in the main
+text).
 
 
 ==============================================================
@@ -525,15 +551,23 @@ interleavings.
 > that are complex and subtle. Are there any plans to formalise these to some
 > extent?
 
-*** I'm not sure what to make of that.
+We don't really understand this comment.  We consider the formality of the
+proofs to be similar to the majority of other papers in the field.
+
+***
 
 > In particular, the notion of a "legal" history depends on the semantics of
 > the various specifications, here presented using some subset of Scala. To
 > what extent could that subset be given a formal semantics? 
-> 
 
-*** Isn't the semantics obvious?  Be more explicit that the semantics is a
-    sequence of operation executions (with preconditions statisfied). 
+We don't agree with this point.  We believe that the semantics of each
+specification object is clear.  We don't believe that it is necessary to give
+a formal semantics in order for the reader to understand a simple piece of
+code.  Of course, if you think that any particular specification object needs
+more explanation, we will consider that.
+
+We have added a couple of lines of explanation about legal histories and
+synchronisation specification objects.
 
 > The paper starts with a lot of examples - this is helpful. Some other useful
 > examples are also given. However Sec 7 needs an example when talking about
@@ -551,35 +585,39 @@ to an over-cluttered diagram.)
 > is not clear what has actually been achieved over and above the current
 > state of the art. 
 
-*** ???
+We believe --based on a comment below-- that you have misunderstood our
+contributions.  In particular, the direct testing algorithms in Section 7
+*are* our algorithms (albeit, in some cases via reductions to existing
+algorithms).  There isn't really a prior state of the art for testing
+synchronisation objects.  Our contributions include the two classes of testing
+algorithms (two-step and direct), plus an experimental comparison.
 
-> 
 > At the very least this material needs more research/experimental work to
 > identfiy its strengths and best use cases. 
 
-*** There's rather a lot of experimental work reported in Section 9.
+There is already a lot of experimental work reported in Section 9.  
 
-> 
-> 
 > Detailed comments:
 > 
 > p13, defn of TimeoutChannelSpec: here we see a spec that consists of three
 > "functions" (predicates) that are each partial in some sense. 
 
-*** I don't understand this.  Each operation is total.  
+No, each operation is total (in the sense that it always gives a result).  We
+suspect that you mean that each of the concrete operations "send" and
+"receive" could be linearised by either of two of the specification objects
+operations -- but that is captured by the synchronisation abstraction
+function.
 
-> 
 > p14, 1st para., the "sync abs function" is not a function, in that, for any
 > value v in A, and any receive(), 
 > send(v) can result in both sendTO(v) and sync(v). This raises the issue of
 > how you ensure/check sensible uses of this? 
 
-*** No.  The sync abs function is a function that takes a *sequence* of
-    operations.  Here, when applied to the singleton sequence containing
-    send(v) we get sendTO(v); and when applied to the sequence containing
-    send(x) *and* receive(), we get sync(v). 
+The synchronisation abstraction function is a function that takes a *sequence*
+of operations.  Here, when applied to the singleton sequence containing
+send(v) we get sendTO(v); and when applied to the sequence containing send(x)
+*and* receive(), we get sync(v).
 
-> 
 > p16 Lemma 5 - statement is clear. The proof L-2-R is straightforward. The
 > proof R-2-L, once I understood what is going on, also seems it should be
 > OK. However, line 19 says if a call/return event e is followed by s_1..s_k

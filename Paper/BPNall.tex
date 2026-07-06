@@ -2,7 +2,7 @@
 %\def\gHeight{0.4478\textheight}
 %\def\gWidth{0.50\textwidth}
 
-\def\gHeight{0.305\textheight}
+\def\gHeight{0.296\textheight}
 \def\gWidth{0.52\textwidth}
 %% With labels on axes
 %% \def\gHeight{0.44\textheight}
@@ -292,7 +292,12 @@
 \end{tikzpicture}
 \end{center}
 \caption{Effect of choices of parameters for testers for a synchronous channel
-  the ABC problem, and a barrier.}
+  the ABC problem, and a barrier.   
+Each data point represents a particular number $p$ of worker threads (given in
+the key), and a particular number of operation executions per run by each
+thread (given on the $X$-axis).
+%, with 100 observations.  
+The $Y$-axis gives the time in milliseconds.}
 \label{fig:params-experiment-1}
 \end{figure}
 
@@ -499,7 +504,7 @@
 \end{tikzpicture}
 \end{center}
 \caption{Effect of choices of parameters for testers for a %barrier and a
-  closeable channel.}
+  closeable channel.} %  (Axes are as in Figure~\ref{fig:params-experiment-1}.)}
 \label{fig:params-experiment-2}
 \end{figure}
 %% \end{document}

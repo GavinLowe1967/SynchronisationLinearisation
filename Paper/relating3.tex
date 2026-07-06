@@ -32,8 +32,11 @@ following order:
   their results.
 \end{enumerate}
 %
-No other operation occurs between the start of stage~1 until after
-stage~2; but other operations may occur during stage~3.
+No other operation occurs between the start of stage~1 until after stage~3
+completes.  Thus operations for different synchronisations are not interleaved
+(this isn't strictly necessary, but simplifies the subsequent proof). 
+
+% stage~2; but other operations may occur during stage~3.
 
 During stage~1, the two-step linearisability tester records the prefix of
 $\seq{\op_{i_i}(x_1), \ldots, \op_{i_a}(x_a)}$ performed so far.  This is done
@@ -62,16 +65,12 @@ of $\opFor$.
 %% \end{eqnarray*}
 %
 
-A schema (using pseudo-Scala) for the general construction is in
+A schema (using pseudo-Scala) for the  construction is in
 Figure~\ref{fig:schema}.\footnote{We write ``$\prefix$'' for sequence
   prefixing. ``{\scalastyle :+}'' is the Scala operator to append a value onto
   a list.}  The variable~|state| records the sequence of |op|$_i$ linearised
 so far (more precisely, $\opsFor(\sm{state})$ is that sequence): this
-satisfies an invariant that it is a prefix of an element of $\dom \A$.  For
-each thread~|t|,\, |returns(t)| stores the value to be returned by~|t| as part
-of its most recent uncompleted synchronisation, if any.
-% , where $B =
-%\bigcup\nolimits_{i = 1,\ldots,n} \sm B_i$.
+satisfies an invariant that it is a prefix of an element of $\dom \A$.
 
 %%%%%
 
@@ -85,10 +84,11 @@ type B = £$\bigcup\nolimits_{i = 1,\ldots,n} \sm B_i$£
 class TwoStepLinSpec{
   private var state: State = List()
   private val returns = new Array[Option[B]](NumThreads)
+  private var remaining = 0
   for(i <- 0 until NumThreads) returns(i) = None
 
   def op£\s i£(t: ThreadID, x: A£\s i£): Unit = { // for £$i = 1,...,n$£.
-    require(£$\exists ops \in \dom \A \spot \opsFor(\sm{state}) \cat \seq{\op_i(x)} \prefix ops$£)
+    require(remaining == 0 && £$\exists ops \in \dom \A \spot \opsFor(\sm{state}) \cat \seq{\op_i(x)} \prefix ops$£)
     state = state :+  Op£\s i£(t,x) 
   }
 
@@ -96,10 +96,10 @@ class TwoStepLinSpec{
     if(£$\opsFor(\sm{state}) \in \dom \A$£){
       val (y£\s 1£,...,y£$_{\ss a}$£) = SyncSpec.£$\A(\opsFor(\sm{state}))$£
       for(m <- 1 to a) returns(state(m).t) = Some(y£$_{\ss m}$£)
-      state = List()
+      remaining = a; state = List()
     }
     else (require(state == List() && returns(t).isInstanceOf[Some])
-    val Some(y) = returns(t); returns(t) = None; y
+    val Some(y) = returns(t); returns(t) = None; remaining -= 1; y
   }
 }
 \end{scala}
@@ -109,6 +109,12 @@ class TwoStepLinSpec{
 \end{figure}
 
 %%%%%
+
+For each thread~|t|,\, |returns(t)| stores the value to be returned by~|t| as
+part of its most recent uncompleted synchronisation, if any.  The variable
+|remaining| records how many values still need to be retrieved from~|returns|;
+calls to $\op_i$ operations are blocked when this is non-zero, so as to
+prevent interleaving of operations for different synchronisations.
 
 The operation $\op_i$ appends an appropriate |Op|$_i$ object to~|state|.  The
 precondition ensures that |state| still corresponds to a prefix of an element
@@ -182,63 +188,64 @@ synchronisation can be considered to happen within~$\overline\op^{i_1'}_{j_1'}$.
 
 %%%%%
 
-Below we denote a tuple of parameters $(x_1,\ldots,x_a)$ by a vector
-$\vec{x}$; and likewise for return values and execution identities.
 %
 \begin{definition}
-Given a legal history
-\begin{eqnarray*}
-h_s & = & \seq{ sync_1^{\vec{i_1}}(\vec{x_1})\::\vec{y_1}, \ldots,
-  sync_k^{\vec{i_k}}(\vec{x_k})\::\vec{y_k} }
-\end{eqnarray*}
-of |SyncSpec|, a  \emph{complete synchronisation history} for~$h_s$ is an interleaving of
-synchronisation subhistories for the events in $h_s$
+Given a legal history $h_s$
 %% \begin{eqnarray*}
 %% h_s & = & \seq{ sync_1^{\vec{i_1}}(\vec{x_1})\::\vec{y_1}, \ldots,
 %%   sync_k^{\vec{i_k}}(\vec{x_k})\::\vec{y_k} }
 %% \end{eqnarray*}
-such that all the $\op_j$ events of one synchronisation subhistory are after
-the first $\overline\op_j$ of  the previous.
+of |SyncSpec|, a \emph{complete synchronisation history} for~$h_s$ is the
+concenation of the synchronisation subhistories for the events in $h_s$.
+%% \begin{eqnarray*}
+%% h_s & = & \seq{ sync_1^{\vec{i_1}}(\vec{x_1})\::\vec{y_1}, \ldots,
+%%   sync_k^{\vec{i_k}}(\vec{x_k})\::\vec{y_k} }
+%% \end{eqnarray*}
+%% such that all the $\op_j$ events of one synchronisation subhistory are after
+%% the first $\overline\op_j$ of  the previous.
 %, and where $h_s$
 % $\seq{sync_1(\vec{x_1})\::\vec{y_1}, \ldots, sync_k(\vec{x_k})\::\vec{y_k}}$
 %is a legal history of |SyncSpec|.
 \end{definition}
 %
-This represents several synchronisations, which may overlap to a certain
-extent: $\op_i$ events of one synchronisation subhistory can occur once the
-previous synchronisation has happened (in its first $\overline\op_i$ event);
-but these $\op_i$ events may be interleaved with $\overline\op_i$ events of
-previous synchronisation subhistories.
+%% This represents several synchronisations, which may overlap to a certain
+%% extent: $\op_i$ events of one synchronisation subhistory can occur once the
+%% previous synchronisation has happened (in its first $\overline\op_i$ event);
+%% but these $\op_i$ events may be interleaved with $\overline\op_i$ events of
+%% previous synchronisation subhistories.
 
-For example, assuming $\A(\seq{\op_1(x), \op_2(x')}) = \sync(x,x')$,
-\[
-\begin{align}
-\seq{ \op_1^1(t_1,x_1)\::(),\; \op_2^2(t_2,x_2)\::(),\; 
-  \overline\op_2^2(t_2)\::y_2,\;  \op_1^3(t_3, x_3)\::(), \\ 
-\quad
-\op_2^4(t_4,x_4)\::(),\; \overline\op_1^3(t_3)\::y_3,\;
- \overline\op_2^t(t_4)\::y_4,\; \overline\op_1^1(t_1)\::y_1 }
-\end{align}
-\]
-is a complete synchronisation history for 
-\[
-\seq{\sync^{1,2}(x_1,x_2)\::(y_1,y_2),\;  \sync^{3,4}(x_3,x_4)\::(y_3,y_4)}.
-\]
-The final $\overline\op_1^1$ belongs to the first synchronisation, but is
-delayed.
+%% For example, assuming $\A(\seq{\op_1(x), \op_2(x')}) = \sync(x,x')$,
+%% \[
+%% \begin{align}
+%% \seq{ \op_1^1(t_1,x_1)\::(),\; \op_2^2(t_2,x_2)\::(),\; 
+%%   \overline\op_2^2(t_2)\::y_2,\;  \op_1^3(t_3, x_3)\::(), \\ 
+%% \quad
+%% \op_2^4(t_4,x_4)\::(),\; \overline\op_1^3(t_3)\::y_3,\;
+%%  \overline\op_2^t(t_4)\::y_4,\; \overline\op_1^1(t_1)\::y_1 }
+%% \end{align}
+%% \]
+%% is a complete synchronisation history for 
+%% \[
+%% \seq{\sync^{1,2}(x_1,x_2)\::(y_1,y_2),\;  \sync^{3,4}(x_3,x_4)\::(y_3,y_4)}.
+%% \]
+%% The final $\overline\op_1^1$ belongs to the first synchronisation, but is
+%% delayed.
 
 %%%%%
 
-The following lemma follows directly from the construction of |TwoStepLinSpec|.
+The following lemma follows directly from the construction of
+|TwoStep|\-|LinSpec|.  
+%
 \begin{lemma}
 \label{lem:TwoStepLinSpec}
 Assume every thread alternates between calls of some~$\op_j$ and the
 corresponding $\overline\op_j$ (passing in its own identity).
 %
 \begin{enumerate}
-\item Suppose $h_s$ is a legal history of |TwoStepLinSpec| such that for every
-  $\op_j^i$ event, there is a matching $\overline{\op}_j^i$ event; then $h_s$
-  is a complete synchronisation history.
+\item Suppose $h_s$ is a legal history of |TwoStepLinSpec| such that for
+  every $\op_j^i$ event, there is a matching $\overline{\op}_j^i$ event; then
+  $h_s$ is a complete synchronisation history (so corresponds to a legal
+  history of~|SyncSpec|).
 
 \item Every complete synchronisation history is a legal history of
   |TwoStepLinSpec|.
@@ -248,8 +255,11 @@ corresponding $\overline\op_j$ (passing in its own identity).
 Informally, |TwoStepLinSpec| allows $\op_j$ operations (adding them to
 |state|); once the current sequence corresponds to a possible synchronisation,
 then a call to some $\overline\op_i$ can trigger that, corresponding to the
-relevant $sync(\vec{x})\::\vec{y}$ event; and then calls to $\op_j$
-operations for the next synchronisation can start.  
+relevant $sync$ event; and once all $\overline\op_j$
+operations have retrieved their results, the $\op_j$ operations for the next
+synchronisation can start.  Further, the calls to the operations on~|SyncSpec|
+must correspond to a lagal history of |SyncSpec|.
+
 %% Note that this lemma allows for the case when some pending $\overline\op_i$
 %% events have not yet happened. 
 
@@ -257,6 +267,9 @@ operations for the next synchronisation can start.
 %% really need complete synchronisation histories.  Note that the linearisation
 %% of a complete history of |SyncObj| is complete. 
 
+Below, we denote a tuple of parameters $(x_1,\ldots,x_a)$ by a
+vector $\vec{x}$; and likewise for return values and execution identities.
+%
 \begin{prop}
 Each history~$h$ of~|SyncObj| is two-step-linearisable with respect to
 |TwoStepLinSpec| if and only if it is synchronisation-linearisable with
@@ -327,7 +340,7 @@ a legal history~$h_s$ of |SyncSpec| such that $h_s$ is a synchronisation
 linearisation of $h'' = complete(h')$.
 %
 Build a history~$h_s'$ of |TwoStepLinSpec| by replacing each  $sync$
-event by the corresponding synchronisation subhistory.  More precisely, if the
+event by a corresponding synchronisation subhistory.  More precisely, if the
 event $sync^{i_1,\ldots,i_a}(x_1,\ldots,x_a) \:: (y_1,\ldots,y_a)$
 corresponds to operation executions 
 \(  \op_{j_1}^{i_1}(x_1)\::y_1, \ldots, \op_{j_a}^{i_a}(x_a)\::y_a \)

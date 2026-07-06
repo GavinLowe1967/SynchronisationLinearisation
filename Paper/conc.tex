@@ -176,10 +176,10 @@ of a history to insertion operations of~$t$, and removal or observation
 operations of values inserted by~$t$ is linearisable with respect to a
 suitable sequential specification.
 
-Linearisability has been extended to deal with system crashes in a number of
-ways, including strict linearisability~\cite{strict-lin}, nesting-safe
-recoverable linearisability~\cite{recoverable-lin}, and durable
-linearisability~\cite{durable-lin}. 
+%% Linearisability has been extended to deal with system crashes in a number of
+%% ways, including strict linearisability~\cite{strict-lin}, nesting-safe
+%% recoverable linearisability~\cite{recoverable-lin}, and durable
+%% linearisability~\cite{durable-lin}. 
 
 %% Strict linearisability~\cite{strict-lin} limits the effects of an operation
 %% that crashes.  % ref~1 of \cite{CRR-2023}.  
@@ -224,11 +224,15 @@ An error is identified on a previous version of the library;
 but the revised version is shown to be synchronisation-linearisable and
 progressible.
 
+As noted earlier, Hemed et al.~\cite{HRV-2015} specify correct CA-traces via
+Hoare triples.  They verify an exchanger object with respect to CAL, using
+rely-guarantee logic.  They then use this result in a modular verification of
+an elimination stack~\cite{HSY-2004}.
+
 There have been many approaches to verifying standard linearisation,
-e.g.~\cite{HSV13, CHSV2015, DHK15, BEEH18, AHHJR, lincheck}.  Dongol and
-Derrick~\cite{dongol-derrick} survey much of this work.  It would be
-interesting to try to adapt some of these techniques to synchronisation
-linearisation.
+e.g.~\cite{HSV13, CHSV2015, DHK15, BEEH18, AHHJR, lincheck, VSC23}.  Dongol and
+Derrick~\cite{dongol-derrick} survey much of this work.  Some of these
+techniques might be adapted to synchronisation linearisation.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

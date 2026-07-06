@@ -124,9 +124,9 @@ Target nodes have $i$ at the end of the log, and $pending$ and
 $linearised$ empty.
 
 Figure~\ref{fig:direct-alg-graph} illustrates the search graph for the
-following history of a |SyncChanCounter| (Section~\ref{sec:intro}), testing
-for linearisation against |Sync|\-|Chan|\-|Counter|\-|Spec|
-(Section~\ref{sec:sync-spec-objects}): 
+following history of a |Sync|\-|Chan|\-|Counter| (Section~\ref{sec:intro}),
+testing for synchronisation linearisation against
+|Sync|\-|Chan|\-|Counter|\-|Spec| (Section~\ref{sec:sync-spec-objects}):
 \[
 \begin{align}
 \seq{ 
@@ -201,7 +201,7 @@ for linearisation against |Sync|\-|Chan|\-|Counter|\-|Spec|
 \draw[->] (9) --  node[left]{$\return^D$} (10);
 \end{tikzpicture}
 \end{center}
-\caption{Illustration of the search graph for a history of a synchrous channel
+\caption{Illustration of the search graph for a history of a synchronous channel
   with a sequence counter.  Each node is as in the text, with the
   sets $pending$ and $synchronised$ denoted by the relevant sets of operation
   identities, and the specification object denoted by the value of the

@@ -30,7 +30,7 @@ Timeout channel     & $2$, $1$  & N         & Y \\
 Timeout exchanger   & $2$, $1$  & N         & N \\
 Closeable channel   & $2$, $1$  & Y         & Y \\
 Terminating queue   & $1$, $n$ & Y        & N  \\
-Atomic broadcast    & $n+1$ & Both         & N 
+Atomic broadcast    & $n+1$ & N         & Both 
 \end{tabular}
 \end{center}
 \caption{Example interfaces of synchronisation objects.  \label{fig:examples}}
@@ -169,11 +169,12 @@ excessively long experiments.
 We start with the second of the questions above, how to choose parameters for
 testing.  Each of the graphs in Figures~\ref{fig:params-experiment-1}
 and~\ref{fig:params-experiment-2} concerns a particular tester.  
-Each data point represents a particular number $p$ of worker threads (given in
-the key), and a particular number of operation executions per run by each
-thread (given on the $X$-axis).
-%, with 100 observations.  
-The $Y$-axis gives the time in milliseconds.  (The graph for the two-step
+%% Each data point represents a particular number $p$ of worker threads (given in
+%% the key), and a particular number of operation executions per run by each
+%% thread (given on the $X$-axis).
+%% %, with 100 observations.  
+%% The $Y$-axis gives the time in milliseconds.  
+(The graph for the two-step
 tester applied to a barrier omits a plot for $p = 10$, with times of around
 5000ms, which does not fit on the axes.)
 
