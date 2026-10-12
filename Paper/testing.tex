@@ -70,9 +70,9 @@ Section~\ref{sec:relating}.  We require the synchronisation specification
 object to be deterministic, reflecting the fact that the linearisation
 testing framework requires its specification object to be deterministic.  
 
-This is not a use for which the framework was intended, so we consider it a
-hack.  However, it has the advantage of not requiring the implementation of
-any new algorithms.  (We do not consider progressibility in this section.)
+This is not a use for which the linearisation testing framework was intended.
+However, it has the advantage of not requiring the implementation of any new
+algorithms.  (We do not consider progressibility in this section.)
 
 %% Recall, from the introduction of Section~\ref{sec:relating}, that a
 %% straightforward approach won't work.  Instead 
@@ -93,7 +93,7 @@ returns.
   (2)~performs $\op_1(x_1)$ on the synchonisation object, obtaining
   result~$y_1$, say; (3)~writes $\return.\op_1^{i_1} \:: ()$ into the log;
   (4)~writes $\call.\overline{\op}_1^{i_1}()$ into the log, associating it
-  with a corresponding execution $\overline{\op}_1(t)$ on the specification
+  with a corresponding execution $\overline{\op}_1(t_1)$ on the specification
   object; (5)~writes $\return.\overline{\op}_1^{i_1} \:: y_1$ into the log.
 
 \item A thread~$t_2$ that performs operation~|op|\s2, acts as for standard
@@ -235,7 +235,7 @@ construction.  Hence $h_{2s}$ is a linearisation of~$h_l$.
 %% (3)~the $\call.\overline\op_1$ and $\return.\overline\op_1$ events happen
 %% immediately after the return of $\op_1$ --- in each case with no intervening
 %% events.  Then the log history is linearisable with respect to |TwoStepLinSpec|
-%% if and only if the history~$h$ is two-step linearisable with respect to
+%% if and only if the history~$h$ is two-step-linearisable with respect to
 %% |TwoStepLinSpec|.  But Proposition~\ref{prop:two-step-lin} then shows that
 %% this holds if and only if $h$ is synchronisation-linearisable.  In particular,
 %% this shows that errors are detected providing the logging is fast enough.
@@ -509,6 +509,7 @@ sends and receives are each linearised by a single event.
 %% sends and receives are each linearised by a single event.
 
 A similar technique can be used for a timeout exchanger.  We consider this
-approach convoluted, and we do not advocate it.  We include it only for
-completeness.
+approach convoluted, and we do not advocate it: the approach in the following
+section is far simpler, and of a similar speed at finding bugs.  We include
+this technique only for completeness.
 

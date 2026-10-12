@@ -1,4 +1,10 @@
-Handling editor's comments:
+Dear Editor, dear reviewers
+
+Thank you very much for your comments and suggestions on the paper.  We will
+describe how we have dealt with them below.
+
+
+> Handling editor's comments:
 > 
 > Based on the reviewers' evaluation please:
 > 1. Double-check correctness of the definition 4
@@ -19,20 +25,22 @@ We have done that (Section 4.4).
 > 4. Consider a change in terminology from "configurations" to
   "possibilities," with the missing citations added
 
-We don't like the term "possibilities".  But we decided to just use the term
-"nodes" (of the search graph).  In fact, the papers mentioned by the reviewer
-don't seem to use the term "possibility".
+We don't like the term "possibilities"; and our configurations aren't quite
+the same as possibilities (although similar), so we think using the same word
+would not be useful.  We have noted the similarity.  And we decided to just
+use the term "nodes" (of the search graph).
 
 > 5. Consider removal of the crash linearizability citations and correction of
   the discussion of deductive verification for non-atomic linearizability
 
-We've done that.
+We have done that.
 
 > 6. Improve the the level of formalization in the paper
 
-We don't understand this point.  We consider the formality of the proofs to be
-similar to the majority of other papers in the field.  Sometimes too much
-formality makes a proof less clear.
+We consider the formality of the proofs to be similar to the majority of other
+papers in the field.  Sometimes too much formality makes a proof less clear.
+If the reviewers make specific suggestions for improvement, we will, of
+course, consider them.
 
 > 7. Introduce examples to increase readability and understendability
 
@@ -40,14 +48,14 @@ We have added examples where suggested by the reviewers, e.g. Figure 8.
 
 > 8. Make the study more mature by e.g. experimentation
 
-We don't understand this point.  There is a lot of experimentation in Section
-9.
+We don't agree with this point.  There is already a lot of experimentation in
+Section 9.
 
-> 
-> Finally, consult the reviews for all the details on requests and do you best to satisfy all of them.
-> 
->  
-> 
+> Finally, consult the reviews for all the details on requests and do you best
+> to satisfy all of them. 
+
+We have done this.  Please see inline comments below.
+
 > ======================================
 > 
 > Reviewer's Responses to Questions
@@ -167,10 +175,10 @@ We have added an example (Figure 8).
 > Provide further comments here: It is not clear what their technique is good
 > for that other techniques arent
 
-???
-
-
-> 
+We think (based on later comments) that the reviewer hasn't realised that the
+algorithms in Section 7 are our own algorithms.  We are not aware of other
+techniques for testing synchronisation objects. 
+ 
 > 7. Have the authors clearly stated the limitations of their study/theory/methods/argument?
 > 
 > Reviewer #1: Mark as appropriate with an X:
@@ -258,7 +266,7 @@ We have added an example (Figure 8).
 > relying on the undefined shorthand of "an execution of
 > $op_j(x_j)^{i_j}\!:\!y_j$."
 
-Ok, we've done that.
+We have done that.
 
 > Second, the clause "necessarily the abstraction function $\mathcal{A}$
 > relates operations as in the previous bullet point" needs to be made
@@ -329,8 +337,8 @@ would the sync_1 and sync_2 events.
 
 However, we admit that the definition could have been clearer on this point:
 thanks for highlighting this.  We have added a few lines of explanation
-clarifying that there is a bijection between the call/return events and the
-sync events.
+clarifying that, because of the execution identities, there is a bijection
+between the call/return events and the sync events.
 
 > which neither of the two traces above can match.
 
@@ -427,14 +435,14 @@ themselves (op_i values).
 > is different enough from the binary case, even in the construction, as to
 > warrant proof. 
 
-We've now given a proof for the general case.
+We've now given a proof for the general case (Definition 17 to Proposition
+20). 
 
 We think it's still appropriate to include the proof for the binary case.
 It's somewhat more straightforward (the general case requires a lot of fiddly
 notation).  Also, the binary case doesn't actually follow from this general
-case, because in the binary case, only one of the threads performs a
+case, because in the binary case, only one of the threads performs an
 \overline{op} (for efficiency).
-
 
 > ## 5. Terminology: "Configurations" → "Possibilities" (p. 36)
 > 
@@ -448,8 +456,12 @@ case, because in the binary case, only one of the threads performs a
 > and the compositional linearizability work (for generalizing it). 
 
 We don't really like the word "possibility"; we suspect that the word
-"configuration" is more common.  However, we're now just calling them "nodes",
-as there's no real need to introduce a new term.
+"configuration" is more common.  In fact, our configurations are not quite the
+same as possibilities: they're sufficiently different that we feel using the
+same word would be confusing.  But we have noted the similarity.
+
+However, we're now just calling the configurations "nodes" (of the search
+graph), as there's no real need to introduce a new term.
 
 > This change would also highlight the fact that the claim "Any path from the
 > initial configuration to a target configuration clearly represents an
@@ -493,8 +505,6 @@ here.
 > deductive techniques for these settings already exist. 
 
 We have added a reference to this. 
-
-*********
  
 > # Minor Issues
 > 
@@ -524,10 +534,10 @@ Yes, thanks.
 > the captions) so that they are self-contained and to make it easier for the
 > reader to process them. 
 
-Labelling the axes just takes up too much space, and not leave enough space
-for the plots themselves.  We've added explanation in the caption of Figure 13
-(previously Figure 12) (we had previously given this information in the main
-text).
+Labelling the axes just takes up too much space, and doesn't leave enough
+space for the plots themselves.  We've added explanation in the caption of
+Figure 13 (previously Figure 12) (we had previously given this information in
+the main text).
 
 
 ==============================================================
@@ -551,23 +561,21 @@ text).
 > that are complex and subtle. Are there any plans to formalise these to some
 > extent?
 
-We don't really understand this comment.  We consider the formality of the
-proofs to be similar to the majority of other papers in the field.
-
-***
+We consider the formality of the proofs to be similar to the majority of other
+papers in the field.
 
 > In particular, the notion of a "legal" history depends on the semantics of
 > the various specifications, here presented using some subset of Scala. To
 > what extent could that subset be given a formal semantics? 
 
 We don't agree with this point.  We believe that the semantics of each
-specification object is clear.  We don't believe that it is necessary to give
-a formal semantics in order for the reader to understand a simple piece of
-code.  Of course, if you think that any particular specification object needs
-more explanation, we will consider that.
+specification object is clear, and that a formal semantics of the language
+would be distracting and unhelpful.  Of course, if you think that any
+particular specification object needs more explanation, we will consider that.
 
 We have added a couple of lines of explanation about legal histories and
-synchronisation specification objects.
+synchronisation specification objects.  In particular, a synchronisation
+specification object is a convenient way to define a set of legal histories. 
 
 > The paper starts with a lot of examples - this is helpful. Some other useful
 > examples are also given. However Sec 7 needs an example when talking about
@@ -585,12 +593,13 @@ to an over-cluttered diagram.)
 > is not clear what has actually been achieved over and above the current
 > state of the art. 
 
-We believe --based on a comment below-- that you have misunderstood our
-contributions.  In particular, the direct testing algorithms in Section 7
-*are* our algorithms (albeit, in some cases via reductions to existing
-algorithms).  There isn't really a prior state of the art for testing
-synchronisation objects.  Our contributions include the two classes of testing
-algorithms (two-step and direct), plus an experimental comparison.
+We believe (based on later comments) that you haven't realised that all the
+algorithms in Section 7 are our own algorithms.  Thus our contributions
+include the two classes of testing algorithms (two-step and direct), plus an
+experimental comparison.
+
+We are not aware of any other published techniques for testing synchronisation
+objects with which to compare.
 
 > At the very least this material needs more research/experimental work to
 > identfiy its strengths and best use cases. 
@@ -604,7 +613,7 @@ There is already a lot of experimental work reported in Section 9.
 
 No, each operation is total (in the sense that it always gives a result).  We
 suspect that you mean that each of the concrete operations "send" and
-"receive" could be linearised by either of two of the specification objects
+"receive" could be linearised by either of two of the specification object's
 operations -- but that is captured by the synchronisation abstraction
 function.
 
@@ -626,21 +635,21 @@ send(v) we get sendTO(v); and when applied to the sequence containing send(x)
 > event. Surely we need to limit the s_i here to those with the same
 > *identity* as event e? 
 
-*** s_1,...,s_k are the synchronisation events (from h_s), after e in h_o^I,
-    but before the next call or return event.  Make that clearer.
+The intention was that s_1,...,s_k are the events in h^I_o after e but before
+the next event of h|o.  We have tried to make that clearer.  
 
 > p17, definition 7 - I would interpret the term "proper legal extension" of
 > h_s as h_s ^ e_s where e_s is not empty. In the definition you use <e>, a
 > singleton. I assume this is because the focus is on a single synch object? 
 
-*** The fact that no one-step extension is a sync lin of h implies that no
-    longer extension is a sync lin of h.  Try to phrase this better.
+If that condition holds for single-event extensions, it also holds for longer
+extensions.  We've mentioned that.
 
 > p19 - line 50 - "unary synchronisation" - perhaps remind the reader what
 > these are? 
 
-*** Do this.  But I think it should be "any synchronisation with at least one
-    non-trivial synchronisation (i.e. between at least two threads)".
+Actually, we've corrected that phrase to "any synchronisation object with at
+least one non-trivial synchronisation (i.e. between at least two threads)".
 
 > p22 - here the 2-step linearisation is described with an example. The
 > example satisfies the requirements in the four bullet points. However, the
@@ -648,25 +657,33 @@ send(v) we get sendTO(v); and when applied to the sequence containing send(x)
 > op^i1_1(x):() and \bar{op}^i1_1():y . Is this also necessary, or just an
 > example? 
 
-*** Look at this
+It's a property that always holds; but it's not a property that we rely upon.
+We've briefly mentioned that.  It's not a property that's really in the style
+of linearisation.
 
 > p24 - The definition of TwoStepLinSpec makes it clear that op2 does occur
 > between op1 and \bar{op1}. Why don't you state this as part of the
 > definition on p22? Lemma 13 and Prop 14 don;t seem to rely on the relation
 > position of \bar{op1} in any way. 
 
-*** Look at this.
+See above.
 
-> 
 > p26 - a k-way version is introduced. However it seems to prescribe the order
 > of all operations. Shouldn't op1, op2 and op3 be able to occur in any order,
-> with only op4 required to be last? Thinking about this, the goal is to
+> with only op4 required to be last? 
+
+It was a design decision to do it that way.  We could have allowed them to
+happen in any order; but the automaton would have been more complex (with
+O(2^k) states).  Picking a particular order does not lose generality. 
+
+> Thinking about this, the goal is to
 > perform a linearisation, so the order of the operations has to be
 > specified. You should state this explicitly here. 
 
-*** Try to explain this better.  There is no harm in forcing op_1,op_2,op_3 to
-    occur in this order; and it reduces the search space over allowing them to
-    happen in an arbitrary order. 
+No, each operation op_i of the synchronisation object is synchronised by the
+pair of events op_i and \overline{op}_i of the two-step specification object.
+But we can allow any order for events of different op_i, as long as the order
+ensures the operations overlap in time. 
 
 > p26 the"homogeneous case" is mentioned with a binary case example that is
 > completely uninformative. We have one op, but what are the (t_i,x_i). Why do
@@ -674,40 +691,47 @@ send(v) we get sendTO(v); and when applied to the sequence containing send(x)
 > itself? Or does that force the existence of (t4, x4) ? We shouldn't have to
 > carefully read TwoStepHomoLinSpec (p27) carefully to figure things out. 
 
-*** Try to explain this better.  Maybe give the signature of the spec object. 
+In the automaton, t1, t2, x1, x2 are parameters.   We've tried to make that
+clearer. 
 
 > p28, line 38, the first op in the mapping is op_{i_i}. Should it be op_{i_1}
 > ? Step one afterwards uses op_{i_1}, while op_{i_i} is then used in step 2. 
 
-*** The first one is a typo.
+The first one was a typo; thanks.
 
 > p31, lns 23,24 "This is not a use for which the framework was intended, so
 > we consider it a hack." I have no idea what this means? I assume the
 > referent of "framework" is the linearisation testing framework, but this is
 > the first use of that phrase, and previous use of "testing framework" are
-> just mentions of it. What was the intended use of the framework, and what is
+> just mentions of it. 
+
+We now say "linearisation testing framework". 
+
+> What was the intended use of the framework, and what is
 > it about the proposed use that makes it "hack-like"? 
 
-*** Say "linearisation testing framework".  Maybe remove the word "hack" (but
-    it seems like a standard usage).
+We've removed the word "hack".  But it seems a standard use of the word: using
+an object for a use other than that for which it was designed.
 
 > p31, line 37/38 \bar{op}_1(t) should be \bar{op}_1(t_1) ?
 
-*** Yes
+Yes; corrected, thanks.
 
-> 
 > subsection "Variable-arity synchronisations." (pp33-35) raises a serious
 > limitation of the approach just developed. An alternative approach is given
 > but is dismissed as being "too convoluted". The state diagram on p35 isn't
-> that convoluted. The problem here is that you now proceed into Section 7
+> that convoluted.
+
+We don't dismiss it: we just don't recommend it, as the approach in Section 7
+is far simpler.  We've tried to make that clearer.
+
+>  The problem here is that you now proceed into Section 7
 > with a technique that can't handle timeouts. Even if the direct testing
 > approach in Section 7 can handle timeouts, you have no prior theory that
 > models/specifies it. 
 
-*** It's not dismissed; just not recommended.  Maybe just say that the
-    approaches in the following section are easier.  
+No, we do still have that technique.
 
-> 
 > Lets see what Section 7 says.....
 > 
 > 
@@ -716,23 +740,23 @@ send(v) we get sendTO(v); and when applied to the sequence containing send(x)
 > run threads...". Seems like something you do. Why is discussion of this then
 > deferred to Sec 9? Why not now? What follows describes a different approach,
 > so why have this paragraph here at all? 
-> 
+
+The discussion of experimental results really belongs in Section 9.
+
 > ** Having read Sec9, you should say more about the direct method here - they
 > way you introduce it makes it sound tricky, but the Sec9 results seem pretty
 > good. 
 
-*** Think about this.  The later discussion really does live in the
-    "experiments" section.  Maybe just say here that our experience is that
-    this is straightforward, and omit the reference to Sec 9. 
+We've now said that finding an appropriate duration is straightforward in
+practice.
 
 > p37, Def 17, Lemma 18 - looks fine.
 > 
 > p38 - 2nd paragraph "removing synchronisation edges...". Please give an
 > example of this .
 
-*** Try to come up with a good example. 
+As noted earlier, we've added Figure 8 to illustrate. 
 
-> 
 > 7.2 Complexity - I'm not a complexity expert - I'll skip this.
 > 
 > Sec 8 Implementation - looks fine
@@ -743,31 +767,20 @@ send(v) we get sendTO(v); and when applied to the sequence containing send(x)
 > now makes sense, but Sec. 7 should state that the direct algorithm is being
 > used as a comparison, rather than as a technique proposed by you.
 
-*** No, the direct algorithm is our algorithm.  Make this clear earlier.  This
-    seems to be the point that the reviewer has not understood here. 
+No, the direct algorithm is our algorithm.  We proposed the two classes of
+algorithms, direct and two-step, each of which is a contribution of the paper.
+One goal of the experiments is to compare them. 
 
-> 
 > p49 - This seems to conclude your approach is not better than the direct
 > approach for linearisation testing.
 
-*** That was our conclusion, that our direct algorithms are better. 
+The conclusion is that our direct approach is normally better than our
+two-step approach.
 
-> 
 > Sec 10.
 > What does your approach do that other approaches can't?
 > What does your approach do easier/faster than other approaches?
-> 
 
-In abstract, mention two classes of algorithms.  And in contributions.
-
-
-==================================
-TO DO
-
-** Check definition of two-step linearisability where every op is done in two
-   steps.  -- DONE, by treatment of homogenous case. 
-
-** Proof of Prop 14 is missing some t parameters. 
-
-** Check two-step-linearisable is hyphenated throughout
+To the best of our knowledge, there aren't any other approaches to testing
+synchronisation objects.
 

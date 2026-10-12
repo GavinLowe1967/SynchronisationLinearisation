@@ -17,7 +17,7 @@ $\overline\op_i$ for $i = 1,\ldots,n$.
 %
 The idea is that for a mapping 
 \[
-\seq{\op_{i_i}(x_1), \ldots, \op_{i_a}(x_a)}
+\seq{\op_{i_1}(x_1), \ldots, \op_{i_a}(x_a)}
   \mapsto \sync(x_1,\ldots,x_a)  \in \A,
 \]
 corresponding to a synchronisation of arity~$a$, is linearised in the
@@ -39,7 +39,7 @@ completes.  Thus operations for different synchronisations are not interleaved
 % stage~2; but other operations may occur during stage~3.
 
 During stage~1, the two-step linearisability tester records the prefix of
-$\seq{\op_{i_i}(x_1), \ldots, \op_{i_a}(x_a)}$ performed so far.  This is done
+$\seq{\op_{i_1}(x_1), \ldots, \op_{i_a}(x_a)}$ performed so far.  This is done
 by defining a case class |Op|$_i$ corresponding to each such
 operation~|op|$_i$, as at the top of Figure~\ref{fig:schema}.
 %
@@ -196,7 +196,7 @@ Given a legal history $h_s$
 %%   sync_k^{\vec{i_k}}(\vec{x_k})\::\vec{y_k} }
 %% \end{eqnarray*}
 of |SyncSpec|, a \emph{complete synchronisation history} for~$h_s$ is the
-concenation of the synchronisation subhistories for the events in $h_s$.
+concenation of synchronisation subhistories for the events in $h_s$.
 %% \begin{eqnarray*}
 %% h_s & = & \seq{ sync_1^{\vec{i_1}}(\vec{x_1})\::\vec{y_1}, \ldots,
 %%   sync_k^{\vec{i_k}}(\vec{x_k})\::\vec{y_k} }
@@ -258,7 +258,7 @@ then a call to some $\overline\op_i$ can trigger that, corresponding to the
 relevant $sync$ event; and once all $\overline\op_j$
 operations have retrieved their results, the $\op_j$ operations for the next
 synchronisation can start.  Further, the calls to the operations on~|SyncSpec|
-must correspond to a lagal history of |SyncSpec|.
+must correspond to a legal history of |SyncSpec|.
 
 %% Note that this lemma allows for the case when some pending $\overline\op_i$
 %% events have not yet happened. 
@@ -349,7 +349,7 @@ of |SyncObj|,
 with $\A(\seq{\op_{j_1}(x_1), \ldots, \op_{j_a}(x_a)}) = sync(x_1,\ldots,x_a)$,
 then replace the $sync$ event by the consecutive events
 %
-\(  \op^{i_1}_{j_1}(t_1, x_1)\::(),\; \ldots,\; \op^{i_a}_{j_a}(t_a, x_a)\::(),\;
+\(  \op^{i_1}_{j_1}(t_1, x_1)\::(),\linebreak[1]\; \ldots,\; \op^{i_a}_{j_a}(t_a, x_a)\::(),\;
   \overline{\op}^{i_1}_{j_1}(t_1)\::y_1,\; \ldots,\;
   \overline\op^{i_a}_{l_a}(t_a)\::y_a  \).
 

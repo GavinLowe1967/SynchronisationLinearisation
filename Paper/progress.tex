@@ -74,6 +74,10 @@ the specification object, we say that $h_s$ is a \emph{maximal synchronisation
 \end{itemize}
 \end{definition}
 %
+(In the second bullet point, we consider only single-event extensions
+of~$h_s$.  If no single-event extension is a synchronisation linearisation
+of~$h$, then neither is any longer extension.)
+%
 % Note that a history may have multiple maximal synchronisation linearisations.
 For example, the following history of a synchronous channel
 \begin{eqnarray*}
@@ -279,9 +283,11 @@ be scheduled sufficiently many times that it eventually releases the lock.
 Thus such an object can satisfy synchronisation progressibility.  A similar
 argument holds for a spin lock, but requires assumption~\ref{assump:fair}.
 
-In fact, any synchronisation object without unary synchronisations is
-necessarily not lock-free: if a particular operation is unable to synchronise,
-then it will never return. 
+In fact, any synchronisation object
+% without unary synchronisations is 
+with at least one non-trivial synchronisation (i.e. between at least two
+threads) is necessarily not lock-free: if a particular operation is unable to
+synchronise, then it will never return.
 
 %% By contrast, our assumption, that each unblocked pending execution is
 %% scheduled infinitely often, reflects that modern schedulers \emph{are} fair,

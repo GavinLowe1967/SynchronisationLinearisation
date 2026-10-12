@@ -144,7 +144,7 @@ deadlock.  We performed a number of \emph{runs} of a tester on the
 synchronisation object.  In each run, a particular number of threads performed
 a particular number of operation calls on the synchronisation object; the
 relevant algorithm was then used to decide whether the log history was
-synchronisation-linearisable or two-step linearisable.
+synchronisation-linearisable or two-step-linearisable.
 
 Each \emph{observation} performed multiple runs until an error was detected,
 and recorded the time taken.  Each observation was performed as a separate
@@ -154,7 +154,7 @@ behaviour, and just-in-time compilation.  Thus each observation was as close
 as possible to a normal use case.
 
 For each data point in the experiments, we performed 100 observations.  We
-give the average time to find an arror, and a 95\%-confidence interval for
+give the average time to find an error, and a 95\%-confidence interval for
 that average (following~\cite{GBE2007}).  The number of observations is chosen
 so as to obtain a reasonably small confidence interval, but avoiding
 excessively long experiments.
@@ -218,11 +218,12 @@ The results also suggest that the direct algorithms scale better than the
 two-step tester as the number of threads increases.
 Figure~\ref{fig:scalingExperiment} investigates this further.  Each graph
 considers one type of synchronisation object, with the two plots representing
-the two testers.  Each data point considers a particular number of threads
-(given on the $X$-axis).
-%, with 100 observations.  
-The $Y$-axis again gives the time in milliseconds.  We omit results for cases
-where the two-step tester sometimes ran out of memory.
+the two testers.  Each data point considers a particular number of threads.
+%% (given on the $X$-axis).
+%% %, with 100 observations.  
+%% The $Y$-axis again gives the time in milliseconds.
+%% We omit results for cases
+%% where the two-step tester sometimes ran out of memory.
 
 % scala -cp .:/home/gavin/Scala/Util  experiments.BugParametersExperiment --scalingExperiments --samples 100
 \input{scalingExperiment}

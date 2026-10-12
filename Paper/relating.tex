@@ -141,6 +141,9 @@ way of interleaving the two histories such that
 \item Each $\sm{op}_2^{i_2}(x)\::y$ occurs between $\call.\sm{op}_2^{i_2}(x)$ and
   $\return.\sm{op}_2^{i_2}\::y$.
 \end{itemize}
+%
+(In fact, the $\op_2$ event will occur between the $\op_1$ and
+$\overline\op_1$ events; but this is not a property that we make use of.)
 
 For example, consider a synchronous channel, with |send| corresponding
 to~$\op_1$, and |receive| corresponding to~$\op_2$.  Then the following would
@@ -319,7 +322,7 @@ linearisation.
 Let |SyncObj| be a binary heterogeneous synchronisation object, |SyncSpec| a
 corresponding synchronisation specification object, and let |TwoStepLinSpec|
 be built from |SyncSpec| as above.  Then each history~$h$ of |SyncObj| is
-two-step linearisable with respect to |Two|\-|Step|\-|LinSpec| if and only if
+two-step-linearisable with respect to |Two|\-|Step|\-|LinSpec| if and only if
 it is synchronisation-linearisable with respect to |SyncSpec|.  Hence
 |SyncObj| is two-step-linearisable with respect to |Two|\-|Step|\-|LinSpec| if
 and only if it is synchronisation-linearisable with respect to |SyncSpec|.
@@ -334,9 +337,9 @@ extension $h'$ of~$h$, and a legal history~$h_s$ of |TwoStepLinSpec| such that
 $h_s$ is a  two-step linearisation of $h'' = complete(h')$.
 %
 Build a history~$h_s'$ of |SyncSpec| by replacing each consecutive pair
-$\sm{op}_1^{i_1}(x_1) \:: ()$,\, $\sm{op}_2^{i_2}(x_2) \:: y_2$ in~$h_s$ by
+$\sm{op}_1^{i_1}(t,x_1) \:: ()$,\, $\sm{op}_2^{i_2}(x_2) \:: y_2$ in~$h_s$ by
 the event $\sm{sync}^{i_1,i_2}(x_1,x_2) \:: (y_1,y_2)$, where $y_1$ is the
-value returned by the corresponding~$\overline{\sm{op}}_1^{i_1}()$.
+value returned by the corresponding~$\overline{\sm{op}}_1^{i_1}(t)$.
 %
 This is illustrated by the example timeline below, where $h''$ is represented
 by the horizontal lines and the labels above; $h_s$ is represented by the
@@ -346,9 +349,9 @@ by the horizontal lines and the labels above; $h_s$ is represented by the
 \begin{center}
 \begin{tikzpicture}[xscale = 0.8]
 \draw[|-|] (0,0) -- node[above] {$\send^1(3)\::()$} (7,0);
-\crossAt(1,0){$\send^1(3):()$}
+\crossAt(1,0){$\send^1(t,3):()$}
 %\draw (1, 0) \X; \draw (1,-0.4) node{$\sm{send}^1(3):()$}; 
-\crossAt(6,0){$\overline{\send^1}():()$}
+\crossAt(6,0){$\overline{\send^1}(t):()$}
 %\draw(6,0) \X; \draw(6,-0.4) node{$\overline{\sm{send}^1}():()$};
 %
 \draw[|-|] (2,-1.5) -- node[above] {$\receive^2()\::3$} (5,-1.5);
@@ -384,18 +387,18 @@ linearisation of $h'' = complete(h')$.
 %
 Build a history~$h_s'$ of |TwoStepLinSpec| by replacing each event
 $\sm{sync}^{i_1,i_2}(x_1,x_2) \:: (y_1,y_2)$ in~$h_s$ by the three consecutive
-events $\sm{op}_1^{i_1}(x_1) \:: ()$,\, $\sm{op}_2^{i_2}(x_2) \:: y_2$,\,
-$\overline{\sm{op}}_1^{i_1}() \:: y_1$.
+events $\sm{op}_1^{i_1}(t,x_1) \:: ()$,\, $\sm{op}_2^{i_2}(x_2) \:: y_2$,\,
+$\overline{\sm{op}}_1^{i_1}(t) \:: y_1$.
 
 The history~$h_s'$ is legal for |TwoStepLinSpec| by
 Lemma~\ref{lem:TwoStepLinSpec-histories}.
 %
 It is possible to interleave $h''$ and~$h_s'$ by placing each triple
-$\sm{op}_1^{i_1}(x_1) \:: ()$,\, $\sm{op}_2^{i_2}(x_2) \:: y_2$,\,
-$\overline{\sm{op}}_1^{i_1}() \:: y_1$ in the same place as the corresponding
+$\sm{op}_1^{i_1}(t,x_1) \:: ()$,\, $\sm{op}_2^{i_2}(x_2) \:: y_2$,\,
+$\overline{\sm{op}}_1^{i_1}(t) \:: y_1$ in the same place as the corresponding
 event $\sm{sync}^{i_1,i_2}(x_1,x_2) \:: (y_1,y_2)$ in the interleaving
-of~$h''$ and~$h_s$; by construction, each $\sm{op}_1^{i_1}(x_1) \:: ()$ and
-$\overline{\sm{op}}_1^{i_1}() \:: y_1$ are between
+of~$h''$ and~$h_s$; by construction, each $\sm{op}_1^{i_1}(t,x_1) \:: ()$ and
+$\overline{\sm{op}}_1^{i_1}(t) \:: y_1$ are between
 $\call.\sm{op}_1^{i_1}(x_1)$ and~$\return.\sm{op}_1^{i_1} \:: y_1$; and each
 $\sm{op}_2^{i_2}(x_2) \:: y_2$ is between $\call.\sm{op}_2^{i_2}(x_2)$
 and~$\return.\sm{op}_2^{i_2} \:: y_2$.
