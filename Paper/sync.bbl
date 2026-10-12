@@ -181,8 +181,9 @@ N.~Koval, A.~Fedorov, M.~Sokolova, D.~Tsitelov, D.~Alistarh, Lincheck: A
   \url{https://doi.org/10.1007/978-3-031-37706-8_8}.
 
 \bibitem{VSC23}
-A.~O. Vale, Z.~Shao, Y.~Chen, A compositional theory of linearizability,
-  Proceedings of the ACM on Programming Languages 7 (2023) 1089--1120.
+A.~{Oliveira Vale}, Z.~Shao, Y.~Chen, A compositional theory of
+  linearizability, Proceedings of the ACM on Programming Languages 7 (2023)
+  1089--1120.
 
 \bibitem{dongol-derrick}
 B.~Dongol, J.~Derrick, Verifying linearisability: A comparative survey, ACM

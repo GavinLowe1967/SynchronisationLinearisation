@@ -32,12 +32,12 @@
 \newlabel{def:sync-lin-objects}{{3}{12}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Variations}{13}\protected@file@percent }
 \newlabel{ssec:spec-variations}{{2.4}{13}}
+\newlabel{def:sync-lin}{{4}{14}}
 \citation{Neiger-1994}
 \citation{HRV-2015}
-\newlabel{def:sync-lin}{{4}{15}}
 \newlabel{sec:set-lin-comparison}{{2.4}{15}}
 \@writefile{toc}{\contentsline {paragraph}{Comparison with set linearisation}{15}\protected@file@percent }
-\newlabel{lem:CA-traces}{{5}{16}}
+\newlabel{lem:CA-traces}{{5}{15}}
 \newlabel{prop:set-lin}{{6}{16}}
 \citation{HRV-2015}
 \citation{Neiger-1994}
@@ -72,14 +72,14 @@
 \newlabel{fig:schema}{{5}{32}}
 \newlabel{lem:TwoStepLinSpec}{{19}{33}}
 \citation{wing-gong,gavin:lin-testing}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Linearisability testing}{34}\protected@file@percent }
-\newlabel{sec:lin-testing}{{5}{34}}
 \citation{wing-gong,gavin:lin-testing}
 \citation{faulty-pri-queue}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Adapting the linearisability framework}{35}\protected@file@percent }
-\newlabel{sec:testing-hacking}{{6}{35}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Illustration of two-step linearisation testing. The operation executions are represented by the horizontal lines with labels above (denoted ``$h$'' in Proposition\nobreakspace  {}22\hbox {}). The log entries are represented by the bullets with labels below (denoted ``$h_l$'' in Proposition\nobreakspace  {}22\hbox {}). Linearisation points are represented by crosses with labels below: the penultimate row, labelled ``$h_s$'', is a synchronisation linearisation; the bottom row, labelled ``$h_{2s}$'', is a linearisation of the two-step synchronisation object. Execution identifiers and null arguments and returns are omitted, for clarity.}}{36}\protected@file@percent }
-\newlabel{fig:twostep-timeline}{{6}{36}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Linearisability testing}{35}\protected@file@percent }
+\newlabel{sec:lin-testing}{{5}{35}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Adapting the linearisability framework}{36}\protected@file@percent }
+\newlabel{sec:testing-hacking}{{6}{36}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Illustration of two-step linearisation testing. The operation executions are represented by the horizontal lines with labels above (denoted ``$h$'' in Proposition\nobreakspace  {}22\hbox {}). The log entries are represented by the bullets with labels below (denoted ``$h_l$'' in Proposition\nobreakspace  {}22\hbox {}). Linearisation points are represented by crosses with labels below: the penultimate row, labelled ``$h_s$'', is a synchronisation linearisation; the bottom row, labelled ``$h_{2s}$'', is a linearisation of the two-step synchronisation object. Execution identifiers and null arguments and returns are omitted, for clarity.}}{37}\protected@file@percent }
+\newlabel{fig:twostep-timeline}{{6}{37}}
 \newlabel{prop:twostep-testing}{{22}{37}}
 \@writefile{toc}{\contentsline {paragraph}{Variable-arity synchronisations}{38}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Figure showing why two-step linearisation cannot be used for a timeout channel. Conventions are as in Figure\nobreakspace  {}6\hbox {}.}}{39}\protected@file@percent }
@@ -96,9 +96,9 @@
 \citation{gibbons-korach}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Complexity}{44}\protected@file@percent }
 \newlabel{sec:NP-complete}{{7.2}{44}}
-\citation{ford-fulkerson}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.3}The binary heterogeneous stateless case}{45}\protected@file@percent }
 \newlabel{sec:binary-heterogeneous}{{7.3}{45}}
+\citation{ford-fulkerson}
 \citation{edmonds_1965}
 \citation{Karp1972}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.4}The binary homogeneous stateless case}{46}\protected@file@percent }
@@ -107,38 +107,38 @@
 \newlabel{sec:non-binary-stateless}{{7.5}{46}}
 \@writefile{toc}{\contentsline {section}{\numberline {8}Implementation}{47}\protected@file@percent }
 \newlabel{sec:implementation}{{8}{47}}
-\citation{testing-manual}
 \@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces A simple tester for a synchronous channel. }}{48}\protected@file@percent }
 \newlabel{fig:ChanTester}{{9}{48}}
+\citation{testing-manual}
 \@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces A faulty history for an exchanger, showing a failure of synchronisation linearisability. The left-hand column gives an index for each operation execution.}}{49}\protected@file@percent }
 \newlabel{fig:exchanger-error}{{10}{49}}
 \@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces A faulty history for a synchronous channel, showing a failure of progressibility.}}{49}\protected@file@percent }
 \newlabel{fig:progress-error}{{11}{49}}
-\@writefile{toc}{\contentsline {section}{\numberline {9}Experiments}{49}\protected@file@percent }
-\newlabel{sec:experiments}{{9}{49}}
 \citation{gavin:SCL-CSP}
 \@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Example interfaces of synchronisation objects. }}{50}\protected@file@percent }
 \newlabel{fig:examples}{{12}{50}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}Experiments}{50}\protected@file@percent }
+\newlabel{sec:experiments}{{9}{50}}
 \citation{GBE2007}
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Effect of choices of parameters for testers for a synchronous channel the ABC problem, and a barrier. Each data point represents a particular number $p$ of worker threads (given in the key), and a particular number of operation executions per run by each thread (given on the $X$-axis). The $Y$-axis gives the time in milliseconds.}}{52}\protected@file@percent }
-\newlabel{fig:params-experiment-1}{{13}{52}}
-\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Effect of choices of parameters for testers for a closeable channel. (Axes are as in Figure\nobreakspace  {}13\hbox {}.)}}{53}\protected@file@percent }
-\newlabel{fig:params-experiment-2}{{14}{53}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Effect of choices of parameters for testers for a synchronous channel the ABC problem, and a barrier. Each data point represents a particular number $p$ of worker threads (given in the key), and a particular number of operation executions per run by each thread (given on the $X$-axis). The $Y$-axis gives the time in milliseconds.}}{53}\protected@file@percent }
+\newlabel{fig:params-experiment-1}{{13}{53}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Effect of choices of parameters for testers for a closeable channel. (Axes are as in Figure\nobreakspace  {}13\hbox {}.)}}{54}\protected@file@percent }
+\newlabel{fig:params-experiment-2}{{14}{54}}
 \@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces The effect of increasing the number of threads on the time to find bugs. The $X$-axis gives the number of threads; the $Y$-axis gives the time in milliseconds. We omit results for cases where the two-step tester sometimes ran out of memory.}}{54}\protected@file@percent }
 \newlabel{fig:scalingExperiment}{{15}{54}}
 \@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Times to find bugs affecting synchronisation linearisation.}}{55}\protected@file@percent }
 \newlabel{fig:bugFindingExperiment}{{16}{55}}
-\citation{SCL}
-\citation{CRR-2018}
 \@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Times to find bugs affecting synchronisation progressibility.}}{56}\protected@file@percent }
 \newlabel{fig:progressBugFindingExperiment}{{17}{56}}
-\@writefile{toc}{\contentsline {section}{\numberline {10}Conclusions}{56}\protected@file@percent }
-\newlabel{sec:conc}{{10}{56}}
+\citation{SCL}
+\citation{CRR-2018}
 \citation{Neiger-1994}
 \citation{HRV-2015}
 \citation{CRR-2018,CRR-2023}
 \@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces The signature of a {\sffamily  \color  {ScalaColour}Signal} object (top); and a timeline for a history (bottom).}}{57}\protected@file@percent }
 \newlabel{fig:Signal}{{18}{57}}
+\@writefile{toc}{\contentsline {section}{\numberline {10}Conclusions}{57}\protected@file@percent }
+\newlabel{sec:conc}{{10}{57}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {10.1}Related work}{57}\protected@file@percent }
 \newlabel{sec:related}{{10.1}{57}}
 \@writefile{toc}{\contentsline {paragraph}{Variations of linearisation}{57}\protected@file@percent }
@@ -151,12 +151,13 @@
 \citation{gavin:SCL-CSP}
 \citation{awr:ucs}
 \citation{fdr3}
-\citation{HRV-2015}
-\citation{HSY-2004}
-\citation{HSV13,CHSV2015,DHK15,BEEH18,AHHJR,lincheck,VSC23}
-\citation{dongol-derrick}
 \@writefile{toc}{\contentsline {paragraph}{Testing}{58}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Verification}{58}\protected@file@percent }
+\citation{HRV-2015}
+\citation{HSY-2004}
+\citation{VSC23}
+\citation{HSV13,CHSV2015,DHK15,BEEH18,AHHJR,lincheck}
+\citation{dongol-derrick}
 \bibstyle{elsarticle-num}
 \bibdata{sync}
 \bibcite{H78}{{1}{}{{}}{{}}}

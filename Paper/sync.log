@@ -1,8 +1,8 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2024.3.15)  12 JUL 2026 14:12
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2024.3.15)  12 OCT 2026 11:40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**sync
+**sync.tex
 (./sync.tex
 LaTeX2e <2020-02-02> patch level 2
 L3 programming layer <2020-02-14> (/home/gavin/tex/elsarticle.cls
@@ -686,12 +686,12 @@ Package Listings Info: Made | a short reference for \lstinline on input line 37
 [22] [23] [24] [25] [26]
 Missing character: There is no ; in font nullfont!
  [27]) (./relating2.tex [28] [29]) (./relating3.tex
-[30] [31] [32]
+[30] [31] [32] [33]
 Missing character: There is no ; in font nullfont!
 Missing character: There is no ; in font nullfont!
 Missing character: There is no ; in font nullfont!
 Missing character: There is no ; in font nullfont!
- [33]) (./testing.tex [34] [35]
+) (./testing.tex [34] [35]
 Missing character: There is no ; in font nullfont!
 Missing character: There is no ; in font nullfont!
 Missing character: There is no ; in font nullfont!
@@ -717,7 +717,7 @@ Missing character: There is no ; in font nullfont!
 Missing character: There is no ; in font nullfont!
  [38] [39])
 (./direct.tex [40] [41] [42] [43] [44] [45] [46]) (./implementation.tex
-[47] [48]) (./examples.tex [49] [50] (./BPNall.tex
+[47] [48]) (./examples.tex [49] [50] [51] (./BPNall.tex
 Package pgfplots info on input line 28: Using 'lua backend=false' for axis: xmo
 de=log unsupported (yet).
 Missing character: There is no ! in font nullfont!
@@ -1157,8 +1157,8 @@ Missing character: There is no l in font nullfont!
 Missing character: There is no a in font nullfont!
 Missing character: There is no c in font nullfont!
 Missing character: There is no k in font nullfont!
-) [51] [52]
-(./scalingExperiment.tex) [53] [54] [55]) (./conc.tex [56] [57] [58]
+)
+(./scalingExperiment.tex) [52] [53] [54] [55]) (./conc.tex [56] [57] [58]
 (./sync.bbl [59]
 Underfull \hbox (badness 10000) in paragraph at lines 100--103
 \T1/cmtt/m/n/10 cs . ox . ac . uk / people / gavin . lowe / UnderstandingSynchr
@@ -1177,60 +1177,60 @@ Underfull \hbox (badness 10000) in paragraph at lines 140--143
 ems-[]$$for-[]$
  []
 
-)) [61] (./sync.aux) ) 
+[61])) [62] (./sync.aux) ) 
 Here is how much of TeX's memory you used:
- 26624 strings out of 483183
- 658114 string characters out of 5966292
- 1206125 words of memory out of 5000000
- 41195 multiletter control sequences out of 15000+600000
+ 26629 strings out of 483183
+ 658206 string characters out of 5966292
+ 1297369 words of memory out of 5000000
+ 41200 multiletter control sequences out of 15000+600000
  554611 words of font info for 73 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 73i,20n,127p,959b,2674s stack positions out of 5000i,500n,10000p,200000b,80000s
- </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jkna
-ppen/ec/ectt1000.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jkn
-appen/ec/tcsl0900.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/jk
-nappen/ec/ecss1000.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/j
-knappen/ec/ecsi0900.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/
-jknappen/ec/eccc1000.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour
-/jknappen/ec/tcrm1000.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfou
-r/jknappen/ec/ecsl0900.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfo
-ur/jknappen/ec/ecss0700.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljf
-our/jknappen/ec/ecss0800.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/lj
-four/jknappen/ec/ecrm0600.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/l
-jfour/jknappen/ec/ecss0900.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/
-ljfour/jknappen/ec/ecsx0900.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk
-/ljfour/jknappen/ec/ecrm0700.600pk> </home/gavin/.texlive2019/texmf-var/fonts/p
-k/ljfour/jknappen/ec/ectt0800.600pk> </home/gavin/.texlive2019/texmf-var/fonts/
-pk/ljfour/jknappen/ec/ecrm0800.600pk> </home/gavin/.texlive2019/texmf-var/fonts
-/pk/ljfour/jknappen/ec/ecti1000.600pk> </home/gavin/.texlive2019/texmf-var/font
-s/pk/ljfour/jknappen/ec/ecbx1000.600pk> </home/gavin/.texlive2019/texmf-var/fon
-ts/pk/ljfour/jknappen/ec/ecti0800.600pk> </home/gavin/.texlive2019/texmf-var/fo
-nts/pk/ljfour/jknappen/ec/ecrm1000.600pk> </home/gavin/.texlive2019/texmf-var/f
-onts/pk/ljfour/jknappen/ec/ecrm1440.600pk></usr/share/texlive/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
-/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pf
-b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr
-/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/
-texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/
-texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-di
-st/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts
-/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
-ublic/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/am
-sfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cms
-y5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb>
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/s
-hare/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/te
-xlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/t
-exmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-d
-ist/fonts/type1/public/amsfonts/cm/cmti9.pfb>
-Output written on sync.pdf (61 pages, 579798 bytes).
+ 73i,20n,127p,963b,2674s stack positions out of 5000i,500n,10000p,200000b,80000s
+ </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour/
+jknappen/ec/ectt1000.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfour
+/jknappen/ec/tcsl0900.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfou
+r/jknappen/ec/ecss1000.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljfo
+ur/jknappen/ec/ecsi0900.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/ljf
+our/jknappen/ec/eccc1000.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/lj
+four/jknappen/ec/tcrm1000.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/l
+jfour/jknappen/ec/ecsl0900.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk/
+ljfour/jknappen/ec/ecss0700.600pk> </home/gavin/.texlive2019/texmf-var/fonts/pk
+/ljfour/jknappen/ec/ecss0800.600pk> </home/gavin/.texlive2019/texmf-var/fonts/p
+k/ljfour/jknappen/ec/ecrm0600.600pk> </home/gavin/.texlive2019/texmf-var/fonts/
+pk/ljfour/jknappen/ec/ecss0900.600pk> </home/gavin/.texlive2019/texmf-var/fonts
+/pk/ljfour/jknappen/ec/ecsx0900.600pk> </home/gavin/.texlive2019/texmf-var/font
+s/pk/ljfour/jknappen/ec/ecrm0700.600pk> </home/gavin/.texlive2019/texmf-var/fon
+ts/pk/ljfour/jknappen/ec/ectt0800.600pk> </home/gavin/.texlive2019/texmf-var/fo
+nts/pk/ljfour/jknappen/ec/ecrm0800.600pk> </home/gavin/.texlive2019/texmf-var/f
+onts/pk/ljfour/jknappen/ec/ecti1000.600pk> </home/gavin/.texlive2019/texmf-var/
+fonts/pk/ljfour/jknappen/ec/ecbx1000.600pk> </home/gavin/.texlive2019/texmf-var
+/fonts/pk/ljfour/jknappen/ec/ecti0800.600pk> </home/gavin/.texlive2019/texmf-va
+r/fonts/pk/ljfour/jknappen/ec/ecrm1000.600pk> </home/gavin/.texlive2019/texmf-v
+ar/fonts/pk/ljfour/jknappen/ec/ecrm1440.600pk></usr/share/texlive/texmf-dist/fo
+nts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/pu
+blic/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi
+8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb><
+/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/sh
+are/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/f
+onts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
+nts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.
+pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></u
+sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/shar
+e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texli
+ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb>
+Output written on sync.pdf (62 pages, 579986 bytes).
 PDF statistics:
- 954 PDF objects out of 1000 (max. 8388607)
- 286 compressed objects within 3 object streams
+ 957 PDF objects out of 1000 (max. 8388607)
+ 288 compressed objects within 3 object streams
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

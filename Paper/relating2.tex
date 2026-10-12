@@ -20,7 +20,9 @@ $\overline{\op}_i$ of the specification object, for $i = 1, \ldots, k-1$.
 The construction of the previous subsection is easily adapted to the case of
 $k$-way synchronisations for $k > 2$.  The specification object encodes an
 automaton with $k$ states.  The figure below gives the automaton in the case
-$k = 4$.
+$k = 4$.  (Each $\op_i$ is necessarily performed from a state where
+$\sm{returns}_i(\sm t_i) = \sm{None}$, because each thread alternates between
+$\op_i$ and $\overline\op_i$.)
 %
 \begin{center}
 \begin{tikzpicture}[xscale = 1.0]
@@ -36,21 +38,33 @@ $k = 4$.
   (zero);
 %
 \draw (zero)++(6,0) node[draw] (one) {$\sm{One}(\sm{t}_1, \sm{x}_1)$};
-\draw[->] (zero)  -- node[above] {$\sm{op}_1(\sm{t}_1, \sm{x}_1)$} (one); 
+\draw[->] (zero)  -- node[above] 
+  {$\begin{array}{c}
+    \sm{op}_1(\sm{t}_1, \sm{x}_1)%%  \\
+    %% {[\sm{returns}_1(\sm t_1) = \sm{None}]}
+    \end{array}$} (one); 
 %
-\draw (one)++(0, -2) node[draw] (two) 
+\draw (one)++(0, -2.5) node[draw] (two) 
   {$\sm{Two}(\sm{t}_1, \sm{x}_1, \sm{t}_2, \sm{x}_2)$};
-\draw[->] (one)  -- node[right] {$\sm{op}_2(\sm{t}_2, \sm{x}_2)$} (two); 
+\draw[->] (one)  -- node[right] 
+  {$\begin{align}
+     \sm{op}_2(\sm{t}_2, \sm{x}_2)%%  \\
+    %% {[\sm{returns}_2(\sm t_2) = \sm{None}]}
+    \end{align}$} (two); 
 %
 \draw (two)++(-6, 0) node[draw] (three) 
   {$\sm{Three}(\sm{t}_1, \sm{x}_1, \sm{t}_2, \sm{x}_2, \sm{t}_3, \sm{x}_3)$};
-\draw[->] (two)  -- node[above] {$\sm{op}_3(\sm{t}_3, \sm{x}_3)$} (three); 
+\draw[->] (two)  -- node[below] 
+  {$\begin{array}{c}
+    \sm{op}_3(\sm{t}_3, \sm{x}_3)%% \\
+    %% {[\sm{returns}_3(\sm t_3) = \sm{None}]}
+    \end{array}$} (three); 
 %
 \draw[->] (three)  -- node[left] 
   {$\begin{alignc}\sm{op}_4(\sm{x}_4) \\ 
      \begin{align}
      \mbox{sets $\sm{returns}_1(\sm{t}_1), $} \\
-     \quad \sm{returns}_2(\sm{t}_2), \sm{returns}_3(\sm{t}_3)
+     \quad \sm{returns}_2(\sm{t}_2),  \sm{returns}_3(\sm{t}_3)
      \end{align}
   \end{alignc}$} (zero);
 \end{tikzpicture}
@@ -90,43 +104,37 @@ interleaving of the histories of the synchronisation object and two-step
 specification object, each $\sm{op}^{i}(x)\::()$ and $\overline\op^i()\::y$
 occur between $\call.\op^i(x)$ and $\return.\op^i\::y$, in that order.
 
-\begin{window}[0,r,{%
-\begin{minipage}{50mm} % {45.4mm}
-\begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.53]
-\draw (0,0) node[draw] (zero) {$\sm{Zero}$};
-\draw[->] (zero) ++ (-1.5, 0) -- (zero);
-\loopAbove(zero){$\begin{array}{c}
-  \overline\op(\sm t) \\ {[\sm{returns(t)} \ne \sm{None}]} \\
-  \mbox{clears $\sm{returns(t)}$}
-  \end{array}$}
-%
-\draw (0,-4) node[draw] (one) {$\sm{One}(\sm t_1, \sm{x}_1)$};
-\draw[->] (zero) .. controls ++(0.3,-2) .. 
-  node[right] {$\sm{op}(\sm t_1, \sm{x}_1)$} (one); 
-%
-\draw[->] (one) .. controls ++(-0.3,2) .. 
-  node[left] 
-  {$\begin{alignc}
-    \sm{op}(\sm t_2, \sm x_2) \\ 
-    \begin{align}
-      %\mbox{sets $\sm{returns}(\sm{t}_1), \sm{returns}(\sm{t}_2)$}
-      \mbox{sets $\sm{returns}(\sm{t}_1),$} \\ \quad \sm{returns}(\sm{t}_2)
-    \end{align}
-    \end{alignc}$} 
-  (zero);
-\end{tikzpicture}%
-\end{minipage}
-},]
-%
-\smallskip
-The specification object is in Figure~\ref{fig:TwoStepHomoLinSpec}, and
-encodes the automaton on the right (where threads $\sm t_1$ and $\sm t_2$ each
-call~$\op$, passing in~$\sm x_1$ and $\sm x_2$, respectively; and then
-subsequently, each calls~$\overline\op$).  The second execution of |op| in any
-synchronisation (from the |One| state of the automaton) writes the results of
-the execution into the |returns| array.  Each execution of
-$\overline{\sm{op}}$ returns the stored value.
-\end{window}
+%% \begin{window}[0,r,{%
+%% \begin{minipage}{50mm} % {45.4mm}
+%% \begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.53]
+%% \draw (0,0) node[draw] (zero) {$\sm{Zero}$};
+%% \draw[->] (zero) ++ (-1.5, 0) -- (zero);
+%% \loopAbove(zero){$\begin{array}{c}
+%%   \overline\op(\sm t) \\ {[\sm{returns(t)} \ne \sm{None}]} \\
+%%   \mbox{clears $\sm{returns(t)}$}
+%%   \end{array}$}
+%% %
+%% \draw (0,-4) node[draw] (one) {$\sm{One}(\sm t_1, \sm{x}_1)$};
+%% \draw[->] (zero) .. controls ++(0.3,-2) .. 
+%%   node[right] {$\sm{op}(\sm t_1, \sm{x}_1)$} (one); 
+%% %
+%% \draw[->] (one) .. controls ++(-0.3,2) .. 
+%%   node[left] 
+%%   {$\begin{alignc}
+%%     \sm{op}(\sm t_2, \sm x_2) \\ 
+%%     \begin{align}
+%%       %\mbox{sets $\sm{returns}(\sm{t}_1), \sm{returns}(\sm{t}_2)$}
+%%       \mbox{sets $\sm{returns}(\sm{t}_1),$} \\ \quad \sm{returns}(\sm{t}_2)
+%%     \end{align}
+%%     \end{alignc}$} 
+%%   (zero);
+%% \end{tikzpicture}%
+%% \end{minipage}
+%% },]
+%% %
+%% \smallskip
+
+%\end{window}
 
 %\smallskip
 
@@ -160,6 +168,42 @@ class TwoStepHomoLinSpec{
 \label{fig:TwoStepHomoLinSpec}
 \end{figure}
 
+
+The specification object is in Figure~\ref{fig:TwoStepHomoLinSpec}, and
+encodes the automaton below (where threads $\sm t_1$ and $\sm t_2$ each
+call~$\op$, passing in~$\sm x_1$ and $\sm x_2$, respectively; and then
+subsequently, each calls~$\overline\op$).  The second execution of |op| in any
+synchronisation (from the |One| state of the automaton) writes the results of
+the execution into the |returns| array.  Each execution of
+$\overline{\sm{op}}$ returns the stored value.
+%
+\begin{center}
+\begin{tikzpicture}[>= angle 60, xscale = 0.9, yscale = 0.53]
+\draw (0,0) node[draw] (zero) {$\sm{Zero}$};
+\draw[->] (zero) ++ (-1.5, 0) -- (zero);
+\loopAbove(zero){$\begin{array}{c}
+  \overline\op(\sm t) {[\sm{returns(t)} \ne \sm{None}]} \\
+  \mbox{clears $\sm{returns(t)}$}
+  \end{array}$}
+%
+\draw (6,0) node[draw] (one) {$\sm{One}(\sm t_1, \sm{x}_1)$};
+\draw[->] (zero) .. controls ++(3,0.7) .. 
+  node[above] 
+    {$\sm{op}(\sm t_1, \sm{x}_1)$} % [\sm{returns}(\sm t_1) =  \sm{None}]$}
+  (one); 
+%
+\draw[->] (one) .. controls ++(-3,-0.7) .. 
+  node[below] 
+  {$\begin{alignc}
+    \sm{op}(\sm t_2, \sm x_2) \\ % [\sm{returns}(\sm t_2) =  \sm{None}]\\ 
+    \begin{align}
+      %\mbox{sets $\sm{returns}(\sm{t}_1), \sm{returns}(\sm{t}_2)$}
+      \mbox{sets $\sm{returns}(\sm{t}_1), \sm{returns}(\sm{t}_2)$}
+    \end{align}
+    \end{alignc}$} 
+  (zero);
+\end{tikzpicture}
+\end{center}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Mixed arity
 
 Recall that some operations have multiple modes of synchronisations: different
@@ -255,10 +299,10 @@ The figure below gives the specification automaton for a closeable channel.
   \overline{\send}(\sm t) \\ {[\sm{returns(t)} \ne \sm{None}]}
   \end{array}$}
 %%%%%% One
-\draw (0,-5) node[draw] (one) {$\sm{One}(\sm t, \sm{x})$};
-\draw[->] (zero) .. controls ++(0.3,-2.5) .. 
+\draw (0,-4) node[draw] (one) {$\sm{One}(\sm t, \sm{x})$};
+\draw[->] (zero) .. controls ++(0.3,-2) .. 
   node[right] {$\send(\sm t, \sm{x})$} (one); 
-\draw[->] (one) .. controls ++(-0.3,2.5) .. 
+\draw[->] (one) .. controls ++(-0.3,2) .. 
   node[left] 
   {$\begin{alignc} \receive() \\ \mbox{sets $\sm{returns(t)}$} \end{alignc}$} 
   (zero);
